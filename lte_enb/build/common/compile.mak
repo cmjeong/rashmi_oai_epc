@@ -83,7 +83,7 @@ ENV_FLAGS=-DNO_ERRCLS -DNOERRCHK -DDEBUGP
      -UUE_RAD_CAP -ULTE_START_UL_DL_DELTA -UMAC_RLC_UL_RBUF -UPDCP_RLC_DL_RBUF -USS_DIAG \
      -USLES9_PLUS -UTENB_SPLIT_ARCH 
 RVW_FLAGS=-DCM_PASN_DBG -DLTEMAC_MIMO -DWR_UL_PWR \
-     -DREVIEW -DNL -DTENB_MAX_UE_SUPPORTED=32  
+     -DREVIEW -DNL -DTENB_MAX_UE_SUPPORTED= 512 
 
 # Flags that can be removed when everything works. These flags are not included
 # in the compilation at the moment.
@@ -95,14 +95,14 @@ DEL_FLAGS=-DSS_WL_REGION=1 -DVE_PERF_MEAS -UVE_SUPPORT_RLC_UM_MODE -ULTE_LNX_AFF
 ALL_FLAGS=$(SS_FLAGS) $(CMN_FLAGS) $(ENV_FLAGS) $(RVW_FLAGS) $(TENB_FLAGS) $(LNXENV)
 
 # compiler options:
-C_OPTS+=-g -O3 -pipe -pedantic -Wall -Wno-comment -Wshadow -Wno-unused-function \
+C_OPTS+=-g -O3 -mtune=native  -pipe -pedantic -Wall -Wno-comment -Wshadow -Wno-unused-function \
     -Wcast-qual -fno-strict-aliasing -fsigned-char --std=c99
 #C_OPTS+=-g -pipe -pedantic -Wall -Werror -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char --std=c99
 
 COPTS_WO_PEDANTIC=$(subst -pedantic,,$(COPTS))
 
-xCPP_OPTS+=-g -O3 -pipe -pedantic -Wall -Wno-comment -Wshadow \
+xCPP_OPTS+=-g -O3 -mtune=native -pipe -pedantic -Wall -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ 
 #xCPP_OPTS+=-g -pipe -pedantic -Wall  -Werror -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ 

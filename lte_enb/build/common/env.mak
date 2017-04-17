@@ -44,7 +44,7 @@ BUILD_DIR=$(PWD)
 ROOT_DIR_BRCM =$(patsubst %/build/brcm,%,$(BUILD_DIR))
 ROOT_DIR_INTEL =$(patsubst %/build/intel,%,$(BUILD_DIR))
 ROOT_DIR_PAL =$(patsubst %/build/pal,%,$(BUILD_DIR))
-COM_BUILD_DIR=$(BUILD_DIR)/../common
+COM_BUILD_DIR=$(BUILD_DIR)/common
 export BUILD_DIR
 export ROOT_DIR_BRCM
 export ROOT_DIR_INTEL
