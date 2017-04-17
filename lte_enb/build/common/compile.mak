@@ -95,14 +95,14 @@ DEL_FLAGS=-DSS_WL_REGION=1 -DVE_PERF_MEAS -UVE_SUPPORT_RLC_UM_MODE -ULTE_LNX_AFF
 ALL_FLAGS=$(SS_FLAGS) $(CMN_FLAGS) $(ENV_FLAGS) $(RVW_FLAGS) $(TENB_FLAGS) $(LNXENV)
 
 # compiler options:
-C_OPTS+=-g -O3 -mtune=native  -pipe -pedantic -Wall -Wno-comment -Wshadow -Wno-unused-function \
+C_OPTS+=-g -O3 -march=native  -pipe -pedantic -Wall -Wno-comment -Wshadow -Wno-unused-function \
     -Wcast-qual -fno-strict-aliasing -fsigned-char --std=c99
 #C_OPTS+=-g -pipe -pedantic -Wall -Werror -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char --std=c99
 
 COPTS_WO_PEDANTIC=$(subst -pedantic,,$(COPTS))
 
-xCPP_OPTS+=-g -O3 -mtune=native -pipe -pedantic -Wall -Wno-comment -Wshadow \
+xCPP_OPTS+=-g -O3 -march=native -pipe -pedantic -Wall -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ 
 #xCPP_OPTS+=-g -pipe -pedantic -Wall  -Werror -Wno-comment -Wshadow \
     -Wcast-qual -fno-strict-aliasing -fsigned-char -lstdc++ 
