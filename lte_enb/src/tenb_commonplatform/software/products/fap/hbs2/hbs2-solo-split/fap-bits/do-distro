@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#
+# hbs2-solo-split (fap-bits)
+# FAP distro for solo-split build.  Pulls together tarball as normal for FAP. 
+#
+
+#
+# Lists of files for use by scripts that build tftpall and stop-apps scripts.
+# Common ones are handled automatically.
+#
+FAP_APPS=
+APP_FILES="nas-ggsn l2 l1 cs-user-plane post-office oam-rem oam"
+
+#
+# Do the stuff common for HBS2s.
+#
+TOP=../../../../..
+. $TOP/products/fap/hbs2/etc/do-distro-fap-hbs2
+
+echo "--- hbs2-sip specific ---"
+
+#
+# Copy apps.
+#
+echo "Copying apps."
+FAP_APPS=$FAP_APPS" $TOP/apps/fap/nas-ggsn/obj/$PRODUCT/$HARDWARE/$BUILD/nas-ggsn \
+            $TOP/apps/fap/l1/obj/$PRODUCT/$HARDWARE/$BUILD/l1 \
+            $TOP/apps/fap/l2/obj/$PRODUCT/$HARDWARE/$BUILD/l2 \
+            $TOP/apps/fap/media/cs-user-plane/obj/$PRODUCT/$HARDWARE/$BUILD/cs-user-plane \
+            $TOP/apps/fap/management/oam/obj/$PRODUCT/$HARDWARE/$BUILD/oam \
+            $TOP/apps/fap/management/oam-rem/obj/$PRODUCT/$HARDWARE/$BUILD/oam-rem"
+
+cp $CP_OPTIONS $FAP_APPS $OUTPUT_DIR_APPS
+
+#
+# Overwrite the normal hbs2-sip start-apps.
+#
+echo "Copying new start-apps."
+cp $CP_OPTIONS etc/scripts/start-apps $OUTPUT_DIR_APPS
+
+#
+# Optionally copy .gdb's
+#
+. $TOP/products/fap/hbs2/etc/copy-gdbs
+
+#
+# Copy config files in addition to those in common do-distro scripts.
+#
+echo "Copying config files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/nas-ue-ip-configuration \
+               $TOP/products/fap/etc/config/nas-smsc-configuration \
+               $OUTPUT_DIR_LOCAL_CFG
+
+#
+# ZIP it up for easy install on HBS2.
+#
+if [ -z "$BUILD_QUICK" ] ; then
+  echo "Creating distro tarball."
+  (cd $OUTPUT_DIR && tar -cf $DISTRO_ZIP_FILE_STEM.tar config dbx etc fpga lib)
+else
+  # Remove any old tarball to avoid potential confusion.
+  cd $OUTPUT_DIR; rm -f *.tar*; cd ../../..
+fi
+
+echo "--- done hbs2-sip specific ---"
+
+# END OF SCRIPT

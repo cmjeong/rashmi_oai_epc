@@ -1,0 +1,129 @@
+#!/bin/sh
+# This script is extrapolated from dbxstart to allow network restart
+
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+FLASH_DIR_ETC=$FLASH_DIR_ACTIVE_BANK/etc
+FLASH_DIR_LOCAL_CFG=$FLASH_DIR_ACTIVE_BANK/config
+FLASH_DIR_COMMON_CFG=$FLASH_DIR/config
+FLASH_DIR_FPGA=$FLASH_DIR_ACTIVE_BANK/fpga
+FLASH_DIR_CERT=$FLASH_DIR/certificates
+FLASH_DIR_MODS=$FLASH_DIR_ACTIVE_BANK/lib/modules/`uname -r | sed "s/-svn[0-9]\\+[MmSs]\\?//"`
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+
+# Shutting down network devices
+ifconfig lo down
+ifconfig eth0 down
+
+# Configure the loopback device
+ifconfig lo 127.0.0.1
+
+# Start inetd to allow development access if not already running
+ps | grep -v grep | grep -q inetd
+if [ "$?" = "1" ] ; then
+  inetd &
+fi
+
+# Configure IP stack
+
+# Create directory for interpeak lock file
+mkdir -p /etc/interpeak
+
+# Lower TCP max segment size to avoid fragmentation when using extra headers, e.g. IPsec over PPPoE
+echo 1380 > /proc/sys/net/ipnet/tcp/max_mss
+#echo 7 > /proc/sys/net/ipnet/log_level
+
+# Update IKE configuration files if they do not exist
+if [ ! -s $FLASH_DIR_LOCAL_CFG/ike.sysvar ]; then
+   echo "IKE sys config not found. Setting it to defaults."
+   cp $FLASH_DIR_LOCAL_CFG/ike-defaults.sysvar $FLASH_DIR_LOCAL_CFG/ike.sysvar
+fi
+if [ ! -s $FLASH_DIR_CERT/own/fap_cert.pem ]; then
+   echo "FAP certificate not found. Using a default certificate."
+   cp $FLASH_DIR_CERT/own/fap_default_cert.pem $FLASH_DIR_CERT/own/fap_cert.pem
+fi
+if [ ! -s $FLASH_DIR_CERT/own/fap_priv_key.pem ]; then
+   echo "FAP private key not found. Using a default key."
+   cp $FLASH_DIR_CERT/own/fap_default_priv_key.pem $FLASH_DIR_CERT/own/fap_priv_key.pem
+fi
+
+
+####################
+# ETH0 configuration
+# \/ \/ \/ \/ \/ \/
+static_ip_config_ip_address=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_IP_ADDRESS`
+static_ip_config_netmask=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_NET_MASK`
+static_ip_config_gateway=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_GATEWAY`
+
+# MAC Address
+unit_mac_address=`$FLASH_DIR_APPS/mib-firkler -q UNIT_MAC_ADDRESS`
+if [ $? == 0 ]; 
+then
+    ifconfig eth0 hw ether $unit_mac_address
+else
+    echo "Reading MAC address from u-boot environment."
+    unit_mac_address=`/mnt/dbx/fap-flash u-bootenvread ethaddr | tr -d '\n\r\t '`  
+    if [ $? == 0 ]; 
+    then
+        ifconfig eth0 hw ether $unit_mac_address
+    else
+ 	    echo "MAC address not found!"
+    fi
+fi
+
+dhcp_status=`$FLASH_DIR_APPS/mib-firkler -q DHCP`
+if [ $? != 0 ]; 
+then
+    echo "Failed to detemine if DHCP disabled, fallback to DHCP"
+    dhcp_status=1
+fi
+
+if [ "$dhcp_status" == "0" ];
+then
+
+    # DHCP disabled; verify static ip config
+    static_ip_config_ok=`$FLASH_DIR_APPS/validate-ip-configuration ${static_ip_config_ip_address} ${static_ip_config_netmask} ${static_ip_config_gateway}`
+    if [ $? != 0 ];
+    then 
+        echo "Static IP config inconsistent, fallback to DHCP"
+        $FLASH_DIR_APPS/mib-firkler -q DHCP 1
+        dhcp_status=1
+    fi
+fi
+
+if [ "$dhcp_status" == "1" ];
+then
+    echo "eth0: Pending DHCP configuration"
+    dhcpcd -p &
+    # Give DHCP a chance to obtain an IP address before continuing
+    sleep 6
+        
+else
+    
+    sleep 5
+  
+    ifconfig eth0 down
+    ifconfig eth0 $static_ip_config_ip_address netmask $static_ip_config_netmask
+    ifconfig eth0 up
+    route add default gw $static_ip_config_gateway eth0
+    echo "eth0: mac=$unit_mac_address ip=$static_ip_config_ip_address mask=$static_ip_config_netmask"
+
+fi    
+# /\ /\ /\ /\ /\ /\
+####################
+
+
+# Set window title
+if [ -f $FLASH_DIR_ETC/last-make-download.txt ] ; then
+    LASTD="Last distro download: `cat $FLASH_DIR_ETC/last-make-download.txt | sed 's/^.*at //'`"
+else
+    LASTD=
+fi
+echo '\033]0;HBS2' $LASTD'\007'
+echo "$LASTD"
+
+
+

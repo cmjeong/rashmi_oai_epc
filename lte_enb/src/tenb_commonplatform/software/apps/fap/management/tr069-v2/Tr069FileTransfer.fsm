@@ -1,0 +1,282 @@
+# File Transfer FSM Description
+
+fsm FileTransfer;
+basename Tr069FileTransfer;
+namespace tr069;
+type_header "Tr069FileTransferTypes.h";
+
+type "shared_ptr<FtpCnf>";
+type "shared_ptr<FtpCompleteInd>";
+type "shared_ptr<FtpSessionCommand>";
+type "void*";
+type "shared_ptr<ApplyUpdateCnf>";
+type "shared_ptr<InstallUpdateCnf>";
+type "shared_ptr<ActivateUpdateReq>";
+type "shared_ptr<ActivateUpdateCnf>";
+type "shared_ptr<TransportCnf>";
+
+# Events
+event FtpSessionCommand type "shared_ptr<FtpSessionCommand>";
+event ActivateSoftware type "void*";
+event FtpCnf type "shared_ptr<FtpCnf>";
+event FtpCompleteInd type "shared_ptr<FtpCompleteInd>";
+event TimerExpiry type "void*";
+event FileOk type "void*";
+event ApplyUpdateCnf type "shared_ptr<ApplyUpdateCnf>";
+event InstallUpdateCnf type "shared_ptr<InstallUpdateCnf>";
+event ActivateUpdateCnf type "shared_ptr<ActivateUpdateCnf>";
+event TransportCnf type "shared_ptr<TransportCnf>";
+
+
+# States
+state Idle;
+state AwaitTransportCnf;
+superstate InProcedure;
+	state ActivatingSwPackage;
+superstate WaitFtpThreadResponse;
+	state WaitFtpCnf;
+	state WaitFtpCompleteInd;
+superstate FileTransferSucceeded;
+junction TransferSucceededJunction;
+superstate NewSwPackage;
+junction SwLoad;
+superstate InstallUpdate;
+state InstallUpdateOnly;
+state InstallUpdateThenActivate;
+
+
+
+superstate TransferComplete;
+junction SendResponse;
+junction SendUploadResponse;
+junction SendDownloadResponse;
+junction SendDownloadSucceededResponse;
+junction SendDownloadFailedResponse;
+junction SendDownloadInvalidResponse;
+exit_point ResponseSent;
+exit_point GoInactive;
+
+
+# Guard Conditions
+guard_condition QueryFtpSuccessful;
+guard_condition QueryFtpAlreadyRetried;
+guard_condition QueryUpload;
+guard_condition QuerySwLoad;
+guard_condition QuerySwTransfer;
+guard_condition QueryApplyUpdateSucceeded;
+guard_condition QueryDownloadValid;
+guard_condition QueryInstallUpdateSucceeded;
+guard_condition QueryActivateUpdateSucceeded;
+guard_condition QueryTransportOk;
+
+# Actions
+action SendFtpAbort;
+action StoreFtpCommand;
+action StoreFtpCnfId;
+action ConfigureConnection;
+action StoreFtpCompleteInd;
+action SendUploadSuccess;
+action SendUploadFailed;
+action SendDownloadFailed;
+action RebootIntoNewSwLoad;
+action SendActivateUpdateReq;
+
+# Initial State
+initial_state Idle;
+
+state Idle
+{
+	event FtpSessionCommand action StoreFtpCommand >> AwaitTransportCnf;
+}
+
+state AwaitTransportCnf
+{
+	entry;
+	
+	event TransportCnf
+	{
+		if QueryTransportOk >> InProcedure;
+		else >> Idle;
+	}
+}
+
+
+superstate InProcedure
+{
+	initial_state WaitFtpThreadResponse;
+
+    entry;
+    exit;
+
+	exit_point GoInactive >> Idle;
+    
+    defer FtpSessionCommand;
+    defer ActivateSoftware;
+}
+
+
+
+
+state ActivatingSwPackage
+{
+	superstate InProcedure;
+	
+	# Send "OAM_UPDATE_ACTION_ACTIVATE"
+	entry;
+ 
+	event ActivateUpdateCnf
+	{
+		if QueryActivateUpdateSucceeded action RebootIntoNewSwLoad >> GoInactive;
+		else >> SendDownloadInvalidResponse;
+	}
+}
+
+superstate WaitFtpThreadResponse
+{
+    superstate InProcedure;
+    initial_state WaitFtpCnf;
+    
+    # Guard Timer
+	entry;
+	exit;
+
+	event TimerExpiry action SendFtpAbort;	
+}
+	
+state WaitFtpCnf
+{
+	superstate WaitFtpThreadResponse;
+	entry;
+
+	event FtpCnf action StoreFtpCnfId >> WaitFtpCompleteInd;
+}
+
+state WaitFtpCompleteInd
+{
+	superstate WaitFtpThreadResponse;
+	
+	event FtpCompleteInd
+	{
+		if QueryFtpSuccessful action StoreFtpCompleteInd >> FileTransferSucceeded;
+		elif QueryFtpAlreadyRetried action StoreFtpCompleteInd >> SendResponse;
+		else >> InProcedure;
+	}
+
+	event TimerExpiry action SendFtpAbort;	
+}
+
+superstate FileTransferSucceeded
+{
+	superstate InProcedure;
+	entry;
+	
+	initial_state TransferSucceededJunction;
+
+}
+
+junction TransferSucceededJunction
+{
+	superstate FileTransferSucceeded;
+	
+	if QueryUpload >> SendResponse;
+	elif QuerySwLoad state SwLoad;
+	elif QuerySwTransfer state InstallUpdateOnly;
+	else >> SendResponse;
+}
+
+superstate NewSwPackage
+{
+	superstate FileTransferSucceeded;
+
+}
+
+junction SwLoad
+{
+	superstate NewSwPackage;
+	
+	state InstallUpdateThenActivate;
+}
+
+superstate InstallUpdate
+{
+	superstate NewSwPackage;
+
+	entry;
+
+	event InstallUpdateCnf >> SendDownloadInvalidResponse;
+}
+
+state InstallUpdateOnly
+{
+	superstate InstallUpdate;
+
+	event InstallUpdateCnf
+	{
+		if QueryInstallUpdateSucceeded >> SendResponse;
+	}
+}
+
+state InstallUpdateThenActivate
+{
+	superstate InstallUpdate;
+
+	event InstallUpdateCnf
+	{
+		if QueryInstallUpdateSucceeded >> ActivatingSwPackage;
+	}
+}
+
+superstate TransferComplete
+{
+	superstate InProcedure;
+	
+	exit_point ResponseSent	>> GoInactive;
+}
+
+junction SendResponse
+{
+	superstate TransferComplete;
+
+	if QueryUpload >> SendUploadResponse;
+	else >> SendDownloadResponse;
+}
+
+junction SendUploadResponse
+{
+	superstate TransferComplete;
+	
+	if QueryFtpSuccessful action SendUploadSuccess >> ResponseSent;
+	else action SendUploadFailed >> ResponseSent;
+}
+
+junction SendDownloadResponse
+{
+	superstate TransferComplete;
+	
+	if QueryFtpSuccessful >> SendDownloadSucceededResponse;
+	else >> SendDownloadFailedResponse;
+}
+
+junction SendDownloadSucceededResponse
+{
+	superstate TransferComplete;
+	entry;
+	
+	>> ResponseSent;
+}
+
+junction SendDownloadFailedResponse
+{
+	superstate TransferComplete;
+	entry;
+	
+	>> ResponseSent;
+}
+
+junction SendDownloadInvalidResponse
+{
+	superstate TransferComplete;
+	entry;
+	
+	>> ResponseSent;
+}

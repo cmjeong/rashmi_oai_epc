@@ -1,0 +1,11 @@
+file include/elpspaccdrv.h
+file include/elpspacc.h
+file include/elpspacchw.h
+file include/elpspaccmodes.h
+file include/elpspacc_timer.h
+file include/elpspaccusr.h
+file include/ksd_msg.h
+file include/ntl_lib.h
+file include/histedit.h
+file libntl.so
+file libspaccdev.so

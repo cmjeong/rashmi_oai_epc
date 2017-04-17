@@ -1,0 +1,1483 @@
+#/********************************************************************20**
+#
+#     Name:    S1AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    szac_tc9.xml
+#
+#     Sid:     
+#
+#     Prg:     hsingh 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=9:hsingh:szac_tc9.xml
+
+#
+#
+#       Test:    9.1
+#
+#       Desc:    Verify the Local error indication is invoked for Encoding
+#       issues.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the Local error indication is triggered due to encoding error
+         (out of order)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send HANDOVER REQUEST message (wrong order)
+      <tapa.send>
+
+         <tapa.szt.conreq eventType="SZT_MSG_ID_HO_REQ" procId="SZAC_MME_PROC"
+            peerId="1" spId="1" spConnId="1" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect error indication 
+      <tapa.expect>
+         <tapa.szt.errind eventType="SZT_MSG_ID_PAGING" procId="SZAC_MME_PROC" 
+            peerId="1" suId="1" causeType="SZT_CAUSE_PC_ABS_SYNTAX_ERR" causeValue="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.2
+#
+#       Desc:    Verify paging procedure failure due encode/
+#                decode error.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify paging procedure failure due encode error (transfer syntax
+         error)"
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send PAGING msg MME to ENB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_PAGING" procId="SZAC_MME_PROC" 
+            peerId="1" spId="1" pagDrx="12255677"/>
+      </tapa.send>
+
+      # Expect error indication at MME
+      <tapa.expect>
+         <tapa.szt.errind eventType="SZT_MSG_ID_PAGING" procId="SZAC_MME_PROC" 
+            peerId="1" suId="1" causeType="SZT_CAUSE_PC_TX_SYNTAX_ERR" causeValue="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      <tapa.delay delay="5"/>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.3
+#
+#       Desc:    Verify if Error Ind. Message triggered by S1AP 
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify if HO Request message is recived in an erroneous order, S1AP at
+         the peer (ENB side) would trigger an error indication procedure back to
+         MME side"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send HANDOVER REQUEST from MME to ENB
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_HO_REQ" procId="SZAC_MME_PROC"
+            peerId="1" spId="1" spConnId="1" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect Failure Indication with Choice = Protocol, Cause = "Abstract syntax
+      # error enum" 
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_HO_FAIL" procId="SZAC_MME_PROC"
+            suConnId="1" suId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    9.4
+#
+#       Desc:    Verify if Error Ind. Message triggered by S1AP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify if HO Prep message is recived in an erroneous order, S1AP at
+         the peer (MME) would trigger an error indication procedure back to ENB side"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      # UE context setup
+      <tapa.uecxt.init usrConnId="1" spConnId="1"/>
+
+      # E-RAB setup 
+      <tapa.erab.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send HANDOVER REQUIRED from ENB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_REQD" peerId="2"
+            procId="SZAC_ENB_PROC" spId="0" spConnId="1" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect Failure Indication with Choice = Protocol, Cause = "Abstract syntax
+      # error enum" 
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_HO_PREP_FAIL" peerId="2" 
+            procId="SZAC_ENB_PROC" suId="0"  usrConnId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.5
+#
+#       Desc:    Verify if Error Ind. Message triggered by S1AP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.5">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+        "Verify if the recieved errorneous message (wrong message) is an
+        response message, S1AP at recieving end (ENB) would trigger a local error indication 
+        procedure"
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      # UE context setup
+      <tapa.uecxt.init usrConnId="1" spConnId="1"/>
+
+      # E-RAB setup 
+      <tapa.erab.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send HANDOVER REQUIRED from ENB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_REQD" peerId="2" procId="SZAC_ENB_PROC" spId="0" spConnId="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect HANDOVER REQUIRED at MME
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_MME_PROC" peerId="1" suId="1" usrConnId="1"/>
+      </tapa.expect>
+
+      # Send HANDOVER COMMAND msg from MME to ENB
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_CMD" procId="SZAC_MME_PROC"
+            peerId="1" spId="1" spConnId="1" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect local error indication at ENB, since the recieved message is a
+      # response message.
+      #
+      <tapa.expect>
+         <tapa.szt.errind procId="SZAC_ENB_PROC" peerId="1" suId="0" causeType="SZT_CAUSE_RX_ERRONEOUS_RSP" causeValue="0"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.6
+#
+#       Desc:    Verify the unsuccessful outcome Path switch Request procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful outcome Path switch Request procedure "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send PATH SWITCH REQUEST from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_PATH_SWTCH_REQ" peerId="2" 
+            procId="SZAC_ENB_PROC" spId="0" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication with Choice = Protocol, Cause = "Abstract syntax
+      # error enum" 
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_PATH_SWTCH_REQ_FAIL" procId="SZAC_ENB_PROC"
+            suConnId="1" suId="0"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    9.7
+#
+#       Desc:    Verify the unsuccessful outcome Initial Context Setup procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful outcome Initial Context Setup procedure "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" 
+            procId="SZAC_ENB_PROC" peerId="2" spId="0" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect initial UE at MME
+      <tapa.expect>
+         <tapa.szt.conind eventType="SZT_MSG_ID_INIT_UE_MSG" peerId="1" 
+            procId="SZAC_MME_PROC" suId="1" spConnId="1" usrConnId="2"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.szt.conrsp eventType="SZT_MSG_ID_CXT_SETUP_REQ"
+            procId="SZAC_MME_PROC" peerId="1" spId="1" usrConnId="2"
+            spConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect  INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_INIT_CXT_SETUP_FAIL" peerId="1" 
+            procId="SZAC_MME_PROC" suId="1" usrConnId="2"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.8
+#
+#       Desc:    Verify the unsuccessful outcome S1 Setup procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful outcome S1 Setup procedure "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ"
+            procId="SZAC_ENB_PROC" peerId="2" spId="0" plmnIdVal="999" bug="1"/>
+      </tapa.send>
+
+      # Expect Status Indiaction ASSOC UP at MME and eNB 
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category= "LCM_CATEGORY_PROTOCOL"
+                          event =   "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause =   "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"      
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+
+
+      # Expect S1 SETUP RESPONSE Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_FAIL" procId="SZAC_ENB_PROC" peerId="2" suId="0" choice="SZT_CAUSE_MISC" cause="5"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      <tapa.delay delay="5"/>
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    9.9
+#
+#       Desc:    Verify unsuccessful outcome of UE Context Modification
+#       procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.9">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify unsuccessful outcome of UE Context Modification procedure"
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      # UE context setup
+      <tapa.uecxt.init usrConnId="1" spConnId="1"/>
+
+      # E-RAB setup 
+      <tapa.erab.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an UE CONTEXT MODIFICATION REQUEST message from MME to eNB
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" procId="SZAC_MME_PROC"
+            peerId="1" spId="1" spConnId="1" usrConnId="1" bug="1"/>
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE REQUEST at MME
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_UE_CXT_MOD_FAIL" procId="SZAC_MME_PROC" peerId="1" suId="1" usrConnId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    9.10
+#
+#       Desc:    Verify the unsuccessful eNB configuration update procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful eNB configuration update procedure"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send ENB CONFIGURATION UPDATE from ENB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_ENB_CFG_UPD" peerId="2"
+            procId="SZAC_ENB_PROC" spId="0" bug="1"/>
+      </tapa.send>
+
+      # Expect ENB CONFIGURATION UPDATE FAILURE indication at ENB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_ENB_CFG_UPD_FAIL" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    9.11
+#
+#       Desc:    Verify the unsuccessful MME configuration update procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc9.xml
+#
+#
+<tapa.testcase id="9.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful MME configuration update procedure"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZ_ACC_TST_ESC_FUNC"/>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      # UE context setup
+      <tapa.uecxt.init usrConnId="1" spConnId="1"/>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Hovr Rqst to eNB
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_ENB_PROC" peerId="2" spId="0" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect Hovr Rqst at eNB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send the Hovr Rqst Ack to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_PREP_FAIL" procId="SZAC_MME_PROC" peerId="1" spId="1" bug="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect error indication at eNB
+      <tapa.expect>
+         <tapa.szt.errind eventType="SZT_MSG_ID_HO_REQ" procId="SZAC_ENB_PROC"
+            peerId="2" suId="0" causeType="SZT_CAUSE_RX_ERRONEOUS_RSP" causeValue="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     szac_tc9.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$        ---      vvashishth  1. Updated for S1AP release 3.1
+#*********************************************************************91*/

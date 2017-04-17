@@ -1,0 +1,115 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// TenpinTpm.cpp
+//
+// Copyright radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include <stdio.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "NullTpm.h"
+
+using namespace std;
+using namespace threeway;
+
+namespace threeway
+{
+
+///////////////////////////////////////////////////////////////////////////////
+// Typedefs
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Constants
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Static Data
+///////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<NullTpm> NullTpm::s_instance;
+
+///////////////////////////////////////////////////////////////////////////////
+// Class Functions
+///////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<NullTpm> NullTpm::GetInstance()
+{
+    if (NULL == s_instance)
+    {
+        s_instance.reset(new NullTpm());
+    }
+
+    return s_instance;
+}
+
+bool NullTpm::ExtractFapId(
+    std::string&    fapId
+)
+{
+    bool got = false;
+
+    FILE * fp = fopen("/mnt/config/fap-id", "r");
+
+    if (fp)
+    {
+        char line[16];
+
+        if (fgets(line, sizeof(line), fp))
+        {
+            fapId = line;
+            got = true;
+        }
+
+        fclose(fp);
+    }
+
+    if (!got)
+    {
+        /* default it to ensure success */
+        /* production code will be reading from a real TPM not a file */
+        fapId = "0005B9-D1E17A15";
+    }
+
+    return true;
+}
+
+bool NullTpm::ExtractCertificateToFile(
+    TpmCert         certId,
+    const char *    filename
+)
+{
+    /* do nothing but report success - with no real TPM this must be implemented elsewhere */
+
+    return true;
+}
+
+bool NullTpm::RsaSign(
+    TpmSecEnv       env,
+    TpmPrivKey      keyId,
+    const string &  data,
+    string &        signature
+)
+{
+    /* do nothing but report success - with no real TPM this must be implemented elsewhere */
+
+    return true;
+}
+
+void NullTpm::RegisterCli(
+    shared_ptr<CliHandler>  handler
+)
+{
+    /* do nothing */
+}
+
+} // namespace

@@ -1,0 +1,101 @@
+# This is my comment
+
+fsm CommandLine;
+basename Cli;
+#namespace threeway;
+
+type_header "CliFsmTypes.h";
+
+# Type
+type "void*";
+type "shared_ptr<CliCommand>";
+type "shared_ptr<std::string>";
+type "shared_ptr<CliExecuteCmdProgressInd>";
+type "shared_ptr<CliExecuteCmdCnf>";
+type "shared_ptr<CliExecuteCmdInd>";
+
+# Events
+event Start type "void*";
+event Stop type "shared_ptr<std::string>";
+event CommandLine type "shared_ptr<CliCommand>";
+event Timeout type "void*";
+event CommandComplete type "shared_ptr<CliExecuteCmdCnf>";
+event CommandResponse type "shared_ptr<CliExecuteCmdInd>";
+event CommandProgressing type "shared_ptr<CliExecuteCmdProgressInd>";
+
+state AwaitCommand;
+superstate UserIoThreadRunning;
+state CommandInProgress;
+state Quitting;
+
+guard_condition QueryQuitCommanded;
+guard_condition QueryCommandEmpty;
+guard_condition CommandLineParser;
+
+action FeedbackStopReason;
+action FeedbackProgress; 
+action FeedbackResponse; 
+action FeedbackCompletionResult;
+action FeedbackCommandRejected;
+action FeedbackTimeout;
+
+action SendCommandReq;
+
+initial_state AwaitCommand;
+
+superstate UserIoThreadRunning
+{
+	entry;
+	exit;
+
+	event CommandProgressing action FeedbackProgress;
+}
+
+state AwaitCommand
+{
+	superstate UserIoThreadRunning;
+	
+	# Idle Guard timer (=>Quit)
+	# Issue prompt?
+	entry;
+	exit;
+	
+    event CommandLine
+    {
+        if QueryQuitCommanded >> Quitting;
+        elif QueryCommandEmpty >> AwaitCommand;
+        elif CommandLineParser action SendCommandReq state CommandInProgress;
+        else action FeedbackCommandRejected >> AwaitCommand;
+    }
+    
+    event Stop action FeedbackStopReason >> Quitting;
+
+	event Timeout >> Quitting;
+}
+
+state Quitting
+{
+	entry;
+}
+
+state CommandInProgress
+{
+	superstate UserIoThreadRunning;
+	
+	# Protect with guard-timer
+	entry;
+	exit;
+	
+	event Timeout action FeedbackTimeout >> AwaitCommand;
+	
+	# Could re-enter own state to reset guard-timer.
+	event CommandResponse action FeedbackResponse >> CommandInProgress;
+	
+	event CommandComplete action FeedbackCompletionResult >> AwaitCommand;
+
+    event Stop action FeedbackStopReason >> Quitting;
+
+	defer CommandLine;
+
+}	
+

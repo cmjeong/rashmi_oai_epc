@@ -1,0 +1,402 @@
+
+/** \defgroup CPhy  CPhy Messages
+ * \ingroup Messages
+ * Messages that can be sent to the physical layer for control purposes.
+ * The CPhy interface encapsulates all modem related control functions.  The
+ * interface is stateful and is sub-divided into messages relevant to each
+ * state with a small set of messages for controlling state change.  The
+ * following diagram shows the states for the CPhy interface, where the system
+ * starts up into the pre-initialised state.
+ *
+ * \dot
+ * digraph G {
+ *    PreInit        [fontcolor="blue" URL="\ref CPhyPreInit"]
+ *    NULL           [fontcolor="blue" URL="\ref CPhyNull"]
+ *    NodeB          [fontcolor="blue" URL="\ref CPhyNodeB"]
+ *    RemWCDMA       [fontcolor="blue" URL="\ref CPhyRemWcdma"]
+ *    RemGSM         [fontcolor="blue" URL="\ref CPhyRemGsm"]
+ *
+ *    PreInit->NULL  [label="CphyHwConfigReq", fontcolor="blue", URL="\ref CphyHwConfigReq"]
+ *    NULL->NodeB    [dir=both]
+ *    NULL->RemWCDMA [dir=both]
+ *    NULL->RemGSM   [dir=both label="CphyModeChangeReq", fontcolor="blue", URL="\ref CphyModeChangeReq"]
+ * }
+ * \enddot
+ *
+ * The #CphyHwConfigReq must be sent before any other messages as this contains
+ * parameters required to correctly initialise the hardware, such as the board
+ * type and revision.  Once in NULL state, #CphyModeChangeReq messages can be
+ * used to enter other states, or return from some state to NULL.
+ * @{
+ */
+
+/** \defgroup CPhyPreInit CPhy Pre-initialisation Messages
+ * \ingroup L1Common
+ * Messages that can be sent on the CPhy interface after startup.
+ * Immediately after the startup of Layer 1 it will be in the
+ * pre-initialisation state.  In this state no services are offered until
+ * a #CphyHwConfigReq is received such that the hardware and software can
+ * be correctly initialised for the target platform.
+ */
+
+/** \defgroup CPhyNull CPhy Null Mode Messages
+ * \ingroup L1Common
+ * Messages that can be sent on the CPhy interface when in NULL mode.
+ * Once Layer 1 has been given the hardware configuration it enters NULL mode.
+ * In this mode there is no reception or transmission at the radio, but the
+ * FPGA can be accessed for arbitrary functionality or accelerators.
+ * A #CphyModeChangeReq can be sent to Layer 1 to leave this state and start
+ * an active mode.
+ *
+ * \see CPhyNodeB, CPhyRemWcdma, CPhyRemGsm
+ */
+
+/** \defgroup CPhyNodeB CPhy Node B Messages
+ * \ingroup Cphy
+ * \ingroup L1NodeB
+ * Messages that can be sent on the CPhy interface when in Node-B mode.
+ * Node B operation is when the FAP is configured as a UMTS base station.
+ * Messages on this interface allow control of Node B parameters such as power
+ * levels and channel types.
+ *
+ * \section CPhyNodeBInit Initialisation
+ *
+ * The following message sequence chart shows the messages needed it initialise
+ * Node B operation, assuming that the system starts in NULL state.
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   ---    [label="NULL state"];
+ *   L1<-PS [label="CphyModeChangeReq(L1_MODE_NODEB)", URL="\ref CphyModeChangeReq"];
+ *   ...    [label="FPGAs reload if required"];
+ *   L1->PS [label="CphyModeChangeCnf(L1_SOK)", URL="\ref CphyModeChangeCnf"];
+ *   ---    [label="Node B state"];
+ *   L1<-PS [label="CphyNodeBConfigReq(arfcn, band, ...)", URL="\ref CphyNodeBConfigReq"];
+ *   L1->PS [label="CphyNodeBConfigCnf(L1_SOK)", URL="\ref CphyNodeBConfigCnf"];
+ *   L1<-PS [label="CphyNodeBSccpchConfigReq()", URL="\ref CphyNodeBSccpchConfigReq"];
+ *   L1->PS [label="CphyNodeBSccpchConfigCnf(L1_SOK)", URL="\ref CphyNodeBSccpchConfigCnf"];
+ *   L1<-PS [label="CphyNodeBRachConfigReq()", URL="\ref CphyNodeBRachConfigReq"];
+ *   L1->PS [label="CphyNodeBRachConfigCnf(L1_SOK)", URL="\ref CphyNodeBRachConfigCnf"];
+ *   L1<-PS [label="CphySibMessage(0, ...)", URL="\ref CPhySibMessage"];
+ *   L1<-PS [label="CphySibMessage(1, ...)", URL="\ref CPhySibMessage"];
+ *   ...;
+ *   L1<-PS [label="CphySibMessage(n, ...)", URL="\ref CPhySibMessage"];
+ *   L1<-PS [label="CphyNodeBTxEnableReq(true)", URL="\ref CphyNodeBTxEnableReq"];
+ *   L1->PS [label="CphyNodeBTxEnableCnf(L1_SOK)", URL="\ref CphyNodeBTxEnableCnf"];
+ * \endmsc
+ *
+ * The first step is to change the Node B operating mode to #L1_MODE_NODEB,
+ * after which the cell configuration relating to broadcast channels is setup
+ * with a CphyNodeBConfigReq and a CphySibMessage for each SIB block to be
+ * scheduled.  Once all configuration has been set, the transmitter can be
+ * enabled such that UE's may observe and camp onto the cell if required.
+ *
+ * \section CPhyNodeBPaging Paging
+ *
+ * Once the S-CCPCH has been configured, paging can be scheduled using the
+ * #CphyNodeBPchAddReq.  This message adds a paging block to a database stored
+ * within Layer 1, using the SFN offset and tag to identify the block.  While
+ * in the scheduling roster, the block will be transmitted when:
+ *
+ *    SFN mod (DRX cycle frames) = SFN offset
+ *
+ * This message also gives a bitmap showing the paging indicators that should
+ * be set prior to the PCH block on the S-CCPCH frame such that a selection of
+ * UEs maybe addressed.  The message can be set to either repeat a fixed number
+ * of times, or to expire automatically once broadcast a fixed count of messages.
+ *
+ * Should a message be added to the roster for some SFN offset which is already
+ * occupied, the returned #CphyNodeBPchAddCnf will indicate a failure status.
+ *
+ * The following shows an example of a paging procedure, assuming that the Node
+ * B configuration has already been loaded and configured.
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyNodeBPchAddReq(sfn, tag, pi, ...)", URL="\ref CphyNodeBPchAddReq"];
+ *   L1->PS [label="CphyNodeBPchAddCnf(sfn, tag, L1_SOK)", URL="\ref CphyNodeBPchAddCnf"];
+ *   --- [label="Paging block now broadcast"];
+ *   L1<-PS [label="CphyNodeBPchRemoveReq(sfn, tag)", URL="\ref CphyNodeBPchRemoveReq"];
+ *   L1<-PS [label="CphyNodeBPchRemoveCnf(sfn, tag, L1_SOK)", URL="\ref CphyNodeBPchRemoveCnf"];
+ *   --- [label="Paging block no longer broadcast"];
+ *
+ * \endmsc
+ *
+ * Notable about this interface is that the confirmation messages contain the
+ * \a SFN and \a tag of the request allowing multiple blocks to be added or
+ * removed in parallel (provided they are at different SFN offsets).
+ *
+ * \section CPhyNodeBCctrch Call Setup
+ *
+ * A dedicated channel to some UE is setup with a single message, the
+ * #CphyNodeBCctrchSetupReq.  This gives all parameters required for Layer 1
+ * to setup the channel to the UE together with a possible activation time to
+ * allow synchronisation as to when the channel should first be transmitted
+ * and received.
+ *
+ * Once setup, the Cctrch can be modified by either enabling compressed mode
+ * operation using a #CphyNodeBCompressedModeReq, or completely reconfigured
+ * with a #CphyNodeBCctrchReconfigReq.  The #CphyNodeBCctrchRemoveReq allows
+ * a Cctrch to be terminated.
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyNodeBCctrchSetupReq(ue, ...)", URL="\ref CphyNodeBCctrchSetupReq"];
+ *   L1->PS [label="CphyNodeBCctrchSetupCnf(L1_SOK)", URL="\ref CphyNodeBCctrchSetupCnf"];
+ *   L1->PS [label="CphyNodeBSyncInd(ue)", URL="\ref CphyNodeBSyncInd"];
+ *   ...;
+ *   L1<-PS [label="CphyNodeBCctrchReconfigReq(ue, ...)", URL="\ref CphyNodeBCctrchReconfigReq"];
+ *   L1->PS [label="CphyNodeBCctrchReconfigCnf(L1_SOK)", URL="\ref CphyNodeBCctrchReconfigCnf"];
+ *   ...;
+ *   L1<-PS [label="CphyNodeBCctrchRemoveReq(ue, ...)", URL="\ref CphyNodeBCctrchRemoveReq"];
+ *   L1->PS [label="CphyNodeBCctrchRemoveCnf(L1_SOK)", URL="\ref CphyNodeBCctrchRemoveCnf"];
+ * \endmsc
+ *
+ * While a Cctrch is active, Layer 1 may send #CphyNodeBSyncInd and
+ * #CphyNodeBOutOfSyncInd messages indicating uplink
+ * synchronisation status changes to the protocol stack.
+ *
+ * \section CPhyNodeBActTime Activation Times
+ *
+ * Where activation times specify some action to occur in the future,
+ * confirmations are to be sent normally and at the point the parameters
+ * have been validated and accepted.  The configuration is then assumed
+ * to take place at the scheduled time without any additional messages or
+ * operations.
+ *
+ * There is also currently no provision for cancelling some scheduled
+ * Cctrch operation, other than using a #CphyNodeBCctrchRemoveReq to disable
+ * the channel and any pending activities.
+ *
+ * \section CPhyNodeBPhyRelation Relation to the Data Path
+ *
+ * The \ref Phy defines the means of transporting data between
+ * Layer 1 and the physical layer, but must relate to the configuration setup
+ * by \ref CPhy.  This linkage is made by the #l1_flowid_t type which relates
+ * a block to:
+ *
+ *  - the uplink or downlink.
+ *  - a specific Cctrch by UE number.
+ *  - a TrCh within the defined Cctrch.
+ *
+ * Block received on the uplink will be decoded according to the Cctrch defined
+ * on this interface, then tagged with the appropriate l1_flowid_t prior to
+ * forwarding up the data path.  Downlink blocks are expected to be received
+ * by Layer 1 having already been tagged with the UE number and TrCh such that
+ * the Phy can then select a suitable TFCI and transmit the data.
+ */
+
+/** \defgroup CPhyRemWcdma CPhy REM WCDMA Mode Messages
+ * \ingroup Cphy
+ * \ingroup L1RemWcdma
+ * Messages that can be sent on the CPhy interface when in REM-WCDMA mode.
+ * REM mode provides facilities for the following operations, each of which
+ * are described in the following sub-sections:
+ *
+ *  - Frequency Locking
+ *  - WCDMA neighbour cell identification
+ *  - WCDMA neighbour cell decoding
+ *
+ * \section CPhyRemWcdmaFreqLock Frequency Locking
+ * \subsection CPhyRemWcdamFreqLockCoarse Coarse Frequency Locking
+ *
+ * Coarse frequency locking is only needed if the baseband oscillator could
+ * be more than +/-3.5ppm from the ideal centre frequency.  Typically this
+ * will not be needed.
+ *
+ * The procedure is described in the following message sequence chart:
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyRemWcdmaCoarseFreqLockReq(freqUnlocked=TRUE)", URL="\ref CphyRemWcdmaCoarseFreqLockReq"];
+ *   ...;
+ *   L1->PS [label="CphyRemWcdmaCoarseFreqLockCnf(status)", URL="\ref CphyRemWcdmaCoarseFreqLockCnf"];
+ * \endmsc
+ *
+ * A #CphyRemWcdmaCoarseFreqLockReq is sent to Layer 1 with a UARFCN on which
+ * to search for cells.  The coarse locking procedure will then be executed and
+ * returns whether or not it has succeeded.  The return status in the
+ * #CphyRemWcdmaCoarseFreqLockCnf should be checked for failure cases such that
+ * the procedure maybe retried or attempted on a different candidate UARFCN.
+ *
+ * \subsection CPhyRemWcdamFreqLockFine Fine Frequency Locking
+ *
+ * This can only be performed is the baseband oscillator is known to be within
+ * +/-3.5 of the centre frequency, and will fail otherwise.  The following
+ * message sequence chart shows the messaging.
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyRemWcdmaFindCellReq(freqUnlocked=TRUE)", URL="\ref CphyRemWcdmaFindCellReq"];
+ *   ...;
+ *   L1->PS [label="CphyRemWcdmaFindCellCnf()", URL="\ref CphyRemWcdmaFindCellCnf"];
+ *   L1<-PS [label="CphyRemWcdmaFreqOffsetMeasReq(freqUnlocked=TRUE, updateDac=TRUE)", URL="\ref CphyRemWcdmaFreqOffsetMeasReq"];
+ *   L1->PS [label="CphyRemWcdmaFreqOffsetMeasCnf(status=L1_SOK)", URL="\ref CphyRemWcdmaFreqOffsetMeasCnf"];
+ *   L1<-PS [label="CphyRemWcdmaFreqOffsetMeasReq(freqUnlocked=FALSE, updateDac=TRUE)", URL="\ref CphyRemWcdmaFreqOffsetMeasReq"];
+ *   L1<-PS [label="CphyRemWcdmaFreqOffsetMeasCnf(status=L1_SOK)", URL="\ref CphyRemWcdmaFreqOffsetMeasCnf"];
+ * \endmsc
+ *
+ * The basic scheme is to first perform a coarse cell search and then to attempt
+ * frequency locking to any of the returned cells.  If a coarse lock can be obtained
+ * to some cell, a fine lock may then be attempted by the sending of a
+ * #CphyRemWcdmaFreqOffsetMeasReq with \a freqUnlocked = FALSE.  In many cases
+ * it is likely that the initial #CphyRemWcdmaFindCellReq in unlocked mode will return
+ * false detections, so the two stage locking more quickly discards phantom cells.
+ *
+ * Once the second stage frequency lock has successfully executed, the frequency
+ * will be well within +/-0.35ppm.
+ *
+ * \note Any cell measurements collected at this point should be discarded
+ *       or only used as a comparative measure since their accuracy will be
+ *       greatly reduced due to the lack of fine frequency sync.
+ *
+ * \section CPhyRemWcdamCellSearchDecode Cell Search and Decode
+ *
+ * Cell search and decode can only be accurately attempted when the baseband
+ * oscillator is within +/-0.35ppm of the target cell, as archived by a
+ * successful #CphyRemWcdmaFreqOffsetMeasReq with \a freqUnlocked = FALSE and
+ * \a updateDac = TRUE for the target cell.
+ *
+ * \msc
+ *  L1, PS;
+ *
+ *  L1<-PS [label="CphyRemWcdmaFindCellReq(freqUnlocked=FALSE)"];
+ *  ...;
+ *  L1->PS [label="CphyRemWcdmaFindCellCnf(psc={12, ...})"];
+ *  L1<-PS [label="CphyRemWcdmaFreqOffsetMeasReq(psc=12, freqUnlocked=FALSE, updateDac=TRUE)", URL="\ref CphyRemWcdmaFreqOffsetMeasReq"];
+ *  L1->PS [label="CphyRemWcdmaFreqOffsetMeasCnf(status=L1_SOK)", URL="\ref CphyRemWcdmaFreqOffsetMeasCnf"];
+ *  L1<-PS [label="CphyRemSibDecodeReq(psc=12, start=TRUE)", URL="\ref CphyRemSibDecodeReq"];
+ *  L1->PS [label="CphyRemSibDecodeCnf(status=L1_SOK)", URL="\ref CphyRemSibDecodeCnf"];
+ *  L1->PS [label="CphyRemSibDecodeInd", URL="\ref CphyRemSibDecodeInd"];
+ *  L1->PS [label="CphyRemSibDecodeInd", URL="\ref CphyRemSibDecodeInd"];
+ *  ...;
+ *  L1->PS [label="CphyRemSibDecodeInd", URL="\ref CphyRemSibDecodeInd"];
+ *  L1<-PS [label="CphyRemSibDecodeReq(psc=12, start=FALSE)", URL="\ref CphyRemSibDecodeReq"];
+ *  L1->PS [label="CphyRemSibDecodeInd", URL="\ref CphyRemSibDecodeInd"];
+ *  L1->PS [label="CphyRemSibDecodeCnf(status=L1_SOK)", URL="\ref CphyRemSibDecodeCnf"];
+ *
+ * \endmsc
+ *
+ * The search is started with a #CphyRemWcdmaFindCellReq with \a freqUnlocked=FALSE.
+ * This will accurately identify the PSC for each cell on the requested
+ * frequency and will also determine the SFN alignment of cells such that the
+ * probability of false detection is exceedingly low.  Measurements made at
+ * this point should also be sufficiently accurate to be within 3GPP
+ * requirements.
+ *
+ * If BCH decoding is required for some cell in the result list from a
+ * #CphyRemWcdmaFindCellCnf, a fine frequency lock is advised to ensure minimal
+ * frequency error prior to decoding.  This can be done by sending a
+ * #CphyRemWcdmaFreqOffsetMeasReq for the target cell, again with \a freqUnlocked
+ * set to FALSE and updateDac set to TRUE.  If it is unacceptable to move the
+ * DAC for any reason, a frequency error measurement can be made and decoding
+ * may be attempted with less sensitivity if there is a frequency error.
+ *
+ * BCH decoding is started by sending a #CphyRemSibDecodeReq to Layer 1 with the
+ * PSC of the cell to be decoded and the \a start field set to TRUE.  A
+ * #CphyRemSibDecodeCnf will then be returned with a status indicating either that
+ * BCH decoding is proceeding, or that some error occurred and the procedure
+ * has completed.  Reasons for failure include there already being an ongoing
+ * BCH decode procedure on some other cell, that the requested cell was not
+ * in the list from the last #CphyRemWcdmaFindCellCnf, or that radio paths for the
+ * cell cannot be found.
+ *
+ * In the case that a successful #CphyRemSibDecodeCnf is returned, BCH blocks
+ * will then be returned in #CphyRemSibDecodeInd messages every 20ms.  These
+ * messages contain the CRC status as well as ongoing measurements and the
+ * decoded data.
+ *
+ * Decoding can be stopped by sending a #CphyRemSibDecodeReq with \a start = FALSE.
+ * At this point further #CphyRemSibDecodeInd messages may still be received, until the
+ * stop message is processed.  Once the stop is processed, a #CphyRemSibDecodeCnf
+ * will be sent by Layer 1 after which no further #CphyRemSibDecodeInd messages
+ * will be sent.
+ */
+
+/** \defgroup CPhyRemGsm CPhy REM GSM Mode Messages
+ * \ingroup Cphy
+ * \ingroup L1RemGsm
+ * Messages that can be sent on the CPhy interface when in REM-GSM mode.
+ * REM mode provides facilities for the following operations, each of which
+ * are described in the following sub-sections:
+ *
+ *  - RSSI Scan
+ *  - Cell Search and Decode
+ *  - Frequency Locking
+ *
+ * \section CPhyRemGsmRssiScan RSSI Scan
+ *
+ * On receipt of a CphyRemGsmRssiScanReq the physical layer shall make an RSSI measurement
+ * on each ARFCN specified in the message.
+ * The measured RSSI is returned to the upper layer via the CphyRemGsmRssiScanCnf message.
+ *
+ * A CphyRemGsmRssiScanReq is sent to Layer 1 with a list of ARFCNs on which
+ * the RSSI scan to be performed. This RSSI scan procedure will than be executed
+ * and returns the average rssi value it takes for each frequency.
+ * The averaging is based on five measurements samples per RF carrier spread over 5 seconds.
+ * The measurement samples from the different RF carriers being spread evenly during this period,
+ * which is 1 second.
+ *
+ * The procedure is described in the following message sequence chart:
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyRemGsmRssiScanReq(status,nFrequencies=3,frequency={2,10,50},band)", URL="\ref CphyRemGsmRssiScanReq"];
+ *   ...;
+ *   L1->PS [label="CphyRemGsmRssiScanCnf(status=L1_SOK, rssi={...})", URL="\ref CphyRemGsmRssiScanCnf"];
+ *
+ * \endmsc
+ *
+ *
+ * \section CPhyRemGsmSearchDecode Cell Search and Decode
+ *
+ * Cell searching and decoding are combined into one operation initiated by a
+ * CphyRemGsmFindCellReq.  This message causes Layer 1 to begin searching a
+ * single ARFCN for the strongest cell, the result of which is returned in a
+ * CphyRemGsmFindCellCnf.  If a cell was successfully found, BCCH decoding is
+ * automatically started and continues until stopped with a
+ * CphyRemGsmStopBcchDecodeReq.  Further searches can then be stared after
+ * the reception of either a CphyRemGsmStopBcchDecodeCnf or a
+ * CphyRemGsmFindCellCnf in which no cell was found.
+ *
+ * \msc
+ *   L1, PS;
+ *
+ *   L1<-PS [label="CphyRemGsmFindCellReq(arfcn, band, updataDac)", URL="\ref CphyRemGsmFindCellReq"];
+ *   L1->PS [label="CphyRemGsmFindCellCnf(L1_SOK, arfcn, bsic, freqOffsetHz, dacValue)", URL="\ref CphyRemGsmFindCellCnf"];
+ *   L1->PS [label="CphyRemGsmBcchDecodeInd(status, arfcn, bsic, crcPass, data[184])", URL="\ref CphyRemGsmBcchDecodeInd"];
+ *   ...;
+ *   ...;
+ *   L1->PS [label="CphyRemGsmBcchDecodeInd(status, arfcn, bsic, crcPass, data[184])", URL="\ref CphyRemGsmBcchDecodeInd"];
+ *   L1<-PS [label="CphyRemGsmStopBcchDecodeReq(dummy)", URL="\ref CphyRemGsmStopBcchDecodeReq"];
+ *   L1->PS [label="CphyRemGsmBcchDecodeInd(status, arfcn, bsic, crcPass, data[184])", URL="\ref CphyRemGsmBcchDecodeInd"];
+ *   L1->PS [label="CphyRemGsmStopBcchDecodeCnf(L1_SOK)", URL="\ref CphyRemGsmStopBcchDecodeCnf"];
+ * \endmsc
+ *
+ * \section CPhyRemGsmFreqLock Frequency Locking
+ *
+ * GSM provides much better frequency locking capabilities than WCDMA, and as
+ * such the frequency locking procedure is built into the cell search and
+ * decode.  Very little control of frequency locking is offered to higher
+ * layers, the only direction being the updateDac field of the
+ * CphyRemGsmFindCellReq.
+ *
+ * When set, updateDac causes Layer 1 to adjust the OCXO DAC to remove
+ * any measured frequency error on the cell to which it is attempting lock and
+ * decode.  In such a case, the corresponding CphyRemGsmFindCellCnf will
+ * contain a very small, if not meaningless, freqOffsetHz value since the
+ * offset should have been removed, although the dacValue will indicate the
+ * chosen OCXO DAC setting.  If updateDac is not set, the frequency
+ * error is still measured and reported in the freqOffsetHz, but the DAC
+ * is not altered and the current value will be returned in dacValue.
+ * Depending on the magnitude of the frequency error, this will decrease BCCH
+ * decoding sensitivity and may prevent successful decoding all together.
+ */
+
+ /** @} */

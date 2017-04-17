@@ -1,0 +1,161 @@
+# This FSM models the Connection to a TR069 CWMP Server
+
+fsm CwmpConnection;
+basename Tr069CwmpConnection;
+namespace tr069;
+
+
+type_header "Tr069ServerConnectionFsmTypes.h";
+
+
+# Types
+type "void*";
+type "shared_ptr<TransactionSessionCommand>";
+type "shared_ptr<TransactionSessionComplete>";
+type "shared_ptr<TransportCnf>";
+type "shared_ptr<HmsModifyReq>";
+type "shared_ptr<Shutdown>";
+
+#########
+## Events
+#########
+event HmsModifyReq type "shared_ptr<HmsModifyReq>";
+event StateGuardTimerExpiry type "void*";
+event TransactionSessionCommand type "shared_ptr<TransactionSessionCommand>";
+event TransactionSessionComplete type "shared_ptr<TransactionSessionComplete>";
+event TransportCnf type "shared_ptr<TransportCnf>";
+event RemScanCnf type "void*";
+event Shutdown type "shared_ptr<Shutdown>";
+
+
+# States, Superstates and Junctions
+state HmsConnectionProhibited;
+state AwaitInitialTransactionSession;
+state Idle;
+state AwaitTransportCnf;
+superstate TransactionSessionInProgress;
+	state TransactionSessionProgressing;
+	state ShuttingDownWaitingForTransactionSessionCompletion;
+state Terminate;
+
+# Guard Conditions
+guard_condition QueryIsTr069Enabled;
+guard_condition QueryIsInitialTransactionSession;
+guard_condition QueryFapRebooting;
+guard_condition QueryTransactionSessionSucceded;
+guard_condition QueryFailedTransactionSessionRecoveryMechanismIsToSelectAnotherServer;
+guard_condition QueryFailedTransactionSessionShouldBeIgnored;
+guard_condition QueryTransportOk;
+guard_condition QueryIsReconnectSecGw;
+guard_condition QueryStartInitialTransactionSession;
+
+# Actions
+action StartInitialTransactionSession;
+action StartDelayTimerForInitialTransactionSession;
+action RecordTransactionSession;
+action RecordTransactionSessionResult;
+action SendSecGwModifyReq;
+action RequestReboot;
+action SendLocked;
+
+# Initial State
+initial_state HmsConnectionProhibited;
+
+
+state HmsConnectionProhibited
+{
+	entry;
+	
+	event HmsModifyReq 
+	{
+		if QueryIsReconnectSecGw >> Idle;
+		elif QueryIsTr069Enabled >> AwaitInitialTransactionSession;
+	}
+
+	event Shutdown action SendLocked >> Terminate;
+	defer TransactionSessionCommand;
+}
+
+state AwaitInitialTransactionSession
+{
+	# Request a RemScan
+	# But prevent brick-like behaviour by starting a long timer.
+	entry;
+	# Stop any running timers
+	exit;
+	
+    event TransactionSessionCommand 
+    {
+        if QueryIsInitialTransactionSession action RecordTransactionSession >> AwaitTransportCnf ;
+        elif QueryStartInitialTransactionSession action StartInitialTransactionSession;
+    }
+    
+    # The idea here, is that the RemScanCnf may arrive 
+    # just before a "4 Value Change" TransactionSession,
+    # so start a short timer to allow the 4VC to get here.
+    # As a fallback, if the 4VC doesn't arrive, the expiry
+    # will start the initial session.
+    event RemScanCnf action StartDelayTimerForInitialTransactionSession;
+    event StateGuardTimerExpiry action StartInitialTransactionSession;
+
+	event Shutdown action SendLocked >> Terminate;
+}
+
+state Idle
+{
+    entry;
+    event TransactionSessionCommand  action RecordTransactionSession >> AwaitTransportCnf ;
+	event Shutdown action SendLocked >> Terminate;
+}
+
+state AwaitTransportCnf
+{
+	entry;
+	
+	event TransportCnf
+	{
+		if QueryTransportOk >> TransactionSessionInProgress;
+		else >> HmsConnectionProhibited;
+	}
+	
+	event Shutdown action SendLocked >> Terminate;
+
+	defer TransactionSessionCommand;
+}
+
+superstate TransactionSessionInProgress
+{
+	entry;
+	exit;
+	
+	initial_state TransactionSessionProgressing;
+}
+
+state TransactionSessionProgressing
+{
+	superstate TransactionSessionInProgress;
+
+    event TransactionSessionComplete
+    {
+      if QueryFapRebooting >> Terminate;
+      else action RecordTransactionSessionResult >> Idle;
+	}
+
+	event Shutdown >> ShuttingDownWaitingForTransactionSessionCompletion;
+	
+    defer TransactionSessionCommand;
+}
+
+state ShuttingDownWaitingForTransactionSessionCompletion
+{
+	superstate TransactionSessionInProgress;
+	entry;
+
+	event TransactionSessionComplete action SendLocked >> Terminate;
+}
+
+state Terminate
+{
+	entry;
+}
+

@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 4136 $
+#
+
+mkdir -p /mnt/trace
+
+TRACE_FILE=/mnt/trace/mem-monitor.txt
+APPS="l1l2 l2-user rrc oam iu cs-user-plane ps-user-plane nas-core nas-hlr nas-smsc nas-ggsn sip-relay"
+
+echo "------------------------------" >> $TRACE_FILE
+echo "------------------------------" >> $TRACE_FILE
+echo "--    Memory Monitor v1     --" >> $TRACE_FILE
+echo "------------------------------" >> $TRACE_FILE
+
+while true; do
+
+date >> $TRACE_FILE
+cat /proc/meminfo >> $TRACE_FILE
+
+ps -aux > /dbx/trace/ps.txt
+
+for APP in $APPS
+do
+  NUM_THREADS=`cat /dbx/trace/ps.txt | grep $APP | wc -l`
+  MEM_USAGE=`ps | grep $APP | head -1 | sed '1,1 s/^ *[0-9]* root *\([0-9]*\).*$/\1/'`
+  echo "$APP $NUM_THREADS $MEM_USAGE" >> $TRACE_FILE
+done
+echo "------------------------------" >> $TRACE_FILE
+echo "" >> $TRACE_FILE
+
+sleep 30
+
+done

@@ -1,0 +1,2458 @@
+#!/usr/bin/php
+<?php
+
+
+$fsmTargetLanguage = "Cxx";
+
+
+if( $argc <= 1 )
+{
+ die ("FSM compiler v0.2\n".
+      "Usage: \nfsmc [Options] <fsm_file>\n".
+      " Options:\n" .
+      "  --java   Generate Java code (tdb)\n" );
+}
+
+if(($argc == 3) && ($argv[1] == "--java"))
+{
+  $fsmTargetLanguage = "Java";
+}
+
+
+$fsmFile = fopen( $argv[$argc - 1], 'r');
+if( !$fsmFile )
+{
+ die ("Cannot open FSM file " . $argv[1] . "\n");
+}
+
+error_reporting(~E_NOTICE);
+
+include_once "fsmc_classes.php";
+include_once "fsmc_cxx.php";
+include_once "fsmc_java.php";
+
+
+main();
+
+die("");
+
+
+
+
+
+function main ()
+{
+    global $fsmComponent, $fsmTargetLanguage; 
+    
+	// Convert input file into tokens.
+	global $fsmFile, $fsmFileTokens;
+	generateTokenList( $fsmFile, $fsmFileTokens );
+	//print_r($fsmFileTokens);
+
+	// Covert tokens into statements
+	global $fsmFileStatements;
+	generateStatementList( $fsmFileTokens, 0, count($fsmFileTokens) - 1, $fsmFileStatements );
+	
+	// God state
+	newState( "" );
+	
+	// State hierachy
+	stateHierarchyParse( "", $fsmFileStatements, $fsmComponent );
+	
+	// Parser Go Go Go...
+	topDownParse( );
+	
+	switch($fsmTargetLanguage)
+	{
+		case "Cxx":
+		{
+			GenerateCxx();
+		}
+		break;
+
+		case "Java":
+		{
+			GenerateJava();
+		}
+		break;
+
+		default:
+		{
+			die("Unsupported language ". $fsmTargetLanguage . "\n");
+		}
+		break;
+	}
+	
+	//global $fsmStates;
+	//print_r($fsmStates);
+
+	//global $fsmSuperstates;
+	//print_r($fsmSuperstates);
+
+	//global $fsmComponent;
+	//print_r($fsmComponent);
+}
+
+
+
+function parseFileStatementNamespace( &$statement, &$featureList )
+{
+  addParameterisedFeature( $statement, $featureList );
+}
+
+function stateHierarchyParse( $state, $statementList, &$componentList )
+{
+    foreach( $statementList as $key => $statement )
+    {
+        //echo statementText($statement) . "\n";
+        
+        $statementLength = getStatementLength($statement);
+
+        if($statementLength >= 2)
+        {
+            $first  = getToken($statement);
+            $second = getToken($statement, 1);
+
+            if($state)
+            {
+                global $fsmSuperstates;
+
+                if($first == "superstate")
+                {
+                    if( $fsmSuperstates[$state]  && ($fsmSuperstates[$state] != $second) )
+                    {
+                        error( getLineNumber($statement), "Superstates inconsistent, Both " . $fsmSuperstates[$state] . " and " . $second . " declared for " . $state );
+                    }
+                    else
+                    {
+                        if( $componentList[$second] != "superstate" )
+                        {
+                            error( getLineNumber($statement), "Synatx error: " . $componentList[$second] . " is not a superstates");
+                        }
+                        $fsmSuperstates[$state] = $second;
+                    }
+                }
+                else if ($first == "exit_point")
+                {
+                    if( $fsmSuperstates[$second]  && ($fsmSuperstates[$second] != $state) )
+                    {
+                        error( getLineNumber($statement), "Superstates inconsistent, Both " . $fsmSuperstates[$second] . " and " . $state . " declared for " . $second );
+                    }
+                    else
+                    {
+                        if( $componentList[$state] != "superstate" )
+                        {
+                            error( getLineNumber($statement), "Synatx error: " . $componentList[$state] . " is not a superstate");
+                        }
+                        $fsmSuperstates[$second] = $state;
+                    }
+                }
+            }
+            else
+            if( ($first == "state") || ($first == "superstate")  || ($first == "junction") )
+            {
+            //echo $state . ":" . $first . "," .$second . " " . statementText($statement) . "\n\n";
+              addComponent( $statement, $componentList );
+
+			//print_r($statement);
+              $substatementList = array();
+              generateCompoundStatementStatementList( $statement, $substatementList, $componentList );
+
+              stateHierarchyParse( $second, $substatementList, $componentList );
+            }
+        }
+    }
+}
+
+//////////////////////////////
+// "type_header" statements
+//////////////////////////////
+function parseFileStatementTypesHeader( &$statement, &$featureList, &$component )
+{
+  $featureList["type_header"] = "present";
+  addComponent( $statement, $component );
+}
+
+//////////////////////////////
+// "type" statements
+//////////////////////////////
+function parseTypeDeclaration( $statement, &$component )
+{
+    // Statement: type MyEvent ;
+    addComponent( $statement, $component );
+
+    $typeDeclarationStatement = array();
+    generateCompoundStatementStatementList( $statement, $typeDeclarationStatement, $component );
+
+    switch( count($typeDeclarationStatement) )
+    {
+      case 0:
+      break;
+
+    case 1:
+      error( getLineNumber($statement), "e1435:<not handled yet>" );
+      break;
+
+    default:
+      error( getLineNumber($statement), "Syntax error. Multiple statements following type declaration " );
+      break;
+  }
+}
+
+//////////////////////////////
+// "event" statements
+//////////////////////////////
+function parseEventDeclaration( $statement, &$component )
+{
+  // Statement: event MyEvent ;
+  //            event MyEvent type_statement ;
+  addComponent( $statement, $component );
+
+  $event = getToken($statement, 1);
+
+  $eventDeclarationStatement = array();
+  generateCompoundStatementStatementList( $statement, $eventDeclarationStatement, $component );
+
+  switch( count($eventDeclarationStatement) )
+  {
+      case 0:
+      {
+          global $fsmEventTypes;
+          $fsmEventTypes[ $event ] = "shared_ptr<threeway::Queueable>";
+          
+          addExplicitComponent( "shared_ptr<threeway::Queueable>", "type", getLineNumber($statement), $component );
+      }
+      break;
+
+    case 1:
+      parseEventDeclarationStatement( $event, $eventDeclarationStatement[0] );
+      break;
+
+    default:
+      error( getLineNumber($statement), "Syntax error. Multiple statements following event declaration " . $event );
+      break;
+  }
+}
+
+function parseEventDeclarationStatement( $event, &$statement )
+{
+	assertStatementLength( $statement, 3 );
+	
+    $first = getToken($statement);
+
+    switch( $first )
+    {
+        case "type":
+        {
+            parseEventTypeDeclarationStatement($event, &$statement );
+        }
+        break;
+
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [type], found \"" . $first . "\".");
+            break;
+    }
+            
+}
+
+function parseEventTypeDeclarationStatement( $event, &$statement )
+{
+    global $fsmComponent;
+    
+	assertStatementLength( $statement, 3 );
+	
+    $type = getToken($statement, 1);
+
+    verifyComponent( $type, "type", getLineNumber($statement,1), $fsmComponent );
+
+    global $fsmEventTypes;
+    $fsmEventTypes[ $event ] = $type;
+}
+
+function assertStatementLength( $statement, $expectedLength )
+{
+    if( $expectedLength != getStatementLength( $statement ) )
+    {
+    	print_r($statement);
+        error( getLineNumber($statement), "Syntax error(statement length):" . statementText($statement) . " expected " . $expectedLength . " tokens (found " . getStatementLength( $statement ) . ".)" );
+    }
+}
+
+function parseDeferStatement( &$state, $statement )
+{
+  assertStatementLength( $statement, 3 );
+
+  $eventName = getToken($statement, 1);
+
+  verifyComponent( $eventName, "event", getLineNumber($statement,1), $state->_componentList );
+
+  if( $state->_eventList[$eventName] )
+  {
+    error( getLineNumber($statement), "Re-occurance of event " . $eventName . ".");
+  }
+
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+  $event = &$state->_eventList[$eventName];
+
+  $event->_defer = true;
+  
+  {
+
+  }
+}
+
+
+function parseStateEvent( &$state, $statement )
+{
+  $eventName = getToken($statement, 1);
+
+  verifyComponent( $eventName, "event", getLineNumber($statement,1), $state->_componentList );
+
+  if( $state->_eventList[$eventName] )
+  {
+    error( getLineNumber($statement), "Re-occurance of event " . $eventName . ".");
+  }
+
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+  $event = &$state->_eventList[$eventName];
+
+  $eventStatement = array();
+  generateCompoundStatementStatementList( $statement, $eventStatement, $state->_componentList );
+
+  if( count($eventStatement) )
+  {
+  	parseEventStatement($event, $eventStatement);
+  }
+  else
+  {
+    $event->_unConditionalParsed = "1";
+  }
+}
+
+
+function parseEventStatement( &$event, &$eventStatement )
+{
+	$conditionConstructFound   = false;
+	$unconditionConstructFound = false;
+	
+	foreach( $eventStatement as $key => $statement )
+	{
+		$first = getToken($statement);
+		
+		switch($first)
+		{
+			case "if":
+			case "elif":
+			case "else":
+				$conditionConstructFound = true;
+				
+				if($unconditionConstructFound)
+				{
+					error( getLineNumber($statement), "Conditional action(s)/transition(s) not permitted following unconditional action(s)/transition(s).");
+				}
+				parseReaction( $event, $statement );
+				break;
+			
+			case "action":
+			case "state":
+			case ">>":
+				$unconditionConstructFound = true;
+				
+				if($conditionConstructFound)
+				{
+					error( getLineNumber($statement), "Unconditional action(s)/transition(s) not permitted following guard_conditions.");
+				}
+				
+				if(count($event->_reaction) == 0)
+				{
+					$event->_reaction[count($event->_reaction)] = new EventReaction( $event->_name, $event->_stateName );
+				}
+				else 
+				{
+					if($event->_reaction[count($event->_reaction) - 1]->_internalTransition == false)
+					{
+						error( getLineNumber($statement), "Further action(s)/transition(s) not permitted following state transition.");
+					}
+				}
+								
+				$event->_unConditionalParsed = true;
+				parseActionPlusStateTransition( $event, $statement );
+				break;
+				
+			default:
+				error( getLineNumber($statement), "Syntax error, expecting [if|else|elif|action|state], found \"" . $first . "\".");
+				break;
+		}
+		
+	}
+}
+
+function parseReaction( &$event, $statement )
+{
+  $first = getToken($statement);
+
+  $event->_reaction[count($event->_reaction)] = new EventReaction( $event->_name, $event->_stateName );
+
+  switch( $first )
+  {
+    case "if":
+      if($event->_ifParsed || $event->_unConditionalParsed)
+      {
+        error( getLineNumber($statement), "Syntax error Misplaced if.");
+      }
+      parseReactionCondition( $event, $statement );
+      $event->_ifParsed = true;
+      break;
+
+    case "elif":
+      if( ($event->_ifParsed == false) || $event->_unConditionalParsed)
+      {
+        error( getLineNumber($statement), "Syntax error Misplaced elif.");
+      }
+      parseReactionCondition( $event, $statement );
+      break;
+
+    case "else":
+      if( ($event->_ifParsed == false) || $event->_unConditionalParsed)
+      {
+        error( getLineNumber($statement), "Syntax error Misplaced else.");
+      }
+      $event->_unConditionalParsed = true;
+      parseReactionElseCondition( $event, $statement );
+      break;
+
+    default:
+		error( getLineNumber($statement), "Syntax error event construct, expecting [if|else|elif], found \"" . $first . "\".");
+    	break;
+  }
+}
+
+function parseStateEventStatementCommon( &$event, $statement )
+{
+  global $fsmOverloadableMethods, $fsmEventTypes;
+ 
+  $state = getStateFromName( $event->_stateName );
+
+  $guard_condition = getToken($statement, 1);
+  verifyComponent( $guard_condition, "guard_condition", getLineNumber($statement,1), $state->_componentList );
+
+  $event->_reaction[count($event->_reaction) - 1]->_guard_condition = $guard_condition;
+
+  $fsmOverloadableMethods[$guard_condition]->_cTypeList[$fsmEventTypes[$event->_name]] = $fsmEventTypes[$event->_name];
+
+  //print_r($fsmOverloadableMethods);
+  
+  parseActionPlusStateTransition( $event, $statement );
+}
+
+function parseReactionCondition( &$event, $statement )
+{
+  parseStateEventStatementCommon( &$event, $statement );
+}
+
+function parseReactionElseCondition(  &$event, $statement )
+{
+  $elseStatement = new Statement( $statement->_tokens, 1, count($statement->_tokens) - 1 );
+  
+  parseActionPlusStateTransition( $event, $elseStatement );
+}
+
+function parseActionPlusStateTransition( &$event, $statement )
+{
+  $first = getToken($statement);
+
+  switch( $first )
+  {
+    case "action":
+      parseActionTransaction( $event, $statement );
+      break;
+
+    case ">>":
+    case "state":
+      parseStateTransition( $event, $statement );
+      break;
+      
+    case ";":
+      break;
+        
+    default:
+    	parseActionPlusStateTransitionList($event, $statement);
+	}
+}
+
+function parseActionPlusStateTransitionList( &$event, $statement )
+{
+	$statementList = array();
+	generateCompoundStatementStatementList( $statement, $statementList, getStateFromName( $event->_stateName )->_componentList );
+
+	if(count($statementList) > 0)
+	{
+		foreach( $statementList as $key => $subStatement )
+		{
+			parseActionPlusStateTransition( $event, $subStatement );
+		}
+	}
+}
+
+
+function parseActionTransaction( &$event, $statement )
+{
+  global $fsmOverloadableMethods, $fsmEventTypes;
+  
+  $thisState = getStateFromName( $event->_stateName );
+
+  
+  $actionName = getToken($statement, 1);
+  verifyComponent( $actionName, "action", getLineNumber($statement,1), $thisState->_componentList );
+
+  $reactionNumber = count($event->_reaction) - 1;
+  $actionNumber   = count($event->_reaction[$reactionNumber]->_action);
+  
+  $event->_reaction[$reactionNumber]->_action[$actionNumber] = new Action( $actionName );
+  
+  $fsmOverloadableMethods[$actionName]->_cTypeList[$fsmEventTypes[$event->_name]] = $fsmEventTypes[$event->_name];
+
+  global $fsmActionResults;
+  $actionResults = &$fsmActionResults[ $actionName ];
+  
+  foreach($actionResults as $failure => $void )
+  {
+    if( $thisState->_faultList[$failure] )
+    {
+  	  if( $thisState->_faultList[$failure] != $failure)
+      {
+    	$event->_reaction[$reactionNumber]->_action[$actionNumber]->_faultList[$failure] = $thisState->_faultList[$failure];
+      }
+    }
+  }
+
+  parseAction( $event, $event->_reaction[$reactionNumber]->_action[$actionNumber], $statement, $actionResults );
+}
+
+function parseNthActionTransaction( &$event, $statement, $count )
+{
+  global $fsmOverloadableMethods, $fsmEventTypes;
+  
+  $thisState = getStateFromName( $event->_stateName );
+
+  $actionName = getToken($statement, 1);
+  verifyComponent( $actionName, "action", getLineNumber($statement,1), $thisState->_componentList );
+
+  $reactionNumber = count($event->_reaction) - 1;
+  $actionNumber   = count($event->_reaction[$reactionNumber]->_action);
+  
+  $event->_reaction[$reactionNumber]->_action[$actionNumber] = new Action( $actionName );
+  
+  $fsmOverloadableMethods[$actionName]->_cTypeList[$fsmEventTypes[$event->_name]] = $fsmEventTypes[$event->_name];
+
+  global $fsmActionResults;
+  $actionResults = &$fsmActionResults[ $actionName ];
+  
+  foreach($actionResults as $failure => $void )
+  {
+    if( $thisState->_faultList[$failure] )
+    {
+  	  if( $thisState->_faultList[$failure] != $failure)
+      {
+    	$event->_reaction[$reactionNumber]->_action[$actionNumber]->_faultList[$failure] = $thisState->_faultList[$failure];
+      }
+    }
+  }
+
+  parseAction( $event, $event->_reaction[$reactionNumber]->_action[$actionNumber], $statement, $actionResults );
+}
+
+function writeStateExit( $file, &$state, &$reaction, $spacePrefix )
+{
+  $reactionInheritedFromSuperstate = ($reaction->_stateName != $state->_name);
+
+  if( $reactionInheritedFromSuperstate )
+  {
+    $reactionCausesStateChange = (($reaction->_stateName != $reaction->_viaStateName) || ($reaction->_stateName != $reaction->_targetState));
+  
+  	if( $reactionCausesStateChange )
+  	{
+      $viaState = getStateFromName( $reaction->_viaStateName );
+  	}
+  	else
+  	{
+      $viaState  = $state;
+  	}
+  }
+  else
+  {
+    $viaState = getStateFromName( $reaction->_viaStateName );
+  }
+  
+  addStateExitCode( $file, $state, $viaState, $spacePrefix );
+}
+
+function writeStateTransitionAfterAction( $file, &$state, &$reaction, &$action, $outcome, $spacePrefix )
+{
+    // Original Transition from S1 to S2 via s'
+    // - with alternative transition from S1 to S3 via s' and s"
+    //  S1 --> s' --> S2
+    //         \---------> s" --> S3
+    //
+    // Should now be state s' (aka "viaSate")
+    $thisState = getStateFromName( $reaction->_viaStateName );
+    $nextState = getStateFromName( $reaction->_targetState );
+
+    if( $outcome != "SUCCESS")
+    {
+        $nextState = getStateFromName( $action->_faultList[$outcome] );
+
+        $viaState  = determineViaState( $thisState, $nextState );
+
+        addStateExitCode( $file, $thisState, $viaState, $spacePrefix );
+
+        $thisState = $viaState;
+    }
+
+    addStateEntryCode( $file, $thisState, $nextState, $spacePrefix );
+
+}
+
+function addStateExitCode( $file, &$substate, &$superstate, $spacePrefix )
+{
+  global $fsmTargetLanguage;
+  if( $superstate != $substate)
+  {
+    $commonStateName = nameOfClosestCommonAncestorState( $superstate, $substate );
+
+    if($commonStateName != $superstate->_name)
+    {
+      die($superstate->_name . " does not a contain " . $substate->_name );
+    }
+
+    $statesToExit = stateNestedDepth( $superstate->_name, $substate->_name );
+
+    for( $exits = 0; $exits < $statesToExit; $exits++ )
+    {
+      if ($fsmTargetLanguage == "Cxx")
+      {
+        fwrite( $file, $spacePrefix . "mFsm.mState->Exit();\n");
+      }
+      else if ($fsmTargetLanguage == "Java")
+      {
+        writeFsmJavaClassCallBaseExitStatement( $file, $spacePrefix);
+      }
+    }
+  }
+}
+
+function writeStateEntry( $file, &$state, &$reaction, $spacePrefix )
+{
+  if( $reaction->_internalTransition )
+  {
+    $viaState  = $state;
+    $nextState = $state;
+  }
+  else
+  {
+    $viaState  = getStateFromName( $reaction->_viaStateName );
+    $nextState = getStateFromName( $reaction->_targetState );
+  }
+  
+  addStateEntryCode( $file, $viaState, $nextState,  $spacePrefix );
+}
+
+function addStateEntryCode( $file, &$superstate, &$substate, $spacePrefix )
+{
+  global $fsmTargetLanguage;
+
+  if( $superstate->_name != $substate->_name)
+  {
+    $commonAncestorStateName = nameOfClosestCommonAncestorState( $superstate, $substate );
+
+    if($commonAncestorStateName != $superstate->_name)
+    {
+      die( "Superstate " . $superstate->_name . " does not contain " . $substate->_name . "\n" );
+    }
+
+    $statesToEnter = stateNestedDepth( $superstate->_name, $substate->_name );
+
+    while($statesToEnter-- > 0)
+    {
+      $entryStateName = ancestorStateName( $substate->_name, $statesToEnter );
+
+      if ($fsmTargetLanguage == "Cxx")
+      {
+        fwrite( $file, $spacePrefix . "mFsm.m" . $entryStateName . ".Entry();\n");
+      } 
+      else if ($fsmTargetLanguage == "Java")
+      {
+        writeFsmJavaClassCallStateEntryStatement( $file, $spacePrefix, $entryStateName);
+      }
+
+    }
+  }
+}
+
+function parseStateTransition( &$event, $statement )
+{
+  // Statement: state NextState ;
+
+  // <Todo> In Superstate, $state should be the event-injected sub-state
+  $thisState = getStateFromName( $event->_stateName );
+
+  $thisStateName = $thisState->_name;
+  $nextStateName = getToken($statement, 1);
+
+  // Verify against "state" OR "superstate" etc
+  verifyComponent( $nextStateName, "state junction superstate exit_point", getLineNumber($statement,1), $thisState->_componentList  );
+  assertStatementLength( $statement,  3 );
+
+  $nextState = getStateFromName( $nextStateName );
+  $viaState  = determineViaState( $thisState, $nextState );
+
+  if( ";" == getToken($statement, -1) )
+  {
+    $event->_reaction[count($event->_reaction) - 1]->_targetState        = $nextState->_name;
+    $event->_reaction[count($event->_reaction) - 1]->_viaStateName       = $viaState->_name;
+    $event->_reaction[count($event->_reaction) - 1]->_internalTransition = false;
+  }
+  else
+  {
+    error( getLineNumber($statement,1), "Syntax Error in state transition, missing \";\"?.");
+  }
+}
+
+
+function AssertTransitionIntoStateIsValid( $stateName )
+{
+ 	global $fsmComponent;
+
+	while("superstate" == $fsmComponent[ $stateName ])
+	{
+	    $state = getStateFromName($stateName);
+	    
+		if(!$state->_eventList["initial_state"])
+		{
+		    print_r($state);
+			error( "EOF", "Error: Transition to superstate (" .  $stateName . ") with no initial_state (or initial_state unknown yet).");
+		}
+		
+		foreach( $state->_eventList["initial_state"]->_reaction as $key => $reaction)
+		{
+			AssertTransitionIntoStateIsValid( $reaction->_targetState );
+
+			foreach( $reaction->_action as $actionIdx => $action)
+			{
+				foreach( $action->_faultList as $fault => $nextStateName)
+				{
+					AssertTransitionIntoStateIsValid( $nextStateName );
+				}
+			}
+		}
+		$stateName = getStateFromName($stateName)->_featureList["initial_state"];
+	}
+}
+
+
+function nameOfClosestCommonAncestorState( &$stateX, &$stateY )
+{
+  $xNestedDepth = stateNestedDepth( "", $stateX->_name );
+  $yNestedDepth = stateNestedDepth( "", $stateY->_name );
+
+  if( $xNestedDepth > $yNestedDepth )
+  {
+    $stateName1 = $stateY->_name;
+    $stateName2 = ancestorStateName( $stateX->_name, $xNestedDepth - $yNestedDepth );
+  }
+  else if( $xNestedDepth < $yNestedDepth )
+  {
+    $stateName1 = $stateX->_name;
+    $stateName2 = ancestorStateName( $stateY->_name, $yNestedDepth - $xNestedDepth );
+  }
+  else
+  {
+    $stateName1 = ancestorStateName( $stateX->_name, 1 );
+    $stateName2 = ancestorStateName( $stateY->_name, 1 );
+  }
+
+  while( $stateName1 != $stateName2 )
+  {
+    $stateName1 = getSuperstateName ( $stateName1 );
+    $stateName2 = getSuperstateName ( $stateName2 );
+  } 
+
+  //echo "nameOfClosestCommonAncestorState(" . $stateX->_name . "," . $stateY->_name . ") = " . $stateName1 . ";\n";
+
+  return $stateName1;
+}
+
+function ancestorStateName( $stateName, $generations )
+{
+  if($generations > 0)
+  {
+    return ancestorStateName( getSuperstateName( $stateName ), $generations - 1 );
+  }
+
+  return $stateName;  
+}
+
+function stateNestedDepth( $superstateName , $stateName )
+{
+  //echo "Get stateNestedDepth of " . $stateName . " within " . $superstateName . "\n";
+
+  if( $stateName != $superstateName )
+  {
+    return 1 + stateNestedDepth( $superstateName, getSuperstateName( $stateName ));
+  }
+
+  return 0;  
+}
+
+function getSuperstateName ( $stateName )
+{
+  global $fsmSuperstates;
+
+  //echo "Get superstate of " . $state . "\n";
+  //print_r( $stateName );
+
+  if( $stateName == "" )
+  {
+    error( "EOF", "FSM Hierarchy error detected. Please check superstate relationships." );
+  }
+
+  return $fsmSuperstates[$stateName];
+}
+
+
+function parseStateFault( $state, $statement )
+{
+  $fault = getToken($statement, 1);
+
+  verifyComponent( $fault, "fault", getLineNumber($statement,1), $state->_componentList );
+
+  parseFaultStatement( $fault, $statement, $state->_componentList, $state->_faultList );
+}
+
+function parseFaultDeclaration( $statement, &$componentList )
+{
+    global $fsmFaults;
+    
+    addComponent( $statement, $componentList );
+    
+    $fault = getToken($statement, 1);
+  
+    if( $fsmFaults[$fault] )
+    {
+        error( getLineNumber($statement,1), "Re-declaration of fault " . $fault );
+    }
+
+	parseFaultStatement( $fault, $statement, $componentList, $fsmFaults );
+}
+    
+function parseFaultStatement( $fault, $statement, &$componentList, &$faultList )
+{
+    $faultList[$fault] = $fault;      
+    
+    $faultStatement = array();
+    generateCompoundStatementStatementList( $statement, $faultStatement, $componentList );
+
+    switch( count( $faultStatement ) )
+    {
+      case 0:
+        break;
+        
+      case 1;
+	    foreach( $faultStatement as $key => $substatement )
+	    {
+	      parseFaultStateStatement( $fault, $substatement, $componentList, $faultList );
+	    }
+	    break;
+	    
+	  default:
+	    error ( getLineNumber($statement,1), "Syntax error: Multple sub-statements." );
+	    break;
+	}
+}
+ 
+function parseFaultStateStatement( $fault, $statement, &$componentList, &$faultList )
+{
+  // Statement: state A_STATE ;
+
+  $stateName = getToken($statement, 1);
+
+  verifyComponent( $stateName, "state junction superstate", getLineNumber($statement,1), $componentList );
+  assertStatementLength( $statement,  3 );
+
+  $faultList[ $fault ] = $stateName;
+}
+
+
+function parseGuardConditionDeclaration( $statement, &$componentList )
+{
+  global $fsmComponent, $fsmOverloadableMethods;
+
+  assertStatementLength( $statement,  3 );
+
+  // Statement: guard_condition MyCondition ;
+  addComponent( $statement, $componentList );
+
+  $guardCondition = getToken($statement, 1);
+  
+
+  $fsmOverloadableMethods[$guardCondition] = new OverloadedMethod($guardCondition);
+
+  //print_r($fsmOverloadableMethods);
+}
+
+
+function parseFileStatementJunction( $statement, &$componentList )
+{
+  addComponent( $statement, $componentList );
+
+  // junction MyJunction ;
+  // or
+  // junction MyJunction { TokenList ; }
+
+  $junctionName = getToken($statement, 1);
+
+  newState( $junctionName );
+
+  if( ";" == getToken($statement, -1) )
+  {
+    assertStatementLength( $statement, 3 );
+  }
+  else
+  {
+    if( getStateFromName($junctionName) )
+    {
+      parseJunction( $junctionName, $statement );
+    }
+    else
+    {
+      error( getLineNumber($statement), "Junction not previously declared");
+    }
+  }
+
+}
+
+function parseFileStatementExitPoint( $statement, &$componentList )
+{
+  addComponent( $statement, $componentList );
+
+  // exit_point MyExitPoint ;
+
+  $exitPointName = getToken($statement, 1);
+
+  newState( $exitPointName );
+
+  assertStatementLength( $statement, 3 );
+}
+
+
+
+function parseActionDeclaration( $statement, &$componentList )
+{
+  global $fsmComponent, $fsmOverloadableMethods;
+
+  // Statement: action MyAction ;
+  //            action MyAction fault_statement ;
+  //            action MyAction { fault_statements; } 
+  addComponent( $statement, $componentList );
+
+  $action = getToken($statement, 1);
+  
+  global $fsmActionResults;
+  $actionResults = &$fsmActionResults[ $action ];
+
+  $actionResults["SUCCESS"] = "SUCCESS";
+
+  $fsmOverloadableMethods[$action] = new OverloadedMethod($action);
+
+  //print_r($fsmOverloadableMethods);
+
+  $actionStatement = array();
+  generateCompoundStatementStatementList( $statement, $actionStatement, $componentList );
+
+  foreach( $actionStatement as $key => $substatement )
+  {
+    parseActionDeclarationStatement( $action, $substatement, $componentList, $actionResults );
+  }
+
+}
+
+function parseActionDeclarationStatement( $action, $statement, &$componentList, &$actionResults )
+{
+  // Statement: fault A_FAULT ;
+
+  $fault = getToken($statement, 1);
+  verifyComponent( $fault, "fault", getLineNumber($statement,1), $componentList );
+
+  $actionResults[ $fault ] = $fault;
+}
+
+
+function parseAction( &$event, &$action, $statement, &$actionResults )
+{
+	$actionStatements = array();
+	generateCompoundStatementStatementList( $statement, $actionStatements, getStateFromName( $event->_stateName )->_componentList );
+
+	$stateParsed = false;
+	$faultParsed = false;
+
+	foreach( $actionStatements as $key => $substatement )
+	{
+		parseActionStatement($event, $action, $substatement, $actionResults, $stateParsed, $faultParsed );
+	}
+}
+
+function parseActionStatement( &$event, &$action, $statement, &$actionResults, &$stateParsed, &$faultParsed )
+{
+	$first = getToken($statement);
+
+	switch( $first )
+	{
+		case "?":
+		case "fault":
+		{
+			parseActionStatementFault( $event, $action, $statement, $actionResults );
+			$faultParsed = true;
+		}
+		break;
+
+		case ">>":
+		case "state":
+		{
+			if( $faultParsed || $stateParsed )
+			{
+				error( getLineNumber($statement), "Syntax error, Multiple states (single state must prefix any fault" );
+			}
+			$stateParsed = true;
+			parseStateTransition( $event, $statement );
+		}
+		break;
+
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [fault|state], found \"" . $first . "\".");
+			break;
+	}
+}
+
+
+function parseActionStatementFault( &$event, &$action, &$statement, &$actionResults )
+{
+  $state = getStateFromName( $event->_stateName );
+
+  $fault    = getToken($statement, 1);
+  verifyComponent( $fault, "fault", getLineNumber($statement,1), $state->_componentList );
+
+  $enum = "FSM_ACTION_" . $fault;
+
+  if( $actionResults[ $fault ] == "" )
+  {
+    global $fsmActionResults;
+    print_r( $fsmActionResults );
+    error( getLineNumber($statement,1), "Fault " . $fault . " not expected from action " . $action->_name );
+  }
+
+  $faultStatement = array();
+  generateCompoundStatementStatementList( $statement, $faultStatement, getStateFromName( $event->_stateName )->_componentList );
+
+  switch ( count($faultStatement) )
+  {
+
+    case 0 :
+    {
+      break;
+    }
+
+    case 1 :
+    {
+      $substatement = $faultStatement[0];
+      
+      // state MyState ;
+
+      $stateName = getToken($substatement, 1);
+      // Todo varify state || superstate
+      verifyComponent( $stateName, "state junction superstate", getLineNumber($substatement,1), $state->_componentList );
+
+      $thisState = getStateFromName( $event->_reaction[count($event->_reaction) - 1]->_viaStateName );
+      $nextState = getStateFromName( $stateName );
+      $viaState  = determineViaState( $thisState, $nextState );
+
+      AssertTransitionIntoStateIsValid( $nextState->_name );
+      $action->_faultList[$fault] = $nextState->_name;
+      break;
+    }
+
+	default:
+      error( getLineNumber($statement,1), "e1089:Syntax error near fault");
+  }
+}
+
+function parseInitialStateSimpleForm( &$state, $statement )
+{
+  // initial_state MySubState ;
+
+  $eventName = "initial_state";
+
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+  $state->_eventList[$eventName]->_unConditionalParsed = true;
+  $state->_eventList[$eventName]->_reaction[0] = new EventReaction( $eventName, $state->_name );
+
+  $event = &$state->_eventList[$eventName];
+
+  parseStateTransition( $event, $statement);
+  
+}
+
+function parseInitialStateComplexForm( &$state, $statement )
+{
+  $eventName = "initial_state";
+
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+  $event = &$state->_eventList["initial_state"];
+
+  $initialStateStatements = array();
+  generateCompoundStatementStatementList( $statement, $initialStateStatements, $state->_componentList );
+
+  parsePseudoStateStatement( $event, $initialStateStatements );
+
+  if( !$state->_eventList[$eventName]->_unConditionalParsed )
+  {
+      error( getLineNumber($statement), "No unconditional transition " . $first . " in " . statementText($statement) );
+  }  
+
+  $state->_status = "defined";
+}
+
+function parseSuperstateStatementInitialState( &$state, $statement )
+{
+  // initial_state MyInitialState ;
+  // or
+  // initial_state { TokenList ; }
+
+  if( ";" == getToken($statement, -1) )
+  {
+    parseInitialStateSimpleForm( $state, $statement );
+  }
+  else
+  {
+    parseInitialStateComplexForm( $state, $statement );
+  }
+
+  foreach( $state->_eventList["initial_state"]->_reaction as $key => $reaction )
+  {
+    if($reaction->_viaStateName != $state->_name)
+    {
+      //print_r($reaction);
+      //print_r($state);
+
+      error(getLineNumber($statement,1) , "Error: State " . $state->_name . " has initial_state (" . $reaction->_targetState . "), which is not a valid sub-state." );
+    }
+  }
+}
+
+
+
+function parseExitPointSimpleForm( &$state, $statement )
+{
+  // exit_point MyExitPoint >> MyNextState ;
+  
+  $eventName = "initial_state";
+
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+  $state->_eventList[$eventName]->_unConditionalParsed = true;
+  $state->_eventList[$eventName]->_reaction[0] = new EventReaction( $eventName, $state->_name );
+
+  $event = &$state->_eventList[$eventName];
+
+  parseStateTransition( $event, $statement);
+  
+}
+
+function parseSuperstateExitPoint( &$state, $statement )
+{
+  // exit_point MyExitPoint >> MyNextState ;
+  // or 
+  // exit_point MyExitPoint { Tokens ; }
+
+  $exitPointName = getToken($statement, 1);
+
+  newState( $exitPointName );
+
+  $exitPoint = getStateFromName( $exitPointName );
+
+  $exitPoint->_componentList = $state->_componentList;
+  $exitPoint->_faultList     = $state->_faultList;
+
+  $eventName = "*";
+
+  $exitPoint->_eventList[$eventName] = new Event( $eventName, $exitPoint->_name );
+  $event = &$exitPoint->_eventList[$eventName];
+
+  generateCompoundStatementStatementList( $statement, $exitPoint->_statements, $state->_componentList );
+
+  parsePseudoStateStatement( $event, $exitPoint->_statements );
+  
+  if( !$exitPoint->_eventList[$eventName]->_unConditionalParsed )
+  {
+      error( getLineNumber($statement), "No unconditional transition " . $first . " in " . statementText($statement) );
+  }  
+
+  $exitPoint->_status = "defined";
+}
+
+
+
+
+function parseFilesStatementInitialState( &$statement, &$featureList )
+{
+  addParameterisedFeature( $statement, $featureList );
+
+  // initial_state MyState ;
+  global $fsmComponent;
+
+  $state = getToken($statement, 1);
+
+  // Must be state, for now - superstate's would make it more difficult!
+  // Will need post-parse step to verify initial-state is actually inside
+  // this state.
+  if( "state" != $fsmComponent[$state] )
+  {
+    #error(getLineNumber($statement,1) , "Syntax error(l): initial_state " . $state . " unknown." );
+  }
+
+}
+
+
+function parseStateStatementSuperstate( &$statement, &$featureList )
+{
+  addParameterisedFeature( $statement, $featureList );
+
+  // superstate MySuperState ;
+  global $fsmComponent;
+
+  $superstate = getToken($statement, 1);
+
+  if( "superstate" != $fsmComponent[$superstate] )
+  {
+    error( getLineNumber($statement,1), "Syntax error(k): " . $superstate . " is not a superstate" );
+  }
+}
+
+function parseStateSuperstate( &$state, $statement )
+{
+  // superstate MySuperState ;
+  $superstate = getToken($statement, 1);
+
+  verifyComponent( $superstate, "superstate", getLineNumber($statement,1), $state->_componentList );
+
+  addParameterisedFeature( $statement, $state->_featureList );
+}
+
+function parseStateEntry( &$state, $statement )
+{
+  addNonParameterisedFeature( $statement, $state->_featureList );
+}
+
+function parseStateExit( &$state, $statement )
+{
+  addNonParameterisedFeature( $statement, $state->_featureList );
+}
+
+
+function parsePseudoStateStatement( &$event, $statementList )
+{
+	$conditionConstructFound   = false;
+	$unconditionConstructFound = false;
+	
+	foreach( $statementList as $key => $statement )
+	{
+		$first = getToken($statement);
+		
+		switch($first)
+		{
+			case "if":
+			case "elif":
+			case "else":
+				$conditionConstructFound = true;
+				
+				if($unconditionConstructFound)
+				{
+					error( getLineNumber($statement), "Conditional action(s)/transition(s) not permitted following unconditional action(s)/transition(s).");
+				}
+				parseReaction( $event, $statement );
+				break;
+			
+			case "action":
+			case "state":
+			case ">>":
+				$unconditionConstructFound = true;
+				
+				if($conditionConstructFound)
+				{
+					error( getLineNumber($statement), "Unconditional action(s)/transition(s) not permitted following guard_conditions.");
+				}
+				
+				if(count($event->_reaction) == 0)
+				{
+					$event->_reaction[count($event->_reaction)] = new EventReaction( $event->_name, $event->_stateName );
+				}
+				else 
+				{
+					if($event->_reaction[count($event->_reaction) - 1]->_internalTransition == false)
+					{
+						error( getLineNumber($statement), "Further action(s)/transition(s) not permitted following state transition.");
+					}
+				}
+								
+				$event->_unConditionalParsed = true;
+				parseActionPlusStateTransition( $event, $statement );
+				break;
+				
+			default:
+				error( getLineNumber($statement), "Syntax error, expecting [if|else|elif|action|state], found \"" . $first . "\".");
+				break;
+		}
+		
+	}
+}
+
+
+function parseSuperstateStatementHistory( &$state, $statement )
+{
+	addParameterisedFeature( $statement, $state->_featureList  );
+
+	switch($state->_featureList["history"] )
+	{
+		case "deep":
+		case "shallow":
+			break;
+			
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [deep|shallow], found \"" . $state->_featureList["history"] . "\".");
+			break;
+	}
+}
+
+function assertInitialStateProvidedForHistory( &$state, $statement )
+{
+	if( !$state->_eventList["initial_state"] )
+	{
+      error( getLineNumber($statement), "Superstate " . $state->_name . " with history missing \"initial_state\".");
+	}
+}
+
+function determineViaState( &$thisState, &$nextState )
+{
+  $viaState;
+
+  if( $thisState->_name == $nextState->_name )
+  {
+    $viaState  = getStateFromName( getSuperstateName( $thisState->_name ) );
+  }
+  else
+  {
+    $viaState  = getStateFromName( nameOfClosestCommonAncestorState( $thisState, $nextState) );
+    
+    if( $thisState->_componentList[$nextState->_name] == "exit_point" && $viaState->_name != getSuperstateName($nextState->_name) )
+    {
+    	error ( "Within " . $thisState->_name , "Illegal transition to " . getSuperstateName($nextState->_name) . " exit_point " . $nextState->_name . " from external state." );
+    }
+  }
+
+  return $viaState;
+}
+
+function parseFileStatementSuperstate( &$statement, &$component )
+{
+  addComponent( $statement, $component );
+
+  // superstate MySuperState ;
+  // or
+  // superstate MySuperState { TokenList ; }
+
+  $superstate = getToken($statement, 1);
+
+  newState( $superstate );
+
+  if( ";" == getToken($statement, -1) )
+  {
+    assertStatementLength( $statement, 3 );
+  }
+  else
+  { 
+    if(getStateFromName($superstate))
+    {
+      parseSuperstate( $superstate, $statement );
+    }
+    else
+    {
+      error( getLineNumber($statement), "Superstate " . $superstate . " not previously declared");
+    }
+  }
+}
+
+function parseFileStatementState( &$statement, &$component )
+{
+  addComponent( $statement, $component );
+
+  // state MyState ;
+  // or
+  // state MyState { TokenList ; }
+
+  $stateName = getToken($statement, 1);
+
+  newState( $stateName );
+
+  if( ";" == getToken($statement, -1 ) )
+  {
+    assertStatementLength( $statement, 3 );
+  }
+  else
+  {
+    if( getStateFromName($stateName) )
+    {
+      parseState( $stateName, $statement );
+    }
+    else
+    {
+      error( getLineNumber($statement), "State not previously declared");
+    }
+  }
+
+}
+
+
+function parseSuperstateStatement( &$state, $statement )
+{
+  $first = getToken($statement);
+
+  switch( $first )
+  {
+    case "exit_point":
+      parseSuperstateExitPoint( $state, $statement );
+      break;
+
+    case "initial_state":
+      parseSuperstateStatementInitialState( $state, $statement );
+      break;
+
+    case "history":
+      parseSuperstateStatementHistory( $state, $statement );
+      assertInitialStateProvidedForHistory( $state, $statement );
+      break;
+
+    default:
+      parseStateStatement( $state, $statement );
+  }
+}
+
+function parseStateStatement( &$state, $statement )
+{
+  $first = getToken($statement);
+
+  switch( $first )
+  {
+    case "entry":
+      parseStateEntry( $state, $statement );
+      break;
+
+    case "exit":
+      parseStateExit( $state, $statement );
+      break;
+
+    case "superstate":
+      parseStateSuperstate( $state, $statement );
+      break;
+
+    case "catch":
+    case "fault":
+      parseStateFault( $state, $statement );
+      break;
+
+    case "defer":
+      parseDeferStatement( &$state, $statement );
+      break;
+
+    case "event":
+      parseStateEvent( &$state, $statement );
+      break;
+
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [entry|exit|superstate|fault|defer|event], found \"" . $first . "\".");
+      		break;
+
+  }
+}
+
+function parseFileStatement ( $statement, &$scafold, &$component )
+{
+  global $fsmTargetLanguage;
+
+  $first = getToken($statement);
+
+  switch( $first )
+  {
+    case "superstate":
+      parseFileStatementSuperstate( $statement, $component );
+      break;
+
+    case "state":
+      parseFileStatementState( $statement, $component );
+      break;
+
+    case "junction":
+      parseFileStatementJunction( $statement, $component );
+      break;
+
+    case "exit_point":
+      parseFileStatementExitPoint( $statement, $component );
+      break;
+
+    case "fsm":
+      {
+          if ($fsmTargetLanguage == "Cxx")
+          {
+              parseFileStatementFsm( $statement, $scafold );
+          }
+          elseif ($fsmTargetLanguage == "Java")
+          {
+              parseFileStatementFsmJava( $statement, $scafold );
+          }
+      }
+      break;
+
+    case "basename":
+      {
+          if ($fsmTargetLanguage == "Cxx")
+          {
+              parseFileStatementBasename( $statement, $scafold );
+          }
+          elseif ($fsmTargetLanguage == "Java")
+          {
+              parseFileStatementBasenameJava( $statement, $scafold );
+          }
+      }
+      break;
+
+    case "namespace":
+      parseFileStatementNamespace( $statement, $scafold );
+      break;
+
+    case "type_header":
+      parseFileStatementTypesHeader( $statement, $scafold, $component );
+      break;
+
+    case "event":
+      parseEventDeclaration( $statement, $component );
+      break;
+
+    case "type":
+      parseTypeDeclaration( $statement, $component );
+      break;
+
+    case "guard_condition":
+      parseGuardConditionDeclaration( $statement, $component );
+      break;
+
+    case "fault":
+      parseFaultDeclaration( $statement, $component );
+      break;
+
+    case "action":
+      parseActionDeclaration( $statement, $component );
+      break;
+
+    case "initial_state":
+      parseFilesStatementInitialState( $statement, $scafold );
+      break;
+
+
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [fsm|basename|namespace|type_header|type|event|superstate|state|junction|exit_point|guard_condition|action|fault|initial_state], found \"" . $first . "\".");
+  }
+}
+
+function parseJunction( $junctionName, &$statement )
+{
+  $state = getStateFromName( $junctionName );
+
+  global $fsmComponent;
+  global $fsmFaults;
+
+  $state->_componentList = $fsmComponent;
+  $state->_faultList     = $fsmFaults;
+
+  generateCompoundStatementStatementList( $statement, $state->_statements, $state->_componentList );
+
+  $eventName = "*";
+  $state->_eventList[$eventName] = new Event( $eventName, $state->_name );
+
+  parseJunctionStatements( $state );
+
+  if( !$state->_eventList["*"]->_unConditionalParsed )
+  {
+      error( getLineNumber($statement), "No unconditional statement in junction " . $first . " in " . statementText($statement) );
+  }  
+
+  $state->_status = "defined";
+}
+
+function parseJunctionStatements( &$state )
+{
+    $event = &$state->_eventList["*"];
+	$conditionConstructFound   = false;
+	$unconditionConstructFound = false;
+	
+	foreach( $state->_statements as $key => $statement )
+	{
+		$first = getToken($statement);
+		
+		switch($first)
+		{
+			case "entry":
+				parseStateEntry( $state, $statement );
+				break;
+
+			case "exit":
+				parseStateExit( $state, $statement );
+				break;
+
+			case "superstate":
+				parseStateSuperstate( $state, $statement );
+				break;
+
+			case "if":
+			case "elif":
+			case "else":
+				$conditionConstructFound = true;
+				
+				if($unconditionConstructFound)
+				{
+					error( getLineNumber($statement), "Conditional action(s)/transition(s) not permitted following unconditional action(s)/transition(s).");
+				}
+				parseReaction( $event, $statement );
+				break;
+			
+			case "action":
+			case "state":
+			case ">>":
+				$unconditionConstructFound = true;
+				
+				if($conditionConstructFound)
+				{
+					error( getLineNumber($statement), "Unconditional action(s)/transition(s) not permitted following guard_conditions.");
+				}
+				
+				if(count($event->_reaction) == 0)
+				{
+					$event->_reaction[count($event->_reaction)] = new EventReaction( $event->_name, $event->_stateName );
+				}
+				else 
+				{
+					if($event->_reaction[count($event->_reaction) - 1]->_internalTransition == false)
+					{
+						error( getLineNumber($statement), "Further action(s)/transition(s) not permitted following state transition.");
+					}
+				}
+								
+				$event->_unConditionalParsed = true;
+				parseActionPlusStateTransition( $event, $statement );
+				break;
+				
+			default:
+				error( getLineNumber($statement), "Syntax error, expecting [entry|exit|superstate|if|else|elif|action|state], found \"" . $first . "\".");
+				break;
+		}
+		
+	}
+}
+
+function parseExitPointStatement( &$state, $statement )
+{
+  $first = getToken($statement);
+  $second = getToken($statement, 1);
+
+  switch( $first )
+  {
+    case "superstate":
+      parseStateSuperstate( $state, $statement );
+      break;
+
+    case "if":
+    case "elif":
+    case "else":
+    case "action":
+    case "state":
+    case ">>":
+      $event = &$state->_eventList["*"];
+      parseEventStatement( $event, $statement );
+      break;
+
+		default:
+			error( getLineNumber($statement), "Syntax error, expecting [superstate|if|elif|else|action|state], found \"" . $first . "\".");
+  }
+}
+
+function parseState( $stateName, &$statement )
+{
+  $state = getStateFromName( $stateName );
+
+  global $fsmComponent;
+  global $fsmFaults;
+
+  $state->_componentList = $fsmComponent;
+  $state->_faultList = $fsmFaults;
+
+  generateCompoundStatementStatementList( $statement, $state->_statements, $state->_componentList );
+
+  foreach( $state->_statements as $key => $statement )
+  {
+    parseStateStatement( $state, $statement );
+  }
+  
+  $state->_status = "defined";
+}
+
+function parseSuperstate( $superstateName, &$statement )
+{
+  $state = getStateFromName( $superstateName );
+
+  global $fsmComponent;
+
+  $state->_componentList = $fsmComponent;
+
+  generateCompoundStatementStatementList( $statement, $state->_statements, $state->_componentList );
+
+  foreach( $state->_statements as $key => $substatement )
+  {
+    // echo "Statement = " . statementText($substatement) . "\n";
+
+    parseSuperstateStatement( $state, $substatement );
+  }
+  
+  $state->_status = "defined";
+}
+
+function detectIncompleteTransitions()
+{
+	global $fsmStates;
+
+	foreach( $fsmStates as $stateName => $state )
+	{
+		foreach( $state->_eventList as $eventName => $event )
+		{
+			foreach( $event->_reaction as $idx => $reaction )
+			{
+    			if($reaction->_internalTransition == false )
+    			{
+    				AssertTransitionIntoStateIsValid( $reaction->_targetState );
+    			}
+
+				foreach( $reaction->_action as $actionIdx => $action )
+				{
+					foreach( $action->_faultList as $faultName => $newStateName )
+					{
+						AssertTransitionIntoStateIsValid( $newStateName );
+					}
+				}
+			}
+		}
+	}
+}
+
+
+function verifyFsm()
+{
+	detectIncompleteTransitions();
+
+}
+
+function topDownParse( )
+{
+  global $fsmFileStatements;
+  global $fsmComponent;
+  global $fsmFeatureList;
+  global $fsmStates;
+
+  foreach( $fsmFileStatements as $key => $statement )
+  {
+    //echo "Parsing: " . statementText($statement) . "\n";
+
+    parseFileStatement( $statement, $fsmFeatureList, $fsmComponent );
+  }
+
+  verifyFsm();
+  //print_r( $fsmStates );
+}
+
+
+function verifyComponent( $name, $typeList, $lineNumber, &$componentList )
+{
+	if($componentList[$name])
+	{
+	    $found = false;
+	    
+	    $types = str_word_count($typeList, 1, '_');
+	    
+	    //print_r($types);
+	    
+		foreach( $types as $key => $type )
+		{
+			if($componentList[$name] == $type)
+			{
+				$found = true;
+			}
+		}
+		
+		if(!$found)
+		{
+  			print_r( $componentList );
+  			error($lineNumber, "Use of " . $name . " as {" . $typeList . "} doesn't match earlier declaration as " . $componentList[$name] . "\n");
+		}
+  }
+  else
+  {
+    print_r( $componentList );
+    error($lineNumber, "Undeclared " . $name . " used as {" . $typeList . "}.\n");
+  }
+}
+
+
+function addExplicitComponent( $name, $type, $lineNumber, &$componentList )
+{
+  if( tokenIsReservedWord( $name ) )
+  {
+    error( $lineNumber, "Illegal use of reserved word near " . $name );
+  }
+
+  if( tokenIsComponentType( $type ) == false )
+  {
+    error( $lineNumber, "Unknown type " . $type );
+  }
+
+  if($componentList[$name])
+  {
+    if($componentList[$name] != $type)
+    {
+      error($lineNumber, "Declarion of " . $name . " as " . $type . " doesn't match earlier declaration as " . $componentList[$name] . "\n");
+    }
+  }
+  else
+  {
+    $componentList[$name] = $type;
+  }
+}
+
+function addComponent( $statement, &$componentList )
+{
+  $tokenSequenceLength = getStatementLength( $statement );
+
+  if(3 <= $tokenSequenceLength)
+  {
+      $first  = getToken($statement);
+      $second =  getToken($statement, 1);
+
+      addExplicitComponent( $second, $first, getLineNumber($statement), $componentList );
+  }
+  else
+  {
+    error( getLineNumber($statement), "Syntax error(e)" . " in " . statementText($statement) );
+  }
+}
+
+function getStatementLength( &$statement )
+{
+  return count($statement->_tokens);
+}
+
+function addParameterisedFeature( &$statement, &$featureList )
+{
+  $tokenSequenceLength = getStatementLength( $statement );
+
+  $first = getToken($statement);
+
+  if(3 == $tokenSequenceLength)
+  {
+    $second = getToken($statement, 1);
+    $last   = getToken($statement, -1);
+
+    if(";" == $last)
+    {
+
+      if(tokenIsReservedWord( $second ) )
+      {
+        error( getLineNumber($statement,1), "Illegal use of reserved word " . $second );
+      }
+
+      if($featureList[$first])
+      {
+        if($featureList[$first] != $second)
+        {
+          error( getLineNumber($statement), "Redeclarion of " . $first . " as " . $second . ", was " . $featureList[$first]);
+        }
+      }
+      else
+      {
+        $featureList[$first] = $second;
+      }
+    }
+    else
+    {
+      error( getLineNumber($statement,-1), "Syntax error(c): " . $last . " in " . statementText($statement) );
+    }
+  }
+  else
+  {
+	global $fsmStates;
+	print_r($fsmStates);
+
+    error( getLineNumber($statement), "Syntax error(d): " . $first . " in " . statementText($statement) );
+  }
+}
+
+function addNonParameterisedFeature( &$statement, &$featureList )
+{
+  $tokenSequenceLength = getStatementLength($statement);
+
+  $first = getToken($statement);
+  $last  = getToken($statement, -1);
+
+  if(2 == $tokenSequenceLength)
+  {
+    if(";" == $last)
+    {
+      if($featureList[$first])
+      {
+      }
+      else
+      {
+        $featureList[$first] = "present";
+      }
+    }
+    else
+    {
+      error( getLineNumber($statement, -1), "Syntax error(a): in " . statementText($statement) );
+    }
+  }
+  else
+  {
+    error( getLineNumber($statement), "Syntax error(b): in " . statementText($statement) );
+  }
+
+}
+
+function keywordRequiresAssociatedComponent( $token )
+{
+	switch( $token )
+	{
+		case "action":
+		case "if":
+		case "elif":
+		case "elif":
+		case "event":
+		case "state":
+		case "superstate":
+		case "junction":
+		case "fault":
+		case "type":
+		case "guard_condition":
+		case "fsm":
+		case "basename":
+		case "exit_point":
+		case "initial_state":
+			return true;
+		
+		default:
+			return false;
+	}
+}
+	
+
+
+function generateCompoundStatementStatementList( &$statement, &$statementList, $componentList )
+{
+  $subStatementStartOffset = 0;
+  
+  // statement = keyword name substatement  
+  //        or = keyword substatement
+  //
+  // substatement = ;  
+  //           or = { ... } 
+  //           or = statement
+  	$first = getToken($statement);
+
+	switch( $first )
+	{
+		case ";":
+			// all empty!
+			return;
+
+		case "{":
+			// Supported?
+			$subStatementStartOffset = 0;
+			break;
+			
+		default:
+		{
+			if( !tokenIsReservedWord($first)  )
+			{
+				error( getLineNumber($statement), "Syntax error, expecting keyword, found \"" . $first  . "\".");
+			}
+			else
+			{
+				$second = getToken($statement, 1);
+
+				switch( $second )
+				{
+					case ";":
+						return;
+						
+					case "{":
+						$subStatementStartOffset = 1;
+						break;
+						
+					default:
+					{
+						if(tokenIsReservedWord($second))
+						{
+							$subStatementStartOffset = 1;
+						}	
+						else
+						{
+							$subStatementStartOffset = 2;							
+						}
+					}
+				}
+			}
+		}
+	}
+				
+	$subStatementStart = getToken($statement, $subStatementStartOffset);
+
+	switch( $subStatementStart )
+	{
+		case ";":
+			// empty
+			return;
+
+		case "{":
+			// substatement = { ... }
+			$beginTokenIdx = $subStatementStartOffset + 1;
+			$endTokenIdx = count($statement->_tokens) - 2;
+			generateStatementList( $statement->_tokens, $beginTokenIdx, $endTokenIdx, $statementList );
+			break;
+
+		default:
+			// substatement = statement
+			$beginTokenIdx = $subStatementStartOffset;
+			$endTokenIdx = count($statement->_tokens) - 1;
+			generateStatementList( $statement->_tokens, $beginTokenIdx, $endTokenIdx, $statementList );
+	}
+}
+
+function generateStatementList( $tokenList, $beginTokenIdx, $endTokenIdx, &$statementList )
+{
+	$idxToken = $beginTokenIdx;
+	$first = $idxToken;
+
+	if( $beginTokenIdx > $endTokenIdx + 1)
+	{
+		error( $tokenList[$endTokenIdx]->_lineNumber, "Empty statement?" );
+	}
+
+	if(  $beginTokenIdx == $endTokenIdx + 1)
+	{
+		return;
+	}
+
+	$token = $tokenList[$endTokenIdx]->_token;
+	if( ";" != $token &&  "}" != $token )
+	{
+		error( $tokenList[$endTokenIdx]->_lineNumber, "Missing semi-colon.\n");
+	}
+
+	while( $idxToken <= $endTokenIdx )
+	{
+		$token = $tokenList[$idxToken]->_token;
+
+		if( ";" == $token  )
+		{
+			$statement = new Statement( $tokenList, $first, $idxToken );
+	        //echo statementText($statement) . "\n";
+			//print_r($statement);
+	        //echo "\n";
+			$statementList[count($statementList)] = $statement;
+			$idxToken++;
+ 			$first = $idxToken;
+		}
+ 		elseif( "{" == $token  )
+		{
+			locateMatchingClosingCurlyBrace( $tokenList, $idxToken );
+
+			$statement = new Statement( $tokenList, $first, $idxToken );
+	        //echo statementText($statement) . "\n";
+			//print_r($statement);
+	        //echo "\n";
+			$statementList[count($statementList)] = $statement;
+ 			$idxToken++;
+ 			$first = $idxToken;
+		}
+		elseif( "}" == $token )
+		{
+			error( $tokenList[$idxToken]->_lineNumber, "Unexpected }" );
+		}
+		else 
+		{
+			$idxToken++;
+		}
+	}
+}
+
+function locateMatchingClosingCurlyBrace( &$tokenList, &$idxToken )
+{
+  $idxToken++;
+
+  while( $idxToken <= count($tokenList) )
+  {
+    $token = $tokenList[$idxToken]->_token;
+
+    if( 0 == strcmp("}",$token)  )
+    {
+      return;
+    }
+    elseif( 0 == strcmp("{",$token)  )
+    {
+      locateMatchingClosingCurlyBrace( $tokenList, $idxToken );
+    }
+
+    $idxToken++;
+  }
+ 
+  error( "EOF", "Missing }");
+}
+
+function statementText( &$statement )
+{
+  $statementString;
+
+  foreach($statement->_tokens as $idx => $token)
+  {
+    $statementString .= $token->_token . " ";
+  }
+
+  return $statementString;
+}
+
+function getToken( $statement, $idx = 0)
+{
+  if($idx == -1)
+  {
+    $idx = count($statement->_tokens) - 1;
+  }
+  
+  if($idx >= count($statement->_tokens) || $idx < 0)
+  {
+    die( $idx . ">=" . count($statement->_tokens) );
+  }
+
+  return $statement->_tokens[ $idx ]->_token;
+}
+
+function getLineNumber( $statement, $idx = 0)
+{
+  if($idx == -1)
+  {
+    $idx = count($statement->_tokens) - 1;
+  }
+  
+  if($idx >= count($statement->_tokens) || $idx < 0)
+  {
+    die( $idx . ">=" . count($statement->_tokens) );
+  }
+
+  return $statement->_tokens[ $idx ]->_lineNumber;
+}
+
+function newState( $stateName )
+{
+    global $fsmStates;
+
+  //echo "newstate(" . $stateName . ")\n";
+
+  if( $fsmStates[ $stateName ] )
+  {
+  }
+  else
+  {
+    $fsmStates[ $stateName ] = new State( $stateName );
+  }
+}
+
+function getStateFromName( $stateName )
+{
+  global $fsmStates;
+
+  $state = &$fsmStates[ $stateName ];
+
+  if( $stateName != $state->_name )
+  {
+    error( "", "Unknown referenced state: " . $stateName . ".");
+  }
+  
+  //echo "getStateFromName( " . $stateName . " );\n";
+  //print_r($state);
+
+  return $state;
+}
+
+function generateTokenList( $file, &$tokenList )
+{
+  $lineNumber = 1;
+
+  $comment = "";
+  $token = "";
+
+  while(false !== ($char = fgetc($file) ) )
+  {
+    if( $char == '#' )
+    {
+      $char = "\n";
+
+      $comment = fgets($file);
+      //echo "COMMENT $comment";
+    }
+
+    if( $char == "\"" )
+    {
+        
+        while( false !== ($char = fgetc($file) ) )
+        {
+            if( $char == "\n" )
+            {
+                error( $lineNumber, "Invalid string (unterminated)");
+            }
+            else if( $char !== "\"" )
+            {
+                $token .= $char;
+                //echo $char;
+            }
+            else
+            {
+                $tokenList[count($tokenList)] = new Token( $token, $lineNumber );
+
+                $token = "";
+                
+                break;
+            }
+        }
+    }
+    else
+    {
+        if( charAppendedToTokenIsStillValidToken( $token, $char ) )
+	    {
+	    }
+	    else
+	    {
+	      if( tokenIsStillValid( $token ) )
+	      {
+	        $tokenList[count($tokenList)] = new Token( $token, $lineNumber );
+	
+	        $token = "";
+	      }
+	      else
+	      {
+	        error( $lineNumber, "Invalid token " . $token );
+	      }
+	    }
+	
+	    if( $char == "\n" )
+	    {
+	      $lineNumber++;
+	    }
+	
+	    appendChar( $token, $char );
+    }
+  }
+}
+
+function appendChar( &$token, $char )
+{
+  $token .= $char;
+  $token = ltrim( $token );
+}
+
+
+function tokenIsComponentType( $token )
+{
+  switch($token) 
+  {
+    case "action":
+    case "event":
+    case "exit_point":
+    case "fault":
+    case "initial_state":
+    case "guard_condition":
+    case "state":
+    case ">>":
+    case "superstate":
+    case "junction":
+    case "type":
+    case "type_header":
+      return true;
+      break;
+
+    default:
+      return false;
+      break;
+  }
+}
+
+function tokenIsFeatureType( $token )
+{
+  switch($token) 
+  {
+    case "entry":
+    case "exit":
+    case "history":
+      return true;
+      break;
+
+    default:
+      return false;
+      break;
+  }
+}
+
+function tokenIsReservedWord( $token )
+{
+  if( tokenIsComponentType( $token ) ||
+      tokenIsFeatureType( $token ) )
+  {
+    return true;
+  }
+  else
+  {
+    switch($token) 
+    {
+      case "do":
+      case "elif":
+      case "else":
+      case "if":
+        return true;
+        break;
+
+    default:
+      return false;
+      break;
+    }
+  }
+}
+
+
+function tokenIsValidParameter( $token )
+{
+  $tokenLength = strlen( $token );
+
+  if( (tokenIsValidWord( $token, $tokenLength) ) &&
+      (false == tokenIsReservedWord($token) ) )
+  {
+    return true;
+  }
+  else
+  { 
+    return false;
+  }
+}
+
+function tokenIsValidWord( $token, $tokenLength )
+{
+  $re   = "/^[a-zA-Z_][0-9a-zA-Z_]*$/";
+  $regs = array();
+
+  $valid = ( 1 == preg_match( $re, $token, $regs) && $token == $regs[0]);
+  
+  return $valid;
+
+//  $wordLength = ereg( "[a-zA-Z_][0-9a-zA-Z_]*", $token, &$regs );
+//  return ($tokenLength == $wordLength);
+}
+
+function tokenIsStillValid( $token )
+{
+  $tokenLength = strlen( $token );
+
+  if( 0 == strncmp( $token, "{", $tokenLength ) ||
+      0 == strncmp( $token, "}", $tokenLength ) ||
+      0 == strncmp( $token, ">>", $tokenLength ) ||
+      0 == strncmp( $token, ";", $tokenLength ) ||
+      0 == strncmp( $token, "(", $tokenLength ) ||
+      0 == strncmp( $token, ")", $tokenLength ) ||
+      0 == strncmp( $token, "?", $tokenLength ) ||
+      0 == strncmp( $token, ",", $tokenLength ) ||
+      tokenIsValidWord( $token, $tokenLength) )
+  {
+    return true;
+  }
+
+  return false;
+}
+
+function stringToToken($string)
+{
+    $stringLength = strlen( $string );
+
+    $token = "";
+  
+    for( $idx = 0; $idx < $stringLength ; $idx++ )
+    {
+        switch($string[$idx])
+        {
+        
+        case ">":
+            $token .= "_GT_";
+            break; 
+
+        case "<":
+            $token .= "_LT_";
+            break; 
+
+        case ",":
+            $token .= "_COMMA_";
+            break; 
+
+        case ":":
+            $token .= "_COLON_";
+            break; 
+
+        case "*":
+            $token .= "_STAR_";
+            break; 
+
+        case " ":
+            break; 
+
+        default:
+            $token .= $string[$idx];
+            break;
+        }
+	}
+	
+	return $token;
+}
+  
+
+
+function charAppendedToTokenIsStillValidToken( $token, $char )
+{
+  appendChar( $token, $char );
+
+  return tokenIsStillValid( $token );
+}
+
+function error( $lineNumber, $errorString )
+{
+  global $argv;
+
+  echo $argv[1] . ":" . $lineNumber . ": error: " . $errorString . "\n";
+  exit(1);
+}
+
+?>

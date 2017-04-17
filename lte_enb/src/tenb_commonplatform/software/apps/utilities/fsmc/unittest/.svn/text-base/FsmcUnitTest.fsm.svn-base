@@ -1,0 +1,459 @@
+
+
+fsm FsmcUnitTest;
+basename FsmcUnitTest;
+namespace fsmc;
+#type_header "Tr069FtpTypes.h";
+
+
+superstate TransitionTests;
+state Tt01_s01;
+state Tt01_s02;
+superstate Tt01_ss03;
+state Tt01_s03;
+
+superstate GuardConditionTests;
+state Gct_s01;
+superstate Gct_ss01_s02;
+state Gct_s02;
+
+superstate ActionTests; 
+state Act_s01;
+state Act_s02;
+state Act_s03;
+
+superstate DeepHistoryTests; 
+state Dht_ext;
+superstate Dht_ss01; 
+superstate Dht_ss01_ss01;
+state Dht_s01;
+state Dht_s02;
+state Dht_s03;
+
+superstate ShallowHistoryTests;
+state Sht_ext;
+superstate Sht_ss01;
+state Sht_s01;
+state Sht_s02;
+
+superstate DeferEventTests;
+state DeferEvent_e01;
+state DeferEvent_e02;
+state DeferEvent_e03;
+state DeferEvent_none;
+
+
+
+
+type "void*";
+	
+fault f01;
+fault f02;
+fault f03;
+
+event e01 type "void*";
+event e02 type "void*";
+event e03 type "void*";
+event e04 type "void*";
+event NextTest type "void*";
+
+action ContractFailure; 
+action logEvent01;	
+action logEvent01failure fault f01;	
+action logEvent02;	
+action logEvent02failure { fault f01; fault f02; }	
+action logEvent03;	
+action logEvent03failure { fault f01; fault f02; fault f03; }	
+action logEvent04;
+
+
+
+guard_condition QueryTrue;
+guard_condition QueryFalse;
+
+
+initial_state Tt01_s01;
+
+
+
+
+superstate TransitionTests
+{
+	entry;
+	exit;
+	
+	initial_state Tt01_s01;
+
+	event NextTest >> GuardConditionTests;
+}
+
+state Tt01_s01
+{
+	superstate TransitionTests;
+	entry;
+	exit;
+	
+	event e01;
+	event e02 >> Tt01_s01;
+	event e03 >> Tt01_s02;
+}
+
+state Tt01_s02
+{
+	superstate TransitionTests;
+	entry;
+	exit;
+	
+	event e01 action logEvent01;
+	event e02 action logEvent02 >> Tt01_s02;
+	event e03 action logEvent03 state Tt01_s03;
+	
+}
+
+superstate Tt01_ss03
+{
+	superstate TransitionTests;
+	entry;
+	exit;
+	
+	initial_state Tt01_s03;
+}
+
+state Tt01_s03
+{
+	superstate Tt01_ss03;
+	entry;
+	exit;
+	
+	event e01 action logEvent01;
+	event e02 action logEvent02 state Tt01_s03;
+	event e03 action logEvent03 >> Tt01_ss03;
+	event e04 action logEvent04 state TransitionTests;
+}
+	
+superstate GuardConditionTests
+{
+	entry;
+	exit;
+	
+	#exit_point TestFinished >> ActionTests;
+	
+	initial_state Gct_s01;
+	
+	event NextTest >> ActionTests;
+}
+
+state Gct_s01
+{
+	superstate GuardConditionTests;
+	entry;
+	exit;
+	
+    event e01
+    {
+    	if QueryTrue action logEvent01;
+    }
+	
+    event e02
+    {
+    	if QueryFalse action ContractFailure;
+    	else action logEvent02;
+    }
+	
+    event e03
+    {
+    	if QueryFalse action ContractFailure; 
+    	elif QueryTrue action logEvent03;
+    }
+	
+    event e04
+    {
+    	if QueryFalse action ContractFailure;
+    	elif QueryFalse action ContractFailure;
+    	else action logEvent04 >> Gct_s02;
+    }
+}
+
+superstate Gct_ss01_s02
+{
+	superstate GuardConditionTests;
+	entry;
+	exit;
+
+    event e01 action logEvent01;
+
+    event e02
+    {
+    	if QueryFalse action ContractFailure;
+     	else action logEvent02;
+    }
+
+    event e03
+    {
+    	if QueryFalse action ContractFailure;
+     	elif QueryFalse action ContractFailure;
+    }
+
+    event e04
+    {
+    	if QueryFalse action ContractFailure;
+    	elif QueryFalse action ContractFailure;
+    	else action logEvent04 >> Gct_s02;
+    }
+}
+
+state Gct_s02
+{
+	superstate Gct_ss01_s02;
+	entry;
+	exit;
+	
+    event e01
+    {
+    	if QueryFalse action ContractFailure;
+    }
+	
+    event e02
+    {
+    	if QueryFalse action ContractFailure;
+    }
+	
+    event e03
+    {
+    	if QueryFalse action ContractFailure; 
+    	elif QueryFalse action ContractFailure;
+    }
+	
+}
+
+
+superstate ActionTests
+{
+	entry;
+	exit;
+	initial_state Act_s01;
+
+	event NextTest >> DeepHistoryTests;
+}
+
+state Act_s01
+{
+	superstate ActionTests;
+	entry;
+	exit;
+	
+	event e01 action logEvent01failure 
+	{ 
+		state Act_s01; 
+		fault f01 state Act_s02;
+	}
+	
+}
+
+state Act_s02
+{
+	superstate ActionTests;
+	entry;
+	exit;
+
+	event e02 action logEvent02failure 
+	{ 
+		fault f01 state Act_s02;
+		fault f02 state Act_s03;
+	}
+	
+}
+
+state Act_s03
+{
+	superstate ActionTests;
+	entry;
+	exit;
+
+	event e03 
+	{
+		action logEvent03;
+		action logEvent03failure 
+		{ 
+			fault f01 state Act_s01;
+			fault f02 state Act_s02;
+			fault f03 state Act_s03;
+		}
+		action logEvent03;
+		state Act_s01;
+	}
+}
+
+state Dht_ext
+{
+	entry;
+	exit;
+
+    event e01 >> DeepHistoryTests;
+    event e02 >> DeepHistoryTests;
+    event e03 >> DeepHistoryTests;
+    event e04 >> DeepHistoryTests;
+
+}
+
+superstate DeepHistoryTests
+{
+	entry;
+	exit;
+
+	initial_state Dht_ss01;
+
+	event NextTest >> ShallowHistoryTests;
+}
+
+	
+superstate Dht_ss01
+{
+	superstate DeepHistoryTests;
+	initial_state Dht_ss01_ss01;
+	history deep;
+	entry;
+	exit;
+	
+}
+
+superstate Dht_ss01_ss01
+{
+	superstate Dht_ss01;
+	initial_state Dht_s01; 
+	entry;
+	exit;
+	
+}
+
+state Dht_s01   
+{
+	superstate Dht_ss01_ss01;  
+	entry; 
+	exit;
+	
+	event e01 action logEvent01 state Dht_s02; 
+}
+
+state Dht_s02
+{
+	superstate Dht_ss01_ss01;
+	entry;
+	exit; 
+	
+	event e01 action logEvent01 state Dht_ext;
+	event e02 action logEvent02 >> Dht_s03; 
+}
+
+state Dht_s03
+{ 
+	superstate DeepHistoryTests;  
+	entry;
+	exit;
+	
+	event e01 action logEvent01 state Dht_ss01_ss01;
+}
+
+superstate ShallowHistoryTests
+{
+	entry;
+	exit;
+
+	initial_state Sht_ext;
+
+	event NextTest >> DeferEventTests;
+}
+
+state Sht_ext
+{
+	superstate ShallowHistoryTests;
+	entry;
+	exit;
+
+	event e01 action logEvent01 >> Sht_ss01;
+}
+
+superstate Sht_ss01
+{
+	superstate ShallowHistoryTests;
+	entry;
+	exit;
+
+	initial_state Sht_s01;
+	history shallow;
+
+	event e01 action logEvent01 >> Sht_s01;
+	event e02 action logEvent02 >> Sht_s02;
+	event e03 action logEvent03 >> Sht_ext;
+}
+
+state Sht_s01
+{
+	superstate Sht_ss01;
+	entry;
+	exit;
+}
+
+state Sht_s02
+{
+	superstate Sht_ss01;
+	entry;
+	exit;
+}
+
+
+
+
+superstate DeferEventTests
+{
+	entry;
+	exit;
+
+	initial_state DeferEvent_e01;
+
+	event NextTest >> DeferEventTests;
+	
+	event e01 action logEvent01 >> DeferEvent_e01;
+	event e02 action logEvent02 >> DeferEvent_e02;
+	event e03 action logEvent03 >> DeferEvent_e03;
+	event e04 action logEvent04 >> DeferEvent_none;
+}
+
+state DeferEvent_e01
+{
+	superstate DeferEventTests; 
+	entry;
+	exit;
+
+	defer e01;
+}
+
+state DeferEvent_e02
+{
+	superstate DeferEventTests;
+	entry;
+	exit;
+
+	defer e01;
+	defer e02;
+}
+
+state DeferEvent_e03
+{
+	superstate DeferEventTests;
+	entry;
+	exit;
+
+	defer e01;
+	defer e02;
+	defer e03;
+}
+
+state DeferEvent_none
+{
+	superstate DeferEventTests;
+	entry;
+	exit;
+
+}
+

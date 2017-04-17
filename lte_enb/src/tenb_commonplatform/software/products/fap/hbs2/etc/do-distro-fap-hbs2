@@ -1,0 +1,113 @@
+#!/bin/bash
+
+#
+# This may be called by more specific do-distro's to do
+# the stuff that is common for all HBS2 distributions.
+#
+
+# Do the stuff common for FAPs.
+. $TOP/products/fap/etc/do-distro-fap
+
+echo "--- HBS2 specific ---"
+
+#
+# Copy FPGA images.
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+  echo "Copying HBS2-4 FPGA images"
+  cp $CP_OPTIONS $TOP/apps/fap/phy/asic/images/*.bgz \
+                 $TOP/products/fap/hbs2/etc/scripts/bitstitch \
+                 $TOP/products/fap/hbs2/etc/scripts/bitreport \
+                 $TOP/apps/fap/bitpeel/obj/$HARDWARE/$BUILD/bitpeel \
+                 $OUTPUT_DIR_FPGA 2> /dev/null
+else
+  echo "Copying FPGA images"
+  cp $CP_OPTIONS $TOP/apps/fap/phy/fpga/images/*.bit \
+                 $TOP/apps/fap/phy/fpga/images/*.bgz \
+                 $TOP/products/fap/hbs2/etc/scripts/bitstitch \
+                 $TOP/products/fap/hbs2/etc/scripts/bitreport \
+                 $TOP/apps/fap/bitpeel/obj/$HARDWARE/$BUILD/bitpeel \
+                 $OUTPUT_DIR_FPGA 2> /dev/null
+fi
+
+chmod +x $OUTPUT_DIR_FPGA/bitstitch $OUTPUT_DIR_FPGA/bitpeel
+
+#
+# Copy appropriate kernel.
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+  KERNEL_VERSION="28753"
+  UBOOT_VERSION="27687"
+  if [ -z "$BUILD_QUICK" ] ; then
+    svn export svn://ukdev1/trunk/software-releases/fap/kernel/hbs2_4/RsysOS/$KERNEL_VERSION/rootfs-$KERNEL_VERSION.jffs2 $OUTPUT_DIR_KERNEL/rootfs-$KERNEL_VERSION.jffs2
+    svn export svn://ukdev1/trunk/software-releases/fap/kernel/hbs2_4/RsysOS/$KERNEL_VERSION/rootfs-$KERNEL_VERSION.tar.gz $OUTPUT_DIR_KERNEL/rootfs-$KERNEL_VERSION.tar.gz
+    svn export svn://ukdev1/trunk/software-releases/fap/u-boot/hbs2_4/$UBOOT_VERSION/u-boot-$UBOOT_VERSION.bin $OUTPUT_DIR_KERNEL/u-boot-$UBOOT_VERSION.bin
+
+#
+#	Comment out above and uncomment below as required to include locally built kernel and/or u-boot versions
+#    
+#    INITIAL_DATE_TIME=`date +%m%d%Hdo-distro-fap-hbs2Y`
+#    cp $TOP/../RsysOS/rootfs.tar.gz $OUTPUT_DIR_KERNEL/rootfs-$INITIAL_DATE_TIME.tar.gz
+#    cp $TOP/../RsysOS/rootfs.jffs2 $OUTPUT_DIR_KERNEL/rootfs-$INITIAL_DATE_TIME.jffs2
+#    cp $TOP/../RsysOS/u-boot.bin $OUTPUT_DIR_KERNEL/u-boot-$INITIAL_DATE_TIME.bin
+  fi
+else
+  KERNEL_VERSION="25756"
+  UBOOT_VERSION="24033"
+  if [ -z "$BUILD_QUICK" ] ; then
+    svn export svn://ukdev1/trunk/software-releases/fap/kernel/hbs2_3.5/uClinux_2008/R_2.0/$KERNEL_VERSION/uImage-$KERNEL_VERSION $OUTPUT_DIR_KERNEL/uImage-$KERNEL_VERSION
+# cp $TOP/../uClinux-dist-2008R1.5-RC3/images/uImage $OUTPUT_DIR_KERNEL/uImage-development
+    svn export svn://ukdev1/trunk/software-releases/fap/u-boot/hbs2_3.5/$UBOOT_VERSION/u-boot-$UBOOT_VERSION.bin $OUTPUT_DIR_KERNEL/u-boot-$UBOOT_VERSION.bin
+# cp $TOP/../u-boot-1.1.6-2008R1.5/u-boot-*.bin $OUTPUT_DIR_KERNEL/u-boot-development.bin
+  fi
+fi
+
+#
+# Copy other scripts.
+#
+echo "Copying scripts."
+
+# Download helper scripts.
+cp $CP_OPTIONS $TOP/products/fap/hbs2/etc/scripts/set-hbs2-ip-config $OUTPUT_DIR_APPS
+chmod +x $OUTPUT_DIR_APPS/set-hbs2-ip-config
+
+# Operation scripts.
+cp $CP_OPTIONS $TOP/products/fap/hbs2/etc/scripts/get-proc-addr \
+               $TOP/products/fap/hbs2/etc/scripts/tftp-run-delete-app \
+               $TOP/products/fap/hbs2/etc/scripts/tftp-trace-files \
+               $TOP/products/fap/hbs2/etc/scripts/ftp-trace-files \
+               $TOP/products/fap/hbs2/etc/scripts/create-trace-tarball \
+               $TOP/products/fap/hbs2/etc/scripts/$HARDWARE/platform-summary \
+               $TOP/products/fap/hbs2/etc/scripts/radiocal-check \
+               $TOP/products/fap/hbs2/etc/scripts/load-fpgas \
+               $TOP/products/fap/hbs2/etc/scripts/QoS-startup \
+               $TOP/products/fap/hbs2/etc/scripts/first-boot-script \
+               $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/start-apps \
+               $TOP/products/fap/hbs2/etc/scripts/network-restart \
+               $TOP/products/fap/hbs2/etc/scripts/cli.sh \
+               $OUTPUT_DIR_APPS
+
+# Copy dbxstart and update with current date/time.
+INITIAL_DATE_TIME=`date +%m%d%Hdo-distro-fap-hbs2Y`
+echo "Firkling dbxstart to set initial date/time to $INITIAL_DATE_TIME"
+cat $TOP/products/fap/hbs2/etc/scripts/dbxstart | sed 's/# DO NOT CHANGE.*//g' | sed "s/INITIAL_DATE_TIME=\"\"/INITIAL_DATE_TIME=\"$INITIAL_DATE_TIME\"/g" > $OUTPUT_DIR_APPS/dbxstart
+
+chmod +x $OUTPUT_DIR_APPS/get-proc-addr \
+         $OUTPUT_DIR_APPS/tftp-run-delete-app \
+         $OUTPUT_DIR_APPS/tftp-trace-files \
+         $OUTPUT_DIR_APPS/ftp-trace-files \
+         $OUTPUT_DIR_APPS/create-trace-tarball \
+         $OUTPUT_DIR_APPS/platform-summary \
+         $OUTPUT_DIR_APPS/dbxstart \
+         $OUTPUT_DIR_APPS/radiocal-check \
+         $OUTPUT_DIR_APPS/load-fpgas \
+         $OUTPUT_DIR_APPS/QoS-startup \
+         $OUTPUT_DIR_APPS/start-apps \
+         $OUTPUT_DIR_APPS/network-restart \
+         $OUTPUT_DIR_APPS/cli.sh
+
+# Build a stop-apps script.
+echo "Building stop-apps script."
+. $TOP/products/fap/hbs2/etc/build-stop-apps
+
+echo "--- done HBS2 specific ---"

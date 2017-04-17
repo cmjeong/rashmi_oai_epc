@@ -1,0 +1,681 @@
+#! /usr/bin/python
+import sys
+from xml.dom import minidom
+from MibAttribManager import *
+
+# PATH variables
+TR196_XML_FILE = "../../../libs/platform/tr_docs/tr-196-1-0-0_RSYS.xml"
+TR098_XML_FILE = "../../../libs/platform/tr_docs/tr-098_RSYS.xml"
+RSYSEXT_XML_FILE = "../../../libs/platform/tr_docs/RADISYS_data_model_extension.xml"
+
+TR196_HEADER_FILE = "../../fap/management/tr069-v2/autogen/Tr196DataModel.h"
+TR098_HEADER_FILE = "../../fap/management/tr069-v2/autogen/Tr098DataModel.h"
+RADISYS_HEADER_FILE = "../../fap/management/tr069-v2/autogen/RsysExtDataModel.h"
+
+MIBGROUP_HEADER = "../../fap/management/tr069-v2/autogen/MibGroup.h"
+MIB_GRP_ENUM_HEADER = "../../fap/management/tr069-v2/autogen/MibGroupEnum.h"
+FUN_PTR_TABLE = "../../fap/management/tr069-v2/autogen/FuncPtrTable.h"
+
+CPP_FILE = "../../fap/management/tr069-v2/autogen/Tr069DataModel.cpp"
+
+AUTOCODE_MSG = '/*\n * AUTOMATICALLY GENERATED CODE:\n * DO NOT EDIT !\n */\n\n'
+
+TR196_PREFIX    = "InternetGatewayDevice.Services."      #FAPService.1."
+
+# Multiple object dictionaries, to count number of instances of a single object
+tr098_MultipleObjCounter = {
+                              'PolicerNumberOfEntries':0,
+                              'QueueNumberOfEntries':0,
+                              'LANDeviceNumberOfEntries':0                              
+                           }
+
+tr196_MultipleObjCounter = {
+                              'MemberDetailNumberOfEntries':0,
+                              'RulesNumberOfEntries':0,
+                              'IntraFreqCellNumberOfEntries':0,
+                              'InterFreqCellNumberOfEntries':0,                      
+                              'GSMNumberOfEntries':0,
+                              'AssocNumberOfEntries':0,
+                              'IKESANumberOfEntries':0,
+                              'ChildSANumberOfEntries':0,
+                              'VirtualInterfaceNumberOfEntries':0,
+                              'SecretNumberOfEntries':0,
+                              'PkeyNumberOfEntries':0,
+                              'CryptoProfileNumberOfEntries':0,
+                              'CellNumberOfEntries':0,
+                              'SupportedAlarmNumberOfEntries':0,
+                              'CurrentAlarmNumberOfEntries':0,
+                              'HistoryEventNumberOfEntries':0,
+                              'ExpeditedEventNumberOfEntries':0,
+                              'QueuedEventNumberOfEntries':0                                    
+                          }
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class CodeGenerator:
+    """Data Model Code Generator from XML documents (TR196, TR098 and whatever may come)"""
+    
+    def __init__(self, TR_filename, hdrFile, prefix, multipleObjDict, integrator, fileStart=AUTOCODE_MSG, verbose=False ):
+        self.filename = TR_filename
+        self.hdrFile = hdrFile
+        self.prefix = prefix
+        self.fileStart = fileStart
+        self.multipleObjDict = multipleObjDict
+        self.integrator = integrator
+        self.verbose = verbose
+        self.mibGroups = []        
+
+        print "* * * Data Model Code Generator * * *"
+        print "Setting verbose mode to", self.verbose
+        
+    
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def processXMLFile(self): 
+        try:
+            xmldoc = minidom.parse(self.filename)
+               
+        except(IOError), e:
+            print "\n\nERROR: unable to open file ", self.filename, "Ending program.\n", e
+            raw_input("\nPress enter Key to exit\n")
+            sys.exit()           
+
+
+        self.objectList = xmldoc.getElementsByTagName("object")
+        if self.verbose:
+            print "Original <object> list length is :", len(self.objectList)
+    
+        self.__removeProfileObjs()
+        if self.verbose:
+            print "<object> list length after <profile> removal is :", len(self.objectList)
+
+        hdr = open(self.hdrFile, "w")
+        hdr.write(self.fileStart)
+    
+        # <object>
+        for elem in self.objectList:
+            objAttrs = elem.attributes.keys()
+            if 'name' in objAttrs:
+                
+                objName = elem.attributes['name'].value
+                if self.verbose:
+                    print "Object Name is: ", objName                                      
+
+                # check if there is an <RADISYS> element in the object
+                # this is valid for NSN and NEC
+                integratorName = ''
+                if self.integrator != 'Radisys':
+                    rsysObjList = elem.getElementsByTagName('Radisys')
+                    for rsysObj in rsysObjList:
+                        if rsysObj.parentNode.nodeName == 'parameter':
+                            # we don't want to deal with override elements of parameters in here
+                            continue
+                        # listing child nodes inside <RADISYS>
+                        for childNode in rsysObj.childNodes:
+                            if childNode.nodeName == 'override':
+                                childAttrs = childNode.attributes.keys()
+                                
+                                sameIntegrator = False
+                                for attr in childAttrs:
+                                    if 'integrator' in attr:
+                                        if childNode.attributes[u'integrator'].value == self.integrator :
+                                            sameIntegrator = True
+                                        
+                                    if 'name' in attr and sameIntegrator:
+                                        objName = childNode.attributes[u'name'].value
+   
+#                if integratorName != '':
+#                    objName = integratorName
+                objName = objName.replace('FAPService.{i}', 'FAPService.1')
+    
+                selfParameterList = elem.getElementsByTagName('parameter')     
+                
+                # <parameter>
+                for param in selfParameterList:
+                    
+                    paramAttr = param.attributes.keys()
+                    if 'name' not in paramAttr:
+                        continue
+                    
+                    self.paramData = ['','','','']     # type, value, minVal, maxVal
+                    RadisysFields={}
+                    childNodesList = param.childNodes                    
+                    for child in childNodesList:
+                        if child.nodeName == 'syntax':
+                            self.__dataSyntaxParser(child)
+                                                        
+                        elif child.nodeName == 'RADISYS':
+                            RadisysFields = self.__dataRadisysParser(child)
+                            # gets value from <default> if <Radisys> doesn't specify one
+                            if RadisysFields['value'] == '':
+                                RadisysFields['value'] = self.paramData[1]
+                            
+                    paramAttr = param.attributes.keys()
+    
+                    if 'name' not in paramAttr:
+                        continue
+    
+                    if (RadisysFields['supported']).upper()=='FALSE':
+                        continue                        
+                    
+                    if param.attributes[u'name'].value in self.multipleObjDict:
+                        self.multipleObjDict[param.attributes[u'name'].value] = RadisysFields['value']
+                       
+                    accessMode = self.__browseForAttribute('access', elem, param, RadisysFields)
+                    if accessMode == 'readOnly' or accessMode =='':
+                        accessMode = 'READ_ONLY'
+                    else:
+                        accessMode = 'READ_WRITE'                      
+                    
+#                    notifyMode = {
+#                                  '0' : lambda notifyMode: 'NO_NOTIFICATION',
+#                                  '1' : lambda notifyMode: 'PASSIVE_NOTIFICATION',
+#                                  '2' : lambda notifyMode: 'ACTIVE_NOTIFICATION'
+#                                  } [RadisysFields['notificationType']](RadisysFields['notificationType'])          
+      
+                    notify = RadisysFields['notificationType']
+                    if notify == '' or notify=='0':
+                        notifyMode = 'NO_NOTIFICATION'
+                    elif notify =='1':
+                        notifyMode = 'PASSIVE_NOTIFICATION'
+                    elif notify == '2':
+                        notifyMode = 'ACTIVE_NOTIFICATION'     
+                   
+      
+                    forcedInfMode = self.__browseForAttribute('forcedInform', elem, param, RadisysFields)
+                    if forcedInfMode == '':
+                        forcedInfMode = 'false'  
+                        
+                    mibDn = 'FAP.0'
+                    if RadisysFields['mib_dn']:
+                        mibDn = RadisysFields['mib_dn']       
+                        
+                    mibParam = 'PARAM_ID_INVALID'
+                    if RadisysFields['mib_id']:
+                        mibParam = RadisysFields['mib_id'] 
+                        if ( MAM.verifyParam(mibParam) == False):
+                            mibParam = 'PARAM_ID_INVALID'
+                        if 'XTRA' in mibParam:
+                            mibParam = 'PARAM_ID_INVALID'                   
+    
+                    # Repeat instances of <parameters> when needed
+                    if '{i}' in objName:
+                        numEntries = 1
+                        multipleObjKey = ''
+                        if 'numEntriesParameter' in objAttrs:
+                            multipleObjKey = elem.attributes['numEntriesParameter'].value
+                        
+                        if multipleObjKey != '': 
+                            numEntries = self.multipleObjDict[multipleObjKey]
+                        else:
+                            # this hack is needed only for the following field that doesn't include a number of entries field
+                            # because its name is similar to his parent....
+                            # and then we wonder why there is no peace in the world!
+                            if 'REM.WCDMAFDD.Cell' in objName:
+                                numEntries = self.multipleObjDict['CellNumberOfEntries']
+                                if self.verbose:
+                                    print 'NOTE: numEntries not present for Obj:', objName, ' -> using: ', numEntries
+                            else:
+                                print 'WARNING: numEntriesParameter not set for', objName, 'Set to 1 !!!'                            
+                            
+                        objAttrs = elem.attributes.keys()
+                        
+                        if numEntries == 0:
+                            print "WARNING! object", objName, "has attribute numEntriesParameter. Set to 0. Not included."
+                            continue
+                        elif numEntries == '':
+                            print "WARNING! object", objName, "doesn't have attribute numEntriesParameter. Set to 1"
+                            numEntries = 1
+                        
+                        val=param.attributes[u'name'].value
+                        for iter in range(1, int(numEntries)+1):          
+                            newObjName = objName.replace('{i}', str(iter))
+
+                            #check if operator replaces an object name
+                            fullName = newObjName
+                            if RadisysFields[u'name'] != '':
+                                fullName += RadisysFields['name'] 
+                            else:
+                                fullName += param.attributes[u'name'].value  
+
+                            mibDnStr = mibDn    
+                            if '{i}' in mibDnStr:
+                                mibDnStr = mibDnStr.replace('{i}', str(iter-1))
+
+                            #check if the parameter was a list in which case we change its type
+                            isAList = 'false'
+                            if (',' in RadisysFields['value']) :
+                                isAList = 'true'
+    
+                            entryStr = self.__buildString(fullName, accessMode, isAList, notifyMode, 
+                                                          forcedInfMode, RadisysFields, mibDnStr, mibParam)
+                            
+                            hdr.write(entryStr)                            						
+                    else:
+                        #check if the parameter was a list in which case we change its type
+                        isAList = 'false'
+                        if (',' in RadisysFields['value']) :
+                            isAList = 'true'
+
+                        #check if operator replaces an object name
+                        fullName = objName
+                        if RadisysFields['name'] != '':
+#                            print 'DBG: #1 SINGLE objName ', str(objName), ' RadisysFields[N]', RadisysFields['name'], 'param.val ', param.attributes[u'name'].value
+                            fullName += RadisysFields['name'] 
+                        else:
+                            fullName += param.attributes[u'name'].value
+
+                        if '{i}' in mibDn:
+                            mibDn = mibDn.replace('{i}', str(1))
+
+                        entryStr = self.__buildString(fullName, accessMode, isAList, notifyMode, 
+                                                      forcedInfMode, RadisysFields, mibDn, mibParam)
+                        
+                        hdr.write(entryStr)                            
+                    
+                    if self.verbose:
+                        print "Wrote into header file:", entryStr
+                    
+        hdr.close()    
+        
+        print "Generation of file", self.hdrFile, "completed!"   
+    
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def __removeProfileObjs(self):
+        i = 0
+        for item in self.objectList:
+            if item.parentNode.tagName  == 'profile':
+                self.objectList.remove(item)
+                i += 1
+        if self.verbose:
+            print " Removed", i," <profile> objects\n"
+            #raw_input("first parse of the list...")  
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # parse <syntax> node and retreives data type, value and range
+    def __dataSyntaxParser(self, syntaxNode):
+                     
+        for tag in syntaxNode.childNodes:
+            #NOTE: it seems necessary to parse the list because there are empty/non syntax syntaxNode.childNodes
+            if tag.nodeName.lower() == 'string':            
+                self.paramData[0] = 'STRING'
+                self.paramData[2:4] = self.__rangeValueParser(tag)
+            elif tag.nodeName.lower() == 'unsignedint':
+                self.paramData[0] = 'U_INT'
+                self.paramData[2:4] = self.__rangeValueParser(tag)
+            elif tag.nodeName.lower() == 'boolean':
+                self.paramData[0] = 'BOOLEAN'
+            elif tag.nodeName.lower() == 'int':
+                self.paramData[0] = 'INT'
+                self.paramData[2:4] = self.__rangeValueParser(tag)
+            elif tag.nodeName.lower() == 'datetime':
+                self.paramData[0] = 'DATE_TIME'
+            elif tag.nodeName.lower() == 'datatype':
+                self.paramData[0] = 'DATA_TYPE'
+    
+            elif tag.nodeName.lower() == 'default':
+                if tag.hasAttributes():
+                                              
+                   if 'value' in tag.attributes.keys():
+                       self.paramData[1] = tag.attributes['value'].value
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # parse <syntax> node and retreives data type
+    def __rangeValueParser(self, node):
+        range=['','']       # min, max
+        
+        if node.nodeName == 'string':        
+            for c in node.childNodes:
+                if c.nodeName == 'size':        
+                    if 'maxLength' in c.attributes.keys():
+                        range[0] = '0'
+                        range[1] = c.attributes['maxLength'].value
+                        continue
+                    
+                if c.nodeName == 'enumeration':
+                    if 'value' in c.attributes.keys():                    
+                        str = c.attributes['value'].value
+                        if range[0] == '':
+                            range[0] = len(str)
+                            range[1] = len(str)
+                        elif range[0] > len(str):
+                            range[0] = len(str)
+                        elif range[1] < len(str):
+                            range[1] = len(str)        
+                           
+        elif node.nodeName == 'unsignedInt' or node.nodeName == 'int':
+            for c in node.childNodes:
+                if c.nodeName == 'range':        
+                    if 'minInclusive' in c.attributes.keys():
+                        range[0] = c.attributes['minInclusive'].value
+                    if 'maxInclusive' in c.attributes.keys():
+                        range[1] = c.attributes['maxInclusive'].value
+    
+        return range
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # parse <Radisys> node and retreives dictionary
+    def __dataRadisysParser(self, rsysNode):
+        d = {'supported':'FALSE',       'access':'', 
+             'notificationType':'0',    'forcedInform':'',
+             'integrator':'',           'value':'',
+             'mib_dn':'',        
+             'mib_id':'PARAM_ID_INVALID',
+             'mibGroup':'GROUP_ID_INVALID',
+             'name':''
+             }
+        attrList = []
+        rsysChildren = rsysNode.childNodes
+    
+        for child in rsysChildren:        
+            if child.nodeType == child.TEXT_NODE:  #3:                
+                continue
+    
+            if child.hasAttributes():
+                attrList = child.attributes.keys()                
+    
+            if child.nodeName == 'default':
+                if 'supported' in attrList:
+                    d['supported'] = child.attributes[u'supported'].value
+                    if d['supported'] == '':
+                        print "WARNING! parameter with attribute \'support\' not specified!"
+                        return d
+                    if (d['supported'].upper() == 'FALSE'):
+                        return d
+                                   
+                if 'access' in attrList:
+                    if child.attributes['access'].value == 'readWrite':
+                        d['access'] = 'READ_WRITE' 
+    
+                #if 'activeNotify' in attrList:                
+                #    if child.attributes['activeNotify'].value == 'forceDefault':
+                #        d['activeNotify'] = '2'
+                if 'notificationType' in attrList:                
+                    d['notificationType'] = child.attributes['notificationType'].value
+                        
+                if 'forcedInform' in attrList:
+                    d['forcedInform'] = child.attributes['forcedInform'].value
+                
+                if 'value' in attrList:
+                    d['value'] = child.attributes[u'value'].value
+
+            elif child.nodeName == 'MIB_dn':
+                if child.firstChild != None:
+                    d['mib_dn'] = child.firstChild.data                 
+        
+            elif child.nodeName == 'MIB_id':
+                if child.firstChild != None:
+                    d['mib_id'] = child.firstChild.data
+
+            elif child.nodeName == 'mibGroup':
+                if child.firstChild != None:
+                    d['mibGroup'] = child.firstChild.data       
+                    if d['mibGroup'] not in self.mibGroups:
+                        self.mibGroups.append(d['mibGroup'])         
+                
+            # <override>
+            elif child.nodeName == 'override':
+                if 'integrator' in attrList and child.attributes[u'integrator'].value == self.integrator:                    
+                    d['integrator'] = child.attributes[u'integrator'].value
+                else:
+                    continue
+                
+                if 'supported' in attrList:
+                    d['supported'] = child.attributes[u'supported'].value
+                    
+                if 'value' in attrList:
+                    d['value'] = child.attributes[u'value'].value
+                
+                if 'suggestedValue' in attrList:
+                    d['suggestedValue'] = child.attributes[u'suggestedValue'].value
+                    
+                if 'notificationType' in attrList:
+                    d['notificationType'] = child.attributes[u'notificationType'].value
+                
+                if 'name' in attrList:
+                    d['name'] = child.attributes[u'name'].value
+                
+        return d
+
+    
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def __browseForAttribute(self, name, obj, param, RadisysFields):    
+        value = ''
+    
+        if name in obj.attributes.keys():
+            value = obj.attributes[name].value
+    
+        paramAttr = param.attributes.keys()
+        if name in paramAttr:
+            value = param.attributes[name].value
+            
+        if RadisysFields[name] != '':
+            value = RadisysFields[name]        
+            if self.verbose:   
+                print "<Radisys> overwrites " + name+" field with", value   
+    
+        return value    
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def __buildString(self, fullName, accessMode, isAList, notifyMode, forcedInfMode, 
+                      RadisysFields, mibDn, mibParam):
+        aStr = ''      
+        
+        aStr = "{\"" + self.prefix + fullName + "\",\n\t"
+        aStr += accessMode + ", "        
+        aStr += self.paramData[0]
+        aStr += ", \""+ str(self.paramData[2]) 
+        aStr += "\", \""+ str(self.paramData[3]) +"\""
+        aStr += ", " + isAList
+        aStr += ", %s" % (notifyMode) +", "+ forcedInfMode.lower()
+        aStr += ",\t\""+ RadisysFields['value']+ "\",\t" + RadisysFields['mibGroup']
+        aStr += ",\t\""+ mibDn + "\",\t"+ mibParam + " },\n"
+        
+        return aStr    
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class Tr069FilesGenerator:
+    """Class to generate Tr069DataModel files """
+    
+    def __init__(self, cppName, vendors, headersList=[]):
+        self.cppFile = cppName
+        self.vendors = vendors
+        self.hList = headersList
+        print 'Creation of ', self.cppFile, 'file'
+        self.__createFiles()
+        
+    def __createFiles(self):            
+        cpp = open(self.cppFile, "w")
+        hdr = open( (self.cppFile.split('.cpp')[0] + '.h'), 'w')    
+        cpp.write(AUTOCODE_MSG)
+        hdr.write(AUTOCODE_MSG)             
+        
+        l = self.cppFile.split('/')
+        fileName = l[l.__len__()-1]        
+        hdr.write("\n#include <MibAttributeId.h>")
+        hdr.write("\n#include <DataModelTypes.h> \n\n")
+        cpp.write(("\n#include \""+fileName.replace('.cpp', '.h') +"\"\n\n"))
+        hdr.write("namespace tr069\n{\n\n")
+        cpp.write("namespace tr069\n{\n\n")
+        
+        for ven in self.vendors:
+            hdr.write("extern const ExtDMAttrDefinition "+ven.lower()+"DataModel[];\n")       
+            cpp.write("const ExtDMAttrDefinition "+ven.lower()+"DataModel[] = \n{\n")       
+            for h in self.hList:
+                if ven in h:
+                    cpp.write(" #include \""+ h.split('../../fap/management/tr069-v2/autogen/')[1] +"\"\n")
+            cpp.write("};\n\n")        
+
+            hdr.write("extern const size_t "+ven.lower()+"DataModelArrayLength;\n")       
+            cpp.write("const size_t "+ven.lower()+"DataModelArrayLength = sizeof("+ven.lower()+"DataModel)/sizeof("+ven.lower()+"DataModel[0]);\n\n")       
+        
+        cpp.write("\n}\n")   
+        hdr.write("\n}\n") 
+        cpp.close()
+        hdr.close()
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class MibGroupFunctionProto:
+    """Class to generate function prototypes for Mib group parameter"""
+    
+    def __init__(self, name, list):
+        self.name = name
+        self.list = list
+        self.protoNames = []
+        print 'Creation of ', self.name, 'file'
+        self.__createFile()
+        
+    def __createFile(self):            
+        file = open(self.name, "w")    
+        file.write(AUTOCODE_MSG)       
+        macro = self.name.replace('.','')
+        macro = macro.replace('/','_')
+        macro = macro.replace('-','_')
+        file.write(("\n#ifndef "+macro+"__\n#define "+macro+"__\n\n"))
+        file.write("\n\n#include <MibAttributeId.h>\n")
+        file.write("#include <mib-common/MibAttributeValues.h>\n")
+        file.write("#include <DataModelTypes.h>\n")
+        file.write("#include \"../FuncPtrTypes.h\"\n\n")
+        file.write("namespace tr069\n{\n")
+
+        for item in self.list:
+            file.write(self.__createPrototype(item) )                        
+                            
+        file.write("\n}\n\n#endif\n\n")
+        file.close()
+
+    def __createPrototype(self, item):
+        protoName = "\n\n/*\n * Automatic generated functions to handle parameters of MIB group:"
+        name = self.__ConvertNameStile(item)
+        protoName += "\n * "+ name +"\n */\n" 
+        protoName += "\nValidationFailureDescriptor  Process"+name+"Spv(const Tr069AttributeValues&, MibAttributeValues&);"
+        protoName += "\nGPV_RETURN_TYPE  Process"+name+"Gpv( GPV_PARAMETERS );"
+        self.protoNames.append(name)
+        return protoName
+    
+    def __ConvertNameStile(self, name):
+        """Convert CAP_STYLE into CamelCase"""
+        l = name.split('_')
+        fname = ''
+        for i in l:
+            fname += i[0].upper() + i[1:].lower()
+        return fname
+
+    def GetProtoNamesList(self):
+        return self.protoNames
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class MibGroupFunctionEnum:
+    """Class to generate function prototypes Enumeration for Mib group parameter"""
+    
+    def __init__(self, fileName, list):
+        self.file = fileName
+        self.list = list
+        print 'Creation of ', self.file, 'file'
+        self.__createEnumFile()
+        
+    def __createEnumFile(self):            
+        file = open(self.file, "w")    
+        file.write(AUTOCODE_MSG)       
+        macro = self.file.replace('.','')
+        macro = macro.replace('/','_')
+        macro = macro.replace('-','_')
+        file.write(("\n#ifndef "+macro+"__\n#define "+macro+"__\n\n"))
+        file.write("\n\n#include <system/EnumToString.h>\n\n")
+#        fileName = ( MIB_GRP_ENUM_FILE.split('/') ).pop()
+#        fileName.strip('.h')
+        file.write("namespace tr069\n{\n\n")
+        file.write("ENUM_START(ExtDataModelAttrGroupId)\n{\n")
+
+        file.write(("    ENUM_ELEMENT_VAL(GROUP_ID_FIRST,0)\n"))
+
+        for item in self.list:
+#            if self.list[0] == item:
+#                file.write(("    ENUM_ELEMENT_VAL("+item+",0)\n"))
+#            else:
+                file.write(("    ENUM_ELEMENT("+item+")\n"))
+
+        file.write(("    ENUM_ELEMENT(NUM_GROUP_IDS)\n"))
+        file.write(("    ENUM_ELEMENT(GROUP_ID_INVALID)\n"))
+
+        file.write("}\nENUM_END(ExtDataModelAttrGroupId)\n")                            
+        file.write("\n}\n\n#endif\n\n")
+        file.close()
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+if __name__ == "__main__":  
+   
+    print "* * * Data Model Code Generator * * *"
+
+    vendors = ['Radisys', 'NSN', 'NEC']
+    HDRList = []
+    GroupNameList = []
+
+    MAM = MibAttribManager()
+
+
+    for v in vendors:
+        print "* * * Creating variant: ", v    
+        print "* * Processing file: ", TR098_XML_FILE   
+    
+        hdr098 = TR098_HEADER_FILE.split('.h')[0] + v + '.h'               
+
+        CG098 = CodeGenerator(TR098_XML_FILE, hdr098, '', tr098_MultipleObjCounter, v)      
+        CG098.processXMLFile()
+        
+        HDRList.append(hdr098)
+    
+        for item in CG098.mibGroups:
+            if item not in GroupNameList:
+                GroupNameList.append(item)
+    
+        print "* * Processing file: ", TR196_XML_FILE
+        hdr196 = TR196_HEADER_FILE.split('.h')[0] + v + '.h'
+    
+        startMsg = AUTOCODE_MSG
+
+        CG196 = CodeGenerator(TR196_XML_FILE, hdr196, TR196_PREFIX, tr196_MultipleObjCounter, v, fileStart=startMsg)        
+        CG196.processXMLFile()    
+        
+        HDRList.append(hdr196)
+
+        for item in CG196.mibGroups:
+            if item not in GroupNameList:
+                GroupNameList.append(item)
+    
+        print "* * Processing file: ", RSYSEXT_XML_FILE
+        hdrair = Radisys_HEADER_FILE.split('.h')[0] + v + '.h'
+    
+        CGRSYS = CodeGenerator(RSYSEXT_XML_FILE, hdrair, '', {'':''}, v)       
+        CGRSYS.processXMLFile()          
+        
+        HDRList.append(hdrair)
+        
+        for item in CGRSYS.mibGroups:
+            if item not in GroupNameList:
+                GroupNameList.append(item)           
+
+        
+    print "* * Creating .cpp file and Headers"
+    cpp = Tr069FilesGenerator(CPP_FILE, vendors, HDRList)       
+
+#    MGFP = MibGroupFunctionProto(MIBGROUP_HEADER, GroupNameList)
+#    fpList = MGFP.GetProtoNamesList()
+    
+    MibGroupFunctionEnum(MIB_GRP_ENUM_HEADER, GroupNameList)
+ 
+    MAM.writeLog()
+        
+    print "\n* Process Complete! Bye! *"
+   
+   

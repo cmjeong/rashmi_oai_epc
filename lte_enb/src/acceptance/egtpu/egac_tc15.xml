@@ -1,0 +1,4042 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc15.xml
+#
+#     Sid:   
+#
+#     Prg:     kc
+#
+#*********************************************************************21*/
+
+#
+#       Test:    15.1
+#
+#       Desc:   Verify that Echo Request is going out of the layer
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Verify that the echo request is going out of the layer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect guardTmr="1000">
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000" remTeid="0"/>
+    </tapa.send>
+
+ 
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+	<tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.2
+#
+#       Desc:   Send Echo Request to Destnation expect the Echo Response 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Request to Destnation expect the Echo Response"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="500">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect guardTmr="1000">
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect guardTmr="1000">
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="2" msgType="EGT_GTPC_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" />
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="4" msgType="EGT_GTPC_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000" />
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    15.3
+#
+#       Desc:   Send Echo Request whith out any IE 
+#                from Dummy Layer and verify the processing
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         " Send Echo Request whith out any IE 
+              from Dummy Layer and verify the processing"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="1" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="2" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" suConId="1" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="3" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" suConId="1" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    15.4
+#
+#       Desc:   Send Echo Request whith IE 
+#                from Dummy Layer and verify the processing
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         " Send Echo Request whith IE 
+              from Dummy Layer and verify the processing"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expset>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="2" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" suConId="1" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="3" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" suConId="1" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.5
+#
+#       Desc:   Send echo request and wait for next echo timer expairy
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.5">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Verify that the echo request is going out of the layer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_NOT_REACHABLE" type="LEG_PAR_IP"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+  
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    15.6
+#
+#       Desc:   Send echo request and wait for one T3 N3 Timer expairy
+#                and then send echo response
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.6">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request and wait for one T3 N3 Timer expairy
+                and then send echo response"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.7
+#
+#       Desc:   Send echo request and wait for all T3 N3 Timer expairy 
+#                and wait for peer down indications
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.7">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request and wait for all T3 N3 Timer expairy 
+                and wait for peer down indications"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_NOK" reason="EGT_GTPU_DEST_UNREACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+    </tapa.expset>
+
+    
+   
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.egt.egudatreq suId="1" spId="1" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" noIEs="TRUE" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+    <!--
+    <tapa.expect>
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_OK"
+       reason="EGT_GTPU_DEST_UNREACHABLE"/>
+    </tapa.expect>
+   -->
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.eguerrind suId="1" spId="1" lclTeid="0"  errCause="EGT_ERR_REQ_FAIL" lclAddr="127.0.0.1"  rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.8
+#
+#       Desc:   Send echo request and wait for all T3 N3 Timer expairy 
+#               and then send the echo response.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.8">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request and wait for all T3 N3 Timer expairy 
+        After one timer expairy receive the echo responce from 
+		  one peer and failed to receive from another peers"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <!--
+    <tapa.expset guardTmr="10000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+    <tapa.delay delay="1"/>
+-->
+    <tapa.expset guardTmr="1000">
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+    </tapa.expset>
+    <tapa.expset guardTmr="10000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="0" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+    <tapa.delay delay="1"/>
+
+    <tapa.delay delay="10"/>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.9
+#
+#       Send echo request and wait for all T3 N3 Timer expairy 
+#       after maximum number of retries then send wcho response
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.9">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request and wait for all T3 N3 Timer expairy 
+        after maximum number of retries then send wcho response"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_NOK" reason="EGT_GTPU_DEST_UNREACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+    </tapa.expset>
+
+    <tapa.delay delay="5"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/> 
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.10
+#
+#       Desc : Send echo request to Peer 1 and get echo response from 
+#		  peer 2 with the sequence number equal to the echo request
+#		  which is sent to peer 1"
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="15.10">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request to Peer 1 and get echo response from 
+		  peer 2 with the sequence number equal to the echo request
+		  which is sent to peer 1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+ 
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" rmtAddrType="4" rmtAddr="182.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="5"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+<!--
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0"/>
+    </tapa.expect>
+-->
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.expect guardTmr="1000">
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_NOK" reason="EGT_GTPU_DEST_UNREACHABLE"/>
+    </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.11
+#
+#       Desc:   Send Echo Request twice whith out any IE 
+#                from Dummy Layer and verify the processing
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.11">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         " Send Echo Request whith out any IE 
+              from Dummy Layer and verify the processing"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="1" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+   
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="2" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" suConId="1" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="3" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" suConId="1" validateUMsg="TRUE"/>
+    </tapa.expect>
+    
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="1" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="2" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="0" passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" suConId="1" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="3" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" suConId="1" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.12
+#
+#       Desc:   Send correupted echo response message from dummy TUCL 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.12">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send correupted echo response message from dummy TUCL" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <!-- 
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" noIEs="TRUE" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.eguerrind suId="1" errCause="EGT_ERR_MSG_MISS_MAND_IE" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" failedIeType="EGU_RECOVERY_IETYPE" failedMsgType="EGT_GTPC_MSG_ECHO_RSP" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+-->
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.13
+#
+#       Desc:   configure the destination address as multi cast address
+#					 and verify the athe echo request should not be sent to it.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.13">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "configure the destination address as multi cast address
+					 and verify the athe echo request should not be sent to it."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="224.0.0.1" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="224.0.0.1"/>
+      </tapa.expect>
+
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.14
+#
+#       Desc:   configure the destination (peer) interface as EGT_INT_X2_DL_ENB_GTP_U 
+#					 and verify the athe echo request should not be sent to it.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.14">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "configure the destination address as multi cast address
+            and verify the athe echo request should not be sent to it."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef>
+        
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="l27.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="l27.0.0.100"/>
+      </tapa.expect>
+
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.15
+#
+#       Desc:   configure the destination (peer) interface as EGT_INT_X2_DL_ENB_GTP_U 
+#		and verify that echo request should not be sent to it.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.15">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "configure the destination address as multi cast address
+	  and verify the athe echo request should not be sent to it."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef>
+         
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_UL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_X2_UL_ENB_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.16
+#
+#       Desc:   Send Echo Request from the upper and get
+#	     	status indication from the EGTPU layer.	
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.16">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Request from the upper and get
+	  status indication from the EGTPU layer."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+    <tapa.send>
+       <tapa.egt.egudatreq suId="1" spId="1" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" noIEs="TRUE" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_OK" reason="EGT_GTPU_DEST_REACHABLE"/>
+    </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.17
+#
+#       Desc:   Send echo request and delete the Ip Address 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.17">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send echo request and delete the Ip Address"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+      <tapa.delay delay="10"/>
+      # Send delete for IP
+      <tapa.send>
+         <tapa.leg.cntrl.ipAddr action="ADEL" address="127.0.0.1" port="0" flag="LEG_EGTP_U" fromSpId="1"/>
+      </tapa.send>
+
+      <!--
+      # Expect Cfg Confirm with OK status
+      <tapa.expect guardTmr="1000">
+         <tapa.hit.discreq/>
+      </tapa.expect>
+
+      # Expect Cfg Confirm with OK status
+      <tapa.expect guardTmr="1000">
+         <tapa.hit.discreq suConId="1"/>
+      </tapa.expect>
+      -->
+      # Expect Cfg Confirm with OK status
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+
+
+#
+#       Test:    15.18
+#
+#       Desc:   Send duplicate Echo Request 
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.18">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         " Send Echo Request whith out any IE 
+              from Dummy Layer and verify the processing"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="1" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+    <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" seqNoPres="TRUE" seqNo="1" suId="1" spId="1" msgType="EGT_GTPU_MSG_ECHO_REQ" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+
+<!--
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="1" passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" suConId="0" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expect>
+    <tapa.send>
+       <tapa.hit.egudatind passIpAddr="FALSE" suId="1" passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="0" noIEs="TRUE" rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" suConId="1" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.hit.udatreq passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" noIEs="TRUE" save="FALSE" suConId="1" validateUMsg="TRUE"/>
+    </tapa.expect>
+-->
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.19
+#
+#       Desc:   Send Echo Request at eGTP-U from application for S1-U/S4/S12/X2 interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.19">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Request at eGTP-U from application for S1-U/S4/S12/X2 interface"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+   
+      # Send tunnel Management Request
+      #changes teid from 1 to 6
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="6" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="6" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S12_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S12_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.102" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="3" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.102"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.103" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="4" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="4" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.103"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.104" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="5" intfType="EGT_INT_S4_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="5" intfType="EGT_INT_S4_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.104"/>
+      </tapa.expect>
+
+      
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.103" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.103" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="1" remTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="3" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="4" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.104" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="4" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.104" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            suConId="1"  remTeid="1" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    15.20
+#
+#       Desc:   Receive Echo Response at eGTP-U from application for S1-U/S4/S12/X2 interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.20">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Request at eGTP-U from application for S1-U/S4/S12/X2 interface"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+   
+      <tapa.ifndef>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+   
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.102" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="3" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.102"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.103" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="4" intfType="EGT_INT_S4_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="4" intfType="EGT_INT_S4_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.103"/>
+      </tapa.expect>
+
+
+      
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/> 
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+<!---
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+-->
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="1"  remTeid="1" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+      </tapa.send>
+
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="1"  remTeid="2" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="1"  remTeid="3" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="1"  remTeid="4" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+      </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    15.21
+#
+#       Desc:  Adding a normal tunnel and check for Echo request 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.21">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding a normal tunnel and check for Echo request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+</tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+             seqNoPres="TRUE" seqNo="2" suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+     </tapa.send>
+
+    <tapa.delay delay="20" />
+   
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.22
+#
+#       Desc:  Adding a Forwarding tunnel and check for Echo request 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.22">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding a Forwarding tunnel and check for Echo request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+</tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    15.23
+#
+#       Desc:  Adding two tunnels-Normal and forwarding,echo request will be send to peer
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.23">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding two tunnels-Normal and forwarding,echo request will be send to peer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            seqNoPrsnt="TRUE" seqNo="2"  suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+    <tapa.delay delay="20" />
+   
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#       Test:    15.24
+#
+#       Desc:    Adding two tunnels-Normal and forwarding,DELETE Normal tunnel
+#                echo request should not be sent. 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.24">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding two tunnels-Normal and forwarding,DELETE Normal tunnel
+            echo request should not be sent."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            suConId="1"  remTeid="0" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+      # Send tunnel Management Request to DELETE NORMAL tunnel
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1"
+         rmtAddr="127.0.0.100"
+            action="EGT_TMGMT_REQTYPE_DEL" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#       Test:    15.25
+#
+#       Desc:    Adding two tunnels-Normal and forwarding,DELETE Forwarding tunnel
+#                echo request should  be sent. 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.25">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding two tunnels-Normal and forwarding,DELETE forwarding tunnel
+            echo request should be sent."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            seqNoPres="TRUE" seqNo="2" suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+      # Send tunnel Management Request to DELETE FORWARDING tunnel
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1"
+         rmtAddr="127.0.0.100"
+            action="EGT_TMGMT_REQTYPE_DEL" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+
+      <tapa.delay delay="60" />
+      #Since Forwarding tunnel deleted and Normal Tunnel exists on Same path-Expect Echo request
+      <tapa.expset guardTmr="1000">
+         <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+         <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+         <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+      </tapa.expect>
+      <tapa.send>
+           <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" seqNoPrsnt="TRUE"  seqNo="2"  passIpAddr="TRUE"
+              suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+      </tapa.send>
+   
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    15.26
+#
+#       Desc:  Adding two tunnels-Normal and forwarding,On two different paths
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.26">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+           "Adding two tunnels-Normal and forwarding,On two different paths"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION one Path 1
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWARDING TUNNEL CREATION Path 2
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            suConId="1"   seqNoPres="TRUE" seqNo="2" remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+    <tapa.delay delay="20" />
+   
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#       Test:    15.27
+#
+#       Desc:    Adding two tunnels-Normal(on path P1) and forwarding(on path P2),
+#                DELETE Normal tunnel(P1);Echo request should not be sent on P1. 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.27">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       Adding two tunnels-Normal(on path P1) and forwarding(on path P2),
+       DELETE Normal tunnel(P1);Echo request should not be sent on P1.  
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION (On Path P1)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION(On Path P2)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" 
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" 
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" 
+         rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" seqNoPres="TRUE" seqNo="2"
+            suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+      # Send tunnel Management Request to DELETE NORMAL tunnel on path P1:NO ECHO REQ should go out on path P1
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1"
+         rmtAddr="127.0.0.100"
+            action="EGT_TMGMT_REQTYPE_DEL" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#       Test:    15.28
+#
+#       Desc:    Adding Normal tunnel on path P1 and 2 tunnels on path P2,
+#                One Normal other forwarding.Echo Request should go on both Paths
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.28">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+      "Adding Normal tunnel on path P1 and 2 tunnels on path P2,
+       One Normal other forwarding.Echo Request should go on both Paths"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION (On Path P1)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION(On Path P2)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+      #Send tunnel Management Request 2:Normal  TUNNEL CREATION(On Path P2)
+      
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" 
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" 
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" 
+         rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0"
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1"
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE"
+         rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" seqNoPres="TRUE" seqNo="2"
+            suConId="1"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#       Test:    15.29
+#
+#       Desc:    Adding one Normal tunnel on path P1 and two tunnels on path P2,
+#                one normal another forwarding ;Delete Normal tunnel on P2 
+#                Echo request should not be sent on P2.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.29">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+        "Adding one Normal tunnel on path P1 and two tunnels on path P2,
+         one normal another forwarding ;Delete Normal tunnel on P2 
+         Echo request should not be sent on P2"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+          <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+         
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.egtp.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      #Send tunnel Management Request 1 :NORMAL TUNNEL CREATION (On Path P1)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      #Send tunnel Management Request 2:FORWRADING TUNNEL CREATION(On Path P2)
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_FWD_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+      #Send tunnel Management Request 2:Normal  TUNNEL CREATION(On Path P2)
+      
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.101"
+         action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101"/>
+      </tapa.expect>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" 
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" 
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" 
+         rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0"
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1"
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="2" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE"
+         rmtAddrType="4" rmtAddr="127.0.0.101" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            suConId="1"  remTeid="1" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+      # Send tunnel Management Request to DELETE NORMAL tunnel on path P2:NO ECHO REQ should go out on path P2
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1"
+         rmtAddr="127.0.0.101"
+            action="EGT_TMGMT_REQTYPE_DEL" reOrderPres="FALSE" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" tunnelType="EG_NORMAL_DATA_TUNN"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.101" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+      
+      #Send ECHO REQ only on only on PATH 1
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" recvIeTvType="1" lclTeid="0" 
+          suConId="0" passIpAddr="FALSE" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" 
+          lclPort="2152" remTeid="0"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.egt.egudatind suId="1" seqNoPres="TRUE" seqNo="1" msgType="EGT_GTPU_MSG_ECHO_RSP" lclTeid="0" passIpAddr="FALSE" 
+         rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.expect>
+
+    <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE"
+            suConId="1"  remTeid="1" msgType="EGT_GTPU_MSG_ECHO_RSP"/>
+    </tapa.send>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    15.30
+#
+#       Desc:  Receivie EGT_GTPU_MSG_ECHO_REQ with incorrect dest IP
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc21.xml
+#
+<tapa.testcase id="15.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie EGT_GTPU_MSG_ECHO_REQ with incorrect dest IP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+    <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+      <tapa.egtpu.alarm.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      #activate the alarm
+       <tapa.egtpu.alarm.init/>
+       
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" suConId="1" unknownTvIe="TRUE" 
+            passData="FALSE" passIpAddr="FALSE" 
+            lclAddr="127.0.0.1"  rmtAddr="127.0.0.101"
+            msgType="EGT_GTPU_MSG_ECHO_REQ" remTeid="0" 
+            seqNoPres="TRUE" seqNo="100" />
+      </tapa.send>
+      
+      <tapa.expect>
+	   #Receive alarm
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" 
+         cause="LEG_CAUSE_DST_IP_NOT_CONFIG" type="LEG_PAR_IP"/>
+
+         </tapa.expect>
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+
+      <tapa.egtpu.dtucl.deinit/> 
+      </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    15.31
+#
+#       Desc:   Receive Echo Request on a Deleted tunnel 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="15.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Echo Request on a Deleted tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.echo.dtucl.init/>
+	</tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Delete the previously created tunnel
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclPort="0" rmtPort ="0"
+             frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+             rmtAddr="127.0.0.100"  teid="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm action="EGT_TMGMT_REQTYPE_DEL"
+           suId="1" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" />
+      </tapa.expect>
+
+      #Activate the alarms
+      <tapa.egtpu.alarm.init/>
+
+      <tapa.send>
+          <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE"
+             seqNoPrsnt="TRUE" seqNo="1" lclTeid="0"  remTeid="0"
+             msgType="EGT_GTPU_MSG_ECHO_REQ" 
+             lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152"
+             rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152"
+             recvIeTvType="1" suConId="0" />
+       </tapa.send>
+
+    #Receive alarm
+    <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" 
+         cause="LEG_CAUSE_DST_IP_NOT_CONFIG" type="LEG_PAR_IP"/>
+    </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+     # Disable Alarms
+      <tapa.egtpu.alarm.init/>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+      <tapa.delay delay="10" />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    15.32
+#       Desc:  Receivie EGT_GTPU_MSG_ECHO_RSP with incorrect dest IP
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc21.xml
+#
+<tapa.testcase id="15.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie EGT_GTPU_MSG_ECHO_RSP with incorrect dest IP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+    <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.echo.dtucl.init/>
+      <tapa.egtpu.alarm.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ"  suConId="1"  save="FALSE" validateUMsg="TRUE"/>
+     </tapa.expset>
+
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" suConId="1" unknownTvIe="TRUE" 
+            passData="FALSE" passIpAddr="FALSE" 
+            lclAddr="127.0.0.1"  rmtAddr="127.0.0.101"
+            msgType="EGT_GTPU_MSG_ECHO_RSP" remTeid="0" 
+            seqNoPres="TRUE" seqNo="100" />
+      </tapa.send>
+      
+      <tapa.expect>
+	   #Receive alarm
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_IP"
+           event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_NOT_CONFIG"/> 
+       </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="10" />
+      # De-Init EGTP 
+
+      <tapa.egtpu.dtucl.deinit/> 
+      </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    15.33
+#
+#       Desc:   Send Echo Response with timeout, expect alarm for path recovery
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.33">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Response with timeout, expect alarm for path recovery"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.egtpu.echo.dtucl.init/>
+      <tapa.egtpu.alarm.init/>
+   
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>   
+   
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ"  suConId="1"  save="FALSE" validateUMsg="TRUE"/>
+     </tapa.expset>
+
+	<tapa.delay delay="5" />
+
+    <tapa.expset guardTmr="1000">
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_IP"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_NOT_REACHABLE" />
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+	<tapa.delay delay="5" />
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" suConId="0"
+       seqNoPrsnt="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+       msgType="EGT_GTPU_MSG_ECHO_RSP" 
+       lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+       rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" />
+    </tapa.send>
+
+    <tapa.expset guardTmr="1000">
+        <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"  type="LEG_PAR_IP"
+           event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_REACHABLE" />
+
+        <tapa.egt.egustaind suId="1" status="LCM_PRIM_OK" reason="EGT_GTPU_DEST_REACHABLE"/>
+
+        #Verify the Echo Response msg 
+	     <tapa.egt.egudatind   suId="1"
+	      seqNoPres="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+		   msgType="EGT_GTPU_MSG_ECHO_RSP" 
+		   lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+	   	rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" /> 
+
+	</tapa.expset>
+
+    </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    15.34
+#
+#       Desc:   Send Echo Response after dummy tunnel creation, expect alarm for path recovery
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc15.xml
+#
+<tapa.testcase id="15.34">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+         "Send Echo Response with timeout, expect alarm for path recovery"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.egtpu.echo.dtucl.init/>
+   
+      # Add the   tunnel
+    <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+    </tapa.send>
+
+    # Expect Control Confirm
+    <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      <tapa.egtpu.alarm.init/>
+     
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>   
+   
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ"  suConId="1"  save="FALSE" validateUMsg="TRUE"/>
+     </tapa.expset>
+
+    <tapa.delay delay="5" />
+
+    <tapa.expset guardTmr="1000">
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_IP"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_NOT_REACHABLE" />
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+	<tapa.delay delay="1" />
+
+   <!--
+    <tapa.expset guardTmr="1000">
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_IP"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_NOT_REACHABLE" />
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" type="LEG_PAR_PORT"
+          event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE"/>
+
+    </tapa.expset>
+    -->
+
+     # Add the dummy tunnel
+    <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+    </tapa.send>
+
+    # Expect Control Confirm
+    <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="3" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+      # Delete the previously created tunnel1
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclPort="0" rmtPort ="0"
+             frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+             rmtAddr="127.0.0.100"  teid="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm action="EGT_TMGMT_REQTYPE_DEL"
+           suId="1" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" />
+      </tapa.expect>
+
+      # Delete the previously created tunnel2
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclPort="0" rmtPort ="0"
+             frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+             rmtAddr="127.0.0.100"  teid="2" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm action="EGT_TMGMT_REQTYPE_DEL"
+           suId="1" teid="2" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" />
+      </tapa.expect>
+
+
+    #Send the Echo response
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" suConId="0"
+       seqNoPrsnt="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+       msgType="EGT_GTPU_MSG_ECHO_RSP" 
+       lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+       rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" />
+    </tapa.send>
+
+    <tapa.expset guardTmr="1000">
+        <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"  type="LEG_PAR_IP"
+           event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_REACHABLE" />
+
+        #Verify the Echo Response msg 
+	     <tapa.egt.egudatind   suId="1"
+	      seqNoPres="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+		   msgType="EGT_GTPU_MSG_ECHO_RSP" 
+		   lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+	   	rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" /> 
+
+        <tapa.egt.egustaind suId="1" status="LCM_PRIM_OK" reason="EGT_GTPU_DEST_REACHABLE"/>
+	</tapa.expset>
+
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" suConId="0"
+       seqNoPrsnt="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+       msgType="EGT_GTPU_MSG_ECHO_RSP" 
+       lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152" 
+       rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="2152" />
+    </tapa.send>
+    
+    <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" suConId="0"
+       seqNoPrsnt="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+       msgType="EGT_GTPU_MSG_ECHO_RSP" 
+       lclAddrType="4" lclAddr="127.0.0.1" lclPort="10000" 
+       rmtAddrType="4" rmtAddr="127.0.0.1" rmtPort="10000" />
+    </tapa.send>
+
+
+    </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#
+#       Test:    15.35
+#
+#       Desc:    Test sending of end marker message on invalid interface
+#
+#       Notes:   None
+#              
+#       Module:  edm
+#
+#       File:    egac_tc14.xml
+#
+#
+<tapa.testcase id="15.35">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.edm"/>
+
+      <tapa.desc>
+	      "Test the dropping of end marker message with error as invalid message
+			type"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+         <tapa.flag id="EGTP_SEQ_ENABLE"/>
+      </tapa.ifdef>	
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   # Configure TUCL	   
+      <!--   
+      <tapa.hi.init/>
+      -->
+   # Configure GTP-U   
+      <tapa.eg.gtpu.init1/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq intfType="EGT_INT_S5_S8_SGW_GTP_U" suId="0" spId="0"
+			lclPort="0" rmtPort ="0" reOrderPres="TRUE"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1"
+	rmtAddr="127.0.0.1"  teid="2" expSeqNmb ="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+			action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+			intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.expect>
+      
+      # Send GPDU message
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" lclTeid="4"
+			  msgType="EGT_GTPU_MSG_END_MARKER" />
+      </tapa.send>
+
+     <tapa.expect >
+         <tapa.egt.eguerrind suId="0" lclTeid="4" 
+			errCause="EGT_ERR_INV_MSG_TYPE"
+			failedMsgType="EGT_GTPU_MSG_END_MARKER"
+			lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+   <tapa.egtpu.deinit/>
+
+   # De-Init TUCL
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+

@@ -1,0 +1,1529 @@
+#
+#       Test:    4.1
+#
+#       Desc:   Testing that Cell Configuration fails if given MAX value of
+#       SR_PRDCTY and CQI_PRDCTY
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc3.xml
+#
+#
+<tapa.testcase id="4.1">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="2" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" numTxAnt="2"
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="4" srConfigIndex="15"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="26"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="2" n1ResTb1Lst="0:1"
+             n1Tb2ResCount = "2" n1ResTb2Lst="2:3" />
+      </tapa.expect>
+
+
+      #Shutdown the RRM
+      <tapa.rrm.shutdown />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    4.2
+#
+#       Desc:   Testing that Cell Configuration fails if given MAX value of
+#       SR_PRDCTY and CQI_PRDCTY
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc3.xml
+#
+#
+<tapa.testcase id="4.2">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="4" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" numTxAnt="2"
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="4"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="8" srConfigIndex="15"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="26"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="4:5:6:7" />
+      </tapa.expect>
+
+      #Shutdown the RRM
+      <tapa.rrm.shutdown />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    4.3
+#
+#       Desc:   Testing that Cell Configuration fails if given MAX value of
+#       SR_PRDCTY and CQI_PRDCTY
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc3.xml
+#
+#
+<tapa.testcase id="4.3">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" numTxAnt="2"
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="26"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="26"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="1:2:3:4"
+             n1Tb2ResCount = "4" n1ResTb2Lst="6:7:8:9" />
+      </tapa.expect>
+      #Shutdown the RRM
+      <tapa.rrm.shutdown />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    4.4
+#
+#       Desc:   Testing for SCell CQI and RI Config index
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc4.xml
+#
+#
+<tapa.testcase id="4.4">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" numTxAnt="2"
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="41" riCfgIdx="162" riPres="FALSE"/>
+      </tapa.expect>
+ 
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="26"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="45" riCfgIdx="162" riPres="FALSE"/>
+      </tapa.expect>
+ 
+      #Shutdown the RRM
+      <tapa.rrm.shutdown />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    4.5
+#
+#       Desc:   Testing for SCell CQI and RI Config index
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc4.xml
+#
+#
+<tapa.testcase id="4.5">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+     #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1" recfgBitmap="3" erabAction="RMU_ADD_ERAB" ambrPresent="1" erabId="1" ueCategory="5" grpIndicator="1" erabPriority="4" erabPreemptCap="1" erabPreemptVul="1" erabQci="7"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="10"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="18" isScellPres="TRUE" sCellIdx="1" ueCategory="5"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="41" riCfgIdx="162" riPres="TRUE"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="24"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="45" riCfgIdx="162" riPres="FALSE"/>
+      </tapa.expect>
+ 
+      #Shutdown the RRM
+      <tapa.rrm.shutdown />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    4.6
+#
+#       Desc:   Testing for Apcqi Mode config based upon DLFS flag on SCell
+#                 DLFS enabled  on Scell and Subband supported for Ue
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc4.xml
+#
+#
+<tapa.testcase id="4.6">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+
+      #Add another Cell
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="2" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="1" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="2"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+     #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1" recfgBitmap="3" erabAction="RMU_ADD_ERAB" ambrPresent="1" erabId="1" 
+            ueCategory="5" grpIndicator="1073741825" erabPriority="4" erabPreemptCap="1" erabPreemptVul="1" erabQci="7" ueSubBand="1"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="10"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="18" isScellPres="TRUE" sCellIdx="1" ueCategory="5" sCellId="2"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="41" riCfgIdx="162" riPres="TRUE"
+            chkApcqi="TRUE" apcqiPres="TRUE" acqiMode="3"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="24"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="45" riCfgIdx="162" riPres="FALSE" />
+      </tapa.expect>
+ 
+      #Shutdown the RRM
+      <tapa.rrm.shutdownMultiCell />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#       Test:    4.7
+#
+#       Desc:   Testing for Apcqi Mode config based upon DLFS flag on SCell
+#                 DLFS disable on Scell Subband supported for Ue
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc4.xml
+#
+#
+<tapa.testcase id="4.7">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+      #Add another Cell
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="2" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="2"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+     #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1" recfgBitmap="3" erabAction="RMU_ADD_ERAB" ambrPresent="1" erabId="1" 
+            ueCategory="5" grpIndicator="1073741825" erabPriority="4" erabPreemptCap="1" erabPreemptVul="1" erabQci="7" ueSubBand="1"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="10"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="18" isScellPres="TRUE" sCellIdx="1" ueCategory="5" sCellId="2"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="41" riCfgIdx="162" riPres="TRUE"
+            chkApcqi="TRUE" apcqiPres="FALSE" />
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="24"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="45" riCfgIdx="162" riPres="FALSE" />
+      </tapa.expect>
+ 
+      #Shutdown the RRM
+      <tapa.rrm.shutdownMultiCell />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#       Test:    4.8
+#
+#       Desc:   Testing for Apcqi Mode config based upon DLFS flag on SCell
+#                 DLFS enable on Scell Subband not supported for Ue
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    rmac_tc4.xml
+#
+#
+<tapa.testcase id="4.8">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="RRM"/>
+
+      <tapa.desc>
+         "RRM Up CA Cases"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Gen Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.genCfgReq />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.genCfgCfm/>
+      </tapa.expect>
+
+      #SAP Cfg for LTE-RRM
+      <tapa.send >
+         <tapa.lrm.sapCfgReq />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.sapCfgCfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from SM to RRM             ( Add Max cells )
+      <tapa.send>
+         <tapa.lrm.enbCfgReq  CfgType = "1" maxCells = "2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.enbCfgCfm/>
+      </tapa.expect>
+      # Send Protocol Config Request from SM to RRM (Add Cell # 1)
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="1" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="0" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="1"/>
+      </tapa.send>
+
+
+      #Add another Cell
+      <tapa.send>
+         <tapa.lrm.cellcfgreq cellId="2" action="1" cellBandwidth="LRM_BANDWIDTH_100" dataAcbTime="RMU_ACBTIME_S4"
+                                 sigAcbTime="RMU_ACBTIME_S4" maxActiveUes="5" maxSigUes="2" dlfs="1" waitTime="3"
+                                acbForEmergency="0" acbForSplClass="31"
+                                maxUlBandwidth="10" maxDlBandwidth="10" bNrbCqi="1" bNcsAn="0" rcmAlgoType="1" 
+                                usNumSrResPerTti="2" enSrPrdcty="LRM_SR_PRDCTY_20"
+                                 enCqiPrdcty="LRM_CQI_PRDCTY_40" enDsrTransMax="DSR_TRANS_N4"
+                                 usNumCqiResPerTti="2" usN1Pucch="10" isCaEnable = "TRUE"
+                                 numDlUePerTti="5" numTxAnt="2"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRM to LM
+      <tapa.expect>
+         <tapa.lrm.cellcfgCfm/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.lrm.cellUpInd cellId="2"/>
+      </tapa.send>
+
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="15"/>
+      </tapa.expect>
+
+     #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1" recfgBitmap="3" erabAction="RMU_ADD_ERAB" ambrPresent="1" erabId="1" 
+            ueCategory="5" grpIndicator="1073741825" erabPriority="4" erabPreemptCap="1" erabPreemptVul="1" erabQci="7" ueSubBand="FALSE"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="10"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"/>
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="18" isScellPres="TRUE" sCellIdx="1" ueCategory="5" sCellId="2"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="41" riCfgIdx="162" riPres="TRUE"
+            chkApcqi="TRUE" apcqiPres="FALSE" />
+      </tapa.expect>
+
+
+	  #Send UE Reconfig  (ICS) req to RRM
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+             recfgBitmap="35" erabAction="RMU_ADD_ERAB" ambrPresent="1"
+             erabId="1" ueCategory="5" grpIndicator="1" erabPriority="2"
+             erabPreemptCap="1" erabPreemptVul="1" erabQci="9"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="7"/>
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="24"
+				 bMacMainCfgBitMap="2" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="39"  RiConfigIndex="162"
+            SimulAckNackCqi="1" erabId="1" erabCount="1"
+             n1Tb1ResCount ="4" n1ResTb1Lst="0:1:2:3"
+             n1Tb2ResCount = "4" n1ResTb2Lst="5:6:7:8" />
+      </tapa.expect>
+
+      #2ndUe
+      #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="62" transId="11"
+            connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+      #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.ueadmitrsp cellId="1" tCrnti="62" transId="11" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="43"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="10" srConfigIndex="17"/>
+      </tapa.expect>
+
+	  #Send UE Reconfig  (ICS) req to RRM For SCell Addition (UE2)
+      <tapa.send >
+         <tapa.rmu.scellrecfgreq transId="11" tCrnti="62" cellId="1"
+             recfgBitmap="16" isScellPres="TRUE" sCellIdx="1"/>
+      </tapa.send>
+
+
+      <tapa.expect>
+      <tapa.rmu.uerecfgrsp transId="11" tCrnti="62" cellId="1" recfgBitmap="16" 
+            cqiResIdx="0" cqiCfgIdx="45" riCfgIdx="162" riPres="FALSE" />
+      </tapa.expect>
+ 
+      #Shutdown the RRM
+      <tapa.rrm.shutdownMultiCell />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+

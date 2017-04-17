@@ -1,0 +1,71 @@
+# This is my comment
+
+fsm ParameterValueChange;
+basename Tr069ParameterValueChange;
+namespace tr069;
+
+#type_header "Tr069ParameterValueChangeTypes.h";
+
+# Types
+type "void*";
+
+# Events
+event HmsConnection type "void*";
+event HmsDisconnection type "void*";
+event ActiveNotify type "void*";
+event TimerExpiry type "void*";
+
+
+# States & Superstates
+state NotConnectedToHms;
+superstate HmsConnectionEstablished;
+state Idle;
+state ActiveNotificationPending;
+
+# Guard Conditions
+guard_condition QueryActiveNotifyStillPending;
+
+# Actions
+action NewValueChangeTransactionSession;
+
+# Initial State
+initial_state NotConnectedToHms;
+
+
+state NotConnectedToHms
+{
+	event HmsConnection >> HmsConnectionEstablished;
+}
+
+superstate HmsConnectionEstablished
+{
+	entry;
+	exit;
+	
+	initial_state Idle;
+	
+	event HmsDisconnection >> NotConnectedToHms;
+}
+
+state Idle
+{
+	superstate HmsConnectionEstablished;
+	
+	event ActiveNotify action NewValueChangeTransactionSession >> ActiveNotificationPending;
+}
+
+state ActiveNotificationPending
+{
+	superstate HmsConnectionEstablished;
+	
+	# Timer
+	entry;
+	exit;
+
+	event TimerExpiry
+	{
+		if QueryActiveNotifyStillPending action NewValueChangeTransactionSession >> ActiveNotificationPending;
+		else >> Idle;
+	}
+}
+

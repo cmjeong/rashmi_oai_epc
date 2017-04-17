@@ -1,0 +1,71 @@
+# This is my comment
+
+fsm Reboot;
+basename Tr069Reboot;
+namespace tr069;
+
+#type_header "Tr069RebootTypes.h";
+
+type "void*";
+
+# Events
+event RebootReq type "void*";
+event StateGuardTimerExpiry type "void*";
+event OperationalStateDisabled type "void*";
+
+
+# States & Superstates
+state Operational;
+superstate Rebooting;
+    state DelaySecGwDisconnect;
+    state SecGwDisconnect;
+    
+# Guard Conditions
+guard_condition QueryOperational;
+
+# Actions
+action ImmediateReboot;
+
+# Initial State
+initial_state Operational;
+
+
+
+state Operational
+{
+	event RebootReq >> Rebooting;
+}
+
+superstate Rebooting
+{
+	entry;
+	
+	initial_state 
+	{
+		if QueryOperational >> DelaySecGwDisconnect;
+		else >> SecGwDisconnect;
+	}
+}
+
+state DelaySecGwDisconnect
+{
+	superstate Rebooting;
+	
+	entry;
+	exit;
+
+	event StateGuardTimerExpiry >> SecGwDisconnect;
+	event OperationalStateDisabled >> SecGwDisconnect;
+}
+
+
+state SecGwDisconnect
+{
+	superstate Rebooting;
+
+	entry;
+	exit;
+	
+	event StateGuardTimerExpiry action ImmediateReboot;
+}
+

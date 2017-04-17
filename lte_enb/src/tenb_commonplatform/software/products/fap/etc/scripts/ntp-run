@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 14255 $
+#
+
+# Copy NTP client and config files to RAM disk and run from there.
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+FLASH_DIR_LOCAL_CFG=$FLASH_DIR_ACTIVE_BANK/config
+FLASH_DIR_COMMON_CFG=$FLASH_DIR/config
+FLASH_DIR_FPGA=$FLASH_DIR_ACTIVE_BANK/fpga
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+
+cd $RUNTIME_DIR
+cp $FLASH_DIR_APPS/ntp-client .
+chmod +x ntp-client
+cp $FLASH_DIR_APPS/ntp-acquire .
+chmod +x ntp-acquire
+cp $FLASH_DIR_COMMON_CFG/ntp-* .
+
+# Run NTP in measurement mode to save the raw statistics.
+./ntp-client -c ntp-measurements.conf -f ntp-initialdriftfile -g -D 1
+
+# Run the acquisition software to create the drift file we actually require.
+./ntp-acquire /usr/rawstats ntp-initialdriftfile ntp-driftfile
+
+# Reset the date so that NTP starts happily.
+date -u 010100002000
+
+# Run NTP in target mode to synchronise the client with the server.
+./ntp-client -c ntp-target.conf -f ntp-driftfile -g -D 1 &

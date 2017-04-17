@@ -1,0 +1,213 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// CliApplication.h
+//
+// See header file for documentation.
+//
+// Copyright Radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+#include <signal.h>
+#include <stdio.h>
+#include <system/Trace.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "CliApplication.h"
+#include "CliInput.h"
+#include "CliEvents.h"
+#include "kb_getc.h"
+
+
+extern "C" void catchTerm(int v)
+{
+    TRACE_PRINTF("Received signal %u", v);
+
+    /* Indicate that we should exit */
+    CliApplication::GetInstance().HandleTerminationSignal();
+}
+
+void CliInput::HandleCommand( string & command )
+{
+    shared_ptr<CliCommand> event( new CliCommand( command ));
+
+    CliApplication::GetInstance().HandleUserInputLine( event );
+}
+
+CliInputStdin::~CliInputStdin()
+{
+}
+
+void CliInputStdin::GetNextCommand( const string & prompt )
+{
+    cerr << prompt;
+    cerr.flush();
+}
+
+
+void CliInputStdin::SelectCallBack()
+{
+    string input("");
+    char buffer[2048];
+
+    bool quit = (0 == fgets(buffer, sizeof(buffer), stdin));
+
+    if(!quit)
+    {
+        input = buffer;
+
+    }
+    else
+    {
+        input = "quit";
+    }
+
+    shared_ptr<CliAppWholeCmdEvent> event (new CliAppWholeCmdEvent( input ) );
+    CliApplication::GetInstance().Enqueue(event);
+}
+
+CliInputStdinInteractive::~CliInputStdinInteractive()
+{
+}
+
+void CliInputStdinInteractive::StartCommandLineInputThread()
+{
+    // Ensure kill / Ctrl-C etc restore the tty settings we're about to f**k up
+    signal(SIGTERM, catchTerm);
+    signal(SIGHUP, catchTerm);
+    signal(SIGINT, catchTerm);
+
+    /* TODO: this crashes v4 cli when run as ate over inetd */
+#if 0
+    RSYS_ASSERT(0 == set_tty_cbreak());
+#else
+    set_tty_cbreak();
+#endif
+}
+
+void CliInputStdinInteractive::StopCommandLineInputThread()
+{
+    /* TODO: */
+#if 0
+    RSYS_ASSERT(0 == set_tty_cooked());
+#else
+    set_tty_cooked();
+#endif
+}
+
+
+void CliInputStdinInteractive::GetNextCommand( const string & prompt )
+{
+    static bool issuedWelcomeText = false;
+
+    if( !issuedWelcomeText )
+    {
+        issuedWelcomeText = true;
+
+        cout << "Radisys FAP Interactive CLI\n"
+                "Welcome\n"
+                "Lost? Double-tap <Tab>, or type \"help\".\n";
+    }
+
+    cerr << prompt;
+    cerr.flush();
+
+    m_waitingForNextCommand = true;
+}
+
+void CliInputStdinInteractive::HandleInteractiveInput()
+{
+    ENTER ();
+
+    if( m_waitingForNextCommand )
+    {
+        GetNextCommandWithInteractiveInput();
+    }
+
+   EXIT();
+}
+
+void CliInputStdinInteractive::GetNextCommandWithInteractiveInput()
+{
+    unsigned char c = 0;
+
+    if( GetNextKeyPress(c) )
+    {
+        m_failedReadsSinceLastKeyPress = 0;
+
+        string commandLine;
+
+        bool commandComplete = m_userInput.GetUserInputLine( c, commandLine, m_prompt );
+
+        if(commandComplete)
+        {
+            m_waitingForNextCommand = false;
+
+            shared_ptr<CliAppWholeCmdEvent> event (new CliAppWholeCmdEvent( commandLine ) );
+            CliApplication::GetInstance().Enqueue(event);
+
+            cout << endl;
+        }
+
+    }
+    else
+    {
+        m_failedReadsSinceLastKeyPress++;
+    }
+
+}
+u32 CliInputStdinInteractive::GetPollRepeatTimeout()
+{
+    u32 timeoutMs = 1000;
+
+    if(m_waitingForNextCommand)
+    {
+        timeoutMs = 250;
+
+        if( m_failedReadsSinceLastKeyPress < 50 )
+        {
+            timeoutMs = 20;
+        }
+    }
+
+    return timeoutMs;
+}
+
+bool CliInputStdinInteractive::GetNextKeyPress( unsigned char & c )
+{
+    bool keyPressed = false;
+
+    c = kb_getc();
+
+    if(c)
+    {
+        keyPressed = true;
+    }
+
+    return keyPressed;
+}
+
+
+void CliInputApplicationArgument::GetNextCommand( const string & prompt )
+{
+    if(m_argument.size())
+    {
+        shared_ptr<CliAppWholeCmdEvent> event (new CliAppWholeCmdEvent( m_argument ) );
+        CliApplication::GetInstance().Enqueue(event);
+
+        m_argument = "";
+    }
+    else
+    {
+        shared_ptr<CliAppWholeCmdEvent> event (new CliAppWholeCmdEvent( "quit" ) );
+        CliApplication::GetInstance().Enqueue(event);
+    }
+}
+
+

@@ -1,0 +1,70 @@
+
+MIB_FILE = "../../../libs/common/mib-common/obj/hbs2-iu/generic/generic/MibAttributeId.h"
+LOG_FILE = "../../fap/management/tr069-v2/autogen/InvalidAttributeList"
+
+
+class MibAttribManager:
+    """Mib Attributes Manager Class. Creates a List of valid MibAttributesIds and provide functionalities to check if
+       a given one is valid and to create a log file to store invalid ones"""
+    
+    def __init__(self ):
+        self.attrList = []
+        self.invalidList = []
+        self.loadList()
+        
+    
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def loadList(self): 
+        try:
+            f = open(MIB_FILE, 'r')
+               
+        except(IOError), e:
+            print "\n\nERROR: unable to open file ", MIB_FILE, "\n * MIB Attributes NOT VERIFIED! * \n", e
+            raw_input("\nPress enter Key to exit\n")
+            sys.exit()           
+            
+        txt = f.read()
+        f.close()
+        
+        rawList = txt.split("ENUM_ELEMENT")
+
+        #cleaning up the raw list
+        rawList.remove(rawList[0])
+       
+        #fixing first element
+        first  = rawList[0].replace("_VAL", "")
+        first  = first.replace(",0", "")
+        rawList[0] = first
+        
+        for item in rawList:
+            str = (item.split("("))[1]
+            str = (str.split(")"))[0]
+            self.attrList.append(str)
+          
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def verifyParam(self, param):
+        if (param in self.attrList):
+            #print "Parameter: ", param, "found in list"
+            return True
+        else:
+            #print "Parameter: ", param, "NOT found in list"
+            self.invalidList.append(param)
+            return False
+    
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    def writeLog(self):
+        
+        lf = open(LOG_FILE, "w")
+        
+        for item in self.invalidList:
+            lf.write(str(item)+"\n")
+
+        lf.close()
+        print "LOG FILE about invalid MibAttributeIds written at ", LOG_FILE 
+    
+    
+if __name__ == "__main__":
+    MAM = MibAttribManager()
+

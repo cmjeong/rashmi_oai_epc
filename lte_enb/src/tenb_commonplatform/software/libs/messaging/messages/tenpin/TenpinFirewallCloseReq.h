@@ -1,0 +1,51 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// TenpinFirewallCloseReq.h
+//
+// Copyright radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __TenpinFirewallCloseReq_h_
+#define __TenpinFirewallCloseReq_h_
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "TenpinFirewall.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Functions / Classes
+///////////////////////////////////////////////////////////////////////////////
+
+class TenpinFirewallCloseReq : public threeway::Serialisable
+{
+public:
+    TenpinFirewallCloseReq() : m_token(0) {};
+    TenpinFirewallCloseReq(u32 token) : m_token(token) {};
+    virtual ~TenpinFirewallCloseReq() {};
+
+    // Implement Serialisable
+
+    virtual u32 GetSerialisationId() const { return SERIALISATION_ID_TENPIN_FIREWALL_CLOSE_REQ; }
+    virtual s32 Serialise(u8* data, u32 dataMaxBytes) const;
+    virtual bool DeSerialise(const u8* data, u32 dataLen);
+    virtual std::string ToString() const;
+
+    // Handles
+
+    FirewallHandles m_handles;
+
+    void SetToken(u32 token) { m_token = token; }
+    u32 GetToken(void) const { return m_token; }
+
+private:
+    u32 m_token;
+};
+
+#endif

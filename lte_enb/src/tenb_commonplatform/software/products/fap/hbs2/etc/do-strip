@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# $Id: do-strip 27730 2010-06-29 16:34:39Z mmcternan $
+#
+# Strip applications and libraries of as much as possible to reduce distro size.
+# 
+# This version simply strips all unneeded symbols from executables and shared
+# libraries.  However, some code is also contained to determine which symbols 
+# in dynamic libraries are required such that at some point libraries can be
+# optimisied to remove un-referenced function, or such detritus can be reported
+# for removal from the sources code.
+#
+
+SYMBOLS=`mktemp`
+
+function stripFiles()
+{
+    if [ -n "$*" ] ; then
+      FILES=`file $* | grep "not stripped" | sed "s/^\([^:]\+\):.*$/\1/"`
+      if [ -n "$FILES" ] ; then 
+        arm-none-linux-gnueabi-strip --strip-unneeded $FILES
+        #arm-none-linux-gnueabi-strip --discard-all @$SYMBOLS $FILES
+      fi
+    fi
+}
+
+echo "Stripping applications and libs."
+
+# Compile a list of undefined dynamic symbols
+#  These symbols must be kept to avoid breaking dynamic linking
+#arm-none-linux-gnueabi-objdump -T $OUTPUT_DIR_APPS/* $OUTPUT_DIR_LIB/* 2> /dev/null | grep '*UND*' | sed "s/^.* \([a-zA-Z0-9_]\+\)$/--keep-symbol=\1/" | sort -u > $SYMBOLS 
+
+# Strip any the applications and libraries
+stripFiles $OUTPUT_DIR_APPS/* $OUTPUT_DIR_LIB/*
+
+rm $SYMBOLS
+
+# END OF SCRIPT
+

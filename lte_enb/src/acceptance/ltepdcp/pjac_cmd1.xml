@@ -1,0 +1,1233 @@
+#
+#/********************************************************************20**
+#
+#     Name:    PDCP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based High Level Commands for Initialization, Bind and Unbind
+#
+#     File:    pjac_cmd1.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group Commands  
+#
+#*********************************************************************21*/
+
+#
+#
+#       Command: tapa.pj.kwbnd
+#
+#       Desc:    Command to Bind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    pjac_cmd1.xml
+#
+#
+<tapa.command id="tapa.pj.kwbnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the CKW, KWU and RGU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START for RLC-UL
+      ########################################################
+      <!--   # Send CKW Bind Request
+      <tapa.send>
+         <tapa.ckw.bndreq inst="1" spId="0" suId="0"/>
+      </tapa.send>  
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+       <tapa.expect>
+         <tapa.ckw.bndcfm inst="1"/>
+      </tapa.expect> 
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.bndreq inst="1" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="1" entity="ENTNH"/>
+      </tapa.expect>  -->
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Command: tapa.pj.bnd
+#
+#       Desc:    Command to Bind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    pjac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.bnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the CPJ and PJU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START for PDCP-UL
+      ########################################################
+
+      # Send CPJ Bind Request
+      <tapa.send>
+         <tapa.cpj.bndreq inst="1" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.cpj.bndcfm inst="1"/>
+      </tapa.expect>
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq inst="1" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm inst="1" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send PJU Relay Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq inst="1" spId="1" suId="0" entity="ENTPX"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm inst="1" entity="ENTPX"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND UDX ##############
+
+      # Send control request to Bind UDX SAP
+      <tapa.send>
+      <tapa.lpj.sapcntrlreq inst="1" elmnt="STUDXSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+      
+      <tapa.expset>
+      # Expect Unsolicitated status Indication
+      <tapa.lpj.staind inst="1" event="11" cause="258"/>
+      # Expect Control Confirm with Bind Confirm
+      <tapa.lpj.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      ############# CONTROL REQUEST TO BIND KWU ##############
+
+      # Send control request to Bind KWU SAP
+      <tapa.send>
+         <tapa.lpj.sapcntrlreq inst="1" elmnt="STKWUSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+      # Expect Bind Request From PDCP
+      <tapa.dummy.kwu.bndreq inst="1" spId="0" suId="0"/>
+      # Expect Control Confirm with Bind Confirm
+      <tapa.lpj.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      #Send Bind confirm to from RLC 
+      <tapa.send>
+         <tapa.dummy.kwu.bndcfm suId="0" />
+      </tapa.send>
+      <tapa.expset>
+      # Expect Unsolicitated status Indication
+      <tapa.lpj.staind inst="1" event="11" cause="258"/>
+      </tapa.expset>
+
+      ########################################################
+      #                 BINDING END for PDCP -UL
+      ########################################################
+      
+      ########################################################
+      #           BINDING START for PDCP-DL
+      ########################################################
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq inst="0" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm inst="0" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send PJU Relay Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq inst="0" spId="1" suId="0" entity="ENTPX"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm inst="0" entity="ENTPX"/>
+      </tapa.expect>
+
+      ########################################################
+      #                 BINDING END for PDCP -DL
+      ########################################################
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Command: tapa.pj.ubnd
+#
+#       Desc:    Command to Unbind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    pjac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.ubnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Unbinding the CPJ, PJU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           UNBINDING START
+      ########################################################
+      
+      # Send CPJ Bind Request
+      <tapa.send>
+         <tapa.cpj.ubndreq reason="5"/>
+      </tapa.send>
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.ubndreq reason="5" entity="ENTNH"/>
+      </tapa.send>
+
+      # Send PJU Relay Bind Request
+      <tapa.send>
+         <tapa.pju.ubndreq reason="5" entity="ENTPX"/>
+      </tapa.send>
+      # Send control request to Bind UDX SAP
+      <tapa.send>
+      <tapa.lpj.sapcntrlreq inst="1" elmnt="STUDXSAP" action="AUBND" spId="0" suId="0"/>
+      </tapa.send>
+      
+
+
+      ########################################################
+      #           UNBINDING START
+      ########################################################
+
+      <tapa.delay delay="2"/>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.ubnd1
+#
+#       Desc:    Command to Unbind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    pjac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.ubnd1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Unbinding the CPJ, PJU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           UNBINDING START
+      ########################################################
+      
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.ubndreq reason="5" entity="ENTNH"/>
+      </tapa.send>
+
+      # Send PJU Relay Bind Request
+      <tapa.send>
+         <tapa.pju.ubndreq reason="5" entity="ENTPX"/>
+      </tapa.send>
+
+      ########################################################
+      #           UNBINDING START
+      ########################################################
+
+      <tapa.delay delay="2"/>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.init
+#
+#       Desc:    Command to configure the layer manager
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure the PDCP Layer Manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+
+# Venki - send general config req to DL-PDCP 
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lpj.gencfg inst="0"  nmbUlBins="5" nmbDlBins="5" maxPjuSaps="2"
+         obTmrInt="10" timeRes="10" pdcpMode="2"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+# Venki - send general config req to UL-PDCP
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lpj.gencfg inst="1"  nmbUlBins="5" nmbDlBins="5" maxPjuSaps="2"
+            obTmrInt="10" timeRes="10" pdcpMode="1"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION START PDCP-UL#################
+
+      # Send CPJ SAP Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STCPJSAP" ent="ENTNH" sapId="PJAC_CPJ_SAP"
+         inst="1"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send PJU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU SAP Relay Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ" sapId="PJAC_UDX_SAP"
+      inst="1"/>
+      </tapa.send>
+
+# Expect SAP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+# Venki  - end
+
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+      selector="2" inst="1" spId="1"/>
+      </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+# Venki - start trial
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="0" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="2"/>
+
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="1" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="1"/>
+      </tapa.expect>
+# Venki - end
+
+
+      ################## SAP CONFIGURATION END #################
+      
+      ################## SAP CONFIGURATION START PDCP-DL#################
+
+      # Send PJU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+            selector="1" inst="0"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send PJU SAP Relay Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+            selector="1" inst="0"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ"
+      sapId="PJAC_UDX_SAP"
+      inst="0"/>
+      </tapa.send>
+
+# Expect SAP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+      selector="2" inst="0" spId="1"/>
+      </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+
+      ################## SAP CONFIGURATION END #################
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.pj.bnd/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Command: tapa.pj.init0
+#
+#       Desc:    Command to configure the layer manager
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    kwac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.init0">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure the PDCP Layer Manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+# Venki - send general config req to DL-PDCP
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lpj.gencfg   nmbUlBins="5" nmbDlBins="5" maxPjuSaps="2"
+            obdTmrInt="0" timeRes="10" pdcpMode="2" inst="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+        <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+# Venki - send general config req to UL-PDCP
+# Send General Configuration Request
+      <tapa.send>
+      <tapa.lpj.gencfg  nmbUlBins="5" nmbDlBins="5" maxPjuSaps="2"
+      obdTmrInt="0" timeRes="10" pdcpMode="1" inst="1"/>
+      </tapa.send>
+
+# Expect General Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION START PDCP-UL#################
+
+      # Send CPJ SAP Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STCPJSAP" ent="ENTNH" sapId="PJAC_CPJ_SAP" inst="1" />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU SAP Relay Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+         <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ" sapId="PJAC_UDX_SAP" inst="1"/>
+         </tapa.send>
+
+# Expect SAP Configuration Confirm
+         <tapa.expect>
+         <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+         </tapa.expect>
+# Venki  - end
+
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+         <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+         selector="2" inst="1" spId="1"/>
+         </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+         <tapa.expect>
+         <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+         </tapa.expect>
+
+
+################## SAP CONFIGURATION END PDCP-UL#################
+
+################## SAP CONFIGURATION START PDCP-DL#################
+
+# Send PJU SAP RRC Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+      selector="1" inst="0"/>
+      </tapa.send>
+
+# Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm status="0" reason="0" inst="0"/>
+      </tapa.expect>
+
+# Send PJU SAP Relay Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+      selector="1" inst="0"/>
+      </tapa.send>
+
+# Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm status="0" reason="0" inst="0"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ"
+      sapId="PJAC_UDX_SAP"
+      inst="0"/>
+      </tapa.send>
+
+# Expect SAP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+      selector="2" inst="0" spId="1"/>
+      </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+################## SAP CONFIGURATION END PDCP-DL#################
+
+# Venki - start trial
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="0" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="2"/>
+
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="1" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="1"/>
+      </tapa.expect>
+# Venki - end
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.pj.bnd/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.deinit
+#
+#       Desc:    Command to perform shutdown for TUCL.
+#
+#       Notes:   None
+#              
+#       Module: 
+#
+#       File:    kwac_cmd7.xml
+#
+#
+
+<tapa.command id="tapa.pj.deinit">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown PDCP stack and Acceptance Dummy (RRC, RLC) layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Unbind SAPs
+      <tapa.pj.ubnd/>
+
+      # Send Shutdown to PDCP Layer
+      <tapa.send>
+         <tapa.lpj.cntrlshutdown/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.kwu.shutdown/>
+      </tapa.send>   
+      
+      # Send Shutdown to PJ Test Engine
+      <tapa.send>
+         <tapa.pjac.shutdown/>
+      </tapa.send>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.deinit1
+#
+#       Desc:    Command to perform shutdown for TUCL.
+#
+#       Notes:   None
+#              
+#       Module: 
+#
+#       File:    kwac_cmd7.xml
+#
+#
+
+<tapa.command id="tapa.pj.deinit1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown RLC stack and Acceptance Dummy (RRC, PDCP, MAC) layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Unbind SAPs
+      <tapa.pj.ubnd1/>
+
+      # Send Shutdown to PDCP Layer
+      <tapa.send>
+         <tapa.lpj.cntrlshutdown/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.pjac.shutdown/>
+      </tapa.send>
+
+      # Put delay to handle RGU Unbind Request.
+      <tapa.delay delay="2"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.init1
+#
+#       Desc:    Command to configure the layer manager
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    kwac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.init1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "
+         Configure the PDCP Layer Manager.
+         No CPJ bind procedure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+
+# Venki - send general config req to DL-PDCP
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lpj.gencfg nmbUlBins="5" nmbDlBins="5" inst="0"
+         maxPjuSaps="2" obTmrInt="10" timeRes="10" pdcpMode="2"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="0"/>
+      </tapa.expect>
+
+# Venki - send general config req to UL-PDCP
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lpj.gencfg nmbUlBins="5" nmbDlBins="5" inst="1" maxPjuSaps="2"
+         obTmrInt="10" timeRes="10" pdcpMode="1"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+
+      ################## SAP CONFIGURATION START PDCP -UL#################
+
+      # Send CPJ SAP Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STCPJSAP" ent="ENTNH" sapId="PJAC_CPJ_SAP" inst="1"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU SAP Relay Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+            selector="2" inst="1"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="1"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ" sapId="PJAC_UDX_SAP"
+      inst="1"/>
+      </tapa.send>
+
+# Expect SAP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+# Venki  - end
+
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+      selector="2" inst="1" spId="1"/>
+      </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION END PDCP-UL#################
+      
+      ################## SAP CONFIGURATION START PDCP -DL#################
+
+      # Send PJU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTNH" sapId="PJAC_NH_PJU_SAP"
+            selector="1" inst="0"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="0"/>
+      </tapa.expect>
+
+      # Send PJU SAP Relay Configuration Request
+      <tapa.send>
+         <tapa.lpj.sapcfg elmnt="STPJUSAP" ent="ENTPX" sapId="PJAC_PX_PJU_SAP"
+            selector="2" inst="0"/>
+      </tapa.send>
+
+      # Expect PJU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lpj.cfgcfm status="0" reason="0" inst="0"/>
+      </tapa.expect>
+# Venki - start. UDX interface
+# Send UDX SAP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STUDXSAP" ent="ENTPJ" sapId="PJAC_UDX_SAP"
+      inst="0"/>
+      </tapa.send>
+
+# Expect SAP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+# Venki  - end
+
+# Venki - adding KWU SAP PDCP configuration
+# Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+      <tapa.lpj.sapcfg elmnt="STKWUSAP" ent="ENTKW" sapId="PJAC_KWU_SAP"
+      selector="2" inst="0" spId="1"/>
+      </tapa.send>
+
+# Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+      <tapa.lpj.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+      ################## SAP CONFIGURATION END PDCP-DL#################
+
+# Venki - start trial
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="0" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="2"/>
+
+      <tapa.send>
+        <tapa.lpj.ustacntrlreq inst="1" isEnable="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+        <tapa.lpj.cntrlcfm inst="1"/>
+      </tapa.expect>
+# Venki - end
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.pj.bnd2/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.bnd1
+#
+#       Desc:    Command to Bind the interfaces CPJ, PJU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.bnd1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the PJU interface only."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START
+      ########################################################
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq spId="0" suId="0" entity="ENTPX"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm entity="ENTPX"/>
+      </tapa.expect>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.pj.bnd2
+#
+#       Desc:    Command to Bind the interfaces CPJ, PJU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd7.xml
+#
+#
+<tapa.command id="tapa.pj.bnd2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the PJU interface only."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START
+      ########################################################
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq spId="0" suId="0" entity="ENTNH" inst="1"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm entity="ENTNH" inst="1"/>
+      </tapa.expect>
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq spId="1" suId="0" entity="ENTPX" inst="1"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm entity="ENTPX" inst="1"/>
+      </tapa.expect>
+      
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq spId="0" suId="0" entity="ENTNH" inst="0"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm entity="ENTNH" inst="0"/>
+      </tapa.expect>
+
+      # Send PJU RRC Bind Request
+      <tapa.send>
+         <tapa.pju.bndreq spId="1" suId="0" entity="ENTPX" inst="0"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.pju.bndcfm entity="ENTPX" inst="0"/>
+      </tapa.expect>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file: pjac_cmd1.xml@@/main/TeNB_Main_BR/1 - Wed Oct  9 19:53:05 2013
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+# /main/1         ---     vb              1. LTEPDCP Initial Release 2.1.
+#*********************************************************************91*/

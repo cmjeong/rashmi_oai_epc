@@ -1,0 +1,349 @@
+/*****************************************************************************
+ *
+ * $Id$
+ *
+ * Copyright (C) Radisys Ltd
+ *
+ *****************************************************************************/
+
+ /** \file
+  */
+#define FILE_NAME BINSTAMP
+
+/*****************************************************************************
+ * Header Files
+ *****************************************************************************/
+
+#include <inttypes.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <time.h>
+
+/*****************************************************************************
+ * Preprocessor Macros & Constants
+ *****************************************************************************/
+
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+
+/*****************************************************************************
+ * Typedefs
+ *****************************************************************************/
+
+typedef struct
+{
+    char startKey[4];
+
+    char version[16];    char nt0;
+    char buildCount[10]; char nt1;
+    char buildDate[12];  char nt2;
+    char buildTime[10];  char nt3;
+
+    char endKey[4];
+}
+file_stamp_t;
+
+/*****************************************************************************
+ * Local Variable Definitions
+ *****************************************************************************/
+
+static const char stampKeyStart[4] = "$STT";
+static const char stampKeyEnd[4]   = "END$";
+
+/*****************************************************************************
+ * Global Variable Definitions
+ *****************************************************************************/
+
+/*****************************************************************************
+ * Local Function Definitions
+ *****************************************************************************/
+
+/** Search some file for a stamp.
+ *
+ * \param[in]     f    The file to search.
+ * \param[in,out] off  Pointer to populate with the offset.
+ * \retval TRUE  A valid stamp was found and \a *off has been updated.
+ * \retval FALSE A valid stamp was not found.
+ */
+static bool stampFind(FILE *f, uint32_t *off)
+{
+    uint8_t k = 0;
+
+    /* Now search */
+    while(!feof(f))
+    {
+        if(stampKeyStart[k] == fgetc(f))
+        {
+            k++;
+            if(k == sizeof(stampKeyStart))
+            {
+                static const uint16_t stampBodyLen =  sizeof(file_stamp_t) -
+                                                      sizeof(stampKeyStart) -
+                                                      sizeof(stampKeyEnd);
+                char buf[4];
+
+                /* Store current position */
+                *off = ftell(f);
+
+                /* Skip the body of the suspected stamp */
+                if(fseek(f, stampBodyLen, SEEK_CUR) == EOF ||
+                   fread(buf, 1, 4, f) != 4)
+                {
+                    return false;
+                }
+
+                /* Check if the end is now found */
+                if(strncmp(buf, stampKeyEnd, 4) == 0)
+                {
+                    /* Correct returned value to point to stamp start */
+                    *off -= sizeof(stampKeyStart);
+                    return true;
+                }
+                else
+                {
+                    /* Return to previous position in file */
+                    fseek(f, *off, SEEK_SET);
+                }
+            }
+        }
+        else
+        {
+            k = 0;
+        }
+    }
+
+    return false;
+}
+
+
+/** Read and verify a stamp from some file.
+ *
+ * \param[in] f          The file to read.
+ * \param[in] off        Byte offset to the stamp in the file.
+ * \param[in,out] stamp  The stamp structure to populate.
+ */
+static bool stampRead(FILE *f, uint32_t off, file_stamp_t *const stamp)
+{
+    /* Read the stamp */
+    if(fseek(f, off, SEEK_SET) == EOF ||
+       fread(stamp, 1, sizeof(file_stamp_t), f) != sizeof(file_stamp_t))
+    {
+        fprintf(stderr, "Failed to read file stamp\n");
+        return false;
+    }
+
+    /* Double check the keys */
+    if(memcmp(stamp->startKey, stampKeyStart, sizeof(stampKeyStart)) !=0 ||
+       memcmp(stamp->endKey, stampKeyEnd, sizeof(stampKeyEnd)) !=0)
+    {
+        fprintf(stderr, "Stamp keys failed to match.\n");
+        return false;
+    }
+
+    /* Ensure the null terminations are in place */
+    stamp->nt0 = '\0';
+    stamp->nt1 = '\0';
+    stamp->nt2 = '\0';
+    stamp->nt3 = '\0';
+
+    return true;
+}
+
+
+/** Write a stamp to some file at the given offset.
+ *
+ * \param[in] f      The file to update.
+ * \param[in] off    Byte offset to the stamp in the file.
+ * \param[in] stamp  The stamp to write.
+ */
+static bool stampWrite(FILE *f, uint32_t off, const file_stamp_t *stamp)
+{
+    if(fseek(f, off, SEEK_SET) == EOF)
+    {
+        perror("fseek() failed");
+        return false;
+    }
+
+    if(fwrite(stamp, sizeof(file_stamp_t), 1, f) != 1 &&
+       fwrite(stamp, sizeof(file_stamp_t), 1, f) != 1 )
+    {
+        perror("fwrite() failed (twice)");
+        fprintf(stderr, "The stamp could not be written and may have been lost");
+        return false;
+    }
+
+    return true;
+}
+
+
+/** Pretty print a stamp.
+ *
+ * \param[in] stamp  Pointer to the structure to dump.
+ */
+static void stampPrint(const file_stamp_t *stamp)
+{
+    printf("Version:    %s\n", stamp->version);
+    printf("BuildCount: %s\n", stamp->buildCount);
+    printf("BuildDate:  %s\n", stamp->buildDate);
+    printf("BuildTime:  %s\n", stamp->buildTime);
+}
+
+
+/** Print program usage.
+ */
+static void usage(void)
+{
+    printf("Usage: binstamp <binary> [-u <version>]\n");
+    printf("\n");
+    printf("This will print the stamp information held in <binary>, or update. the stamp\n"
+           "if the -u option is given.  When updating the stamp, a version string must\n"
+           "also be supplied for incorporating into the stamp.\n"
+           "\n"
+           "In order for this program to stamp a binary, the target must contain the\n"
+           "following structure:\n"
+           "\n"
+           "    static const  __attribute__ ((used)) struct\n"
+           "    {\n"
+           "        const char startKey[4];\n"
+           "        const char version[16];    const char nt0;\n"
+           "        const char buildCount[10]; const char nt1;\n"
+           "        const char buildDate[12];  const char nt2;\n"
+           "        const char buildTime[10];  const char nt3;\n"
+           "        const char endKey[4];\n"
+           "    }\n"
+           "    fileInfo = { {'$','S','T','T'},\n"
+           "                 \"\", '\\0', \"\", '\\0', \"\", '\\0', \"\", '\\0',\n"
+           "                 {'E','N','D','$'} };\n"
+           "\n"
+           "binstamp looks for the start and end keys, and then modifies the contained\n"
+           "fields.  If the supplied <version> string is the same as that already in\n"
+           "the file, i.e. the version is unchanged, the buildCount is incremented.  In\n"
+           "the case that the version is changed, the buildCount is reset to zero.\n"
+           "\n"
+           "Binstamp v" VERSION "\n"
+           "\n");
+}
+
+/*****************************************************************************
+ * Global Function Definitions
+ *****************************************************************************/
+
+int main(int argc, char *argv[])
+{
+    uint32_t     stampOffset;
+    file_stamp_t stampData;
+    FILE         *f;
+
+
+    if(argc < 2)
+    {
+        usage();
+        return EXIT_FAILURE;
+    }
+
+    /* Open file for reading */
+    f = fopen(argv[1], "rb");
+    if(!f)
+    {
+        perror("fopen() failed");
+        return EXIT_FAILURE;
+    }
+
+    /* Attempt to find the stamp in the binary */
+    if(!stampFind(f, &stampOffset))
+    {
+        fprintf(stderr, "Failed to find file stamp in '%s'\n", argv[1]);
+        fclose(f);
+        return EXIT_FAILURE;
+    }
+
+    if(!stampRead(f, stampOffset, &stampData))
+    {
+        fprintf(stderr, "Failed to read file stamp in '%s'\n", argv[1]);
+        fclose(f);
+        return EXIT_FAILURE;
+    }
+
+    /* Print the stamp */
+    if(argc == 2)
+    {
+        stampPrint(&stampData);
+    }
+    /* Update the stamp */
+    else if(argc == 4 && strcmp(argv[2], "-u") == 0)
+    {
+        const uint16_t verLen = MIN(strlen(argv[3]), sizeof(stampData.version));
+        uint32_t       buildCount;
+        struct tm     *curTime;
+        time_t         now;
+
+        /* Get the build count as an integer */
+        buildCount = atoi(stampData.buildCount);
+
+        /* Clear the fields that wil be rewritten */
+        memset(&stampData.buildCount[0], 0, sizeof(stampData.buildCount));
+        memset(&stampData.buildTime[0],  0, sizeof(stampData.buildTime));
+        memset(&stampData.buildDate[0],  0, sizeof(stampData.buildDate));
+
+        /* Check if the version string has changed */
+        if(strncmp(argv[3], stampData.version, verLen) == 0)
+        {
+            /* Unchanged, so increment build count */
+            buildCount++;
+        }
+        else
+        {
+            /* Changed, reset build count and store new version */
+            buildCount = 0;
+            memset(&stampData.version[0], 0, sizeof(stampData.version));
+            memcpy(&stampData.version[0], argv[3], verLen);
+        }
+
+        snprintf(stampData.buildCount, sizeof(stampData.buildCount), "%" PRIu32,
+                 buildCount);
+
+        /* Now get the current time */
+        now = time(NULL);
+        curTime = localtime(&now);
+
+        /* Update the time fields */
+        snprintf(stampData.buildTime, sizeof(stampData.buildTime), "%02u:%02u:%02u",
+                 curTime->tm_hour, curTime->tm_min, curTime->tm_sec);
+        snprintf(stampData.buildDate, sizeof(stampData.buildDate), "%02u/%02u/%04u",
+                 curTime->tm_mday, 1 + curTime->tm_mon, 1900 + curTime->tm_year);
+
+        /* Now open file for writing */
+        f = freopen(argv[1], "rb+", f);
+        if(!f)
+        {
+            perror("Failed to open file for writing");
+            return EXIT_FAILURE;
+        }
+
+        /* Write the stamp data back to the file */
+        if(!stampWrite(f, stampOffset, &stampData))
+        {
+            fclose(f);
+            return EXIT_FAILURE;
+        }
+
+        fclose(f);
+    }
+    else
+    {
+        fclose(f);
+        usage();
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+/*****************************************************************************
+ * Unit Test Support
+ *****************************************************************************/
+
+
+/* END OF FILE */

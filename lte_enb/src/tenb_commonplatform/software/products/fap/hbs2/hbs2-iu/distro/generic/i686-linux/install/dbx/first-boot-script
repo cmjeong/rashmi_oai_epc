@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# $LastChangedRevision$
+#
+# This script performs any first boot, once only installation
+# actions, typically modifications to configuration files and/or
+# stuff which absolutely has to happen before a new software
+# load will run regardless of whether it's arrived through the
+# "official" update process or some other mechanism...  
+
+echo "Running first boot script."
+
+
+FLASH_DIR=/mnt
+FLASH_DIR_APPS=$FLASH_DIR/dbx
+FLASH_DIR_FPGA=$FLASH_DIR/fpga
+FLASH_DIR_CFG=$FLASH_DIR/config
+FLASH_DIR_ETC=$FLASH_DIR/etc
+FLASH_DIR_CERT=$FLASH_DIR/certificates
+FLASH_DIR_KERNEL=$FLASHDIR/kernel
+FLASH_DIR_MODS=$FLASH_DIR/lib/modules/`uname -r | sed "s/-svn[0-9]\\+[MmSs]\\?//"`
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+
+# Cleanup leftover files from previous installs.
+rm -rf $FLASH_DIR/*.tar
+rm -rf $FLASH_DIR_KERNEL/*
+
+
+# Upgrade to MIB to latest schema
+# This must be done before any calls to mib-firkler for example.
+MIB_FIRKLER=$FLASH_DIR_APPS/mib-firkler
+if [ -f $MIB_FIRKLER ]; then
+    echo "Upgrading MIB"
+    chmod +x $MIB_FIRKLER
+    $MIB_FIRKLER -u
+else
+    echo "$MIB_FIRKLER not found, no MIB upgrade possible."
+fi

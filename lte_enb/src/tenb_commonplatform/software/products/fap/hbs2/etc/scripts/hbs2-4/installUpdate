@@ -1,0 +1,109 @@
+FLASH_DIR=/mnt
+FLASH_DIR_CFG=$FLASH_DIR/config
+FLASH_DIR_INSTALL=$FLASH_DIR/install
+FLASH_DIR_APPS=$FLASH_DIR/dbx
+
+# Mount the inactive apps image as install target.
+#  Parse a parameter passed to the kernel to determine the file system to use
+APPS=`cat /proc/cmdline | sed 's/^.*apps=\([^ ]\+\).*$/\1/'`
+if [ -z "$APPS" ] ; then
+	echo "Failed to determine application file system."
+	echo "  Please pass apps=<device> as a kernel argument."
+	exit -1
+elif [ "$APPS" == "mtd:appsA" ] ; then
+	INSTALL="mtd:appsB"
+elif [ "$APPS" == "mtd:appsB" ] ; then
+	INSTALL="mtd:appsA"
+else
+	echo "Invalid value for application file systems: "$APPS 
+	exit -1
+fi
+mount -t jffs2 $INSTALL $FLASH_DIR_INSTALL
+
+echo "Attempting to activate app package in "$INSTALL
+if [ -f $FLASH_DIR_INSTALL/PreInstallScript ] ; then
+	echo "Invoking pre-install script: $FLASH_DIR_INSTALL/PreInstallScript"
+	chmod +x $FLASH_DIR_INSTALL/PreInstallScript
+	$FLASH_DIR_INSTALL/PreInstallScript
+else
+	echo "No pre-install script found."
+fi
+	
+if [ -e $FLASH_DIR_INSTALL/app_package_unpacked ] ; then
+	echo "Package already unpacked"
+else					
+	echo "Copying tarball to RAM."
+	# Copy package contents to RAM disk."
+	mkdir -p /tmp/untar
+	mv $FLASH_DIR_INSTALL/*.tar /tmp/untar 1>/mnt/tmp/mvResult.txt 2>/mnt/tmp/mvError.txt
+	if [ "$?" == "0" ] ; then
+		echo "Extracting package contents to /mnt."
+		tar -xf /tmp/untar/*.tar -C $FLASH_DIR 1>/tmp/untarResult.txt 2>/tmp/untarError.txt
+		if [ "$?" == "0" ] ; then
+			# Generate MD5 checksums for the files we've unpacked - filter output through sed
+			# to remove references to first-boot-script which will be renamed after use causing
+			# problems for MD5 verification.
+			echo "Generating MD5 checksum file."
+			cd $FLASH_DIR_INSTALL
+			md5sum dbx/* modules/*/* fpga/* kernel/* | sed /first-boot/D  > $FLASH_DIR_INSTALL/bank.md5
+			echo "unpacked" > $FLASH_DIR_INSTALL/app_package_unpacked
+		else
+			echo "Error extracting files from archive."
+			exit -1
+		fi
+	else
+		echo "Failed copying tarball to RAM"
+		exit -1
+	fi	
+fi		
+
+# Run post-install script if present
+if [ -f $FLASH_DIR_INSTALL/PostInstallScript ] ; then
+	echo "Invoking post-install script: $FLASH_DIR_INSTALL/PostInstallScript"
+	chmod +x $FLASH_DIR_INSTALL/PostInstallScript
+	$FLASH_DIR_INSTALL/PostInstallScript
+else
+	echo "No post-install script found." 
+fi
+
+# Kernel update 
+if [ $INSTALL = 'mtd:appsA' ] ; then
+	KERNEL="kernela"
+	KERNEL_VAR_NAME="KernelAImageFileName"
+else
+	KERNEL="kernelb"
+	KERNEL_VAR_NAME="KernelBImageFileName"
+fi
+KERNEL_IMAGE=`cd $FLASH_DIR_INSTALL/kernel && ls *.tar.gz`
+INSTALLED_KERNEL_IMAGE=`$FLASH_DIR_APPS/fap-flash u-bootenvread $KERNEL_VAR_NAME`
+
+echo "Kernel image in package is $KERNEL_IMAGE"
+echo "installed kernel image is $INSTALLED_KERNEL_IMAGE"
+
+if [ $KERNEL_IMAGE = $INSTALLED_KERNEL_IMAGE ] ; then
+	echo "Correct kernel already installed, selecting $KERNEL as active without reflashing."
+	$FLASH_DIR_APPS/fap-flash kernelselect $KERNEL
+	if [ "$?" = "0" ] ; then
+		echo $INSTALL > $FLASH_DIR_CFG/app_package_update
+		echo $APPS > $FLASH_DIR_CFG/app_package_fallback
+		exit 0
+	else
+		echo 'Kernel selection failed.'
+		rm -rf $FLASH_DIR_CFG/app_package_*
+		exit -1 
+	fi
+else
+	echo 'Attempting to replace '$KERNEL' with '$KERNEL_IMAGE' from '$INSTALL'.'
+	$FLASH_DIR_APPS/fap-flash jffs2 $KERNEL $FLASH_DIR_INSTALL/kernel/$KERNEL_IMAGE
+	if [ "$?" = "0" ] ; then
+		echo $INSTALL > $FLASH_DIR_CFG/app_package_update
+		echo $APPS > $FLASH_DIR_CFG/app_package_fallback
+		exit 0
+	else
+		echo 'Installation of new kernel failed.'
+		rm -rf $FLASH_DIR_CFG/app_package_*
+		exit -1 
+	fi
+fi
+
+

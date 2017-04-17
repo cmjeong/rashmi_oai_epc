@@ -1,0 +1,57 @@
+# This is my comment
+
+fsm AddObject;
+basename Tr069AddObject;
+namespace tr069;
+
+type_header "Tr069AddObjectTypes.h";
+
+# Types
+type "shared_ptr<RpcAddObject>";
+type "shared_ptr<MibCreateObjectCnf>";
+
+# Events
+event AddObject type "shared_ptr<RpcAddObject>";
+event MibCreateObjectCnf type "shared_ptr<MibCreateObjectCnf>";
+
+# States & Superstates
+state Idle;
+state AddObjectInProgress;
+
+# Faults
+fault ADD_OBJECT_NOT_SUPPORTED;
+fault MAX_ENTRIES_EXCEEDED;
+
+# Actions
+action SendCreateMibObjectReq { fault ADD_OBJECT_NOT_SUPPORTED; fault MAX_ENTRIES_EXCEEDED; }
+action SendAddObjectResponse;
+
+
+# Initial State
+initial_state Idle;
+
+state Idle
+{
+	entry;
+	
+	event AddObject
+	{
+		action SendCreateMibObjectReq
+		{
+			fault ADD_OBJECT_NOT_SUPPORTED >> Idle;
+			fault MAX_ENTRIES_EXCEEDED >> Idle;
+		}
+		state AddObjectInProgress;
+	}
+}
+
+state AddObjectInProgress
+{
+	event MibCreateObjectCnf
+	{
+		action SendAddObjectResponse >> Idle;
+	}
+	
+	defer AddObject;
+}
+

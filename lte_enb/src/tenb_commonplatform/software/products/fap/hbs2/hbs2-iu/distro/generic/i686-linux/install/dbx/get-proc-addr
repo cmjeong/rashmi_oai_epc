@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 5451 $
+#
+# This script is called by start-apps at start up or
+# may be run on its own manually.
+#
+# Creates a list of processes in dbx/trace/procaddr.txt
+
+if [ "$1" != "-nosleep" ]; then
+    sleep 15
+fi
+
+cat /proc/*/stat 2>/dev/null |
+	awk '{printf "%08X %08X %s",$26,$27,$2;print"";}' |
+	grep -v '00000000 00000000 \|(cat)' |
+	sort -u > /dbx/trace/procaddr.txt
+
+# END OF SCRIPT

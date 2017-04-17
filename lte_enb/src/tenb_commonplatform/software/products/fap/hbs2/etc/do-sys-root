@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# $Id: do-sys-root 21494 2009-12-17 12:56:38Z mmcternan $
+#
+# Copy shared libraries into a sys-root structure that mirrors the platform.
+# This can then be used with the gdb "set sys-root" command to ensure symbols
+# from any shared libraries are correctly decoded.
+#
+
+SYS_ROOT=sys-root
+OUTPUT_DIR_LIB=$SYS_ROOT/mnt/bank-active/lib
+
+if [ "$HARDWARE" != "hbs2-4" ] ; then
+  echo "This is only applicable to hbs2-4"
+  exit
+fi
+
+echo "Creating debugging sys-root."
+mkdir $SYS_ROOT &> /dev/null
+
+# Copy the system libs
+cp -ru /opt/arm-2009q3/arm-none-linux-gnueabi/libc/lib \
+       /opt/arm-2009q3/arm-none-linux-gnueabi/libc/usr \
+       $SYS_ROOT
+
+# Copy the Radisys libs from the built locations to ensure unstripped
+mkdir -p $OUTPUT_DIR_LIB
+cp -u $TOP/libs/bin/threeway/$PRODUCT/$HARDWARE/$BUILD/*.so $OUTPUT_DIR_LIB
+cp -ru $TOP/products/fap/etc/lib/* $OUTPUT_DIR_LIB
+cp -u $TOP/libs/bin/threeway/$HARDWARE/$BUILD/*.so $OUTPUT_DIR_LIB 2> /dev/null
+cp -u $TOP/libs/bin/threeway/$PRODUCT/$HARDWARE/$BUILD/*.so $OUTPUT_DIR_LIB 2> /dev/null
+find $OUTPUT_DIR_LIB -name ".svn" -type d -print0 | xargs -0 rm -rf
+chmod a+x $OUTPUT_DIR_LIB/*.so
+
+
+# END OF FILE
+
+

@@ -1,0 +1,98 @@
+#! /bin/sh
+
+if [ $# -lt 2 ]
+then
+   echo "Usage: $0 <clearcase_path_name> <target dir>"
+   echo " eg: weihong_gcp_rel_1.4_dev ~/tmp "
+   exit 1
+fi
+
+if [ $# -ne 3 ]
+then
+export gen="00"
+else
+export gen=$3
+fi
+cd $2
+
+mkdir build
+mkdir ltecl
+mkdir lteue
+mkdir cm
+mkdir mt
+
+# mt files
+ln -s /vobs/core_prd/ssi/1078001/sm*.c $2/mt/.
+ln -s /vobs/core_prd/ssi/1078001/ss_id.c $2/mt/.
+ln -s /vobs/core_prd/ssi/1078001/ss*.[hx] $2/mt/.
+ln -s /vobs/core_prd/ssi/1078001/doss.mak.00 $2/mt/.
+
+ln -s /vobs/core_prd/ssi/1078006/pt*.c $2/mt/.
+ln -s /vobs/core_prd/ssi/1078006/mt_id.c $2/mt/.
+ln -s /vobs/core_prd/ssi/1078006/mt*.[hx] $2/mt/.
+ln -s /vobs/core_prd/ssi/1078006/domt.mak.00 $2/mt/.
+
+cd $2/mt/
+make -f doss.mak.00 clean all
+make -f domt.mak.00 clean all
+rm $2/mt/sm*.c
+rm $2/mt/pt*.c
+cd -
+
+#Common Libraries
+ln -s /vobs/core_prd/cm/lib/cm_inet/src/*.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/lib/timer/src/*.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_hash/src/*.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_lib/src/*.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/lib/mem/src/cm*.[chx] $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_llist/src/*.[chx] $2/cm/.
+ln -s /vobs/core_prd/cm/lib/per/src/*.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/inf/ctf/src/ctf*.[chx] $2/cm/.
+ln -s /vobs/core_prd/cm/inf/tfu/src/tfu.[chx] $2/cm/.
+#Common tech files
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/cm_gen.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/envopt.[h]  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/cm_tkns.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/ssi.[hx] $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/gen.[hx]  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/envdep.h  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/envind.h  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_cm/src/cm_err.h  $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_lte/src/cm_lte.[chx] $2/cm/.
+ln -s /vobs/core_prd/cm/tech/cm_os/src/*.[chx]  $2/cm/.
+#Convergence layer interface files
+ln -s /vobs/core_prd/cm/inf/lys/src/*.[chx] $2/cm/.
+#SSI Files
+
+#LTE Convergence Layer Product Files
+ln -s /vobs/core_prd/cm/inf/nhu/src/nhu_asn.[chx]  $2/cm/.
+ln -s /vobs/core_prd/cm/inf/nhu/src/nhu.[xh]  $2/cm/.
+#Actual UE sim code
+ln -s /vobs/core_prd/gprs/lteuesim/src/ue/*.[chx] $2/lteue/.
+ln -s /vobs/core_prd/gprs/lteuesim/src/build/* $2/build/.
+
+#mme Code
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm.x $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm.h $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_esm.x $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_esm.h $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm_esm.x $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm_esm.h $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm_edm.c $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_esm_edm.c $2/cm/.
+ln -s /vobs/core_prd/cm/lib/cm_emm/src/cm_emm_esm.c $2/cm/.
+
+#LTE MAC Convergence Layer PAL Product Files
+ln -s /vobs/core_prd/gprs/ltecl/src/ys/ys*.[chx] $2/ltecl/.
+ln -s /vobs/core_prd/gprs/ltecl/src/yw/yw*.[chx] $2/ltecl/.
+ln -s /vobs/core_prd/gprs/ltecl/src/build/*doys* $2/ltecl/.
+#ln -s /u/prd/rls/1000414/1.1/$gen/crnt/*ys* $2/ltecl/.
+cd $2/ltecl/
+echo "make -f doys.mak.$gen"
+make -f doys.mak.$gen
+#rm -f yw*.[chx]
+cd -
+
+
+#LTE PHY Product Files - Mindspeed
+#ln -s /project/upsuite/rpolamarasetti/enb_mspd_merged_view/vobs/core_prd/gprs/ltephy/mindspeed/*.[chx] $2/ltephy/mindspeed/.

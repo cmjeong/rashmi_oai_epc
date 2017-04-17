@@ -1,0 +1,45 @@
+###############################################################################
+#
+# Makefile for standalone test of the CLogger infrastructure.
+#
+# Makefile Options:
+#
+#  make [clean] BUILD=<build>
+#
+# Copyright Radisys Limited
+#
+###############################################################################
+
+TOP = $(shell pwd)/../../..
+
+TARGET_NAME = clog
+
+PRODUCT?=hbs2-sip
+BUILD?=i686-linux
+
+INCLUDE_PATHS = \
+  $(TOP)/libs/common \
+  $(TOP)/libs/common/include
+
+LIB_DEPS = \
+  $(TOP)/libs/common/system/obj/$(HARDWARE)/$(BUILD)/libthreeway-system \
+  $(TOP)/libs/common/comms/obj/$(HARDWARE)/$(BUILD)/libthreeway-comms \
+  $(TOP)/libs/common/mobnet/obj/$(HARDWARE)/$(BUILD)/libthreeway-mobnet \
+  $(TOP)/libs/common/bp/obj/$(HARDWARE)/$(BUILD)/libRadisys-bp
+
+CPPFLAGS=-DUNITTEST_CLOG -O3
+CPPFLAGS+=-DDEBUG_FILE_OUT=\"output.clog\"
+
+
+LDFLAGS+=-lgcc -lpthread
+
+# Options for gcov profiling
+#CFLAGS+=-fprofile-arcs -ftest-coverage
+#LDFLAGS+=-lgcov
+
+BFIN_UCLINUX_APP_STACK_SIZE=0x2000
+
+include $(TOP)/makefrags/application.mk
+
+run: build
+	LD_LIBRARY_PATH=../../bin/threeway/$(HARDWARE)/$(BUILD) obj/$(PRODUCT)/$(HARDWARE)/$(BUILD)/clog

@@ -1,0 +1,166 @@
+# ID, Attribute Type,     Type,               Validation,         Default,       Access Control,    Volatility,    NV Storage Type
+
+[Fap]
+0,    mnc,                u32,                0:999,              1,             read-write-locked, volatile,      NONE
+1,    accessControlImsis, AccessControlImsis, AccessControlImsis, NONE,          read-write,        non-volatile,  string  # string is encoded version of object e.g. comma separated... 
+
+# Two types of radio supported
+[Radio2100:Fap]
+2,    nodebArfcn2100,     u32,                Arfcn2100,          10600,         read-write-locked, non-volatile,  u32
+
+[Radio1900:Fap]
+3,    nodebArfcn1900,     u32,                Arfcn1900,          9000,          read-write-locked, non-volatile,  u32
+
+[Iu:Fap]
+4,    sctpPort,           u16,                0:65535,            1234,          read-write-locked, volatile,      NONE
+
+[Ip:Fap]
+5,    fapIpAddress,       IPv4Address,        HostIpAddress,      192.168.0.210, read-write,        non-volatile,  string
+
+
+Compile Time
+------------
+
+Compile time decision is which MIB to build based on the product we are building.
+We can have separate directories of auto-gen'd (or not to start with) code derived from PRODUCT.
+
+  platform/mib/home-fap/MIB.txt etc     (hbs2-iu handwritten stuff)
+                        autogen/...     (autogen'd code)
+                        
+               standalone/...           (hbs2-sip, -handbag, ...)
+                          autogen/...
+                          
+               some-special/...
+                            autogen/...
+
+Makefile will specify which to build.
+
+
+Run Time
+--------
+
+At run-time we build up the object heirarchy based on the h/w type + revision and add dynamic
+objects such as neighbour cells as required:
+
+  Fap.0                  : mnc, accessControlImsis
+    Radio2100.0          : nodebArfcn2100, calData, ...
+    GsmNeighbour.0       : gsmNeighbourBsic, gsmNeighbourArfcn, ...
+    GsmNeighbour.1
+  Iu                     : sctpPort,...
+  Ip                     : fapIpAddress,...
+
+
+Object Validation
+-----------------
+
+??? How to validate that an attribute is allowed on an object?
+
+
+Attribute Validation
+--------------------
+
+Basic number range validation can be auto-generated.
+
+All other validations will be hard-coded validation classes as reference in the above table e.g. HostIpAddressValidator.
+
+??? How/where to hook validation in to the autogen'd code?
+
+??? How to validate set of attributes (on an object) prior to applying them?
+
+
+Defaults
+--------
+
+If a default is specified then if the attribute isn't supplied at object construction
+the default value will be used.  If no default supplied then it *must* be supplied
+at object creation.
+
+
+Access Control
+--------------
+
+Will be used as part of the atomic validation prior to apply attribute values.  I.e. if one of the
+attributes we are trying to set is R/O or requires object is locked and it isn't then reject the lot.
+
+??? Run time configurable?  Any benefit?
+
+
+Messaging
+---------
+
+CreateObjectReq         (parentDn, childRdn, attributes)
+CreateObjectNack?  Or assert?
+ObjectCreatedInd        (dn, attributes)
+DeleteObjectReq         (dn)
+DeleteObjectNack?  Or assert?
+ObjectDeletedInd        (dn)
+SetAttributesReq        (dn, attributes)
+SetAttributesCnf        (dn, cause)
+GetAttributesReq        (dn, attributeIds)
+GetAttributesCnf        (dn, cause, attributes)
+AttributeValueChangeInd (dn, attributes)
+
+??? What exactly will common MIB code do with a CreateObjectReq?  Needs a factory for creating objects...
+
+In these messages we exchange serialised arbitrarily complex types e.g. AccessControlImsis which
+wraps up a vector of Imsi's.  All are derived from MibAttribute and client must know that the attribute
+ID means it is of a particular concrete type.
+
+
+Different Managers
+------------------
+
+E.g. SNMP, TR-069...
+
+SNMP can receive ObjectCreatedInd's and map them to the (SNMP) MIB that covers all potential
+objects/attributes.  It can then reject requests for objects/attribute(s) that don't exist.
+
+AVCs can be used to send traps/AVC-like messages to external management entities.
+
+??? Impact on tr069 app?
+
+
+Non Volatile
+------------
+
+Can be managed separately from the in-RAM MIB.  But we need to read NV to create objects...
+
+In order to store multiple instances of an object class we will at least need class/instance
+stored in NV in some way.  E.g. if we go for something similar to current scheme and with a
+nod to a database implementation we can store everything as one of a few basic types (s32, u32,
+string) with a DN:
+
+  Fap.0:mnc = 123
+  Fap.0:mcc = 234
+  Fap.0:accessControlImsis = 1234567890,2345678901
+  Fap.0.GsmNeighbour.1:gsmNeighbourArfcn = 1234
+
+or
+
+  [Fap.0]
+    mnc = 123
+    mcc = 234
+    accessControlImsis = 1234567890,2345678901
+    [GsmNeighbour.1]
+      gsmNeighbourArfcn = 1234
+
+??? What about storing object heirarchy in NV?  Separate from attributes?
+
+??? How to create objects that include some attributes stored in NV?
+
+??? When to perform the commit to NV?  Immediately?  Selectively per attribute?  Periodically?
+
+??? Auto-gen subscription code then use subscription inds to write to NV?
+
+When storing/reading attributes with 'string' storage type we just call ToNvString()/FromNvString().
+It's akin to Serialise/DeSerialise and may choose to use these under the hood then UU encode or similar
+but for some types it's nicer to use plain text e.g. for IMSIs and IP addresses.
+
+
+Questions
+---------
+
+- What does 'ID' *mean*?  Unique per attribute/object (simpler?) or can be reused on different
+  objects?  Depends if we have much re-use - would we have separate table of attributes and then
+  map them to objects?
+  

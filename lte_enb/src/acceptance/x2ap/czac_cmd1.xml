@@ -1,0 +1,2188 @@
+# cz001.101 : CR Fixes.
+#/********************************************************************20**
+#     
+#     Name:    X2AP
+#     
+#     Type:    XML Test File
+#     
+#     Desc:    XML Based Test Cases
+#     
+#     File:    czac_cmd1.xml
+#     
+#     Sid:
+#     
+#     Prg:     sy
+#
+#*********************************************************************21*/
+#
+#
+#       Test:    tapa.hi.init
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.hi.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do TUCL initialisation"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      #configure the TUCL
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lhi.cfg.gen/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lhi.cfgcfm/>
+      </tapa.expect>
+
+      # Send TSAP Configuration Request
+      <tapa.send>
+         <tapa.lhi.cfg.tsap tSapId="0"/>
+      </tapa.send>
+      
+      # Expect TSAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lhi.cfgcfm/>
+      </tapa.expect>
+
+      # Send TSAP Configuration Request
+      <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lhi.cfg.tsap tSapId="2"/>
+      </tapa.send>
+      
+      # Expect TSAP Configuration Confirm
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lhi.cfgcfm/>
+      </tapa.expect>
+
+# Send TSAP Configuration Request
+      <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lhi.cfg.tsap tSapId="3"/>
+      </tapa.send>
+      
+      # Expect TSAP Configuration Confirm
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lhi.cfgcfm/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Command: tapa.hi.deinit
+#
+#       Desc:    Command to perform shutdown for TUCL.
+#
+#       Notes:   None
+#              
+#       Module:  X2AP
+#
+#       File:    xx_cmd1.xml
+#
+#
+
+<tapa.command id="tapa.hi.deinit">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown TUCL stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.delay delay="1"/>
+      
+      # Send Shutdown
+      <tapa.send>
+         <tapa.lhi.cntrl.shutdown/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect>
+         <tapa.lhi.cntrlcfm/>
+      </tapa.expect>
+
+      #Add delay between msg */
+      #<tapa.delay delay="1"/>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.sb.init
+#
+#       Desc:    Command to SCTP gen and ssap cfg
+#
+#       Notes:   None
+#              
+#       Module:  X2AP
+#
+#       File:    xx_tc1.xml
+#
+#
+<tapa.command id="tapa.sb.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do SCTP initialisation"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      # Send Lsb general configuration request
+      <tapa.send flag="CZAC_SCTP">
+        <tapa.lsb.cfg.gen/>
+      </tapa.send>
+
+      # expect Lsb general configuration confirm
+      <tapa.expect flag="CZAC_SCTP">
+        <tapa.lsb.cfgcfm/>
+      </tapa.expect>
+
+      #configure  LOWER TSAP of SCTP 
+      <tapa.send flag="CZAC_SCTP">
+        <tapa.lsb.cfg.tsap tSapId="0" spId="0" nmbAddrLst="1"/>
+      </tapa.send>
+
+      #LSB TSAP configure confirm
+      <tapa.expect flag="CZAC_SCTP">
+        <tapa.lsb.cfgcfm/>
+      </tapa.expect>
+
+      #configure UPPER SSAP of sctp
+      <tapa.send flag="CZAC_SCTP">
+        <tapa.lsb.cfg.sctsap sSapId="0"/>
+      </tapa.send>
+   
+      #LSB SSAP configure confirm
+      <tapa.expect flag="CZAC_SCTP">
+        <tapa.lsb.cfgcfm/>
+      </tapa.expect>
+
+      #configure UPPER SSAP of sctp
+      <tapa.send flag="CZAC_SCTP">
+        <tapa.lsb.cfg.sctsap sSapId="1"/>
+      </tapa.send>
+   
+      #LSB SSAP configure confirm
+      <tapa.expect flag="CZAC_SCTP">
+        <tapa.lsb.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+      #bind enable SCTP TSAP 
+      <tapa.send flag="CZAC_SCTP">
+        <tapa.lsb.cntrl.tsap tSapId="0"/>
+      </tapa.send>
+  
+      #expect LSB CNTRL Cfm 
+      <tapa.expect flag="CZAC_SCTP">
+        <tapa.lsb.cntrlcfm/>
+      </tapa.expect>
+
+         </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.sb.deinit
+#
+#       Desc:    Command to perform shutdown for SCTP.
+#
+#       Notes:   None
+#              
+#       Module: 
+#
+#       File:    xx_cmd2.xml
+#
+#
+
+<tapa.command id="tapa.sb.deinit">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown SCTP stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.delay delay="1"/>
+      
+      # Send Shutdown
+      <tapa.send flag="CZAC_SCTP">
+         <tapa.lsb.cntrl.shutdown/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect flag="CZAC_SCTP">
+         <tapa.lsb.cntrlcfm/>
+      </tapa.expect>
+   
+         <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.gen.cfg
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.gen.cfg">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do general configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#       Test:    tapa.cztsap.cfg
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cztsap.cfg">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do CZT sap configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.sctsap.cfg
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.sctsap.cfg">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do SCT sap configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+   # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP">
+         <tapa.lcz.cfg.lsap suId="0" spId="0" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect  flag="CZAC_SCTP">
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lcz.cfg.lsap suId="1" spId="2" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.prot.cfg
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.prot.cfg">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do protocol configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot />
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.peer.cfg
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.peer.cfg">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do Peer configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer />
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.usap.ctrl
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.uSap.ctrl">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do Czt Sap Bind "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cntrl.uSap />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.lSap.ctrl
+#
+#       Desc:    Do general configuration
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.lSap.bnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do Sct Sap Bind"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap action="ABND_ENA"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.dbg.cntrl
+#
+#       Desc:    Send a debug control request
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.dbg.cntrl">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Send a debug control request "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="CZ_DBG">
+         <tapa.lcz.cntrl.debug />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZ_DBG">
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+   
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.enb1.init
+#
+#       Desc:    Do general configuration for eNB1
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb1.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do general configuration for ENB at proc 0"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen procId="CZAC_LCZ_ENB1_PRC"/> 
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm procId="CZAC_LCZ_ENB1_PRC" /> 
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="CZ_DBG">
+         <tapa.lcz.cntrl.debug procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZ_DBG">
+         <tapa.lcz.cntrlcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_LCZ_ENB1_PRC" timeToWait="2" />
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP">
+         <tapa.lcz.cfg.lsap suId="0" spId="0" procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect  flag="CZAC_SCTP">
+         <tapa.lcz.cfgcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+
+      <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lcz.cfg.lsap suId="1" spId="2" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+        <tapa.lcz.cfg.peer  procId="CZAC_LCZ_ENB1_PRC" PeerId="2" peerProcId="CZAC_LCZ_ENB2_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP">
+         <tapa.lcz.cntrl.lSap lSapId="0" procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset flag="CZAC_SCTP">
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0" 
+                          procId="CZAC_LCZ_ENB1_PRC"/>
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"
+                          procId="CZAC_LCZ_ENB1_PRC"/>
+         <tapa.lcz.cntrlcfm procId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.expset>
+   # Send an sct sap configuration request
+      <tapa.send flag="CZAC_LKSCTP" >
+         <tapa.lcz.cntrl.lSap lSapId="1" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset flag="CZAC_LKSCTP">
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1"  />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1" />
+         <tapa.lcz.cntrlcfm />
+      </tapa.expset>
+
+
+      <tapa.send>
+         <tapa.czt.bndreq  procId="CZAC_LCZ_ENB1_PRC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+            <tapa.expect>
+                <tapa.czt.bndcfm
+                   procId="CZAC_LCZ_ENB1_PRC"
+                   spId="0" suId="0"
+                   status="1"/>
+             </tapa.expect>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.enb2.init
+#
+#       Desc:    Do general configuration for enb2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do general configuration for ENB2 at proc 200"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      <tapa.cz.directive procId="CZAC_LCZ_ENB2_PRC"/>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="CZ_DBG">
+         <tapa.lcz.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZ_DBG">
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot  procId="CZAC_LCZ_ENB2_PRC"  timeToWait="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap  />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP" >
+         <tapa.lcz.cfg.lsap  suId="0" spId="1" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_SCTP" >
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+     <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lcz.cfg.lsap  suId="1" spId="3"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer  ProcId="CZAC_LCZ_ENB2_PRC" PeerId="1" peerProcId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta   />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP" >
+         <tapa.lcz.cntrl.lSap lSapId="0"/>
+      </tapa.send>
+    
+      # Receive the confirm for the sct sap request.
+      <tapa.expset flag="CZAC_SCTP">
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"  />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"  />
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expset>
+
+  # Send an sct sap configuration request
+      <tapa.send flag="CZAC_LKSCTP" >
+         <tapa.lcz.cntrl.lSap lSapId="1" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset flag="CZAC_LKSCTP" >
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1" />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1" />
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expset>
+
+
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+            <tapa.expect>
+                <tapa.czt.bndcfm
+                   procId="CZAC_ENB_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+                      </tapa.expect>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.enb3.init
+#
+#       Desc:    Do general configuration for enb2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb3.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do general configuration for ENB2 at proc 200"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      <tapa.cz.directive procId="CZAC_LCZ_ENB3_PRC"/>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="CZ_DBG">
+         <tapa.lcz.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZ_DBG">
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot  procId="CZAC_LCZ_ENB3_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap  />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap  spId="2" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer  ProcId="CZAC_LCZ_ENB2_PRC" peerProcId="CZAC_LCZ_ENB1_PRC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta   />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+            <tapa.expect>
+                <tapa.czt.bndcfm
+                   procId="CZAC_ENB_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+                      </tapa.expect>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.dynamenb2.init
+#
+#       Desc:    Do general configuration for enb2 in Dynamic case
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dynamenb2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do general configuration for ENB2 at proc 200 for dynamic case"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      <tapa.cz.directive procId="CZAC_LCZ_ENB2_PRC"/>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="CZ_DBG">
+         <tapa.lcz.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZ_DBG">
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot  procId="CZAC_LCZ_ENB2_PRC"  timeToWait="2"
+         dynamUSapId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap  />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_SCTP">
+         <tapa.lcz.cfg.lsap suId="0" spId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_SCTP">
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send flag="CZAC_LKSCTP">
+         <tapa.lcz.cfg.lsap suId="1" spId="3"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="CZAC_LKSCTP">
+         <tapa.lcz.cfgcfm  />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta   />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send  flag="CZAC_SCTP" >
+         <tapa.lcz.cntrl.lSap lSapId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset   flag="CZAC_SCTP" >
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expset>
+
+      # Send an sct sap configuration request
+      <tapa.send  flag="CZAC_LKSCTP" >
+         <tapa.lcz.cntrl.lSap lSapId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset   flag="CZAC_LKSCTP" >
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1"                     />
+
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "1"                     />
+         <tapa.lcz.cntrlcfm  />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+            <tapa.expect>
+                <tapa.czt.bndcfm
+                   procId="CZAC_ENB_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+                      </tapa.expect>
+      
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.enb1.deinit
+#
+#       Desc:    Do shutdown
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb1.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         Do shutdown procedures for ENB1 at proc 100
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB1_PRC"/>
+      <tapa.delay delay="1"/>
+
+      # Do shutdown
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.enb2.deinit
+#
+#       Desc:    Do shutdown for eNB2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb2.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         Do shutdown procedures for ENB2 at proc 200
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB2_PRC"/>
+      <tapa.delay delay="1"/>
+
+      # s1ap cleanup operations
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown />
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+      <tapa.cz.directive procId="CZAC_LCZ_ENB1_PRC"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.enb3.deinit
+#
+#       Desc:    Do shutdown for eNB2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.enb3.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         Do shutdown procedures for ENB2 at proc 200
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB3_PRC"/>
+      <tapa.delay delay="1"/>
+
+      # s1ap cleanup operations
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown />
+      </tapa.send>
+
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.dynamenb2.deinit
+#
+#       Desc:    Do shutdown for eNB2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dynamenb2.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         Do shutdown procedures for ENB2 at proc 200
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB2_PRC"/>
+      <tapa.delay delay="1"/>
+
+      # s1ap cleanup operations
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown />
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+      <tapa.cz.directive procId="CZAC_LCZ_ENB1_PRC"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.dummyeNb0.init
+#
+#       Desc:    Do initialization of enb1 using dummy SCTP
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummyenb0.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Initialize dummyenb0"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer ProcId="CZAC_LCZ_ENB1_PRC" peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+      </tapa.expect>
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+       <tapa.expect>
+           <tapa.czt.bndcfm
+                  procId="CZAC_ENB1_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+#       Test:    tapa.cz.dummyeNb2.init
+#
+#       Desc:    Do initialization of enb2 using dummy SCTP
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummyenb2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Initialize dummyenb2"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB2_PRC"/>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB2_PROC" dynamPeerFlag="TRUE"
+                                           timeToWait="2" />
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer ProcId="CZAC_LCZ_ENB2_PRC" PeerId="1" peerProcId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB2_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB2_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm procId="CZAC_ENB2_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+      </tapa.expect>
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+       <tapa.expect>
+           <tapa.czt.bndcfm
+                  procId="CZAC_ENB2_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.cz.dummyeNb1.init
+#
+#       Desc:    Do initialization of enb1 using dummy SCTP
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummyenb1.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Initialize dummyenb1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      <tapa.cz.directive procId="CZAC_LCZ_ENB1_PRC"/>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC" timeToWait="2" />
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer ProcId="CZAC_LCZ_ENB1_PRC" peerProcId="CZAC_ENB2_PROC" PeerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+          # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+          <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+        
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_SCT_ENPOPEN_SUCC"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+      </tapa.expect>
+      <tapa.send>
+         <tapa.czt.bndreq  spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at eNB
+       <tapa.expect>
+           <tapa.czt.bndcfm
+                  procId="CZAC_ENB1_PROC"
+                   spId="0" suId="0"
+                   status="1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.cz.dummy.enb1.deinit
+#
+#       Desc:    Do shutdown
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb1.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown dummyenb0"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="CZAC_ENB_PROC" spId="0" assocIdx="0"  assocIdType="2"/> 
+      </tapa.expect>
+  
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.cz.dummy.enb4.deinit
+#
+#       Desc:    Do shutdown for test cases in which sctp setup is incomplete 
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb4.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown dummyenb0"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="CZAC_ENB_PROC" spId="0" assocIdx="0"  assocIdType="1"/>
+      </tapa.expect>
+
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/>
+      </tapa.expect>
+
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.cz.dummy.enb2.deinit
+#
+#       Desc:    Do shutdown
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb2.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown dummymme1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown procId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect guardTmr="100">
+         <tapa.sct.termreq procId="CZAC_ENB2_PROC" spId="0" assocIdx="0" spAssocId="1" assocIdType="2"/> 
+      </tapa.expect>
+  
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB2_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm procId="CZAC_ENB2_PROC"/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.dummy.enb3.deinit
+#
+#       Desc:    Do shutdown: This function is added to shutdown 
+#                the "test_case 55,56,57" in "test_group5".Here 
+#                value of assocIdType will be "1".Because in test cases
+#                "55,56,57" the sctp setup is not completed(Because assoc up is
+#                not sent).Hence we are shutdowning above value.
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb3.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown dummymme1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown procId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect guardTmr="100">
+         <tapa.sct.termreq procId="CZAC_ENB2_PROC" spId="0" assocIdx="0" spAssocId="1" assocIdType="1"/>
+      </tapa.expect>
+
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB2_PROC" spId="0" suEndpId="0" endpIdType="2"/>
+      </tapa.expect>
+
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm procId="CZAC_ENB2_PROC"/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.init
+#
+#       Desc:    Do X2AP initialisation
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Do X2AP Initialisation"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      <tapa.cz.enb1.init/>
+      <tapa.cz.enb2.init/>
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.cz.deinit
+#
+#       Desc:    Do shutdown
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd1.xml
+#
+#
+<tapa.command id="tapa.cz.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown X2AP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      <tapa.cz.enb1.deinit/>
+      <tapa.cz.enb2.deinit/>
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#/********************************************************************30**
+#
+#         End of file: czac_cmd1.xml
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     sy   1. X2AP Initial Release.
+#          cz001.101   mm   1. CR Fixes, Memory Leak fixes.
+#$SID$         ---     pt   1. LTE-X2AP 3.1 release.
+#*********************************************************************91*/

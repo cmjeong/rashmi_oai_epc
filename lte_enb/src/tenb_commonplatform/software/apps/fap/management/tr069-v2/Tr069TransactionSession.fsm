@@ -1,0 +1,196 @@
+# This FSM models the Connection to a TR069 Server
+
+fsm TransactionSession;
+basename Tr069TransactionSession;
+namespace tr069;
+type_header "Tr069TransactionSessionTypes.h";
+
+########
+## Types
+########
+type "void*";
+type "shared_ptr<HttpPostResponse>";
+type "shared_ptr<TcpConnectionFailureInd>";
+type "shared_ptr<TcpConnectRej>";
+type "shared_ptr<TcpConnectCnf>";
+type "shared_ptr<TcpDisconnectCnf>";
+type "shared_ptr<TransportCnf>";
+
+#########
+## Events
+#########
+event StartTransactionSession type "void*";
+event ServerDisconnect type "void*";
+event HttpResponse type "shared_ptr<HttpPostResponse>";
+event WorkerThreadStalledTimerExpiry type "void*";
+event TcpDisconnectCnf type "shared_ptr<TcpDisconnectCnf>";
+event TcpConnectionFailure type "shared_ptr<TcpConnectionFailureInd>";
+event TcpConnectCnf type "shared_ptr<TcpConnectCnf>";
+event TcpConnectRej type "shared_ptr<TcpConnectRej>";
+event TransportCnf type "shared_ptr<TransportCnf>";
+
+####################################
+## States, Superstates and Junctions
+####################################
+state Idle;
+superstate TransactionSessionInProgress;
+	state EstablishTcpConnection;
+	exit_point TransactionSessionComplete;
+	state TearDownTcpConnection;
+	junction PerformNextHttpPost;
+	junction ServerSentEmptyPost;
+	superstate WaitHttpResponse;
+		state WaitServerResponse;
+		state WaitServerCommand;
+
+		
+
+###################
+## Guard Conditions
+###################
+guard_condition QueryHoldRequests;
+guard_condition QueryEnqueuedHttpPost;
+guard_condition QueryHoldRequests;
+guard_condition QueryFapProceduresCompleted;
+guard_condition QueryServerProceduresCompleted;
+guard_condition QueryAllProceduresCompleted;
+guard_condition QueryTransferCompleteResponse;
+guard_condition QueryFault;
+guard_condition QueryEmptyHttpPost;
+guard_condition QueryTransactionSessionFailed;
+guard_condition QueryShuttingDown;
+
+#########
+## Faults
+#########
+ 
+##########
+## Actions
+##########
+action SendHttpPost;
+action SendEmptyHttpPostBecauseServerHasHeldRequests;
+action SendEmptyHttpPostBecauseFapProceduresComplete;
+action SendTerminatingEmptyHttpPostBecauseAllProceduresComplete;
+action ClearHoldRequests;
+action HandleTransferCompleteResponse;
+action HandleServerResponse;
+action HandleServerFault;
+action HandleServerCommand;
+action Enqueue;
+action MarkTransactionSessionFailed;
+action SendTransactionSessionFailure;
+action SendTransactionSessionSuccess;
+action SendRebootRequest;
+action ShuttingDown;
+
+
+################
+## Initial State
+################
+initial_state Idle;
+
+
+################
+## State Machine
+################
+state Idle
+{
+	event StartTransactionSession >> TransactionSessionInProgress;
+}
+
+superstate TransactionSessionInProgress
+{
+	entry;
+	exit;
+	
+	initial_state EstablishTcpConnection;
+
+	event TcpConnectionFailure action MarkTransactionSessionFailed >> TransactionSessionComplete;
+
+	exit_point TransactionSessionComplete
+	{
+		if QueryTransactionSessionFailed action SendTransactionSessionFailure >> Idle;
+		else action SendTransactionSessionSuccess >> Idle;
+	}
+}
+
+state EstablishTcpConnection
+{
+	entry;
+	superstate TransactionSessionInProgress;
+
+	event TcpConnectCnf >> PerformNextHttpPost;
+	
+	event TcpConnectRej >> EstablishTcpConnection;
+}
+
+state TearDownTcpConnection
+{
+	entry;
+	superstate TransactionSessionInProgress;
+
+	event TcpDisconnectCnf >> TransactionSessionComplete;
+	event TcpConnectionFailure >> TransactionSessionComplete;
+}
+
+junction PerformNextHttpPost
+{
+	superstate TransactionSessionInProgress;
+
+	if QueryHoldRequests action SendEmptyHttpPostBecauseServerHasHeldRequests >> WaitServerCommand;
+	elif QueryEnqueuedHttpPost action SendHttpPost >> WaitServerResponse;
+	elif QueryServerProceduresCompleted action SendTerminatingEmptyHttpPostBecauseAllProceduresComplete >> TearDownTcpConnection;
+	else action SendEmptyHttpPostBecauseFapProceduresComplete >> WaitServerCommand;
+}
+	
+junction ServerSentEmptyPost
+{
+	superstate TransactionSessionInProgress;
+	entry;
+	
+	if QueryHoldRequests action ClearHoldRequests >> PerformNextHttpPost;
+	elif QueryFapProceduresCompleted >> TearDownTcpConnection;
+	else >> PerformNextHttpPost;
+}
+
+
+superstate WaitHttpResponse
+{
+	superstate TransactionSessionInProgress;
+	
+	entry;
+	exit;
+	
+	event WorkerThreadStalledTimerExpiry action SendRebootRequest;
+}
+
+state WaitServerResponse
+{
+	superstate WaitHttpResponse;
+	
+	event HttpResponse
+	{
+        if QueryFault action HandleServerFault >> TearDownTcpConnection;
+        #elif QueryAuthenticationReqested action SendBasicAuthentication;
+        else action HandleServerResponse >> PerformNextHttpPost;
+	}
+	
+}
+
+state WaitServerCommand
+{
+	superstate WaitHttpResponse;
+	
+	event HttpResponse
+	{
+        if QueryEmptyHttpPost >> ServerSentEmptyPost;
+        else action HandleServerCommand;
+	}
+
+	event TcpConnectionFailure 
+	{
+		if QueryAllProceduresCompleted  >> TransactionSessionComplete;
+	}	
+}
+
+

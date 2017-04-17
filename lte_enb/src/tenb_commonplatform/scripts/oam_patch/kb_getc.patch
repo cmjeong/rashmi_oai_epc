@@ -1,0 +1,45 @@
+diff -ur kb_getc/kb_getc.c kb_getc_new/kb_getc.c
+--- kb_getc/kb_getc.c	2015-05-20 17:01:02.000000000 +0530
++++ kb_getc_new/kb_getc.c	2015-05-20 17:01:12.000000000 +0530
+@@ -32,7 +32,14 @@
+  * 10-sep-2006     Let kb_getc() work right under certain Unix/Linux flavors
+  *
+  *************************************************************************** */
+-#include "../include/kb_getc.h"
++#include "kb_getc.h"
++extern int errno;
++static struct termios termattr, save_termattr;
++static int ttysavefd = -1;
++static enum
++{
++RESET, RAW, CBREAK
++} ttystate = RESET;
+ 
+ /* ***************************************************************************
+  *
+diff -ur kb_getc/kb_getc.h kb_getc_new/kb_getc.h
+--- kb_getc/kb_getc.h	2015-05-20 17:01:02.000000000 +0530
++++ kb_getc_new/kb_getc.h	2015-05-20 17:01:12.000000000 +0530
+@@ -16,14 +16,7 @@
+   #define STDIN_FILENO 0
+ #endif
+ 
+-extern int errno;                 
+ 
+-static struct termios termattr, save_termattr;
+-static int ttysavefd = -1;
+-static enum 
+-{ 
+-  RESET, RAW, CBREAK 
+-} ttystate = RESET;
+ 
+ 
+ int set_tty_raw(void);
+@@ -39,4 +32,5 @@
+ }
+ #endif
+ 
+-#endif
+\ No newline at end of file
++#endif
++

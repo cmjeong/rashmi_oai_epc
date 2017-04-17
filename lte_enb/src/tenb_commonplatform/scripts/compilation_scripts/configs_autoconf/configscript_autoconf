@@ -1,0 +1,52 @@
+#!/bin/sh
+CROSS_COMPILER=$1
+if [ "$1" = "arm-none-linux-gnueabi" ] || [ "$1" = "gcc" ] || [ "$1" = "mipsel-unknown-linux-gnu" ] ;
+then
+echo "************************************************"
+echo "Compiler Selected : $CROSS_COMPILER"
+echo "************************************************"
+
+if [ "$1" = "gcc" ] ;
+then
+make clean
+./configure --enable-shared=no \
+            --without-zlib \
+            --without-python 
+make 
+make install
+#############################################################################################
+elif [ "$1" = "mipsel-unknown-linux-gnu" ] || [ "$1" = "arm-none-linux-gnueabi" ] ;
+then
+make clean
+./configure --build=i686-pc-linux \
+            --host=$CROSS_COMPILER \
+            --with-endianness=little \
+            --enable-shared=no \
+            CC=$CROSS_COMPILER-gcc \
+            AR=$CROSS_COMPILER-ar \
+            CPPFLAGS=-DNO_LARGEFILE_SOURCE \
+            DEPDIR=./.deps/$CROSS_COMPILER \
+            --without-zlib \
+            --without-python
+make 
+make install
+#############################################################################################
+fi
+else
+echo "***************************************************************"
+echo "Invalid compiler option please chose compiler option from below"
+echo " mipsel-unknown-linux-gnu"
+echo " arm-none-linux-gnueabi"
+echo " gcc"
+echo "***************************************************************"
+fi
+#Compilation script for building autoconf 
+###################################################################
+make clean
+
+./configure
+
+make 
+
+make install
+###################################################################

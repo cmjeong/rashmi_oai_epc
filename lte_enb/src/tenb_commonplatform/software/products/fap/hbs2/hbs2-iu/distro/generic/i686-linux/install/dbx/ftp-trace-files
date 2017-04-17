@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 11799 $
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+
+if [ $# -ne 5 ]; then
+  echo "Usage: ./ftp-trace-files <username> <password> <local-ip-address> <ftp-server-ip-address> <remote-directory>"
+  exit
+fi
+
+DATESTR=`date '+%Y%m%d-%Hftp-trace-filesS'`
+FILENAME=${DATESTR}_traces
+
+$FLASH_DIR_APPS/create-trace-tarball /tmp/${FILENAME}
+
+if [ -s /tmp/${FILENAME}.tar.gz ]; then
+  ftpput -t 32 -u $1 -p $2 -s $3 $4 ${5}/${FILENAME}.tar.gz /tmp/${FILENAME}.tar.gz 
+fi
+
+rm /tmp/${FILENAME}.tar.gz

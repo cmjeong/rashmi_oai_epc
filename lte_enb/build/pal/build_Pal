@@ -1,0 +1,229 @@
+#! /bin/bash
+
+function printUsageAndExit {
+   echo "Usage: $0  -m (TDD | FDD)  <dir_to_be_created>"
+   echo ""
+   echo "Mandatory arguments"
+   echo "==================="
+   echo "   -m, --mode (TDD | FDD)     Mode has to be either TDD or FDD"
+   echo "Optional arguments" 
+   echo "==================="
+   echo "   <dir_to_be_created>        Desitnation directory where compilation will be done"
+   echo "   <PKG> or <EVAL>            Package or EVAL yes"
+   echo ""
+   exit 1;
+}
+
+PLATFORM=
+DIR=$PWD/../..
+MODE=
+TARGET_DIRS_FOUND=0
+PKG="NO"
+CMD_FILE="rsync -a"
+CMD_DIR="rsync -a"
+LINKS="NO"
+COPY="NO"
+DG_CODE="NO"
+BUILD="pal"
+OLD_BUILD="pal"
+OLD_MODE="TDD"
+
+while [ "$1" != "" ]; do
+   case $1 in
+      -m | --mode )  shift
+                     MODE=$1
+                     ;;
+      -PKG )         PKG="YES"
+                     ;;
+      -h | --help )   printUsageAndExit
+                     ;;
+      * )            DIR=$1
+                     TARGET_DIRS_FOUND=`expr $TARGET_DIRS_FOUND + 1`
+    esac
+shift
+done
+
+if [ "$MODE" != "FDD" ] && [ "$MODE" != "TDD" ]
+then
+  echo "Invalid mode specified $MODE"
+  printUsageAndExit
+fi
+
+OLD_BUILD=$(awk '{print $1}' ../build.txt)
+OLD_MODE=$(awk '{print $2}' ../build.txt)
+echo $BUILD $MODE > ../build.txt
+echo $OLD_BUILD $OLD_MODE
+
+SRC_PATH=$DIR/src
+BIN_PATH=$DIR/bin
+CON_PATH=$DIR/build/config
+SCRIPTS=$DIR/build/scripts
+
+echo $PWD $SRC_PATH $BIN_PATH
+
+$CMD_FILE $SRC_PATH/rlog/rl_soc_pal.c $SRC_PATH/rlog/rl_soc.c 2>/dev/null  
+$CMD_FILE $SRC_PATH/rlog/rl_soc_pal.h $SRC_PATH/rlog/rl_soc.h 2>/dev/null 
+$CMD_FILE $CON_PATH/ssi_mem_t2k $CON_PATH/ssi_mem 
+
+if [ "$MODE" == "TDD" ]
+then
+$CMD_FILE $CON_PATH/ssi_mem_t2k $CON_PATH/ssi_mem 
+else
+$CMD_FILE $CON_PATH/ssi_mem_t2k_fdd $CON_PATH/ssi_mem 
+$CMD_FILE $SCRIPTS/start_eNB_t2k_fdd.sh $SCRIPTS/start_eNB_t2k.sh 
+fi
+
+$CMD_FILE $SRC_PATH/enbapp/wr_cnm_t2k.c $SRC_PATH/enbapp/wr_cnm.c
+$CMD_FILE $SRC_PATH/enbapp/wr_cnm_t2k.h $SRC_PATH/enbapp/wr_cnm.h
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_cl_intel.c $SRC_PATH/enbapp/wr_smm_cl.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_egtp_intel.c $SRC_PATH/enbapp/wr_smm_egtp.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_enbapp_rsys_intel.c $SRC_PATH/enbapp/wr_smm_enbapp_rsys.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_init_pal.c $SRC_PATH/enbapp/wr_smm_init.c
+#$CMD_FILE $SRC_PATH/enbapp/wr_smm_init_t2k.c $SRC_PATH/enbapp/wr_smm_init.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_mac_t2k.c $SRC_PATH/enbapp/wr_smm_mac.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_rrc_t2k.c $SRC_PATH/enbapp/wr_smm_rrc.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_s1ap_t2k.c $SRC_PATH/enbapp/wr_smm_s1ap.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_sctp_t2k.c $SRC_PATH/enbapp/wr_smm_sctp.c
+#$CMD_FILE $SRC_PATH/enbapp/wr_smm_smallcell_t2k.c $SRC_PATH/enbapp/wr_smm_smallcell.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_tucl_t2k.c $SRC_PATH/enbapp/wr_smm_tucl.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_watchdog_tmr_t2k.c $SRC_PATH/enbapp/wr_smm_watchdog_tmr.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_x2ap_t2k.c $SRC_PATH/enbapp/wr_smm_x2ap.c
+#$CMD $viewname/vobs/TeNB/stats/wr_tenb_stats.[chx] $SRC_PATH/enbapp 2>/dev/null
+$CMD_FILE $CON_PATH/wrac_cfg.txt $SRC_PATH/acceptance/enbapp/wr_cfg.txt
+$CMD_FILE $SRC_PATH/ltemac/rg_env_t2k.h $SRC_PATH/ltemac/rg_env.h
+$CMD_FILE $SRC_PATH/lterrc/nh_env_t2k.h $SRC_PATH/lterrc/nh_env.h
+$CMD_FILE $SRC_PATH/lterlc/kw_env_t2k.h $SRC_PATH/lterlc/kw_env.h
+$CMD_FILE $SRC_PATH/ltepdcp/pj_env_t2k.h $SRC_PATH/ltepdcp/pj_env.h
+$CMD_FILE $SRC_PATH/ltepdcp/pj_ptsec_pal.h $SRC_PATH/ltepdcp/pj_ptsec.h
+$CMD_FILE $SRC_PATH/ltepdcp/pj_ptsec_pal.x $SRC_PATH/ltepdcp/pj_ptsec.x
+
+#Intel T2200-T3300 common files
+$CMD_FILE $SRC_PATH/enbapp/wr_nmm_pal.c $SRC_PATH/enbapp/wr_nmm.c
+$CMD_FILE $SRC_PATH/enbapp/wr_plat_pal.c $SRC_PATH/enbapp/wr_plat.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_pdcp_intel.c $SRC_PATH/enbapp/wr_smm_pdcp.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_rlc_intel.c $SRC_PATH/enbapp/wr_smm_rlc.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_init_pal.h $SRC_PATH/enbapp/wr_smm_init.h
+$CMD_FILE $SRC_PATH/enbapp/wr_lmm_intel.c $SRC_PATH/enbapp/wr_lmm.c
+$CMD_FILE $SRC_PATH/enbapp/wr_dam_intel.c $SRC_PATH/enbapp/wr_dam.c
+$CMD_FILE $SRC_PATH/enbapp/wr_emm_cell_intel.c $SRC_PATH/enbapp/wr_emm_cell.c
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_rrm_intel.c $SRC_PATH/enbapp/wr_smm_rrm.c
+
+$CMD_FILE $SRC_PATH/egtpu/eg_socklayer_intel.c $SRC_PATH/egtpu/eg_socklayer.c
+$CMD_FILE $SRC_PATH/egtpu/eg_socklayer_intel.h $SRC_PATH/egtpu/eg_socklayer.h
+$CMD_FILE $SRC_PATH/egtpu/eg_socklayer_intel.x $SRC_PATH/egtpu/eg_socklayer.x
+
+$CMD_FILE $SRC_PATH/cm/envdep_intel.h $SRC_PATH/cm/envdep.h 
+$CMD_FILE $SRC_PATH/cm/envopt_pal.h $SRC_PATH/cm/envopt.h 
+
+#rm -rf $SRC_PATH/enbapp/wr_smm_init_t3k.c
+if [ "$MODE" == "TDD" ]
+then
+$CMD_FILE $CON_PATH/wr_cfg_tdd.txt $CON_PATH/wr_cfg.txt
+$CMD_FILE $SCRIPTS/l1_t33h_tdd.sh $SCRIPTS/l1_t33h.sh
+$CMD_FILE $SCRIPTS/l2_t33h_tdd.sh $SCRIPTS/l2_t33h.sh
+$CMD_FILE $SCRIPTS/l3_t33h_tdd.sh $SCRIPTS/l3_t33h.sh
+else
+$CMD_FILE $CON_PATH/wr_cfg_fdd.txt $CON_PATH/wr_cfg.txt
+#$CMD $PWD/makefile_intel_fdd.00 $PWD/makefile
+#$CMD $PWD/l1_t33h.sh $PWD/l1_t33h.sh 
+fi
+
+
+#T2200 Specific
+$CMD_FILE $SRC_PATH/enbapp/wr_smm_init_t2k.c $SRC_PATH/enbapp/wr_smm_init.c
+if [ "$MODE" == "TDD" ]
+then
+$CMD_FILE $SRC_PATH/enbapp/wr_sw_version_pal_tdd.c $SRC_PATH/enbapp/wr_sw_version.c
+else
+$CMD_FILE $SRC_PATH/enbapp/wr_sw_version_pal_fdd.c $SRC_PATH/enbapp/wr_sw_version.c
+fi
+$CMD_FILE $SRC_PATH/ltepdcp/pj_ptlib_t2k.c $SRC_PATH/ltepdcp/pj_ptlib.c
+
+if [ "$OLD_BUILD" != "$BUILD" ]
+then
+    rm -rf $SRC_PATH/mt
+    rm -rf $SRC_PATH/lteremapp/remcl
+fi
+$CMD_DIR $SRC_PATH/mt_intel/ $SRC_PATH/mt
+
+#the obj directory created should be local
+#rm -rf $PWD/obj
+#mkdir  $PWD/obj
+
+#$CMD $viewname/vobs/core_prd/gprs/enbapp/src/acc/* $SRC_PATH/acceptance/enbapp/ 
+#if [ $DG_CODE = "YES" ]
+#then
+#   $CMD $viewname/vobs/thirdParty/oam_enbapp/* $SRC_PATH/oam_enbapp 
+#   cd $SRC_PATH/enbapp/
+#   $CMD $PWD/wr01.cfg .
+#   make -f ../build/dowr.mak.01 clean all
+#else
+   #OAM files
+   mkdir -p $PWD/server
+   #mkdir $SRC_PATH/tenb_commonplatform/configfiles/
+   #$CMD $viewname/vobs/core_prd/gprs/lteoam/software/libs/bin/csoap/hbs2-4/arm-none-linux-gnueabi/lib/cert.pem $PWD/server 2>/dev/null
+   #$CMD $viewname/vobs/core_prd/gprs/lteoam/software/libs/bin/csoap/hbs2-4/arm-none-linux-gnueabi/lib/client_ca.crt $PWD/server 2>/dev/null
+   cd $SRC_PATH/tenb_commonplatform/configfiles/
+if [ "$MODE" == "TDD" ]
+then
+   $CMD_FILE configFile_TDD_intel configFile
+   $CMD_FILE  mib-home-fap_TDD.nv mib-home-fap.nv
+else
+   $CMD_FILE configFile_FDD_intel configFile
+   $CMD_FILE mib-home-fap_FDD.nv mib-home-fap.nv
+fi
+   #rm -f configFile_FDD configFile_TDD configFile_TDD_intel configFile_FDD_intel mib-home-fap_FDD.nv mib-home-fap_TDD.nv
+   cd -
+#   rm -rf  $SRC_PATH/tenb_commonplatform/software/libs/common/include/boost 2>/dev/null
+#   ln -s /projectnew/sasahni/boost  $SRC_PATH/tenb_commonplatform/software/libs/common/include/ 2>/dev/null
+   cd $SRC_PATH/tenb_commonplatform/scripts/
+   $CMD_FILE install_intel.sh install.sh
+   $CMD_FILE start_TeNB_intel.sh start_TeNB.sh
+   $CMD_FILE  basicVerification_intel.sh basicVerification.sh
+   #rm -f install_brcm.sh install_pal.sh start_TeNB_brcm.sh start_TeNB_intel.sh start_TeNB_pal.sh tenb_oss_script_wo_openssl tenb_oss_script basicVerification_intel.sh basicVerification_brcm.sh
+   cd -
+
+   if [ "$LINKS" = "NO" ]
+   then
+      # give full permission on the oam code base, else we have compilation errors
+      chmod 777 $SRC_PATH/tenb_commonplatform/software/libs/common/mib-common/autogen/*
+   else
+      #remove the link created to enbapp/build/lib; this is needed for biuld
+      rm $PWD/lib
+
+      #remove link to the T2200 cl makefile
+#      rm $PWD/ys.mak
+      rm $SRC_PATH/ltemac/rg_env.h
+   fi
+
+#   cd $SRC_PATH/enbapp/
+#   make -f ../build/dowr.mak clean all
+#fi
+
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/thirdparty
+$CMD_DIR /projectnew/GA5.0_opensource/thirdparty/kb_getc $SRC_PATH/tenb_commonplatform/software/thirdparty/
+$CMD_DIR /projectnew/GA5.0_opensource/thirdparty/md5 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf /projectnew/GA5.0_opensource/thirdparty/csoap $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf /projectnew/GA5.0_opensource/thirdparty/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf /projectnew/GA5.0_opensource/thirdparty/openssl-0.9.8 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/libs/bin
+$CMD_DIR /projectnew/GA5.0_opensource/bin/threeway $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf /projectnew/GA5.0_opensource/bin/csoap $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf /projectnew/GA5.0_opensource/bin/libxml2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf /projectnew/GA5.0_opensource/bin/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+
+
+ln -sf /projectnew/GA5.0_opensource/boost $SRC_PATH/tenb_commonplatform/software/libs/common/include/
+
+# lterem app
+$CMD_DIR $SRC_PATH/lteremapp/remcl_intel/ $SRC_PATH/lteremapp/remcl
+
+#Remvoing unwanted files from the package 
+find $SRC_PATH -name  "*.tmp"  -exec rm -f {} \;
+find $SRC_PATH -name  "*.keep"  -exec rm -f {} \;
+find $SRC_PATH -name  "*.contrib"  -exec rm -f {} \;
+find $SRC_PATH -name  "*.contrib.1"  -exec rm -f {} \;
+find $SRC_PATH -name  "*.contrib.2"  -exec rm -f {} \;
+

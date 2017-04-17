@@ -1,0 +1,106 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 28639 $
+#
+# This script is called by dbxstart at start up or
+# may be run on its own manually.
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_APPS=$FLASH_DIR/dbx
+FLASH_DIR_CFG=$FLASH_DIR/config
+FLASH_DIR_FPGA=$FLASH_DIR/fpga
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+HWTYPE=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_TYPE`
+
+##############################################################################
+
+if [ "$HWTYPE" == "5" ] ; then
+  # Load REM FPGA image ready for apps
+  $FLASH_DIR_APPS/load-fpgas rem
+fi
+
+cd $RUNTIME_DIR
+
+# Start the logging daemon
+if [ "$HWTYPE" != "5" ] ; then
+  $FLASH_DIR_APPS/clogd
+fi
+
+# Export HOME so net-snmp can pick up /root/.snmp/3waysnmp.conf
+export HOME=/root
+
+# Disable old style firewall if present
+if [ "$HWTYPE" == "5" ] ; then
+  echo "disabling IP firewall"
+  /bin/ipf pass in quick from any to any
+  /bin/ipf pass out quick from any to any
+fi
+
+# Run script to reconfigure FAP for dual software banks if necessary,
+# this only needs to be done once so remove after running.
+if [ -f $FLASH_DIR_APPS/init-software-banks ]; then
+   $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/init-software-banks
+   rm -f $FLASH_DIR_APPS/init-software-banks
+fi
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/post-kernel-boot-actions
+
+#$FLASH_DIR_APPS/mem-monitor &
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/post-office --forever
+sleep 1
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/watchdogd --eng-mode
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam-rem
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/l1 -msg
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam
+sleep 1
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/rrc
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/rrm
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/nas-hlr
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/nas-smsc
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/nas-core
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/nas-ggsn
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/cs-user-plane
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/sw-update
+
+# Check if using the InterPeak network stack
+lsmod | grep -q ipnet
+if [ "$?" = "1" ] ; then
+
+  # Native networking - the tunnel maybe possible
+  # Try to load the tun kernel module and create device node under /dev
+  modprobe -q tun
+  mdev -s
+
+  # Check to see if the tun device now exists; the kernel maynot be configured
+  if [ -c /dev/tun ] ; then
+
+    # Turn on packet forwarding in the kernel
+    echo "1" > /proc/sys/net/ipv4/ip_forward
+
+    # Flush any old rules
+    iptables -F
+    iptables -t nat -F
+
+    # Drop TCP headers with RST flag set
+    iptables -A OUTPUT -p tcp --tcp-flags ALL RST -j DROP
+
+    # Setup NAT for the local tunnel endpoints
+    iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o eth0 -j MASQUERADE
+
+    # Run the tunnel app
+    $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/tunnel -f 127.0.0.1
+  fi
+fi
+
+# Execute script to create list of processes in dbx/trace
+chmod +x ./get-proc-addr
+./get-proc-addr &
+
+# Set "execute" bit on cli app
+chmod +x /mnt/dbx/cli
+
+# END OF SCRIPT

@@ -1,0 +1,92 @@
+#
+# This is the main OAM state machine that handles the startup sequence and subsequent operation.
+#
+
+fsm Oam;
+basename Oam;
+namespace Oam;
+type "void*";
+type "u32";
+
+type_header "OamFsmTypes.h";
+
+# Events
+event AppsReady type "void*";
+event FullScanRequested type "void*";
+event ConfigurationComplete type "void*";
+event NodeBConfigChanged type "u32"; # Parameter indicates which subscription and therefore which CPHY message to send if in NodeB mode.
+
+# States
+superstate All;
+superstate FpgaRem;
+superstate Initialising;
+state Start;
+state Idle;
+superstate RemScanInProgress;
+state WaitingForFullScanComplete;
+
+
+# Guards! Guards!
+guard_condition Tr069Enabled;
+fault FAILED;
+
+
+initial_state Start;
+
+superstate All
+{
+    event NodeBConfigChanged; # Catchall so we do nothing if not in Node-B state.
+}
+
+superstate Initialising
+{
+    superstate All;
+    
+    exit; # Start majority of apps.  Should all be started now.
+}
+
+
+superstate FpgaRem
+{
+    superstate All;
+}
+
+
+state Start
+{
+    superstate Initialising;
+
+    exit;  # StartOAM, SendCPhyHwConfigReq
+    
+    event AppsReady {
+        if Tr069Enabled state Idle;
+        else state Idle;
+    }
+}
+
+
+state Idle
+{
+    superstate FpgaRem;
+    
+	event FullScanRequested state WaitingForFullScanComplete;
+}
+
+superstate RemScanInProgress
+{
+    superstate FpgaRem;
+
+    entry; # Update MIB to indicate REM scan in progress
+    exit;  # Update MIB to indicate REM scan not in progress, send REM op state inform disabled    
+
+    event ConfigurationComplete state Idle;
+}
+
+state WaitingForFullScanComplete
+{
+	superstate RemScanInProgress;
+	
+    entry; # Request full REM scan, send op state inform (enabled, full scan)
+
+}
+

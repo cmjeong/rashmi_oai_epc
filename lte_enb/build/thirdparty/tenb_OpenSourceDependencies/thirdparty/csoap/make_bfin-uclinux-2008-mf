@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#
+# Mudflap build of csoap using uClinux-2008R1.5 toolchain. 
+#
+# Run the libxml2 script then run this script then commit
+# software/libs/bin/csoap/bfin-uclinux-2008-mf
+#
+
+./configure --build=i686-pc-linux \
+            --host=bfin-uclinux \
+            --with-endianness=little \
+            --enable-shared=no \
+            --prefix=`pwd`/../../libs/bin/csoap/bfin-uclinux-2008-mf \
+            --with-xml-prefix=`pwd`/../../libs/bin/libxml2/bfin-uclinux-2008-mf \
+            CC=/opt/uClinux-2008R1.5/bfin-uclinux/bin/bfin-uclinux-gcc \
+            AR=/opt/uClinux-2008R1.5/bfin-uclinux/bin/bfin-uclinux-ar \
+            CFLAGS="-mcpu=bf537-0.3 -fmudflapth" \
+            CXXFLAGS="-mcpu=bf537-0.3 -fmudflapth" \
+            LDFLAGS="-mcpu=bf537-0.3 -lmudflap -lmudflapth"
+
+# Put config.h back to what we want:
+#   a) change the HAVE_MALLOC define from 0 to 1 on line#39
+#   b) comment out the malloc define on line#202
+svn revert config.h
+
+# Make and install
+make clean
+make SUBDIRS="nanohttp libcsoap"
+make SUBDIRS="nanohttp libcsoap" install

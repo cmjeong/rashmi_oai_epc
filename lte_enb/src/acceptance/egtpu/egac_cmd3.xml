@@ -1,0 +1,3914 @@
+
+
+#
+#       Test:    tapa.eg.gtpu.init
+#
+#       Desc:    Init the EGTP as MME node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+         <!--
+         <tapa.leg.cfg.lsap suId="0" spId="0"/> -->
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1"
+	 ipAddrtype="CM_TPTADDR_IPV4" uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+	/* eg012.201: Fix for purify crash */
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+       <!--
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+       -->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0"
+	 action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"
+	 lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+      </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.eg.gtpu.init1
+#
+#       Desc:    Init the EGTP as MME node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.init1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU with no tunnel additions"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <!--<tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0"/>
+      </tapa.send>
+      -->
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1"
+	 ipAddrtype="CM_TPTADDR_IPV4" uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U"
+            />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+      <tapa.expset guardTmr="1000">
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+      <!--
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+       -->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.eg.gtpu.umts.init
+#
+#       Desc:    Init the EGTP as UMTS node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.umts.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS" reOrderTmrEnb="TRUE"
+         reOrderTmrVal="20"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+         <!--  <tapa.leg.cfg.lsap suId="0" spId="0" flag="LEG_EGTP_U"/> -->
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1"
+	 ipAddrtype="CM_TPTADDR_IPV4" uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+      <!--
+      <tapa.delay delay="10"/>
+
+
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+-->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0"
+	 action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"
+	 lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+#
+#       Test:    tapa.eg.gtpu5thread.init
+#
+#       Desc:    Init the EGTP with 5 threads
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu5thread.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nmbWorkerThread ="5" />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4"
+	 uSapId="0" nodeType="TRUE" errIndPvtExtVal="sewqreqewrw"
+	 echoReqPvtExtVal="wewqewewq" nmbIpAddr="1"
+	 echoRspPvtExtVal="ewewrewrerwr"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"  lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.eg.gtpu5threadUMTS.init
+#
+#       Desc:    Init the EGTP with 5 threads
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu5threadUMTS.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nmbWorkerThread ="5" nodeArch = "LEG_NODE_UMTS"
+	 reOrderTmrEnb="TRUE" reOrderTmrVal="15" timerRes="10"
+	 gbThrAssgnTmrEnb="TRUE" gbThrAssgnTmrVal="20"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4"
+	 uSapId="0" nodeType="TRUE" errIndPvtExtVal="sewqreqewrw"
+	 echoReqPvtExtVal="wewqewewq" nmbIpAddr="1"
+	 echoRspPvtExtVal="ewewrewrerwr"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0"
+	 action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"
+	 lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1" reordAlgo ="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.eg.gtpu5threadUMTS.init
+#
+#       Desc:    Init the EGTP with 5 threads
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu5threadUMTSReorder.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nmbWorkerThread ="5" nodeArch = "LEG_NODE_UMTS"
+	 reOrderTmrEnb="TRUE" reOrderTmrVal="1" timerRes="10"
+	 gbThrAssgnTmrEnb="FALSE" gbThrAssgnTmrVal="20"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4"
+	 uSapId="0" nodeType="TRUE" errIndPvtExtVal="sewqreqewrw"
+	 echoReqPvtExtVal="wewqewewq" nmbIpAddr="1"
+	 echoRspPvtExtVal="ewewrewrerwr"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0"
+	 action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"
+	 lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1" reordAlgo ="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+
+
+
+#
+#       Test:    tapa.eg.gtpu7thread.init
+#
+#       Desc:    Init the EGTP with 7 threads
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu7thread.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nmbWorkerThread ="7" />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" />
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu  sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4"
+	 uSapId="0" nodeType="TRUE" errIndPvtExtVal="sewqreqewrw"
+	 echoReqPvtExtVal="wewqewewq" nmbIpAddr="1"
+	 echoRspPvtExtVal="ewewrewrerwr"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"  lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Test:    tapa.egtpu.deinit
+#
+#       Desc:    Shutdown EGTPU stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown EGTP stack" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+      # Send Shutdown
+      <tapa.send >
+         <tapa.leg.cntrl.shutdown /> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.egtpu.dtucl.init
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.100" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.100" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U" />
+      </tapa.send>
+      <!-- 
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <!-- 
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+      -->
+      # Send tunnel Management Request
+      <!-- 
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+      -->
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.100" rmtAddr="127.0.0.1" lclPort="2152" remTeid="2" 
+            pdcpextPres="FALSE" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="20" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="20" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.100" 
+            rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+/* eg09.201 */
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" lclPort="10000" remTeid="20"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+      <!--
+      <tapa.send>
+         
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.100" rmtAddr="127.0.0.1" lclPort="2152"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="127.0.0.100"
+            rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+-->
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.egtpu.dtucl.deinit
+#
+#       Desc:    Shutdown EGTP stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.dtucl.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown EGTP stack" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+      # Send Shutdown
+      <tapa.send lc="TRUE">
+         <tapa.leg.cntrl.shutdown/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.eg.gtpu.leginitumts
+#
+#       Desc:    Init the EGTP for LEG Testing as UMTS node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.leginitumts">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="1" nmbUSaps="3" nmbSrvs="5" nmbTsap="1"
+                           resThreshUpper="6" resThreshLower="2"
+                           eguT3Timerenb="TRUE" eguT3TimerVal="10" nmbRetries="3"
+                           echoTmrEnb="TRUE" echoTmrVal="5000" reOrderTmrEnb="TRUE" reOrderTmrVal="10"
+                           pvtExtId="50" pduWindSize="20" maxNumOfIp="10" nodeArch="LEG_NODE_UMTS"
+                           nmbWorkerThread="3" gbThrAssgnTmrEnb="TRUE" gbThrAssgnTmrVal="5"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" 
+                              uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" 
+                              echoRspPvtExtVal ="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+      <!-- 
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+-->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" action="EGT_TMGMT_REQTYPE_ADD" 
+                                 reOrderPres="FALSE" teid="1" lclAddr="127.0.0.1" 
+                                 rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.eg.gtpu.leginitlte
+#
+#       Desc:    Init the EGTP for LEG Testing as LTE node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.leginitlte">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="1" nmbUSaps="3" nmbSrvs="5" nmbTsap="1"
+                           resThreshUpper="6" resThreshLower="2"
+                           eguT3Timerenb="TRUE" eguT3TimerVal="10" nmbRetries="3"
+                           echoTmrEnb="TRUE" echoTmrVal="5000" reOrderTmrEnb="TRUE" reOrderTmrVal="10"
+                           pvtExtId="50" pduWindSize="20" maxNumOfIp="10" nodeArch="LEG_NODE_LTE"
+                           nmbWorkerThread="5" gbThrAssgnTmrEnb="TRUE" gbThrAssgnTmrVal="5"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect guardTmr="1000" flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" 
+            type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"
+            dstInstId="5" selector="0"  />
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" 
+                              uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" 
+                              echoRspPvtExtVal ="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001"
+                               type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      <!--
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+-->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" action="EGT_TMGMT_REQTYPE_ADD" 
+                                 reOrderPres="FALSE" teid="1" lclAddr="127.0.0.1" 
+                                 rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+
+#
+#
+#       Test:    tapa.egtpu.echo.dtucl.init
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.echo.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="100" echoTmrEnb="TRUE" eguT3TimerVal="0" eguT3TimerEnb="FALSE" echoTmrVal="150" nmbRetries="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP">
+         <tapa.leg.cntrl.debug/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP">
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" />
+      </tapa.send>
+       <!--
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+      <tapa.expset guardTmr="1000">
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.egtpu.t3n3.dtucl.init
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.t3n3.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="100" echoTmrEnb="TRUE" eguT3TimerVal="20" eguT3TimerEnb="TRUE" echoTmrVal="150" nmbRetries="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP">
+         <tapa.leg.cntrl.debug flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP">
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" />
+      </tapa.send>
+       <!--
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+      <tapa.expset guardTmr="1000">
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="127.0.0.1"
+            rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#
+#       Test:    tapa.egtpu.ipv6.dtucl.init
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.ipv6.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="1" ipAddrtype="CM_TPTADDR_IPV6" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="2"
+	 ipAddrtype="CM_TPTADDR_IPV6" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV6" address="::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV6" address="::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV6" address="::2" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U" />
+      </tapa.send>
+
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" rmtAddrType="6" 
+         lclAddr="::1" rmtAddr="::2" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1"
+         intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddr="::1" lclAddrType="6" rmtAddrType="6"
+            rmtAddr="::2"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="::1" rmtAddr="::2" 
+         lclAddrType="6" rmtAddrType="6"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2"
+         intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddr="::1"
+         lclAddrType="6" rmtAddrType="6"
+            rmtAddr="::2"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="::2" rmtAddr="::1" 
+         lclAddrType="6" rmtAddrType="6"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="20" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="20"
+         intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddr="::2" 
+         lclAddrType="6" rmtAddrType="6"
+            rmtAddr="::1"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#       Test:    tapa.eg.egtpc.egtpu.init
+#
+#       Desc:    Init the EGTP as MME and SGW node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd2.xml
+#
+#
+<tapa.command id="tapa.eg.egtpc.egtpu.init">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure GTP-C on MME and GTP-C and GTP-U on SGW node"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Configure EGTP-C as MME
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen procId="200" nodeType="LEG_GTP_ENT_MME" nmbMaxTnls="11" maxTunlArrSz="11"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm procId = "200"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap selector="0" procId="200" sapId="1" intfType="EGT_GTP_INT_S11"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap selector="0" procId="200" sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap procId="200" suId="0" spId="0"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="200" lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="200" lSapId="0" tptSrvId="1" 
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="200"/>
+      </tapa.expect>
+
+      # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap procId="200" action="ABND_ENA" lSapId="0"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+
+      <tapa.expect guardTmr="1000000">
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm procId="200" status="LCM_PRIM_OK"/>
+      </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq procId="200" suId="1" spId="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.bndcfm procId="200" suId="1"/>
+      </tapa.expect>
+
+           # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq procId="200" suId="2" spId="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.bndcfm procId="200" suId="2"/>
+      </tapa.expect> 
+
+
+
+      # Configure EGTP-C and EGTP-U on SGW
+
+         # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nmbMaxTnls="11" maxTunlArrSz="11" procId="100" nodeType="LEG_GTP_ENT_SGW" />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug procId="100" />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm procId = "100"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap selector="0" procId="100" sapId="1" intfType="EGT_GTP_INT_S11"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap selector="0" procId="100" intfType="EGT_GTP_INT_UNKNWN" sapId="2" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu procId="100" sapId="3" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr  procId="100" nmbIpAddr="1" ipAddress="127.0.0.1"
+            ipAddrtype="CM_TPTADDR_IPV4" uSapId="3" nodeType="TRUE" echoReqPvtExtVal="wewqewewq"
+            echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap procId="100" suId="1" spId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="100" tSapId="1" tptSrvId="0"
+         isDfltSrv="TRUE" port="2124" uSapId="2" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="100" tSapId="1" tptSrvId="1" 
+         isDfltSrv="FALSE" port="3124" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="100" tSapId="1" tptSrvId="2" uSapId="3" port="2152"
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver procId="100" tSapId="1" tptSrvId="3" uSapId="3" port="10000"
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm procId="100"/>
+      </tapa.expect>
+
+  # Bind TSAP (lSapId = 1) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap procId="100" action="ABND_ENA" lSapId="1"/>
+      </tapa.send>
+
+	/* eg012.201: Fix for purify crash */
+      <tapa.delay delay="10"/>
+
+        <tapa.expect>
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm procId="100" status="LCM_PRIM_OK"/>
+      </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq procId="100" suId="2" spId="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.bndcfm procId="100" suId="2"/>
+      </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq procId="100" suId="1" spId="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.bndcfm procId="100" suId="1"/>
+      </tapa.expect>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq procId="100" suId="3" spId="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.bndcfm procId="100" suId="3"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq procId="100" suId="3" spId="3"
+	            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="10000"
+	            lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm procId="100" suId="3" teid="10000" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq procId="100" suId="3" spId="3"
+	            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="20000"
+	            lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm procId="100" suId="3" teid="20000" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Test:    tapa.egtpc.egtpu.deinit
+#
+#       Desc:    Shutdown EGTPC and EGTPU stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpc.egtpu.deinit">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown EGTP stack" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      # Suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+      # Send Shutdown
+      <tapa.send >
+         <tapa.leg.cntrl.shutdown procId="200"/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+     
+      # Send Shutdown
+      <tapa.send >
+         <tapa.leg.cntrl.shutdown procId="100"/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm procId="100"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#
+#       Test:    tapa.egtpu.egtp.dtucl.init
+#
+#       Desc:    Init EGTP Stack for R9
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.egtp.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack for R9"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="100" echoTmrEnb="TRUE" eguT3TimerVal="0" eguT3TimerEnb="FALSE" echoTmrVal="150" nmbRetries="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP">
+         <tapa.leg.cntrl.debug/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP">
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" />
+      </tapa.send>
+       <!--
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+    <!--  <tapa.expset guardTmr="1000"> -->
+       <tapa.expect> 
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+      </tapa.expect>
+       <tapa.expect>
+         <tapa.hit.servopenreq suConId="0"  />
+       </tapa.expect>
+       <tapa.expect>
+         <tapa.hit.servopenreq suConId="1"   />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+   
+    </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Test:    tapa.egtpu1.egtp.dtucl.init
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu1.egtp.dtucl.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.100" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.100" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U" />
+      </tapa.send>
+      <!--
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+-->
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Test:    tapa.egtpc.alarm.init
+#
+#       Desc:    Shutdown EGTPC and EGTPU stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.alarm.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Activate the Alarms"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+     # Send enable unsolicited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+     # Enable Alarms
+     <tapa.directive alarm="TRUE"/>
+
+   </tapa.steps>
+
+</tapa.command> 
+
+
+
+#
+#       Test:    tapa.eg.gtpu.init_ipv6
+#
+#       Desc:    Init the EGTP as MME node
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.eg.gtpu.init_ipv6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init  EGTPU "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+    
+      # Send an TSAP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+         <!--
+         <tapa.leg.cfg.lsap suId="0" spId="0"/> -->
+      </tapa.send>
+
+      # Receive the confirm for the TSAP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="0" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="2000::1"
+	 ipAddrtype="CM_TPTADDR_IPV6" uSapId="0" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="0" port="2152" 
+            type="CM_TPTADDR_IPV6" address="2000::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="0" port="10000" 
+            type="CM_TPTADDR_IPV6" address="2000::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="0" port="10001" 
+            type="CM_TPTADDR_IPV6" address="2000::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+      
+<!--
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  tSapId="0" tptSrvId="0" port="2152" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" port="3123" uSapId="0" 
+	  address="127.0.0.1" type="CM_TPTADDR_IPV4" protType="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      -->
+      
+
+  # Bind TSAP (lSapId = 0) with TUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" lSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+	/* eg012.201: Fix for purify crash */
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+       <!--
+      <tapa.delay delay="10"/>
+        <tapa.expect guardTmr="1000000">
+
+         # Stack needs to change to send OK_NDONE in 1st CntrlCfm
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK"/>
+         </tapa.expect>
+       -->
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq  suId="0" spId="0"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="0"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0"
+	 action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="TRUE" teid="1"
+	 lclAddrType="6" lclAddr="2000::1" rmtAddrType="6" rmtAddr="2000::1" expSeqNmb = "1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" lclAddrType="6" lclAddr="2000::1" rmtAddrType="6" rmtAddr="2000::1"/>
+      </tapa.expect>
+      </tapa.steps>
+
+</tapa.command>
+
+
+
+
+
+#
+#
+#       Test:    tapa.egtpu.dtucl.init_ipv6
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.dtucl.init_ipv6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="2000::1" ipAddrtype="CM_TPTADDR_IPV6" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="2000::2" ipAddrtype="CM_TPTADDR_IPV6" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="0"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV6" address="2000::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV6" address="2000::1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="2" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV6" address="2000::2" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U" />
+      </tapa.send>
+      <!-- 
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+         <tapa.hit.servopenreq suConId="2"   />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.concfm  suConId="2" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <!-- 
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::1" rmtAddrType="6" rmtAddr="2000::2" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddrType="6" lclAddr="2000::1"
+            rmtAddrType="6" rmtAddr="2000::2"/>
+      </tapa.expect>
+      -->
+      # Send tunnel Management Request
+      <!-- 
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::1" rmtAddrType="6" rmtAddr="2000::2" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddrType="6" lclAddr="2000::1"
+            rmtAddrType="6" rmtAddr="2000::2"/>
+      </tapa.expect>
+      -->
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::2" rmtAddrType="6" rmtAddr="2000::1" lclPort="2152" remTeid="2" 
+            pdcpextPres="FALSE" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="20" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="20" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddrType="6" lclAddr="2000::2" 
+            rmtAddrType="6" rmtAddr="2000::1"/>
+      </tapa.expect>
+/* eg09.201 */
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::1" rmtAddrType="6" rmtAddr="2000::2" lclPort="10000" remTeid="20"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="2" intfType="EGT_INT_S1_U_SGW_GTP_U" lclAddrType="6" lclAddr="2000::1" 
+            rmtAddrType="6" rmtAddr="2000::2"/>
+      </tapa.expect>
+      <!--
+      <tapa.send>
+         
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::2" rmtAddrType="6" rmtAddr="2000::1" lclPort="2152"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_X2_DL_ENB_GTP_U" lclAddrType="6" lclAddr="2000::2"
+            rmtAddrType="6" rmtAddr="2000::1"/>
+      </tapa.expect>
+-->
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.egtpu.echo.dtucl.init_ipv6
+#
+#       Desc:    Init EGTP Stack
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    egac_cmd3.xml
+#
+#
+<tapa.command id="tapa.egtpu.echo.dtucl.init_ipv6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init EGTP Stack"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen timerRes="100" echoTmrEnb="TRUE" eguT3TimerVal="0" eguT3TimerEnb="FALSE" echoTmrVal="150" nmbRetries="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP">
+         <tapa.leg.cntrl.debug/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP">
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr nmbIpAddr="1" ipAddress="2000::2" ipAddrtype="CM_TPTADDR_IPV6" uSapId="1" nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+      
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV6" address="2000::2" protType="LEG_EGTP_U" />
+      </tapa.send>
+      
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="1" uSapId="1" port="10000" 
+            type="CM_TPTADDR_IPV6" address="2000::2" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <!-- <tapa.leg.cntrl.debug procId="200"  action="AENA"/> -->
+         <tapa.leg.cntrl.debug  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" />
+      </tapa.send>
+       <!--
+       <tapa.expect guardTmr="1000">
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+     -->
+      <tapa.expset guardTmr="1000">
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+         <tapa.hit.servopenreq suConId="1"   />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="1" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="0" />
+      </tapa.send>
+
+      # Send Control request for SSAP
+      <tapa.send>
+         <tapa.egt.bndreq suId="1" spId="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"  />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddrType="6" lclAddr="2000::2" rmtAddrType="6" rmtAddr="2000::1" 
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="1" intfType="EGT_INT_S5_S8_SGW_GTP_U" lclAddrType="6" lclAddr="2000::2"
+            rmtAddrType="6" rmtAddr="2000::1"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+
+
+
+#/********************************************************************30**
+#
+#         End of file:
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     ad           1. Created for EGTP 1.1 Rel
+     eg009.201  ---     asaurabh     1. Added for S2B and S2A .
+#    eg012.201  ---     shpandey     1. Added chages for purify crash,fix for ccpu00126498
+#*********************************************************************91*/
+

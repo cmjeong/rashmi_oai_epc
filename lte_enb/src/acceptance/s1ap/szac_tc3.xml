@@ -1,0 +1,3361 @@
+#/********************************************************************20**
+#
+#     Name:    S1AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    szac_tc3.xml
+#
+#     Sid:     
+#
+#     Prg:     Reena 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=3:rs:szac_tc3.xml
+
+#
+#
+#       Test:    3.1
+#
+#       Desc:    Verify the successful successful configuration of S1AP as eNB
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify the successful configuration as an eNb"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lsz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lsz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lsz.cfg.prot protNode="SZAC_LSZ_ENB_PRC0"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lsz.cfgcfm />
+      </tapa.expect>
+
+      # Send an szt sap configuration request
+      <tapa.send>
+         <tapa.lsz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the szt sap request.
+      <tapa.expect>
+         <tapa.lsz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lsz.cfg.lsap provType="SZAC_SCTP_DM" peerNode="SZAC_LSZ_MME_PRC1"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lsz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lsz.cntrl.lSap />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expset>
+         <tapa.sct.bndreq spId="0"/> 
+         <tapa.lsz.cntrlcfm />
+      </tapa.expset>
+
+      <tapa.sz.sct.delay delay="5"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.2
+#
+#       Desc:    Verify that when ENB receives INITIAL CONTEXT 
+#                SETUP REQUEST message in IDLE state, it sends 
+#                local error indication message to the application 
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify that when ENB receives INITIAL CONTEXT SETUP"
+         "REQUEST message in IDLE state, it sends local error"
+         "indication message to the application"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup
+      <tapa.dummy.s1.init/> 
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" strmId="1" enbId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP FAILURE msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_CXT_SETUP_FAIL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.3
+#
+#       Desc:    Verify that error message is sent to peer if the
+#                node gets messages that is not supported.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that ENB sends error message to MME when it "
+         " receives E-RAB SETUP RESPONSE from MME in"
+         "ESTABLISHED state."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      #s1 Init
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send E-RAB SETUP RESPONSE from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_RSP" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect ERROR MSG to MME from ENB 
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="4"/>
+      </tapa.expect>
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.4
+#
+#       Desc:    Verify Failure in UE Context Modification Procedure.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify Failure in UE Context Modification Procedure. "
+         "The MME sends UE CONTEXT MODIFICATION REQUEST Message "
+         "(during Context Release Procedure) to the peer eNB. "
+         "The eNB responds back with a UE CONTEXT MODIFICATION FAILURE Message. "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an UE CONTEXT RELEASE REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" spConnId="1"/>
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE REQUEST at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an UE CONTEXT RELEASE CMD message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE CMD Msg at eNB
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" procId="SZAC_ENB_PROC" suConnId="1"/>
+      </tapa.expect>
+
+      # Send an UE CONTEXT MODIFICATION REQUEST message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE REQUEST at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_FAIL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.5
+#
+#       Desc:    Verify failure in Downlink NAS Transport Procedure.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify failure in Downlink NAS Procedure where S1-Conn is going Release Procedure. "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup
+      <tapa.dummy.s1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an UE CONTEXT RELEASE REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" spConnId="1"/>
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE REQUEST at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an UE CONTEXT RELEASE CMD message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE CMD Msg at eNB
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" procId="SZAC_ENB_PROC" suConnId="1"/>
+      </tapa.expect>
+
+      # Send an DOWNLINK NAS TRANSPORT Message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DL_NAS_TPT" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect DOWNLINK NAS TRANSPORT Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    3.6
+#
+#       Desc:    Verify that S1AP sends RelInd to user if 
+#                it receives error message in Connecting state.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that S1AP sends RelInd to user if it receives"
+         " error message in Connecting state."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+      # S1 Setup
+      <tapa.dummy.s1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Initial UE to MME from ENB
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an error message to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERR_IND" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect Error message in RelInd at ENB
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    3.7
+#
+#       Desc:    To Verify UE Context Setup, Modification and
+#                MME Initiated UE Context Release Procedures.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify UE Context Setup, Modification and"
+          "MME Initiated UE Context Release Procedures."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT MODIFICATION REQUEST
+      <tapa.send>
+        <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT MODIFICATION REQUEST 
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT MODIFICATION RSP from eNB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect UE CONTEXT MODIFICATION RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT RELEASE COMMAND from MME to eNodeB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT Release Command at eNodeB 
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT Release Complete from eNB to MME
+      <tapa.send>
+        <tapa.szt.relrsp eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect UE Context Release Complete at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.8
+#
+#       Desc:    To Verify UE Context Setup and
+#                UE Initiated UE Context Release Procedures.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify UE Context Setup and "
+          "UE Initiated UE Context Release Procedures."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT Release Request from eNodeB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect UE CONTEXT Release Request at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_REQ" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT RELEASE COMMAND from MME to eNodeB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT Release Command at eNodeB 
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  UE CONTEXT Release Complete from eNB to MME
+      <tapa.send>
+        <tapa.szt.relrsp eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect UE Context Release Complete at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.9
+#
+#       Desc:    To Verify E-RAB Setup, Modification and 
+#                MME Initiated Release Procedures.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify ERAB Setup, Modification and"
+          "MME Initiated Release Procedures."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an ERAB SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB SETUP REQUEST  at ENB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an ERAB SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB MODIFICATION REQUEST
+      <tapa.send>
+        <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_MOD_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB MODIFICATION REQUEST 
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_MOD_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  ERAB MODIFICATION RSP from eNB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_MOD_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB MODIFICATION RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_MOD_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB RELEASE COMMAND
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB RELEASE COMMAND
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_REL_CMD" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  ERAB RELEASE COMPLETE
+      <tapa.send>
+        <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_REL_CMPLT" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB RELEASE COMPLETE 
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_REL_CMPLT" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.10
+#
+#       Desc:    To Verify E-RAB Setup and 
+#                ENodeB Initiated E-RAB Release Procedures.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify E-RAB Setup and"
+          "ENodeB Initiated E-RAB Release Procedures."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an ERAB SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB SETUP REQUEST  at ENB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an ERAB SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB Release Request from eNB to MME
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_REL_REQ" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect E-RAB Release Request at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_REL_REQ" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB Release  COMMAND from MME to ENodeB 
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB Release Command at eNodeB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_REL_CMD" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  ERAB Release Complete from  eNB to MME
+      <tapa.send>
+        <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_REL_CMPLT" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB Release Complete at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_REL_CMPLT" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.11
+#
+#       Desc:    To Verify NAS Downlink Procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify NAS Downlink Procedure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Downlink NAS Message to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DL_NAS_TPT" suId="0" procId="SZAC_ENB_PROC" enbId="99" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect uplink NAS Message at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="14"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.12
+#
+#       Desc:    To Verify NAS Uplink Procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify NAS Uplink Procedure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Downlink NAS Message to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DL_NAS_TPT" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect Downlink NAS Message to ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_DL_NAS_TPT" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an Uplink NAS Message to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_UL_NAS_TPT" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect Uplink NAS Message to ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UL_NAS_TPT" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.13
+#
+#       Desc:    To Verify Paging Procedure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "To Verify Paging Procedure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an paging message to eNodeB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_PAGING" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect Paging Message at ENB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_PAGING" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.14
+#
+#       Desc:    To verify the selective Reset of a connection at eNB when
+#       there are more connections
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify the selective Reset of a connection at eNB when there are"
+         "more connections"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="3" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0"  enbId1="1" mmeId1="1" enbId2="2" mmeId2="2" lstCnt="2"/>
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" peerId="2" suId="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" peerId="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="1" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" peerId="2" suId="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" peerId="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="0" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.15
+#
+#       Desc:    To verify the selective Reset of a connection at eNB when
+#       there is only one connection
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify the selective Reset of a connection at eNB when there is"
+         "only one connection"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="3" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" peerId="2" enbId1="1" mmeId1="1" enbId2="2" mmeId2="2" lstCnt="2"/>
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET_ACK"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" peerId="2" enbId1="1" mmeId1="1" enbId2="2" mmeId2="2" lstCnt="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET_ACK" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="1" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" peerId="2" />
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET_ACK"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" peerId="2" />
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET_ACK" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="0" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.16
+#
+#       Desc:    To verify the successful bind request of SZT sap at eNB
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify the successful bind request of SZT sap at eNB"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.17
+#
+#       Desc:    Verify that that the AudReq of Peer provies
+#                an AudCfm with the appropriate values.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "Verify that that the AudReq of Peer provies"
+          "an AudCfm with the appropriate values."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+      <tapa.dummy.uecxt.init usrConnId="4" spConnId="4" enbId="4" mmeId="4"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Audit Request
+      <tapa.send>
+         <tapa.szt.audreq auditType="SZT_AUD_PEER" procId="SZAC_ENB_PROC" peerId="2"/>
+      </tapa.send>
+
+      # Receive the Audit Confirm 
+      <tapa.expect>
+         <tapa.szt.audcfm peerId="2" peerState="SZT_ND_ST_NORMAL" procId="SZAC_ENB_PROC" status="SZT_PRIM_OK" cause="SZT_CAUSE_NOT_APPL"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.18
+#
+#       Desc:    Verify that that the AudReq of connections provies an AudCfm
+#       with the appropriate values
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.18"> # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that that the AudReq of connections provies an AudCfm with"
+         "the appropriate values"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+      <tapa.dummy.uecxt.init usrConnId="4" spConnId="4" enbId="4" mmeId="4"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Audit Request
+      <tapa.send>
+         <tapa.szt.audreq auditType="SZT_AUD_CONN" spConnId="1" procId="SZAC_ENB_PROC" />
+      </tapa.send>
+
+      # Receive the Audit Confirm 
+      <tapa.expect>
+         <tapa.szt.audcfm nmbConn="1" spConnId="1" connSt="SZT_CON_ST_ESTBLD" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.19
+#
+#       Desc:    Verify that that the flow control indication from SCTP
+#       handling
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.19"> # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that that the flow control indication from SCTP handling"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+      <tapa.dummy.uecxt.init usrConnId="4" spConnId="4" enbId="4" mmeId="4"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Audit Request
+      <tapa.send>
+         <tapa.szt.audreq auditType="SZT_AUD_FLC" peerId="2" procId="SZAC_ENB_PROC" />
+      </tapa.send>
+
+      # Receive the Audit Confirm 
+      <tapa.expset>
+         <tapa.szt.audcfm procId="SZAC_ENB_PROC"/>
+         <tapa.sct.stareq procId="SZAC_ENB_PROC"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.sct.flcind reason="SCT_FLC_INACTIVE" peerId="2" suId="0" procId="SZAC_ENB_PROC" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.szt.flcind flcStatus="SZT_FLC_INACTIVE" peerId="2" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.20
+#
+#       Desc:    To Verify ERAB Setup, Modification and MME Initiated Release
+#       Procedures
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To Verify ERAB Setup, Modification and MME Initiated Release"
+         "Procedures"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1" />
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="1" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an ERAB SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB SETUP REQUEST  at ENB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an ERAB SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERAB_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an ERAB SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_ENB_PROC" spId="0" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB MODIFICATION REQUEST
+      <tapa.send>
+        <tapa.sct.datind eventType="SZT_MSG_ID_HO_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB MODIFICATION REQUEST 
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_HO_CMD" peerId="1" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  ERAB RELEASE COMMAND
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB RELEASE COMMAND
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" peerId="1" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send  ERAB RELEASE COMPLETE
+      <tapa.send>
+        <tapa.szt.relrsp eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" suId="1" />
+      </tapa.send>
+
+      # Expect ERAB RELEASE COMPLETE 
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_CMPL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.21
+#
+#       Desc:    To Verify connection establishment using PATH switch request
+#       message at eNB
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To Verify connection establishment using PATH switch request message"
+         "at eNB"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an ERAB SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_PATH_SWTCH_REQ" procId="SZAC_ENB_PROC" spId="0" enbId="1" peerId="2"/>
+      </tapa.send>
+
+      # Expect ERAB SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_PATH_SWTCH_REQ" procId="SZAC_ENB_PROC" spId="0" assocIdx="0" />
+      </tapa.expect>
+
+      # Send  ERAB MODIFICATION REQUEST
+      <tapa.send>
+        <tapa.sct.datind eventType="SZT_MSG_ID_PATH_SWTCH_REQ_ACK" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" assocIdx="0" />
+      </tapa.send>
+
+      # Expect ERAB MODIFICATION REQUEST 
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_PATH_SWTCH_REQ_ACK" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    3.22
+#
+#       Desc:    Verify Failure in UE Context Modification Procedure.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify Failure in UE Context Modification Procedure. "
+         "The MME sends UE CONTEXT MODIFICATION REQUEST Message (with invalid eNB UE S1AP ID) "
+         "to the peer eNB. The eNB responds back with a UE CONTEXT MODIFICATION FAILURE "
+         "Message indicating Failure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an UE CONTEXT MODIFICATION REQUEST message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="99" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect UE CONTEXT RELEASE REQUEST at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_FAIL" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.23
+#
+#       Desc:    Verify that the partil RESET will be successful
+#                if only MME connection id is present in the RESET
+#                message.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+          "Verify that the partil RESET will be successful"
+          "if only MME connection id is present in the RESET"
+          "message."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="3" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0"  enbId1="1" mmeId1="0" enbId2="2" mmeId2="0" lstCnt="2" />
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" peerId="2" suId="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" peerId="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="1" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" peerId="2" suId="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" peerId="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET_ACK" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="0" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.24
+#
+#       Desc:    To Verify UE Context Setup, Modification and MME Initiated UE
+#       Context Release Procedures
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="3.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To Verify UE Context Setup, Modification and MME Initiated UE"
+         "Context Release Procedures"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      <tapa.dummy.uecxt.init usrConnId="2" spConnId="2" enbId="2" mmeId="2"/>
+      <tapa.dummy.uecxt.init usrConnId="3" spConnId="3" enbId="3" mmeId="3"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="3" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" peerId="2" enbId1="1" mmeId1="0" enbId2="2" mmeId2="0" lstCnt="2"/>
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET_ACK"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" peerId="2" enbId1="1" mmeId1="1" enbId2="2" mmeId2="2" lstCnt="2"/>
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET_ACK" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="1" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      # Send an RESET message from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_RESET"  suId="0" procId="SZAC_ENB_PROC" peerId="2" />
+      </tapa.send>
+
+      # Expect RESET Msg at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_RESET" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an RESET ACK Msg from eNB to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_RESET_ACK"  suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" peerId="2" />
+      </tapa.send>
+
+      # Expect RESET ACK Msg at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_RESET_ACK" peerId="2" procId="SZAC_ENB_PROC" suId="0" />
+      </tapa.expect>
+
+      # Send an Stats Request
+      <tapa.send>
+         <tapa.lsz.sta.req staType="STSZGEN" procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Receive the Stats Confirm 
+      <tapa.expect>
+         <tapa.lsz.stacfm numActvPeerConn="0" procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.25
+#
+#       Desc:    Verify the S1 setup abort request from application  
+#                when assoc is in progress state
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc4.xml
+#
+#
+<tapa.testcase id="3.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+      "Verify the S1 setup abort request from application"
+      "when assoc is in progress state"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="SZTV2"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.assocreq procId="SZAC_ENB_PROC" spId="0" suEndpId="1" spEndpId="0" assocIdx="0" type="SCT_ASSOC_IND_COOKIE" numIps="1" port="10001" />
+      </tapa.expect>
+
+      # Send Abort Req at MME 
+      <tapa.send>
+         <tapa.szt.aborts1req procId="SZAC_ENB_PROC" suId="0" spId="0" peerId="2" /> 
+      </tapa.send>
+
+      # Expect Assoc Resp to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="SZAC_ENB_PROC" spId="0" assocIdx="0" spAssocId="1" assocIdType="1"/> 
+      </tapa.expect>
+
+       # Deinit ENB
+      <tapa.send>
+         <tapa.sct.termcfm procId="SZAC_ENB_PROC"  suId="0" assocIdx="0" spAssocId="1" assocIdType="1"/> 
+      </tapa.send> 
+
+      <tapa.expect>
+         <tapa.szt.aborts1cfm procId="SZAC_ENB_PROC" suId="0" status="SZT_PRIM_OK"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.26
+#
+#       Desc:    Verify the S1 setup abort request from application  
+#                when assoc is in progress state
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc4.xml
+#
+#
+<tapa.testcase id="3.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+      "Verify the S1 setup abort request from application"
+      "when assoc is in progress state"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="SZTV2"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.assocreq procId="SZAC_ENB_PROC" spId="0" suEndpId="1" spEndpId="0" assocIdx="0" type="SCT_ASSOC_IND_COOKIE" numIps="1" port="10001" />
+      </tapa.expect>
+
+      # Send Abort Req at MME 
+      <tapa.send>
+         <tapa.szt.aborts1req procId="SZAC_ENB_PROC" suId="0" spId="0" peerId="2" /> 
+      </tapa.send>
+
+      # Expect Assoc Resp to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="SZAC_ENB_PROC" spId="0" assocIdx="0" spAssocId="1" assocIdType="1"/> 
+      </tapa.expect>
+
+     # Deinit ENB
+      <tapa.send>
+         <tapa.sct.termcfm procId="SZAC_ENB_PROC"  suId="0" assocIdx="0" spAssocId="1" assocIdType="1"/> 
+      </tapa.send> 
+
+      <tapa.expect>
+         <tapa.szt.aborts1cfm procId="SZAC_ENB_PROC" suId="0" status="SZT_PRIM_OK"/> 
+      </tapa.expect>
+
+      # Send an S1 SETUP RESPONSE Msg from MME to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_SETUP_RSP" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" strmId="1"/>
+      </tapa.send>
+      
+      # Expect No Message
+      <tapa.timeout/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+
+      <tapa.send>
+         <tapa.lsz.cntrl.shutdown procId="SZAC_ENB_PROC"/>
+      </tapa.send>
+
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="SZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lsz.cntrlcfm procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#sz008.301 Support for Source RNC to Target RNC
+#
+#
+#       Test:    3.27
+#
+#       Desc:    verify the encoding and decoding of Source RNC to
+#                target RNC container
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_t3.xml
+#
+#
+<tapa.testcase id="3.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify that Encode Decode happens for transparent container Ie's"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZTV1"/>
+           <tapa.flag id="SZTV3"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+
+   # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      <tapa.dummy.s1.init/> 
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+      # Encode request for IE type SrcToTget
+      <tapa.send>
+         <tapa.szt.encreq procId="SZAC_XTA_PROC"
+            spId="0" type="3" ieType="3" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.szt.enccfm  procId="SZAC_XTA_PROC" suId="0" />
+      </tapa.expect>
+
+      # Decode request for IE type SrcToTget
+      <tapa.send>
+          <tapa.szt.decreq  
+             procId="SZAC_XTA_PROC" spId="0" type="4" ieType="4"  msgStr="xyzdfafaer"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.szt.deccfm  procId="SZAC_XTA_PROC" suId="0" />
+      </tapa.expect>
+  </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     szac_tc3.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$        ---      vvashishth  1. Updated for S1AP release 3.1
+#/main/1     sz004.301 va          1. Updated for Transparent Container Enc/Dec
+#/main/1     sz008.301 akaranth    1.support for Source RNC to Target RNC.
+#*********************************************************************91*/

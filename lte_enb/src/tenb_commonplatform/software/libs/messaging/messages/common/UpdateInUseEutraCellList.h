@@ -1,0 +1,52 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// UpdateInUseEutraCellList.h
+//
+// Message sent to inform that eNodeB initial config is complete
+//
+// Copyright radisys Ltd
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __UpdateInUseEutraCellList_h_
+#define __UpdateInUseEutraCellList_h_
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include <system/Serialisable.h>
+#include <system/SerialisationIds.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+using namespace std;
+
+///////////////////////////////////////////////////////////////////////////////
+// Classes
+///////////////////////////////////////////////////////////////////////////////
+
+class UpdateInUseEutraCellList : public threeway::Serialisable
+{
+public:
+    /**
+     * Construction / destruction.
+     */
+    UpdateInUseEutraCellList();
+    UpdateInUseEutraCellList(u32 msgType, void *data);
+    virtual ~UpdateInUseEutraCellList() {};
+
+    virtual u32 GetSerialisationId() const { return SERIALISATION_ID_UPDATE_EUTRAINUSE_CELLLIST; }
+    virtual s32 Serialise(u8* data, u32 dataMaxBytes) const;
+    virtual bool DeSerialise(const u8* data, u32 dataLen);
+    void *GetEutaCellCfg();
+    virtual std::string ToString() const;
+
+private:
+    void *m_EutrCellCfg;
+    u32   m_MsgType;
+};
+
+#endif

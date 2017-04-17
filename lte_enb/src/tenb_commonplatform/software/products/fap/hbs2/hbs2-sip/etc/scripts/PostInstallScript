@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# PostInstallScript
+#
+# If present in an update package this script will be
+# extracted and executed after the "inner tarball" is
+# extracted to /mnt but before dbx_start is executed 
+# to start the newly installed application package
+
+echo "Running Post Install Script."
+
+# Check for correct u-boot version and update if necessary
+UBOOT_IMAGE_VERSION=`cd $KERNEL_DIR && ls u-boot* | tr -cd '[[:digit:]]'`
+UBOOT_IMAGE=`cd $KERNEL_DIR && ls u-boot*` 
+INSTALLED_UBOOT_IMAGE_VERSION=`/mnt/dbx/fap-flash u-bootenvread ubootImageFileName | tr -cd '[[:digit:]]'`
+
+echo "u-boot version in image is $UBOOT_IMAGE_VERSION"
+echo "u-boot image is $UBOOT_IMAGE"
+echo "installed u-boot version is $INSTALLED_UBOOT_IMAGE_VERSION"
+
+if [ "$UBOOT_IMAGE" ] ; then
+	if [ "$INSTALLED_UBOOT_IMAGE_VERSION" -a "$UBOOT_IMAGE_VERSION" ] ; then	
+		if [ $UBOOT_IMAGE_VERSION -gt $INSTALLED_UBOOT_IMAGE_VERSION ] ; then 
+			echo "Installed u-boot version is older than u-boot version in image."
+			echo "Updating u-boot to $KERNEL_DIR/$UBOOT_IMAGE" 
+			/mnt/dbx/fap-flash u-boot $KERNEL_DIR/$UBOOT_IMAGE
+		else
+			echo "Installed u-boot version is not older than u-boot version in image, not updating."
+		fi
+	else
+		echo "Couldn't determine installed and/or image u-boot version(s)."
+		echo "Updating u-boot to $KERNEL_DIR/$UBOOT_IMAGE"
+		/mnt/dbx/fap-flash u-boot $KERNEL_DIR/$UBOOT_IMAGE
+	fi	
+else
+	echo "Couldn't find a u-boot image!"
+fi
+
+
+echo "Completed Post Install Script."

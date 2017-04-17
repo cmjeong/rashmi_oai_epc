@@ -1,0 +1,65 @@
+# This is my comment
+
+fsm SocketClient;
+basename Tr069SocketClient;
+namespace tr069;
+
+type_header "Tr069HttpPostRequest.h";
+
+type "shared_ptr<HttpPostRequest>";
+type "void*";
+
+# Events
+event TCP_CONNECT_REQ;
+event TCP_CONNECT_IND;
+event TCP_DISCONNECT_REQ type "void*";
+event HTTP_POST_REQUEST type "shared_ptr<HttpPostRequest>";
+
+# States & Superstates
+state Inactive;
+state Connected;
+
+# Guard Conditions
+guard_condition QueryAfterPostWaitForResponse;
+
+# Faults
+fault CONNECTION_FAILURE;
+
+# Actions
+action HandleTcpConnectReq { fault CONNECTION_FAILURE; }
+action HandleTcpConnectInd ;
+action HandleTcpDisconnectReq;
+action RejectTcpConnectReq;
+action SendHttpPost { fault CONNECTION_FAILURE; }
+action SendHttpPostButDoNotWaitForResponse;
+
+# Initial State
+initial_state Inactive;
+
+
+
+state Inactive
+{
+    event TCP_CONNECT_REQ 
+    {
+    	action HandleTcpConnectReq { state Connected; fault CONNECTION_FAILURE state Inactive; }
+    }
+
+    event TCP_CONNECT_IND action HandleTcpConnectInd;
+
+    event TCP_DISCONNECT_REQ action HandleTcpDisconnectReq;
+}
+
+state Connected
+{
+    event TCP_DISCONNECT_REQ  action HandleTcpDisconnectReq state Inactive;
+
+    event TCP_CONNECT_REQ action RejectTcpConnectReq;
+
+    event HTTP_POST_REQUEST 
+    {
+    	if QueryAfterPostWaitForResponse action SendHttpPost { fault CONNECTION_FAILURE >> Inactive; }
+    	else action SendHttpPostButDoNotWaitForResponse;
+    }
+}
+

@@ -1,0 +1,62 @@
+#!/bin/sh
+if [ $# != 4 ] ; then
+    echo "usage: sign-distro input_file, output_file, signing_certificate, signing_key"
+else
+
+    # Unzip and untar outer package 
+    cp $1 temp.tar.gz
+    gunzip temp.tar.gz
+    if [ $? -eq 0 ] ; then
+	tar -xf temp.tar
+    	if [ $? -eq 0 ] ; then
+	    # Find md5 checksum file
+	    MD5_FILE=`ls *.md5`
+	    if [ $MD5_FILE ] ; then
+		# Sign md5 checksum file using signing certificate ($3) and signing key ($4) provided.
+		openssl smime -sign -in $MD5_FILE -binary -signer $3 -inkey $4 -out $MD5_FILE.pk7 -outform der -nodetach
+
+		if [ $? -eq 0 ] ; then
+		    # Put outer package back together with signed version of md5 checksum file. 
+		    FAP_INSTALL_PACKAGE_CONTENTS=$MD5_FILE.pk7
+    		    INNER_TAR_FILE=`ls *manual.tar`
+		    
+		    if [ $INNER_TAR_FILE ] ; then
+			FAP_INSTALL_PACKAGE_CONTENTS="$MD5_FILE.pk7 $INNER_TAR_FILE"
+			FAP_INSTALL_PACKAGE_CONTENTS="$FAP_INSTALL_PACKAGE_CONTENTS UpdateInfo.txt"
+
+			if [ -e PostDownloadScript ] ; then
+			    FAP_INSTALL_PACKAGE_CONTENTS="$FAP_INSTALL_PACKAGE_CONTENTS PostDownloadScript" 
+			fi
+
+			if [ -e PostInstallScript ] ; then
+			    FAP_INSTALL_PACKAGE_CONTENTS="$FAP_INSTALL_PACKAGE_CONTENTS PreInstallScript" 
+			fi
+
+			if [ -e PostInstallScript ] ; then
+			    FAP_INSTALL_PACKAGE_CONTENTS="$FAP_INSTALL_PACKAGE_CONTENTS PostInstallScript" 
+			fi
+
+			tar -czf $2 $FAP_INSTALL_PACKAGE_CONTENTS
+
+			if [ $? -eq 0 ] ; then
+			    # Clean up.
+			    rm -rf $FAP_INSTALL_PACKAGE_CONTENTS temp.tar $MD5_FILE
+			else
+			    echo "Couldn't create signed install file!"
+			fi
+		    else
+			echo "Couldn't find inner tarball file!"
+		    fi
+		else
+		    echo "Signing md5 file failed!"
+		fi
+	    else
+		echo "Couldn't find md5 file!"
+	    fi
+	else
+	    echo "Untar of package file failed!"
+	fi
+    else
+	echo "Unzip of package file failed!"
+    fi
+fi

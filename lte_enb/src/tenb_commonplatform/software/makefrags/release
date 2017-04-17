@@ -1,0 +1,111 @@
+#!/bin/bash
+
+#
+# This script is normally called from product.mk when the 'release' target
+# has been used.  It can be run on its own but the code will not be updated
+# from SVN, cleaned and built.
+#
+
+function Usage {
+  echo -e "\n$1 not specified.  Usage:\n\n PRODUCT=<product> TOP=<path-to-software-project> HARDWARE=<hbs2-3-1|hbs2-3-5> BUILD=<bfin-uclinux-2006|bfin-uclinux-2008> LASTREV=<svn-revision-of-last-release> $0\n\n"
+  exit
+}
+
+if [ ! $LASTREV ]; then
+  Usage LASTREV
+fi
+
+if [ ! $TOP ]; then
+  Usage TOP
+fi
+
+if [ ! $PRODUCT ]; then
+  Usage PRODUCT
+fi
+
+if [ ! $HARDWARE ]; then
+  Usage HARDWARE
+fi
+
+if [ ! $BUILD ]; then
+  Usage BUILD
+fi
+
+# Get current directory.
+CWD=`pwd`
+
+echo "Getting SVN version."
+cd $TOP
+chmod +x apps/utilities/bin/svnutil
+SVNVERSION=`apps/utilities/bin/svnutil version .`
+echo "SVN Version: ${SVNVERSION}"
+# Change back to original dir.
+cd $CWD
+
+# Build up names of things.
+HARDWARE_NICE=`echo $HARDWARE | sed 's/\(hbs2-\)\(.*\)/\2/' | sed 's/-/./'`
+BUILD_NICE=`echo $BUILD | sed 's/\(bfin-uclinux-\)\(.*\)/\2/'`
+DATETIME=`date`
+RELEASE_DIR=release/${PRODUCT}_${HARDWARE_NICE}_${BUILD_NICE}_v${SVNVERSION}_`date '+%Y-%m-%d'`
+EXTERNAL_RELEASE_NOTES_FILE=${RELEASE_DIR}/Radisys_${PRODUCT}_${HARDWARE_NICE}_${BUILD_NICE}_v${SVNVERSION}_release-notes.txt
+INTERNAL_RELEASE_NOTES_FILE=${RELEASE_DIR}/INTERNAL_${PRODUCT}_${HARDWARE_NICE}_${BUILD_NICE}_v${SVNVERSION}_release-notes.txt
+
+#
+# Check all OK
+#
+CWD=`pwd`
+echo -e "Current dir: $CWD"
+echo -e "SVN version after updating: ${SVNVERSION}"
+echo -e "Release directory: ${RELEASE_DIR}"
+
+echo -e "Deleting and recreating ${RELEASE_DIR} directory"
+rm -rf ${RELEASE_DIR}
+mkdir -p ${RELEASE_DIR}
+
+# TODO - extract open issues from Mantis as CSV and tidy up e.g. with following regex:
+# ^(.*?),.*?,.*?,.*?,.*?,(.*?),.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,.*?,(.*)  =>  $1,$2,$3
+
+echo -e "Generating internal release notes including commit log since rev ${LASTREV} : ${INTERNAL_RELEASE_NOTES_FILE}"
+echo -e "RELEASE NOTES" > temp1.txt
+echo -e "-------------" >> temp1.txt
+echo -e "" >> temp1.txt
+echo -e "${DATETIME}" >> temp1.txt
+echo -e "\nSVN Version: ${SVNVERSION}" >> temp1.txt
+echo -e "Last Release: ${LASTREV}" >> temp1.txt
+echo -e "Build: $CWD" >> temp1.txt
+echo -e "\nCHANGES SINCE LAST RELEASE" >> temp1.txt
+echo -e "--------------------------\n" >> temp1.txt
+make log LASTREV=${LASTREV} >& temp2.txt
+cat temp1.txt temp2.txt > ${INTERNAL_RELEASE_NOTES_FILE}
+rm temp1.txt temp2.txt
+
+echo -e "Generating external release notes : ${EXTERNAL_RELEASE_NOTES_FILE}"
+# Replace magic strings in release notes template file.
+sed "s/\${SVNVERSION}/${SVNVERSION}/g" ${TOP}/products/fap/hbs2/etc/release-notes-template.txt > temp1.txt
+sed "s/\${PRODUCT}/${PRODUCT}/g" temp1.txt > temp2.txt
+sed "s/\${DATETIME}/${DATETIME}/g" temp2.txt > ${EXTERNAL_RELEASE_NOTES_FILE}
+rm temp1.txt temp2.txt
+
+echo -e "Copying distro tarballs."
+cp distro/$HARDWARE/$BUILD/*.tar* ${RELEASE_DIR}
+
+echo -e "FTP'ing gdbs tarball to ftp://ukdev1/uploads/software-release-gdb-tarballs"
+FTP_SCRIPT_FILE=$TOP/makefrags/temp-lftp-script
+echo "open ukdev1" > $FTP_SCRIPT_FILE
+echo "user anonymous password" >> $FTP_SCRIPT_FILE
+echo "cd uploads/software-release-gdb-tarballs" >> $FTP_SCRIPT_FILE
+echo "lcd distro/$HARDWARE/$BUILD" >> $FTP_SCRIPT_FILE
+echo "mput gdbs_*.tar.gz" >> $FTP_SCRIPT_FILE
+lftp -f $FTP_SCRIPT_FILE
+rm $FTP_SCRIPT_FILE
+
+echo -e "Copying installation notes."
+cp ${TOP}/products/fap/hbs2/etc/hbs2-installation-notes.doc ${RELEASE_DIR}
+
+echo -e "Copying SNMP MIB."
+cp ${TOP}/products/fap/etc/snmp/IN-C-SNMP-MIB.mib ${RELEASE_DIR}
+
+echo -e "Copying MIB XHTML."
+cp ${TOP}/libs/common/mib-common/obj/${PRODUCT}/generic/generic/fap-mib-${PRODUCT}.html ${RELEASE_DIR}
+
+echo -e "\n*** Now go and edit ${EXTERNAL_RELEASE_NOTES_FILE} to make something suitable for sending to customers! ***\n"

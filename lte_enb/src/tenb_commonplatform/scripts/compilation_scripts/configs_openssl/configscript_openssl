@@ -1,0 +1,61 @@
+#!/bin/sh
+
+#Compilation script for building openssl-0.9.8
+#############################################################################################
+CROSS_COMPILER=$1
+if [ "$1" = "arm-none-linux-gnueabi" ] || [ "$1" = "gcc" ] || [ "$1" = "mipsel-unknown-linux-gnu" ] ;
+then
+echo "************************************************"
+echo "Compiler Selected : $CROSS_COMPILER"
+echo "************************************************"
+#######################################################################################
+if [ "$1" = "arm-none-linux-gnueabi" ];
+then
+mkdir `pwd`/../openssl-0.9.8/
+mkdir `pwd`/../openssl-0.9.8/openssl-0.9.8r/
+
+make clean
+./Configure linux-generic32 -DL_ENDIAN -march=armv6 -mthumb -fPIC shared --openssldir=`pwd`/../openssl-0.9.8/openssl-0.9.8r/
+
+make LD=$CROSS_COMPILER-ld ARD="$CROSS_COMPILER-ar d" AR="$CROSS_COMPILER-ar r" CC=$CROSS_COMPILER-gcc RANLIB=$CROSS_COMPILER-ranlib
+make install LD=$CROSS_COMPILER-ld ARD="$CROSS_COMPILER-ar d" AR="$CROSS_COMPILER-ar r" CC=$CROSS_COMPILER-gcc RANLIB=$CROSS_COMPILER-ranlib
+
+cp -f ../openssl-0.9.8/openssl-0.9.8r/lib/libcrypto.a ../openssl-0.9.8/openssl-0.9.8r/lib/libssl.a `pwd`/../../libs/bin/csoap/hbs2-4/arm-none-linux-gnueabi/lib
+#############################################################################################
+
+elif [ "$1" = "gcc" ] ;
+then
+mkdir `pwd`/../openssl-0.9.8/
+mkdir `pwd`/../openssl-0.9.8/openssl-0.9.8rl/
+
+make clean
+
+./Configure linux-generic32 shared --openssldir=`pwd`/../openssl-0.9.8/openssl-0.9.8rl/
+
+make
+make install
+
+cp -f ../openssl-0.9.8/openssl-0.9.8rl/lib/libcrypto.a ../openssl-0.9.8/openssl-0.9.8rl/lib/libssl.a `pwd`/../../libs/bin/csoap/generic/i686-linux/lib/
+#############################################################################################
+elif [ "$1" = "mipsel-unknown-linux-gnu" ] ;
+then
+mkdir `pwd`/../openssl-0.9.8/
+mkdir `pwd`/../openssl-0.9.8/openssl-0.9.8rm/
+
+make clean
+
+./Configure linux-generic32 shared --openssldir=`pwd`/../openssl-0.9.8/openssl-0.9.8rm/
+
+make LD=$CROSS_COMPILER-ld ARD="$CROSS_COMPILER-ar d" AR="$CROSS_COMPILER-ar r" CC=$CROSS_COMPILER-gcc RANLIB=$CROSS_COMPILER-ranlib  LDFLAGS=-Wl,--no-as-needed  -ldl
+make install LD=$CROSS_COMPILER-ld ARD="$CROSS_COMPILER-ar d" AR="$CROSS_COMPILER-ar r" CC=$CROSS_COMPILER-gcc RANLIB=$CROSS_COMPILER-ranlib  LDFLAGS=-Wl,--no-as-needed  -ldl
+
+cp -f ../openssl-0.9.8/openssl-0.9.8rm/lib/libcrypto.a ../openssl-0.9.8/openssl-0.9.8rm/lib/libssl.a `pwd`/../../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/lib
+fi
+else
+echo "***************************************************************"
+echo "Invalid compiler option please chose compiler option from below"
+echo " mipsel-unknown-linux-gnu"
+echo " arm-none-linux-gnueabi"
+echo " gcc"
+echo "***************************************************************"
+fi

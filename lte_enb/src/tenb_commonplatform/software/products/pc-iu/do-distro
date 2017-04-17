@@ -1,0 +1,64 @@
+#!/bin/bash
+
+TOP=../..
+
+GENERIC_SO=`find ${TOP}/libs/bin/threeway/generic/${BUILD}/ -name '*.so' -print`
+BUILD_SO=`find ${TOP}/libs/bin/threeway/${PRODUCT}/${HARDWARE}/${BUILD}/ -name '*.so' -print`
+BUILD_BIN="\
+    ${TOP}/apps/fap/bitpeel/obj/${HARDWARE}/${BUILD}/bitpeel \
+    ${TOP}/apps/fap/post-office/obj/${PRODUCT}/${HARDWARE}/${BUILD}/post-office \
+    ${TOP}/apps/fap/sigverify/obj/${PRODUCT}/${HARDWARE}/${BUILD}/sigverify \
+    ${TOP}/apps/fap/tenpin/obj/${PRODUCT}/${HARDWARE}/${BUILD}/tenpin \
+    ${TOP}/apps/fap/ike-tunnel-ind/obj/${PRODUCT}/${HARDWARE}/${BUILD}/ike-tunnel-ind \
+    ${TOP}/apps/fap/management/oam-rem/obj/${PRODUCT}/${HARDWARE}/${BUILD}/oam-rem \
+    ${TOP}/apps/fap/management/service-api/obj/${PRODUCT}/${HARDWARE}/${BUILD}/service-api \
+    ${TOP}/apps/fap/management/mib-firkler/obj/${PRODUCT}/${HARDWARE}/${BUILD}/mib-firkler \
+    ${TOP}/apps/fap/rrc/obj/${PRODUCT}/${HARDWARE}/${BUILD}/rrc \
+    ${TOP}/apps/fap/iu/obj/${PRODUCT}/${HARDWARE}/${BUILD}/iu \
+    ${TOP}/apps/fap/media/cs-user-plane/obj/${PRODUCT}/${HARDWARE}/${BUILD}/cs-user-plane \
+    ${TOP}/apps/fap/media/ps-user-plane/obj/${PRODUCT}/${HARDWARE}/${BUILD}/ps-user-plane \
+    ${TOP}/apps/fap/ntp-client/Ver2/obj/${PRODUCT}/${HARDWARE}/${BUILD}/ntp-client \
+    ${TOP}/apps/fap/watchdogd/obj/${PRODUCT}/${HARDWARE}/${BUILD}/watchdogd \
+    ${TOP}/apps/fap/lockcon/obj/${PRODUCT}/${HARDWARE}/${BUILD}/lockcon \
+    ${TOP}/apps/fap/serialport/obj/${PRODUCT}/${HARDWARE}/${BUILD}/serialport \
+    ${TOP}/apps/fap/gps/obj/${PRODUCT}/${HARDWARE}/${BUILD}/gps \
+    ${TOP}/apps/utilities/the-proto-prof/obj/${HARDWARE}/${BUILD}/the-proto-prof \
+    ${TOP}/apps/utilities/cli/obj/${PRODUCT}/${HARDWARE}/${BUILD}/cli \
+    ${TOP}/apps/utilities/validate-ip-configuration/obj/${PRODUCT}/${HARDWARE}/${BUILD}/validate-ip-configuration \
+"
+
+#    ${TOP}/apps/fap/management/oam/obj/${PRODUCT}/${HARDWARE}/${BUILD}/oam
+#    ${TOP}/apps/fap/management/tr069/obj/${PRODUCT}/${HARDWARE}/${BUILD}/tr069
+#    ${TOP}/apps/fap/management/tr069-v2/obj/${PRODUCT}/${HARDWARE}/${BUILD}/tr069-v2
+#    ${TOP}/apps/fap/management/update/obj/${PRODUCT}/${HARDWARE}/${BUILD}/sw-update
+#    ${TOP}/apps/fap/l1/obj/${PRODUCT}/${HARDWARE}/${BUILD}/l1
+#    ${TOP}/apps/fap/l2/obj/${PRODUCT}/${HARDWARE}/${BUILD}/l2
+#    ${TOP}/apps/fap/rrm/obj/${PRODUCT}/${HARDWARE}/${BUILD}/rrm
+#    ${TOP}/apps/fap/post-kernel-boot-actions/obj/${HARDWARE}/${BUILD}/post-kernel-boot-actions
+#    ${TOP}/apps/utilities/fap-flash/obj/${HARDWARE}/${BUILD}/fap-flash
+
+OUTPUT_DIR=distro/${HARDWARE}/${BUILD}
+TAR=`pwd`/${OUTPUT_DIR}/pc-iu.tar
+TGZ=`pwd`/${OUTPUT_DIR}/pc-iu.tgz
+
+rm -rf distro
+mkdir -p ${OUTPUT_DIR}
+
+for FILE in ${GENERIC_SO} ${BUILD_SO} ${BUILD_BIN};
+do
+    echo adding `basename ${FILE}` to `basename ${TAR}`
+    pushd `dirname $FILE` >/dev/null
+    if [ ! -f ${TAR} ];
+    then
+        tar cf ${TAR} `basename $FILE`
+    else
+        tar rf ${TAR} `basename $FILE`
+    fi
+    popd >/dev/null
+done
+
+echo zipping `basename ${TAR}` to `basename ${TGZ}`
+gzip -c ${TAR} >${TGZ}
+
+echo deleting `basename ${TAR}`
+rm -f ${TAR}

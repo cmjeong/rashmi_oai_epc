@@ -1,0 +1,6493 @@
+#*********************************************************************17*/
+#
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+#/********************************************************************20**
+#
+#     Name:    RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc7.xml
+#
+#     Sid:     $SID$ 
+#
+#     Prg:     dinesh 
+#
+#*********************************************************************21*/
+
+#
+#       Test:    7.1
+#
+#       Desc:    To test General configuration has to be done before protocol 
+#                configuration
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+
+
+<tapa.testcase id="7.1">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "LTE RRC will send negative configuration with reason as 
+         LCM_REASON_GENCFG_NOT_DONE if Protocol configuration is attempted 
+         before general configuration"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+    <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+      #verify General configuration has to be done before sending cntrlreq
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="10"/>
+     #expect Alarm
+      </tapa.send>
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      #Gen Cfg for LTE-RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" 
+         minTransLstLen="2" minMuiLstLen="2" tmrVal="30" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="10"/>
+     #expect Alarm
+      </tapa.send>
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK"   reason="LNH_REASON_PROTCFG_NOT_DONE"/>
+      </tapa.expect>
+   </tapa.test>
+
+ # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+  <tapa.rrc.deinit/>
+
+   </tapa.shutdown>
+
+ </tapa.testcase>
+
+
+#
+#       Test:    7.2
+#
+#       Desc:    To test General and Protocol configuration has to be done 
+#                before SAP configuration
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+
+
+<tapa.testcase id="7.2">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "LTE RRC will send negative configuration with reason as 
+         LCM_REASON_PROTCFG_NOT_DONE if Sap configuration is attempted 
+         after general configuration but before protocol configuration"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send General Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+       <tapa.send>
+          <tapa.lnh.cfg.usap/>
+       </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+       <tapa.lnh.cfg.cfm  status="LCM_PRIM_NOK" reason="LNH_REASON_PROTCFG_NOT_DONE"/>
+      </tapa.expect>
+  
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+    <tapa.lnh.cfg.cfm />
+      </tapa.expect>
+      # Send Upper Sap configuration request from LM to RRC
+       <tapa.send>
+          <tapa.lnh.cfg.usap selector="3"/>
+       </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+       <tapa.lnh.cfg.cfm  status="LCM_PRIM_NOK"    reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+  </tapa.test>
+ # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      # Send eInit Configuration 
+    <tapa.rrc.deinit/>
+
+   </tapa.shutdown>
+
+ </tapa.testcase>
+ 
+#
+#       Test:    7.3
+#
+#       Desc:    Verify that LSAP  should configured before enabling it. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+
+
+<tapa.testcase id="7.3">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send LSAP enable cntrl request for SAP which is not configured RRC 
+         will return error"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send an usap cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="31" elem="3" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" option="2"  />
+      </tapa.expect>
+
+
+   </tapa.test>
+ # Clean subsection
+  <tapa.clean>
+#         <tapa.nhu.conrel/>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      # Send DeInit Configuration 
+     <tapa.rrc.deinit/>
+
+   </tapa.shutdown>
+
+ </tapa.testcase>
+
+#
+#
+#       Test:    7.4
+#
+#       Desc:    To test that minimum value for msecTmrRes has to be 1 
+#                in the General configuration request
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.4">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "RRC will send negative configuration with reason as 
+         LCM_REASON_INVALID_PAR_VAL if msecTmrRes  not in the range 
+         of 1 to 32767"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen msecTmrRes="0"/>
+      </tapa.send>
+
+      # Expect failure from RRC as Protocol configurations not done
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    7.5
+#
+#       Desc:    To test that numConn can not be 0
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.5">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "LTE RRC will send negative configuration with reason as 
+         LCM_REASON_INVALID_PAR_VAL if numConn is set to 0 in Protocol 
+         configuration request."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect Config Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC with numConn=0
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="0"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+        <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.6
+#
+#       Desc:    To test that RRC checks the selector, prior,
+#                procId, inst received in LSAP config request.
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.6">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "LTE RRC will send negative configuration with reason as 
+         LCM_REASON_INVALID_PAR_VAL if selector,prior,procId,inst values in 
+         LSAP configuration request are not supported."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.usap/>
+      </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send Lower Sap configuration request from LM to RRC, with selector=3
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" selector="1" prior="3"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm />
+      </tapa.expect>
+
+
+      # Send Lower Sap configuration request from LM to RRC, with selector=3
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" selector="4"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+#        <tapa.lnh.cfg.cfm status="LCM_PRIM_OK" reason="LCM_REASON_NOT_APPL"/> L
+          <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+      # Send Second Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" prior="4"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+        <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+      # Send Second Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" suId="10"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.7
+#
+#       Desc:    To test that RRC checks the selector, prior,
+#                procId, inst received in USAP config request.
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.7">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "LTE RRC will send negative configuration with reason as 
+         LCM_REASON_INVALID_PAR_VAL if selector,prior,procId,inst values in 
+         USAP configuration request are not supported."
+"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC, with prior=4
+      <tapa.send>
+         <tapa.lnh.cfg.usap prior="4"/>
+      </tapa.send>
+
+      # Expect Upper SAP Config failure from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.8
+#
+#       Desc:    To test that LM can retrieve General statistics
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.8">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Perform RRC connection, initial direct transfer, Downlink and Uplink 
+         direct transfer, RB establishment. Request for general statistics with
+         action as NOZEROSTS. Verify that the statistics are correct. Again 
+         request for general statistics with action as ZEROSTS, verify that we
+         get the same statistics as above. Again request for General statistics
+         with action as NOZEROSTS, verify that this time all the counters values
+         set to 0 because of the previous action."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Perform RRC connection establishment
+      # Perform IDT
+      # Perform DDT
+      # Perform UDT
+      # Perform RB setup
+
+      # Send General Statistics Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.sts.gen/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM to RRC to reset it to 0
+      <tapa.send >
+         <tapa.lnh.sts.gen action="0"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC,values should be same as previous
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM
+      <tapa.send >
+         <tapa.lnh.sts.gen/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.9
+#
+#       Desc:    To test that LM can retrieve UE statistics
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.9">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Perform RRC connection, initial direct transfer, Downlink and 
+         Uplink direct transfer, RB establishment. Request for UE statistics 
+         with action as NOZEROSTS. Verify that the statistics are correct. 
+         Again request for UE statistics with action as ZEROSTS, verify that 
+         we get the same statistics as above. Again request for UE statistics
+         with action as NOZEROSTS, verify that this time all the counters 
+         values set to 0 because of the previous action"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send General Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Perform RRC connection establishment
+      # Perform IDT
+      # Perform DDT
+      # Perform UDT
+      # Perform RB setup
+#######Validation of statistics request
+
+      # Send Peer Node Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.peer action="2"/>
+      </tapa.send>
+     
+      <tapa.delay delay="5"/>
+
+      # Expect Peer Node Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+####end of validation
+
+      # Send Peer Node Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.peer/>
+      </tapa.send>
+     
+      <tapa.delay delay="5"/>
+
+      # Expect Peer Node Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send Peer Node Statistics Request from LM to reset it to 0
+      <tapa.send>
+         <tapa.lnh.sts.peer action="0"/>
+      </tapa.send>
+
+      # Expect Peer Node Statistics Confirm from RRC,values should be same as previous 
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send Peer Node Statistics Request from LM to reset it to 0
+      <tapa.send>
+         <tapa.lnh.sts.peer/>
+      </tapa.send>
+
+      # Expect Peer Node Statistics Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.10
+#
+#       Desc:    To test that LM can retrieve General status
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.10">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Establish a UE connection and send a General Status Request message
+          to RRC. Verify that numCon is set to 1 and we get a positive Status 
+          confirm message from RRC. "
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do general configuration
+      # Do RRC connection for one UE
+
+      # Send Gereal status request
+      <tapa.send>
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+        # Has to be changed to numConn=1 once RRC connection test case is in place
+        <tapa.lnh.stacfm status="LCM_PRIM_OK" numCon="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.11
+#
+#       Desc:    To test that General status can not be obtained
+#                without doing general configuration
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.11">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send a General status request without doing the configuration, 
+         it should fail with reason LCM_REASON_GENCFG_NOT_DONE"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+  <tapa.lnh.stacfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+#      <tapa.lnh.stacfm status="1" reason="8" />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.12
+#
+#       Desc:   Verify that system id status can be obtained successfully
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.12">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send a System ID Status Request message to RRC.
+         Verify that positive Status confirm message is received from
+         RRC with correct mVer and part number"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do General configuration
+       # Send Gereal status request
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+      # Expect General Configuration Confirm from RRC to LM 
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send System ID Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.sys/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" mVer="3" ptNmb="1000369"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.13
+#
+#       Desc:    Verify that USAP status can be obtained successfully
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.13">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure a USAP and send status request, verify that we get sap 
+         state as CFG. Send Bind request from NHU and after that send status
+         request, verify that we get sap state as BOUND.Send unbind request 
+         from NHU and after that send status request, verify that we get sap 
+         state as UNBOUND"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+        <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1" />
+      </tapa.expect>
+
+
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+
+      # RRC will send bind confirm to NHU
+      <tapa.expect>
+         <tapa.nhu.bndcfm status="1" />
+      </tapa.expect>
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="2"/>
+      </tapa.expect>
+
+
+      # NHU will send unbind request to RRC
+      <tapa.send>
+         <tapa.nhu.ubndreq/>
+      </tapa.send>
+
+     <tapa.delay delay="5"/>
+
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.14
+#
+#       Desc:    Verify that LSAP status can be obtained successfully
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.14">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure a LSAP and send status request, verify that we get sap 
+         state as CFG.Send a control request to Bind LSAP from LM and after 
+         that send status request, verify that we get sap state as BOUND.
+         Send unbind request from NHU and after that send status request, 
+         verify that we get sap state as UNBOUND
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="3"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+      
+      # added for other lower SAP
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="4"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+
+      # added for other lower SAP
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="5"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+      #end 
+      # added for other lower SAP
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="6"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+      #end 
+      # added for other lower SAP
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="7"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+      #end 
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="3"/>
+
+      </tapa.send>
+
+      # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.kwu.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # RRC will send bind request to KWU
+      <tapa.expect>
+         <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+
+      # RRC will send bind request to KWU
+      <tapa.expect>
+         <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+
+      # RRC will send bind request to KWU
+      <tapa.expect>
+         <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+  
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.kwu.bndcfm/>
+      </tapa.send>
+
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap sapId="0" suId="0" elem="3"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+       #  <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_BOUND"/>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="2"/>
+      </tapa.expect>
+
+      # Send Control Request to Disable KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="3"/>
+      </tapa.send>
+
+       # RRC will send unbind request to KWU
+      <tapa.expset>
+        <tapa.dummy.kwu.unbndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap sapId="0" elem="3" suId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm 
+      <tapa.expect>
+      #   <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"/>
+          <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.15
+#
+#       Desc:    Verify that bind is attempted as per bndRetryCnt
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.15">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure a LSAP and bind enable lower sap Do not send the bind 
+         confirm, verify that RRC tries bndRetryCnt times. Set bndRetryCnt=3
+         and send bind confirm in the third time. Verify that RRC sends
+         control confirm back to LM."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap bndRetryCnt="3" elem="3"  />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+      # Send control request to enable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+       #  tapa.lnh.cntrl.lsap action="ABND_ENA"
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="3"/>
+      </tapa.send>
+
+      
+      
+      # RRC will send control confirm to LM
+      <tapa.expset>
+        <tapa.dummy.kwu.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+     # RRC will send bind request to CKW
+      <tapa.expect>
+        <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+
+      <tapa.expect>
+        <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+
+      <tapa.expect>
+        <tapa.dummy.kwu.bndreq/>
+      </tapa.expect>
+
+      
+
+      # RRC will send an alarm LMM
+      <tapa.expect>
+        <tapa.lnh.staind category="2" event="8" cause="0" alarmType="3" />
+      </tapa.expect> 
+
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.16
+#
+#       Desc:    Verify that negative confirmation is sent
+#                when bndRetryCnt exceeds
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.16">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure a LSAP and bind enable lower sap Do not send the bind 
+         confirm, verify that RRC tries bndRetryCnt times. Set bndRetryCnt=3
+         and send bind confirm in the third time. Verify that RRC sends
+         control confirm back to LM."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap bndRetryCnt="3" elem="3"  />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="3"/>
+      </tapa.send>
+     
+
+      # RRC will send bind request to KWU
+      <tapa.expset>
+        <tapa.dummy.kwu.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # kwu will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.kwu.bndcfm/>
+      </tapa.send>
+
+    
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.17
+#
+#       Desc:    Verify that Debug mask can be enabled and disabled
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.17">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         " (1) Send control request for debug enable, verify that debug prints 
+         can be seen in the console. Now disable the debug prints, verify that
+         debug prints are not visible in the console. Make a RRC connection 
+         establishment to verify this test case Or,
+         (2) Use the file logging mechanism. In case debug masks are off, 
+         file generated shall not contain any details, file pointer should be 
+         null. This way this test can itself be automated."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+   
+    <tapa.ifdef>
+       <tapa.flag id="DEBUGP"/>
+     </tapa.ifdef>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Do configuration tapa.rrc.init
+      #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Do RRC connection establishment for UE 1
+      # See that debug traces are coming on the console window
+     
+      # Send Control Request to disable Debug
+      <tapa.send>
+        <tapa.lnh.cntrl.debug action="2" subAction="5"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION" />
+      </tapa.expect>       
+      # Do RRC connection establishment for UE 1
+      # See that debug traces are not coming on the console window
+
+       # Send Control Request to enable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="1" subAction="5"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION"/>
+      </tapa.expect>
+
+       # Do RRC connection establishment for UE 1
+       # See that debug traces are coming on the console window
+       
+        # Send Control Request to disable unsolicited status
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="2" subAction="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+       # Send Control Request to disable unsolicited status
+      <tapa.send>
+       <tapa.lnh.cntrl.debug action="2" subAction="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+
+ 
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.18
+#
+#       Desc:    Disable and Deletion of CKW SAPs
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.18">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure CKW SAP. Bind and enable it. Now disable the SAP and
+         delete the SAP, deletion should be successful"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+      
+     #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4"  />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+      # Send Control Request to bind CKW SAP
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" spId="0" action="21" elem="4"/>
+      </tapa.send>
+
+     # RRC will send control confirm to LM
+      <tapa.expset>
+    # RRC will send bind request to CKW
+        <tapa.dummy.ckw.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.bndcfm suId="0" />
+      </tapa.send>
+
+      
+
+      # Send Control Request to Disable CKW SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="4" />
+      </tapa.send>
+
+      
+      # RRC will send control confirm to LM
+      <tapa.expset>
+       # RRC will send unbind request to CKW
+        <tapa.dummy.ckw.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset> 
+
+      # Send Control Request to Delete CKW SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7" elem="4"/>
+      </tapa.send>
+
+   
+      # RRC will send control confirm to LM as SAP is deleted successfully
+      <tapa.expset>
+       # RRC will send bind request to KWU
+         <tapa.dummy.ckw.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+### Validation for Lsap Control request
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="4"/>
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE"/>
+      </tapa.expect>
+####End of validation of LSAP Control Request      
+####Validation of status request
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="4"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK"    reason="LCM_REASON_INVALID_PAR_VAL"/>
+####End of validation
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.19
+#
+#       Desc:    Disable and Deletion of KWU SAPs
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.19">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure KWU SAP. Bind and enable it. Now disable the SAP and
+         delete the SAP, deletion should be successful"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+
+     
+
+     #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3"   />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+       #  tapa.lnh.cntrl.lsap action="ABND_ENA"
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="3"/>
+      </tapa.send>
+
+      # RRC will send bind request to KWU
+      <tapa.expset>
+        <tapa.dummy.kwu.bndreq/>
+      # RRC will send control confirm to LM
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.kwu.bndcfm/>
+      </tapa.send>
+
+
+      # Send Control Request to Disable KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31"/>
+      </tapa.send>
+
+       # RRC will send bind request to KWU
+      <tapa.expset>
+        <tapa.dummy.kwu.unbndreq spId="0"/>
+      # RRC will send control confirm to LM
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # Send Control Request to Delete KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7"/>
+      </tapa.send>
+
+       # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.kwu.unbndreq spId="0"/>
+      # RRC will send control confirm to LM as SAP is deleted successfully
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+### Validation for Lsap Control request
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="3"/>
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE"/>
+      </tapa.expect>
+####End of validation of LSAP Control Request      
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.20
+#
+#       Desc:    Disable and Deletion of CRG SAPs
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.20">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure CRG SAP. Bind and enable it. Now disable the SAP and
+         delete the SAP, deletion should be successful"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+       <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" 
+         tmrVal="70" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="0" spId="0" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP with invalid element
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="50"/>
+      </tapa.send>
+       
+     # RRC will send control confirm with Error to LM
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="5"/>
+      </tapa.send>
+
+      #delay
+
+      # RRC will send bind request to CRG
+      <tapa.expset>
+        <tapa.dummy.crg.bndreq/>
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # CRG will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.crg.bndcfm suId="0" status="1"/>
+      </tapa.send>
+
+      # Send Control Request to Disable CRG SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="5"/>
+      </tapa.send>
+
+       # RRC will send unbinds request to CRG
+      <tapa.expset>
+        <tapa.dummy.crg.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # RRC will send control confirm to LM
+       # Send Control Request to Delete CRG SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7" elem="5"/>
+      </tapa.send>
+
+       # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.crg.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm />
+      </tapa.expset>
+### Validation for Lsap Control request
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="5"/>
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE"/>
+      </tapa.expect>
+####End of validation of LSAP Control Request      
+
+      # RRC will send control confirm to LM as SAP is deleted successfully
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.21
+#
+#       Desc:    Disable and Deletion of CPJ SAPs
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.21">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure CPJ SAP. Bind and enable it. Now disable the SAP and
+         delete the SAP, deletion should be successful"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+
+     
+
+     #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6" suId="0" spId="0" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="6"/>
+      </tapa.send>
+
+      # RRC will send bind request to CPJ
+      <tapa.expset>
+        <tapa.dummy.cpj.bndreq/>
+      # RRC will send control confirm to LM
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.cpj.bndcfm suId="0" status="1"/>
+      </tapa.send>
+
+
+      # Send Control Request to Disable CPJ SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="6"/>
+      </tapa.send>
+
+       # RRC will send bind request to CPJ
+      <tapa.expset>
+        <tapa.dummy.cpj.unbndreq spId="0"/>
+      # RRC will send control confirm to LM
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # Send Control Request to Delete KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7" elem="6"/>
+      </tapa.send>
+
+       # RRC will send bind request to CPJ
+      <tapa.expset>
+         <tapa.dummy.cpj.unbndreq spId="0"/>
+      # RRC will send control confirm to LM as SAP is deleted successfully
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+### Validation for Lsap Control request
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="6"/>
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE"/>
+      </tapa.expect>
+####End of validation of LSAP Control Request      
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.22
+#
+#       Desc:    Disable and Deletion of PJU SAPs
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.22">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure PJU SAP. Bind and enable it. Now disable the SAP and
+         delete the SAP, deletion should be successful"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+
+     #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+##########
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="3" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      </tapa.expect>
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="3" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      #  <tapa.lnh.cntrlcfm status="1" reason="257" />
+      </tapa.expect>
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="4" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      </tapa.expect>
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="5" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      #   <tapa.lnh.cntrlcfm status="1" reason="257" />
+      </tapa.expect>
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="6" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      #  <tapa.lnh.cntrlcfm status="1" reason="257" />
+      </tapa.expect>
+      # LM will send an lsap cntrl request with invalid SUID to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="7" />
+      </tapa.send>
+
+      # Expect Status Confirm as NOk and Reason as Lsap not configured
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE" />
+      #   <tapa.lnh.cntrlcfm status="1" reason="257" />
+      </tapa.expect>
+#######
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7" suId="0" spId="0" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="7"/>
+      </tapa.send>
+
+      # RRC will send bind request to CPJ
+      <tapa.expset>
+        <tapa.dummy.pju.bndreq/>
+      # RRC will send control confirm to LM
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+         <tapa.dummy.pju.bndcfm suId="0" status="1"/>
+      </tapa.send>
+
+
+      # Send Control Request to Disable CPJ SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="7"/>
+      </tapa.send>
+
+       # RRC will send bind request to CPJ
+      <tapa.expset>
+        <tapa.dummy.pju.unbndreq spId="0"/>
+      # RRC will send control confirm to LM
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # Send Control Request to Delete KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7" elem="7"/>
+      </tapa.send>
+
+       # RRC will send bind request to CPJ
+      <tapa.expset>
+         <tapa.dummy.pju.unbndreq spId="0"/>
+      # RRC will send control confirm to LM as SAP is deleted successfully
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+### Validation for Lsap Control request
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="7"/>
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LNH_REASON_LSAPCFG_NOT_DONE"/>
+      </tapa.expect>
+####End of validation of LSAP Control Request      
+     
+
+   </tapa.test>
+ 
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.23
+#
+#       Desc:    Reconfiguration of protocol configuration
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.23">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Verify that maxCon can be reconfigured by sending 
+          a new configuration request to RRC. RRC should send configuration
+          confirm back to LM."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen  numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "10"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.24
+#
+#       Desc:    Reconfiguration of Upper SAP configuration
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.24">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         " Verify that mem and prior can be reconfigured by sending a new
+           configuration request to RRC. RRC should send configuration confirm
+           back to LM."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen  numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper SAP Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.usap  prior="1"/>
+      </tapa.send>
+
+      # Expect Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper SAP Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.usap prior="2"/>
+      </tapa.send>
+
+      # Expect  Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.25
+#
+#       Desc:    Reconfiguration of Lower SAP configuration
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.25">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         " Verify that mem,prior, bndRetryCnt and bndTimer can be reconfigured
+           by sending a new configuration request to RRC. RRC should send
+           configuration confirm back to LM."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen  numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower SAP Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.lsap elem="3" mem_reg="1" mem_pool="1" bndRetryCnt="1" bndTmr.enb="0" bndTmr.val="0"/>
+      </tapa.send>
+
+      # Expect Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower SAP Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.lsap elem="3" mem_reg="2" mem_pool="2" bndRetryCnt="2" bndTmr.enb="1" bndTmr.val="2"/>
+      </tapa.send>
+
+      # Expect  Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.26
+#
+#       Desc:    Verify unsolicited alarms enable/disable
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.26">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send control request to enable alarms. Run a test case and verify 
+          that RRC generates alarm on decode failure.Disable unsolicited 
+          alarms, verify that actions are successful and RRC does not generate 
+          alarm on decode fail"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do general configuration init
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send control request to enable unsolicited alarms
+      <tapa.send >
+        <tapa.lnh.cntrl.usta action="2" subAction="3"/>
+      </tapa.send>
+
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+      # Run RR_CEST_17 and verify that alarm is generated
+
+
+      # Send control request to disable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="2" subAction="3"/>
+      </tapa.send>
+
+      # Expect  Control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+      # Run RR_CEST_17 and verify that no alarm is generated
+####Validation of Control request with invalid element/
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="2" subAction="1"/>
+      </tapa.send>
+
+      # Expect  Control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION"/>
+      </tapa.expect>
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="1"/>
+      </tapa.send>
+
+      # Expect  Control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION"/>
+      </tapa.expect>
+######Validation ends
+      
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.27
+#
+#       Desc:    Verify that shutdown cntrl request is being processed
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.27">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Establish RRC connection for UE and send control request for shutdown"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+    <tapa.ifdef>
+       <tapa.flag id="DEBUGP"/>
+     </tapa.ifdef>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Do configuration tapa.rrc.init
+      #send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm />
+      </tapa.expect>
+
+      # Do RRC connection establishment for UE 1
+      # See that debug traces are coming on the console window
+     
+      # Send Control Request to disable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="2" subAction="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION"/>
+      </tapa.expect>       
+      # Do RRC connection establishment for UE 1
+      # See that debug traces are not coming on the console window
+
+       # Send Control Request to enable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.shutdown action="ASHUTDOWN" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.28
+#
+#       Desc:    To test that General configuration and Protocol conf
+#                has to be done before Sending a cntrl request .
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.28">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send status control request for without general configuration , 
+         RRC should send control confirm with reason LCM_REASON_GENCFG_NOT_DONE.
+         Do general cofiguration of RRC and send status control request from 
+         layer manager , RRC should send control confirm with reason 
+         LCM_REASON_PROTCFG_NOT_DONE. Do general and protocol configuration then
+         send status control request , RRC should sent control confirm with
+         status."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+    <tapa.ifdef>
+       <tapa.flag id="DEBUGP"/>
+     </tapa.ifdef>
+
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+
+       # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK" reason="LCM_REASON_LYR_SPECIFIC" option="2"/>
+      </tapa.expect>
+
+
+     # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.29
+#
+#       Desc:    Verify that USAP Can be disbale and delete successfully through cntrl request
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.29">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure RRC Upper SAP. Setup RRC connection throug this 
+         upper SAP.Now disable the SAP and delete the SAP, deletion
+         should be successful.
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+####Validation. Send NhuBindRequest before any configuration
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+      # NHU will send unbind request to RRC
+      <tapa.send>
+         <tapa.nhu.ubndreq/>
+      </tapa.send>
+
+######
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen  numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+####Validation. Send NhuBindRequest before protocol configuration
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+      # NHU will send unbind request to RRC
+      <tapa.send>
+         <tapa.nhu.ubndreq/>
+      </tapa.send>
+
+######
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.usap/>
+      </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1" />
+      </tapa.expect>
+
+
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+       # RRC will send bind confirm to NHU
+      <tapa.expect>
+         <tapa.nhu.bndcfm status="1" />
+      </tapa.expect>
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="2"/>
+      </tapa.expect>
+
+
+      # NHU will send delete and disable request to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usap spId="0" action="31" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm />
+      </tapa.expect>
+
+       # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1" />
+
+      </tapa.expect>
+
+
+      # NHU will send delete and disable request to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usap spId="0" action="7" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm />
+      </tapa.expect>
+
+
+      # Send USAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.usap sapId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK" sapStatus="0" reason="LNH_REASON_USAPCFG_NOT_DONE" option="2"/>
+
+      </tapa.expect>
+###validation. Send delete and disable request again. Except error.
+      # NHU will send delete and disable request to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usap spId="0" action="31" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK"
+         reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+       # Send control request to enable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+#Send Bind request again
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+       # RRC will send bind confirm to NHU
+      <tapa.expect>
+        <tapa.lnh.staind category="2" event="5" cause="3" alarmType="3"/>
+      </tapa.expect>
+      # NHU will send unbind request to RRC
+      <tapa.send>
+         <tapa.nhu.ubndreq/>
+      </tapa.send>
+      <tapa.expect>
+        <tapa.lnh.staind category="2" event="5" cause="3" alarmType="3"/>
+      </tapa.expect>
+######
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.30
+#
+#       Desc:    Verify that RRC will generate an alarm while sending 
+#                cntrl request for a invalid element
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.30">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and send control request to bind and enable 
+         for invalid element to RRC .RRC should send contol confirm
+         with reason as LCM_REASON_INVALID_ELMNT."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen   numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     #send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5"  />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+       # Send control request to enable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+     # LM will send control request to bind and enable for an invalid element
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="10"/>
+      </tapa.send>
+
+      # RRC will send an alarm LMM
+      <tapa.expset>
+        <tapa.lnh.staind category="2" event="7" cause="8" />
+        <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expset>
+
+    </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.31
+#
+#       Desc:    To test that General configuration and Protocol conf
+#                has to be done before Sending a statistics request .
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.31">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send statstics control request to RRC layer. RRC layer 
+          should return control confirm with reason 
+          LCM_REASON_GENCFG_NOT_DONE ,Do general configuration
+          and then send statstic control request to RRC layer , RRC 
+          should return control confirm with reason 
+          LCM_REASON_PROTCFG_NOT_DONE. Do general and protocol 
+          configuration now send statstics control request RRC layer
+          should return control confirm with stastics."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sts.gen  numLSaps="5"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+
+       # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sts.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LNH_REASON_PROTCFG_NOT_DONE" option="2"/>
+      </tapa.expect>
+
+
+     # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+     # Send General Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sts.gen/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stscfm status="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.32
+#
+#       Desc:    To test that General configuration and Protocol conf
+#                has to be done before Sending a control request .
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.32">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send control request for disabling of debug to RRC layer. 
+          RRC layer should return control confirm with reason 
+          LCM_REASON_GENCFG_NOT_DONE ,Do general configuration
+          and then send control request to RRC layer , RRC should 
+          return control confirm with reason LCM_REASON_PROTCFG_NOT_DONE
+          . Do general and protocol configuration now send control 
+          request RRC layer , RRC should disable the debug."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+    <tapa.ifdef>
+       <tapa.flag id="DEBUGP"/>
+     </tapa.ifdef>
+
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      
+      # Send Control Request to disable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="2" subAction="5" />
+      </tapa.send>
+
+      <tapa.expect>
+      <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE" />
+      </tapa.expect>  
+
+     # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     # Send Control Request to disable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="2" subAction="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_LYR_SPECIFIC" option="2" />
+      </tapa.expect>  
+
+
+     # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+
+      # Expect Protocol Configuration confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+    
+     # Send Control Request to disable Debug
+      <tapa.send>
+         <tapa.lnh.cntrl.debug action="2" subAction="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION"/>
+      </tapa.expect>  
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.33
+#
+#       Desc:    Verify that RRC will generate an alarm while 
+#       sending  status request for a invalid element
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.33">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and enable unsolicited alarm, Send status
+         request for invalid element, RRC should send alarm to layer
+         manager."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     #send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7"  />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+
+       # Send control request to enable unsolicited alarms
+      <tapa.send >
+        <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="10"/>
+      </tapa.send>
+
+<tapa.delay delay="5"/>
+       # RRC will send an alarm LMM
+      <tapa.expset>
+        <tapa.lnh.staind category="2" event="7" cause="8" />
+      # Expect Status Confirm
+       <tapa.lnh.stacfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+
+      </tapa.expset>
+
+    </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.34
+#
+#       Desc:    Verify that RRC will generate an alarm while sending
+#       statistics request for an invalid element
+#
+#       Notes:   None
+#
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.34">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and enable unsolicited alarm, Send statistics
+         request for invalid element, RRC should send alarm to layer
+         manager."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen  numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+        #Send control request to enable unsolicited alarms
+      <tapa.send >
+        <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+
+      # Send  Statistics Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sts.peer elem="2"/>
+      </tapa.send>
+
+	<tapa.delay delay="5"/>
+
+      
+      # Expect Status Confirm
+      <tapa.expset>
+	<tapa.lnh.staind category="2" event="7" cause="8" />
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+
+      </tapa.expset>
+
+    </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.35
+#
+#       Desc:    Verify that USAP  cntrl request will return error
+#       for invalid action
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.35">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         " Configure USAP and send invalid control request, RRC 
+         should return control confirm with LCM_REASON_INVALID_ACTION." 
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.usap/>
+      </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send an usap cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usap spId="0" action="32" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ACTION" />
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.36
+#
+#       Desc:   Verify that system id status can  be obtained
+#       successfully before doing gen and prot config
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.36">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send system id status request before doing any cofiguration,
+         RRC should return system version and part no of the RRC 
+         product."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     # Send System ID Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.sys/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK"
+         reason="LCM_REASON_GENCFG_NOT_DONE" mVer="3" ptNmb="1000369" />
+      </tapa.expect>
+
+
+      # Do General configuration
+       # Send Gereal status request
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+      # Expect General Configuration Confirm from RRC to LM 
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+    # Send System ID Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.sys/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="LCM_PRIM_NOK" reason="LNH_REASON_PROTCFG_NOT_DONE" option="2" mVer="3"
+         ptNmb="1000369"/>
+      </tapa.expect>
+
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send System ID Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.sys/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.lnh.stacfm status="0" mVer="3" ptNmb="1000369"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.37
+#
+#       Desc:    Verify that LSAP  cntrl request will return error
+#       for invalid action
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.37">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and send invalid action cntrl request 
+         ,RRC will return error for invalid action"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap suId="0" spId="0" elem="3" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send an lsap cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="32" elem="3" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ACTION" />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    7.38
+#
+#       Desc:    Verify that LSAP  cntrl request will return error
+#       if SapId is greater than numUSaps
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.38">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and send cntrl request with sap id greater 
+         than numUSaps, RRC will return error in control confirm"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="1"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Upper Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap suId="0" spId="0" elem="3"/>
+      </tapa.send>
+
+      # Expect Upper SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send an usap cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usap suId="1" action="315" />
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ACTION" />
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    7.39
+#
+#       Desc:    Verify that Gen cntrl request will return error for
+#                invalid action
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.39">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure USAP and send cntrl request with invalid action and
+         subsection. RRC will return error for invalid action and
+         subaction"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numLSaps="5"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send an gen cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usta  action="10" subAction="3"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ACTION"  />
+      </tapa.expect>
+    
+      # LM will send an gen cntrl request with invalid action to RRC
+      <tapa.send>
+         <tapa.lnh.cntrl.usta  action="1" subAction="10"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_SUBACTION" />
+      </tapa.expect>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.40
+#
+#       Desc:    Verify that LSAP status can be obtained successfully
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.40">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure LSAP and send status . RRC will return the LSAP
+         status."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6"   />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap suId ="0" sapId="0" elem="6"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+        # tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="6"/>
+
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      # RRC will send bind request to CPJ
+      <tapa.expset>
+         <tapa.dummy.cpj.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # RRC will send bind request to CPJ
+      <tapa.expect>
+         <tapa.dummy.cpj.bndreq/>
+      </tapa.expect>
+
+      # RRC will send bind request to CPJ
+      <tapa.expect>
+         <tapa.dummy.cpj.bndreq/>
+      </tapa.expect>
+  
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.cpj.bndcfm/>
+      </tapa.send>
+    
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap sapId="0" suId="0" elem="6"/>
+      </tapa.send>
+
+      # Expect Status Confirm
+      <tapa.expect>
+       #  <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_BOUND"/>
+         <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="2"/>
+      </tapa.expect>
+
+      # Send Control Request to Disable KWU SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="6"/>
+      </tapa.send>
+
+       # RRC will send unbind request to CPJ
+      <tapa.expset>
+        <tapa.dummy.cpj.unbndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+
+      # Send LSAP Status Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.sta.lsap sapId="0" elem="6" suId="0"/>
+      </tapa.send>
+
+      # Expect Status Confirm 
+      <tapa.expect>
+      #   <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="LNH_SAP_CFG"/>
+          <tapa.lnh.stacfm status="LCM_PRIM_OK" sapStatus="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.41
+#
+#       Desc:    To test that LM can retrieve UE statistics
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.41">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Setup RRC connection for UE and send stastistics request for 
+         invalid UE (ueId ) then send stastistic request for correct  UE(ueId)
+          to RRC. RRC should return the stastistics for correct UE and should
+          return UE does not exist for invalid UE.
+          Also we can reset the statistics to 0"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    <tapa.rrc.init/>
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+
+      # Perform RRC connection establishment
+      # Perform IDT
+      # Perform DDT
+      # Perform UDT
+      # Perform RB setup
+
+      # Send General Statistics Request from LM to RRC
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      <tapa.delay delay="5" />
+      
+#######Validation of statistics request
+
+      # Send Peer Node Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.peer elem="10" action="2" cellId="1" ueId="1"/>
+      </tapa.send>
+     
+      <tapa.delay delay="5"/>
+
+      # Expect Peer Node Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+####end of validation
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="10" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LNH_REASON_UE_DOES_NOT_EXIST" />
+      </tapa.expect>
+      
+      # Send  Statistics Request from LM to RRC for UE with invalid cellId
+      <tapa.send>
+         <tapa.lnh.sts.peer elem="10" cellId="3" ueId="2"/>
+      </tapa.send>
+      #Expect stscfm with reason LNH_REASON_CELL_DOES_NOT_EXIST
+     <tapa.expect> 
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LNH_REASON_CELL_DOES_NOT_EXIST"/>
+     </tapa.expect>
+      # Send  Statistics Request from LM to RRC for Cell with invalid cellId
+      <tapa.send>
+         <tapa.lnh.sts.peer elem="11" cellId="3" />
+      </tapa.send>
+#Expect stscfm with reason LNH_REASON_CELL_DOES_NOT_EXIST
+     <tapa.expect> 
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LNH_REASON_CELL_DOES_NOT_EXIST"/>
+     </tapa.expect>
+      
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM to RRC to reset it to 0
+      <tapa.send >
+         <tapa.lnh.sts.peer action="0" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC,values should be same as previous
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM
+      <tapa.send >
+         <tapa.lnh.sts.peer/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.42
+#
+#       Desc:    To test that LM can retrieve CELL statistics
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.42">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure Cell and send cell(celId) statistics request to 
+         RRC for invalid cell then send for valid cellid.
+         RRC will return the statistics for invalid cellid it should return 
+         cell does not exist. Also we can reset 
+         the statistics to 0"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+     <tapa.rrc.init/>
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+
+      # Perform RRC connection establishment
+      # Perform IDT
+      # Perform DDT
+      # Perform UDT
+      # Perform RB setup
+     <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="2" />
+
+#######Validation of statistics request
+
+      # Send Peer Node Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.cell elem="11" action="2" cellId="2"/>
+      </tapa.send>
+     
+      <tapa.delay delay="5"/>
+
+      # Expect Peer Node Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+####end of validation
+      # Send General Statistics Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.sts.cell elem="11" cellId="22" action="1"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm status="LCM_PRIM_NOK" reason="LNH_REASON_CELL_DOES_NOT_EXIST"/>
+      </tapa.expect>
+      
+     # Send General Statistics Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.sts.cell elem="11" cellId="2" action="1"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM to RRC to reset it to 0
+      <tapa.send >
+         <tapa.lnh.sts.cell elem="11" action="0" cellId="2"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC,values should be same as previous
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM
+      <tapa.send >
+         <tapa.lnh.sts.cell elem="11" cellId="2" action="1"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.43
+#
+#       Desc:    Verify that LSAP status can be obtained successfully
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.43">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Configure a LSAP and send status request, verify that we get sap 
+         state as CFG.Send a control request to Bind LSAP from LM and after 
+         that send status request, verify that we get sap state as BOUND.
+         Send unbind request from NHU and after that send status request, 
+         verify that we get sap state as UNBOUND
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" 
+         minTransLstLen="2" minMuiLstLen="2" tmrVal="70" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+       # Send Upper Sap configuration request from LM to RRC
+        <tapa.send>
+          <tapa.lnh.cfg.usap Ent="216" procId="900"/>
+        </tapa.send>
+
+        # Expect Upper SAP Config confirm from RRC to  LM
+        <tapa.expect>
+            <tapa.lnh.cfg.cfm spId="0"/>
+        </tapa.expect>
+                                                
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" spId="0"  suId="0" elem="3"/>
+
+      </tapa.send>
+      # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.kwu.bndreq/>
+      </tapa.expset>
+
+  
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.kwu.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+
+      <tapa.expset>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="4"/>
+
+      </tapa.send>
+
+      # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.ckw.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+  
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.ckw.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="0" spId="0" Ent="212" procId="900"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="5"/>
+
+      </tapa.send>
+
+      # RRC will send bind request to CRG
+      <tapa.expset>
+         <tapa.dummy.crg.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+  
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.crg.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+  	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    7.44
+#
+#       Desc:    Verify that nmb of lower SAP is 0 gen config should not pass. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+
+
+<tapa.testcase id="7.44">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send gen config with number of lower SAP zero for each lower SAP type
+          RRC will return error"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen nmbKwuSaps="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_MEM_NOAVAIL"/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen nmbCkwSaps="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_MEM_NOAVAIL"/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen nmbCrgSaps="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_MEM_NOAVAIL"/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen nmbPjuSaps="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_MEM_NOAVAIL"/>
+      </tapa.expect>
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen nmbCpjSaps="0"/>
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_MEM_NOAVAIL"/>
+      </tapa.expect>
+
+   </tapa.test>
+ # Clean subsection
+  <tapa.clean>
+#         <tapa.nhu.conrel/>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      # Send DeInit Configuration 
+     <tapa.rrc.deinit/>
+
+   </tapa.shutdown>
+
+ </tapa.testcase>
+#
+#
+#       Test:    7.45
+#
+#       Desc:    Enable and Disable Trace Indication
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.45">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Enable Trace indication before establishing the connection setup
+          disable the Trace "
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+     <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.rrc.cellcfg cellCfgType="1" transId="4" cellId="1" />
+       # Send Control Request to enable Trace at KWU SAP
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="1" subaction="4" elem="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+     
+    # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" ueId="1"
+                                cellId="1" tCrnti="1"/>
+      </tapa.send>
+
+     <tapa.delay delay="15" />
+      #Expect RRC Connection Request at RRC user
+#  <tapa.expopt >
+#         <tapa.lnh.trcind/>
+#      </tapa.expopt>
+
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0" />
+      </tapa.expect>
+      #disable trace 
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap suId="0" action="2" subaction="4" elem="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+    # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" ueId="2"
+                                cellId="1" tCrnti="1"/>
+      </tapa.send>
+
+     <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.46
+#
+#       Desc:    Validation test case. send BND_CFM_NOK for all the saps
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.46">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Validation test case. send BND_CFM_NOK for all the saps."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+	  # Send control request to enable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+      
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="15"   />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expset>
+         <tapa.lnh.staind category="2" event="7" cause="8" alarmType="0"/>
+       <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expset>
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6"   />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send Lower Sap configuration request from LM to RRC (KWU)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+     <tapa.delay delay="5"/>
+      
+      # Expect Lower SAP Config confirm from RRC to LM (KWU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+      # Send Lower Sap configuration request from LM to RRC (CKW)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CKW)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC (CRG)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="0" spId="0" Ent="212" procId="900"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+      
+      # Expect Lower SAP Config confirm from RRC to LM (CRG)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+	  # Send Lower Sap configuration request from LM to RRC (PJU)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7" suId="0" spId="0"/>
+      </tapa.send>
+
+	  # Expect Lower SAP Config confirm from RRC to LM (PJU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP with LSAP ID
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="10"/>
+     #expect Alarm
+      </tapa.send>
+      # Expect control Confirm from RRC to LM
+      <tapa.expset>
+         <tapa.lnh.staind category="2" event="7" cause="8" alarmType="0"/>
+         <tapa.lnh.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expset>
+     
+      #Send BindCfm without sending BndReq for PCJ, pju, ckw, kwu, crg
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+       <tapa.dummy.cpj.bndcfm />
+      </tapa.send>
+    
+      # Expect Status Confirm
+     <tapa.expect>
+       <tapa.lnh.staind category="2" event="1" cause="3" alarmType="3"/>
+     </tapa.expect>
+      #Send BindCfm without sending BndReq for PCJ, pju, ckw, kwu, crg
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+       <tapa.dummy.pju.bndcfm />
+      </tapa.send>
+    
+      # Expect Status Confirm
+     <tapa.expect>
+       <tapa.lnh.staind category="2" event="1" cause="3" alarmType="3"/>
+     </tapa.expect>
+      #Send BindCfm without sending BndReq for PCJ, pju, ckw, kwu, crg
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+       <tapa.dummy.ckw.bndcfm />
+      </tapa.send>
+    
+      # Expect Status Confirm
+     <tapa.expect>
+       <tapa.lnh.staind category="2" event="1" cause="3" alarmType="3"/>
+     </tapa.expect>
+      #Send BindCfm without sending BndReq for PCJ, pju, ckw, kwu, crg
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+       <tapa.dummy.kwu.bndcfm />
+      </tapa.send>
+    
+      # Expect Status Confirm
+     <tapa.expect>
+       <tapa.lnh.staind category="2" event="1" cause="3" alarmType="3"/>
+     </tapa.expect>
+      #Send BindCfm without sending BndReq for PCJ, pju, ckw, kwu, crg
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+       <tapa.dummy.crg.bndcfm />
+      </tapa.send>
+    
+      # Expect Status Confirm
+     <tapa.expect>
+       <tapa.lnh.staind category="2" event="1" cause="3" alarmType="3"/>
+     </tapa.expect>
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" elem="6"/>
+
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      # RRC will send bind request to CPJ
+      <tapa.expset>
+         <tapa.dummy.cpj.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # CPJ will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.cpj.bndcfm status="2"/>
+      </tapa.send>
+    
+
+      # Expect Status Confirm
+      <tapa.expect>
+        <tapa.lnh.staind category="2" event="8" cause="0" alarmType="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    7.47
+#
+#       Desc:    Send Disable/delete Lsap before bindcfm received.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.47">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Send Disable/delete Lsap before bindcfm received."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Do configuration tapa.rrc.init
+       <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" 
+         tmrVal="70" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="0" spId="0" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="5"/>
+      </tapa.send>
+
+      #delay
+
+      # RRC will send bind request to CRG
+      <tapa.expset>
+        <tapa.dummy.crg.bndreq/>
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+      # Send Control Request to Disable CRG SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="31" elem="5"/>
+      </tapa.send>
+
+       # RRC will send unbinds request to CRG
+      <tapa.expset>
+        <tapa.dummy.crg.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # LM will send control request to bind and enable LSAP
+      <tapa.send>
+        <tapa.lnh.cntrl.lsap suId="0" action="21" elem="5"/>
+      </tapa.send>
+
+      #delay
+
+      # RRC will send bind request to CRG
+      <tapa.expset>
+        <tapa.dummy.crg.bndreq/>
+        <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+      # RRC will send control confirm to LM
+       # Send Control Request to Delete CRG SAP
+      <tapa.send>
+          <tapa.lnh.cntrl.lsap suId="0" action="7" elem="5"/>
+      </tapa.send>
+
+       # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.crg.ubndreq spId="0"/>
+         <tapa.lnh.cntrlcfm />
+      </tapa.expset>
+
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.48
+#
+#       Desc:    LM error cases 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.48">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Validation test case. send BND_CFM_NOK for all the saps."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="12" 
+                           minTransLstLen="2" minMuiLstLen="2"
+                           tmrVal="0" enbCfgTmr="1" nmbKwuSaps="5" nmbPjuSaps="5"
+                           nmbCkwSaps="5" nmbCrgSaps="5" nmbCpjSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+      # Send General Config Request from LM to RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn="5"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" suId="1" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (KWU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL" />
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4" suId="1" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CKW)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL" />
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="1" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CRG)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL" />
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6" suId="1" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CPJ)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL" />
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC for invalid element
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7" suId="1" />
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (PJU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm status="LCM_PRIM_NOK" reason="LCM_REASON_EXCEED_CONF_VAL" />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.49
+#
+#       Desc:    To test that LM can retrieve the following UE statistics
+#                1) UE info request sts
+#                2) UE info rsp sts
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.49">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Setup RRC connection for UE, Activate the initial security.
+          Send Stastistics request to RRC then RRC should return the stastistics.
+          Send UE info request from RRC user to the RRC. RRC send it to the PDCP.
+          PDCP sends the UE Info Response. Now again send UE statistics request,
+          RRC should send confirmation with updated UE info req sts and UE info 
+          RSP sts to the RRC user and Sens UE sts req to reset all the UE sts to
+          Zero and should send confirmation to RRC user with all the sts set to
+          Zero"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+        <tapa.flag id="LNH_VER1"/>
+      </tapa.ifdef>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    <tapa.rrc.init/>
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+       #send cell configuration 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+      
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Activate the initial security 
+      <tapa.rrc.security_actv ueId="1" cellId="1" tCrnti="1"/>
+
+      <tapa.delay delay="5" />
+      
+     #send UE sts request
+     <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+
+      # Send UE Information Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "9" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Information Response from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="11" spId="0" suId="0"
+                  ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Information Response at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="1"  />
+      </tapa.expect>
+
+      
+     #send UE sts request
+     <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+
+      # Send General Statistics Request from LM to RRC to reset it to 0
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" action="0" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC,values should be same as previous
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.50
+#
+#       Desc:    To test that LM can retrieve the following UE statistics
+#                1) RRC connection reconfiguaration
+#                2) Proximity indication 
+#       Notes:   None
+#              
+#       Module:  rrc.lm
+#
+#       File:    nhac_tc7.xml
+#
+#
+<tapa.testcase id="7.50">
+   
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rrc.lm"/>
+
+      <tapa.desc>
+         "Setup RRC connection for UE, Activate the initial security.
+          Send Stastistics request to RRC then RRC should return the stastistics.
+          Send RRC connection reconfiguration to configure proximity indication rpt.
+          PDCP sends proximity indication to the RRC and RRC sends it to the RRC 
+          User. Now again send UE statistics request,
+          RRC should send confirmation with updated UE info req sts and UE info 
+          RSP sts to the RRC user and Sens UE sts req to reset all the UE sts to
+          Zero and should send confirmation to RRC user with all the sts set to
+          Zero"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+        <tapa.flag id="LNH_VER1"/>
+      </tapa.ifdef>
+      
+      <tapa.ifndef/>
+      
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    <tapa.rrc.init/>
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+
+       #send cell configuration 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+      
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Activate the initial security 
+      <tapa.rrc.security_actv ueId="1" cellId="1" tCrnti="1"/>
+
+      <tapa.delay delay="5" />
+      
+     #send UE sts request
+     <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"  valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Lower Layer configurations
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1" />
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+     #Expect config cfm at NHU
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  # Send Proximity Indication
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="12" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Proximity indication at NHU  
+      <tapa.expect>
+	      <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+      
+     #send UE sts request
+     <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+
+      # Send General Statistics Request from LM to RRC to reset it to 0
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" action="0" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC,values should be same as previous
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+      # Send General Statistics Request from LM
+      <tapa.send >
+         <tapa.lnh.sts.peer elem="10" ueId="1" cellId="1" />
+      </tapa.send>
+
+      # Expect General Statistics  Confirm from RRC, all counters should set to 0
+      <tapa.expect>
+         <tapa.lnh.stscfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+	<tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#/********************************************************************30**
+#
+#         End of file:     
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+# 
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     dm               1. RRC Initial Release.
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#*********************************************************************91*/
+#
+

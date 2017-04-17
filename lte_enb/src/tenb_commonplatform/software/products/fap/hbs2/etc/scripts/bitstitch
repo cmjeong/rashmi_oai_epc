@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 19474 $
+#
+# Wrapper for bitpeel to produce a single bitstream for 3 FPGA images
+# suitable for programming daisy-chained devices.
+#
+
+if [ -z "$1" ] ; then
+  echo "Usage: bitstitch <fpgaimagenameroot> > /dev/fpgaprog0"
+else
+
+  # Check there are enough images to program the chain
+  for F in _tx _rx _ax ; do
+
+    if [ ! -r  "$1$F".bgz ] && [ ! -r "$1$F".bit ] ; then
+      echo "$1$F.bit or $1$F.bgz is missing" 1>&2
+      return
+    fi
+
+  done
+
+  # Tx is wired first in programming chain
+  if [ -r $1_tx.bgz ] ; then
+    echo "File:    $1_tx.bgz" 1>&2
+    gunzip -c "$1"_tx.bgz | ./bitpeel - -tail1of3
+  else
+    echo "File:    $1_tx.bit" 1>&2
+    ./bitpeel "$1"_tx.bit -tail1of3
+  fi
+
+  # Rx is wired second in programming chain
+  if [ -r "$1"_rx.bgz ] ; then
+    echo "File:    $1_rx.bgz" 1>&2
+    gunzip -c "$1"_rx.bgz | ./bitpeel - -tail2of3
+  else
+    echo "File:    $1_rx.bit" 1>&2
+    ./bitpeel "$1"_rx.bit -tail2of3
+  fi
+
+  # Ax is wired third in programming chain
+  if [ -r "$1"_ax.bgz ] ; then
+    echo "File:    $1_ax.bgz" 1>&2
+    gunzip -c "$1"_ax.bgz | ./bitpeel - -tail3of3
+  else
+    echo "File:    $1_ax.bit" 1>&2
+    ./bitpeel "$1"_ax.bit -tail3of3
+  fi
+
+fi
+
+# END OF SCRIPT

@@ -1,0 +1,2127 @@
+#
+#/********************************************************************20**
+#
+#     Name:    X2AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for Resource Status update with dummy SCTP
+#
+#     File:    czac_tc7.xml
+#
+#     Sid:     
+#
+#     Prg:     
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=7:rp:czac_tc7.xml
+
+
+#
+#
+#       Test:    7.1
+#
+#       Desc:    Unsuccessful Resource status report initiation.
+#                eNB1 --->> Rsrc sts req with "CZAC_STOP" regn rqst. --->> eNB2
+#                eNB2 X2AP ------>> Rsrc sts failure  ------>> eNB1
+#                X2AP ------>> Local error indication  ------>> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Unsuccessful Resource status report initiation.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb1MeasId="1" eNb2MeasId="2" regReqType="CZAC_STOP"/>
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_FAIL" spId="0"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        eNb1MeasId="1" eNb2MeasId="2" 
+                        causeType="CAUSE_RADIONW"
+                        causeVal="19" />
+                        #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+
+       <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" 
+                        errType="CZT_ERRTYPE_INV_PARAM" 
+                        errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.2
+#
+#       Desc:    Resource status response with an unknown eNB1 Measurement ID.
+#                eNB2 --->> Rsrc sts rsp with unknown eNB1 and 
+#                                        eNB2 Measurement IDs --->> eNB1
+#                X2AP --->> Error indication  --->> eNB2
+#                X2AP --->> Error indication  --->> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status response with an unknown eNB1 Measurement ID.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status response from eNB1 
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        eNb1MeasId="1" eNb2MeasId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_ERR_IND"
+                        errType="CAUSE_RADIONW" 
+                        errCause="20" />
+                        #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        errType="CZT_ERRTYPE_INV_PARAM" 
+                        errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.3
+#
+#       Desc:    Resource status response received in an invalid state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 ------>> Rsrc sts rsp  ------>> eNB1
+#                eNB2 ------>> Rsrc sts rsp  ------>> eNB1
+#                X2AP ------>> X2AP Error indication  ------>> eNB2
+#                X2AP ------>> Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status response sent in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+                # registration request
+      <tapa.send>
+       <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_REQ" 
+                       eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eNb1MeasId="1" regReqType="CZAC_START"
+                        eventType="CZT_MSG_RSRC_ST_REQ" />
+      </tapa.expect>
+   
+      # send resource status response from eNB2
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_RSP" />
+      </tapa.expect>
+   
+      # send resource status response from eNB1 without 
+      # eNB1, eNB2 Measurement ID
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        eNb1MeasId="1" eNb2MeasId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_ERR_IND" 
+                        errType="CAUSE_PROTOCOL" 
+                        errCause="3" />
+            #CztCauseProtmessage_not_compatible_with_receiver_stateEnum
+      </tapa.expect>
+
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        errType="CZT_ERRTYPE_INTERNAL" 
+                        errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.4
+#
+#       Desc:    Resource status response sent in an invalid state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 ------>> Rsrc sts fail  ------>> eNB1
+#                eNB2 ------>> Rsrc sts rsp  ------>> eNB1
+#                X2AP ------>> X2AP Error indication  ------>> eNB2
+#                X2AP ------>> Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Unsuccessful Resource status report initiation.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+                # registration request
+      <tapa.send>
+       <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_REQ" 
+                       eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eNb1MeasId="1" regReqType="CZAC_START"
+                        eventType="CZT_MSG_RSRC_ST_REQ" />
+      </tapa.expect>
+   
+      # send resource status failure from eNB2
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_FAIL" 
+                                                                causeType="CAUSE_MISC"
+                                                                causeVal="3"
+                        eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_FAIL"
+                                                          causeType="CAUSE_MISC"
+                                                          causeVal="3"
+                       eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.expect>
+   
+      # send resource status response from eNB1 without 
+      # eNB1, eNB2 Measurement ID
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        eNb1MeasId="1" eNb2MeasId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_ERR_IND" 
+                        errType="CAUSE_RADIONW" 
+                        errCause="19" />
+            #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        errType="CZT_ERRTYPE_INV_PARAM" 
+                        errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.5
+#
+#       Desc:    Resource status failure received in an invalid state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts rsp  --->> eNB1
+#                eNB2 --->> Rsrc sts failure  --->> eNB2
+#                X2AP --->> Error indication  --->> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status failure message received in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ" 
+                         eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ" 
+                          eNb1MeasId="1"/>
+      </tapa.expect>
+   
+      # send resource status response from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_RSP" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_RSP" />
+      </tapa.expect>
+   
+      # send resource status failure from eNB1 without eNB1, eNB2 Measurement ID
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_FAIL" 
+                          eNb1MeasId="1" eNb2MeasId="2"
+                                                                  causeType="CAUSE_MISC"
+                                                                  causeVal="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                          causeType="CAUSE_PROTOCOL" 
+                          causeVal="3" />
+        #CztCauseProtmessage_not_compatible_with_receiver_stateEnum
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_RSP" 
+                          errType="CZT_ERRTYPE_INTERNAL" 
+                          errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.6
+#
+#       Desc:    Resource status failure received in an invalid state.
+#                eNB1 ------>> Rsrc sts failure. ------>> eNB2
+#                X2AP ------>> Local error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status failure message received in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.cz.dummy.enb2.x2.init/>
+
+      # send resource status failure from eNB1.
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_FAIL" 
+                          eNb1MeasId="1" eNb2MeasId="2"
+                                                                  causeType="CAUSE_MISC"
+                                                                  causeVal="3"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_ERR_IND" 
+                                                                  trigMsgType="CZT_MSG_RSRC_ST_FAIL"
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          causeType="CAUSE_RADIONW" 
+                          causeVal="19" />
+        #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+   
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_RSRC_ST_FAIL" 
+                          errType="CZT_ERRTYPE_INV_PARAM" 
+                          errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.7
+#
+#       Desc:    Resource status failure received in an invalid state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 ------>> Rsrc sts fail  ------>> eNB1
+#                eNB2 ------>> Rsrc sts fail  ------>> eNB1
+#                X2AP ------>> X2AP Error indication  ------>> eNB2
+#                X2AP ------>> Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Unsuccessful Resource status report initiation.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+                # registration request
+      <tapa.send>
+       <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_REQ" 
+                       eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eNb1MeasId="1" regReqType="CZAC_START"
+                        eventType="CZT_MSG_RSRC_ST_REQ" />
+      </tapa.expect>
+   
+      # send resource status failure from eNB2
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_FAIL" 
+                                                                causeType="CAUSE_MISC"
+                                                                causeVal="3"
+                        eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                       eventType="CZT_MSG_RSRC_ST_FAIL"
+                                                          causeType="CAUSE_MISC"
+                                                          causeVal="3"
+                       eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.expect>
+   
+      # send resource status failure from eNB1 without 
+      # eNB1, eNB2 Measurement ID
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_RSRC_ST_FAIL" 
+                                                                causeType="CAUSE_MISC"
+                                                                causeVal="3"
+                        eNb1MeasId="1" eNb2MeasId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_ERR_IND" 
+                        errType="CAUSE_RADIONW" 
+                        errCause="19" />
+            #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        eventType="CZT_MSG_RSRC_ST_RSP" 
+                        errType="CZT_ERRTYPE_INV_PARAM" 
+                        errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.8
+#
+#       Desc:    Resource status update received in an invalid state.
+#                eNB2 ------>> Rsrc sts update  ------>> eNB1
+#                X2AP ------>> X2AP Error indication message ------>> eNB2
+#                X2AP ------>> Local Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status update message received in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status failure from eNB1.
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                          errType="CAUSE_RADIONW" 
+                          errCause="19" />
+        #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+   
+      <tapa.expect>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          errType="CZT_ERRTYPE_INV_PARAM" 
+                          errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.9
+#
+#       Desc:    Resource status update received in "CZAC_START_PROGRESS" state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts upd  --->> eNB1
+#                X2AP --->> X2AP Error indication message --->> eNB1
+#                X2AP --->> Local Error indication  --->> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status response received in invalid 
+         "CZAC_START_PROGRESS" state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ"
+                         eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ" 
+                          eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.expect>
+   
+      # send resource status update from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                                                                  trigMsgType="CZT_MSG_RSRC_ST_UPD"
+                          causeType="CAUSE_PROTOCOL"
+                                                                  causeVal="3"/>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          errType="CZT_ERRTYPE_INTERNAL" 
+                          errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expset>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    7.10
+#
+#       Desc:    Resource status update received in "CZAC_STOP_PROGRESS" state.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts rsp  ------>> eNB1
+#                eNB1 --->> Rsrc sts req with "CZAC_STOP" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts upd  ------>> eNB1
+#                eNB1 X2AP ------>> X2AP Error indication  ------>> eNB2
+#                eNB1 X2AP ------>> Local Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status update sent in invalid "CZAC_STOP_PROGRESS" state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ" 
+                         eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ"
+                          eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.expect>
+   
+      # send resource status response from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_RSP" 
+                          eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_RSP"
+                         eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.expect>
+   
+      # send resource status request from eNB1 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ" 
+                         eNb1MeasId="1" eNb2MeasId="2" 
+                         regReqType="CZAC_STOP"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ"
+                          eNb1MeasId="1" eNb2MeasId="2" 
+                          regReqType="CZAC_STOP"/>
+      </tapa.expect>
+   
+      # send resource status update from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                          errType="CAUSE_PROTOCOL" 
+                          errCause="3" />
+   #CztCauseProtmessage_not_compatible_with_receiver_stateEnum
+      </tapa.expect>
+   
+      <tapa.expect>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          errType="CZT_ERRTYPE_INTERNAL" 
+                          errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.11
+#
+#       Desc:    Resource status request received in an invalid state.
+#                eNB1 ------>> Rsrc sts failure. ------>> eNB2
+#                X2AP ------>> Local error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status request message received in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.cz.dummy.enb2.assoc.init/>
+
+      # send resource status request from eNB1.
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ" 
+                          eNb1MeasId="1" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_ERR_IND" 
+                                                                  trigMsgType="CZT_MSG_RSRC_ST_REQ"
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          causeType="CAUSE_PROTOCOL" 
+                          causeVal="3" />
+        #CztCauseProtmessage_not_compatible_with_receiver_stateEnum
+   
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_RSRC_ST_REQ" 
+                          errType="CZT_ERRTYPE_INTERNAL" 
+                          errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#
+#       Test:    7.12
+#
+#       Desc:    Load indication message received in an invalid state.
+#                eNB1 ------>> Load indication. ------>> eNB2
+#                X2AP ------>> Local error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Load indication message received in an invalid state.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.cz.dummy.enb2.assoc.init/>
+
+      # send load indication from eNB1.
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_LOAD_IND" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_ERR_IND" 
+                                                                  trigMsgType="CZT_MSG_LOAD_IND"
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          causeType="CAUSE_PROTOCOL" 
+                          causeVal="3" />
+        #CztCauseProtmessage_not_compatible_with_receiver_stateEnum
+   
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                          eventType="CZT_MSG_LOAD_IND" 
+                          errType="CZT_ERRTYPE_INTERNAL" 
+                          errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    7.13
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req. ------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Malformed resource status request sent from eNB1 to eNB2.
+                        eNB2 responds back with Resource status failure.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb1MeasId="1" regReqType="CZAC_START"
+                                                                corruptPdu="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                                                                trigMsgType="CZT_MSG_RSRC_ST_REQ"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="1" />
+                        #CztCauseProtabstract_syntax_error_rejectEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.14
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req with STOP------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Unsuccessful Resource status report initiation due to malformed
+                        resource status request.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb1MeasId="1" eNb2MeasId="2" regReqType="CZAC_STOP"
+                                                                corruptPdu="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_FAIL" spId="0"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        eNb1MeasId="1" eNb2MeasId="2" 
+                        causeVal="6" />
+         #CztCauseProtabstract_syntax_error_falsely_constructed_messageEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_FAIL"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    7.15
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req with STOP------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Unsuccessful Resource status report initiation due to malformed
+                        resource status request.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb1MeasId="1" eNb2MeasId="2" regReqType="CZAC_STOP"
+                                                                corruptPdu="TRUE" unknownMsg="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        spAssocId="1" 
+                        spId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"  
+                        eventType="CZT_MSG_ERR_IND"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="6" />
+             #CztCauseProtabstract_syntax_error_falsely_constructed_messageEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.16
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req. ------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Malformed resource status request sent from eNB1 to eNB2.
+                        eNB2 responds back with Resource status failure.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb2MeasId="2" regReqType="CZAC_START"
+                                                                corruptPdu="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                                                                trigMsgType="CZT_MSG_RSRC_ST_REQ"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="1" />
+                        #CztCauseProtabstract_syntax_error_rejectEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.17
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req. ------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Malformed resource status request sent from eNB1 to eNB2.
+                        eNB2 responds back with Resource status failure.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb1MeasId="4098" regReqType="CZAC_START"
+                                                                corruptPdu="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                                                                trigMsgType="CZT_MSG_RSRC_ST_REQ"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="1" />
+                        #CztCauseProtabstract_syntax_error_rejectEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.18
+#
+#       Desc:    Resource status request decode error.
+#                eNB1 ------>> Malformed resource sts req. ------>> eNB2
+#                eNB2 ------>> Resource sts fail  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc7.xml
+#
+#
+<tapa.testcase id="7.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Malformed resource status request sent from eNB1 to eNB2.
+                        eNB2 responds back with Resource status failure.
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     <tapa.cz.dummy.enb2.x2.init/>
+
+
+      # send resource status request from dummy SCTP of eNB2 with "CZAC_STOP" 
+      # registration request
+      <tapa.send>
+       <tapa.sct.datind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_RSRC_ST_REQ" suId="0"
+                        suAssocId="0" 
+                        assocIdx="0"
+                        streamId="1"
+                        eNb2MeasId="4098" regReqType="CZAC_START"
+                                                                corruptPdu="TRUE" />
+      </tapa.send>
+
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                                                                trigMsgType="CZT_MSG_RSRC_ST_REQ"
+                        spAssocId="1" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="1" />
+                        #CztCauseProtabstract_syntax_error_rejectEnum
+            #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB2_PRC" peerId="1" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_RSRC_ST_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb2.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     czac_tc7.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     rp                    X2AP Initial Release.
+#$SID$         ---     pt                 1. LTE-X2AP 3.1 release.
+#*********************************************************************91*/

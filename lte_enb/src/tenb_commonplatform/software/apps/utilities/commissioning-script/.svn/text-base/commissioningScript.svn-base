@@ -1,0 +1,168 @@
+#!/bin/sh
+#
+# CUSTOMER_NAME : 
+# VERSION       : V0.2
+# DATE          : 25/03/2009 
+#
+
+############################
+# IP ADDRESS SETUP DETAILS #
+############################
+
+# DHCP CAN BE ENABLED OR DISABLED
+DHCP_ENABLE=ENABLED
+
+# AN OPTIONAL STRING CAN BE SENT TO THE DHCP SERVER
+DHCP_OPTIONAL_STRING=
+
+# CONFIGURATION VALUES USED FOR STATIC IP ADDRESS CONFIGURATION
+STATIC_IPADDRESS=192.168.0.210
+STATIC_NETMASK=255.255.255.0
+STATIC_GATEWAY=192.168.0.2
+
+# IP ADDRESSES OF CONFIGURATION SERVERS
+CONFIG_SERVER_1=0.0.0.0
+CONFIG_SERVER_2=0.0.0.0
+CONFIG_SERVER_3=0.0.0.0
+
+###################################
+# CONFIGURE FTP SERVER PARAMETERS #
+###################################
+FTP_IP_ADDRESS=172.18.16.133
+FTP_SOURCE_PATH=/testFTPFolder
+FTP_USERNAME=dan
+FTP_PASSWORD=abc
+
+###########################################
+# CONFIGURE CERTIFICATE INSTALLATION INFO #
+###########################################
+UPDATE_CERTIFICATES=YES
+CERT_FILE_NAME=test.txt
+CERT_DIRECTORY=/mnt/certificates/trusted
+
+##################################################
+# SET TO YES TO REBOOT AT THE END OF THE SCRIPT  #
+##################################################
+REBOOT=NO
+
+###########################################
+###########################################
+###########################################
+##   THERE SHOULD BE NO NEED TO MODIFY   ##
+##            BELOW THIS POINT           ##     
+###########################################
+###########################################
+###########################################
+
+# THE MAX NUMBER OF SECONDS TO ALLOW FOR FTP TO COMPLETE
+FTP_TIMEOUT=5
+
+# Enable DHCP if required
+if [ $DHCP_ENABLE == "ENABLED" ] ; then
+	echo "Enabling DHCP"
+	
+	#/mnt/dbx/cli -c "oam.networking.dhcp eth0 enable $DHCP_OPTIONAL_STRING"
+	# The CLI command for enabling DHCP is not functional so will be done manually
+	echo > /mnt/config/eth0_dhcp_enable
+	
+else
+	echo "Disabling DHCP"		
+	#/mnt/dbx/cli -c "oam.networking.dhcp eth0 disable $DHCP_OPTIONAL_STRING"
+	#sleep 1
+	# The CLI command for enabling DHCP is not functional so will be done manually
+	if [ -f /mnt/config/eth0_dhcp_enable ] ; then
+		rm /mnt/config/eth0_dhcp_enable		
+	fi			
+	
+	echo "Applying Static IP Address"
+	/mnt/dbx/cli -c "oam.networking.set ip eth0 $STATIC_IPADDRESS"
+	sleep 1
+	
+	echo "Applying Netmask"
+	/mnt/dbx/cli -c "oam.networking.set netmask eth0 $STATIC_NETMASK"
+	sleep 1
+	
+	echo "Applying Default Gateway"
+	#/mnt/dbx/cli -c "oam.networking.set gw eth0 $STATIC_GATEWAY"
+	
+	# This work around is used to write the gatway IP address directly into the file
+	# and will be used until the CLI command is completed	
+	echo $STATIC_GATEWAY > /mnt/config/eth0_gateway
+fi
+
+#######################################
+# SET THE THREE CONFIGURATION SERVERS #
+#######################################
+
+echo "Setting Config Server 1"
+/mnt/dbx/cli -c "oam.networking.cs.setserver 1 $CONFIG_SERVER_1"
+sleep 1
+
+echo "Setting Config Server 2"
+/mnt/dbx/cli -c "oam.networking.cs.setserver 2 $CONFIG_SERVER_2"
+sleep 1
+
+echo "Setting Config Server 3"
+/mnt/dbx/cli -c "oam.networking.cs.setserver 3 $CONFIG_SERVER_3"
+sleep 1
+
+# Check if we should FTP the new certificate
+if [ $UPDATE_CERTIFICATES == "YES" ] ; then
+
+	# Check the /tmp directory exists, if not create it
+	if [ -f /tmp ] ; then
+		mkdir /tmp
+	fi
+
+	# remove any old copy from the local file
+	if [ -f /tmp/$CERT_FILE_NAME ] ; then
+		echo "removing current file with same name"
+		rm /tmp/$CERT_FILE_NAME
+	fi
+
+	echo "Starting FTP Download of certificates"
+	/mnt/dbx/cli -c "oam.ftp.req get $FTP_IP_ADDRESS $FTP_SOURCE_PATH $CERT_FILE_NAME 127.0.0.1 /tmp $FTP_USERNAME $FTP_PASSWORD 0"
+	
+	# Start loop which wait until the file has been received or we time out
+	
+	ABORT_WAIT=FALSE
+	COUNT=0
+	while [ $ABORT_WAIT == "FALSE" ]
+	do				
+		# Check to see if the FTP has completed
+		
+		if [ -f /tmp/$CERT_FILE_NAME ] ; then
+			ABORT_WAIT=TRUE	
+			
+			# check that the destination exists
+			if [ ! -d $CERT_DIRECTORY ]; then
+				echo "Certificate directory does not exist. Creating..."
+				mkdir $CERT_DIRECTORY
+			fi
+			
+			# move the file
+			mv /tmp/$CERT_FILE_NAME /$CERT_DIRECTORY/$CERT_FILE_NAME												
+			
+		# Check for timeout		
+		elif [ $COUNT == $FTP_TIMEOUT ] ; then
+			echo "FILE FTP FAILED AFTER TIMEOUT!!!!!!!!!!"
+			ABORT_WAIT=TRUE
+		else
+			# Pause for 1 second
+			sleep 1
+		
+			# Increment the timeout counter 
+			COUNT=`expr $COUNT + 1`					
+		fi		
+	done		
+else
+	echo "No Certificate Update Required"
+fi
+
+if [ $REBOOT == "YES" ] ; then
+	echo "Rebooting Script ...."
+	delay 3
+	reboot
+else
+	echo "No reboot required"
+fi

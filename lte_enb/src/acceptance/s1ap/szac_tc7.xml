@@ -1,0 +1,913 @@
+#/********************************************************************20**
+#
+#     Name:    S1AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    szac_tc7.xml
+#
+#     Sid:     
+#
+#     Prg:     Rce 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=2:rs:szac_tc7.xml
+
+#
+#
+#       Test:    7.1
+#
+#       Desc:    Verify successful dynamic peer configuration at MME when
+#       dynamic peer flag is enabled
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc7.xml
+#
+<tapa.testcase id="7.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify successful dynamic peer configuration at MME when dynamic"
+         "peer flag is enabled"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize TUCL 
+      <tapa.hi.init/>
+
+      #Initialize SCTP 
+      <tapa.sb.init/>
+
+      # Initialise S1AP in an ENB configuration
+      <tapa.sz.enb0.init/>
+
+      # Initialise S1AP in an MME configuration with dynamic peer config
+      <tapa.sz.dynammme1.init dynamicPeer="1" DefaultSapId="1"/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect assoc indication at MME
+      <tapa.expect>
+         <tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an assoc response from MME S1AP layer 
+      <tapa.send>
+         <tapa.szt.assocrsp procId="SZAC_MME_PROC" peerId="1" spId="1" addressType="4" priDstAddr="127.0.0.1" dstPort="10000" comProcStrm="0" locOutStrms="5" status="SZT_PRIM_OK" cause="SZT_CAUSE_NOT_APPL"/>
+      </tapa.send>
+
+      # Expect Status Indiaction ASSOC UP at MME and eNB
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_PEER" reason="SZT_REASON_NOT_APPL" status="SZT_STATUS_DYNAM_PEERCFG_OK"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_UI_PEERASSOC_RSP"
+                          cause = "LSZ_CAUSE_DYNAM_PEERCFG_OK"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+      
+      # Expect S1 SETUP REQUEST message at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an S1 SETUP RESPONSE Msg from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_MME_PROC" peerId="1" spId="1"/>
+      </tapa.send>
+
+      # Expect S1 SETUP RESPONSE Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_ENB_PROC" peerId="2" suId="0"/>
+      </tapa.expect>
+
+      #Initialize UE context
+      <tapa.uecxt.init />
+
+      # Send an peer delete request
+      <tapa.send>
+         <tapa.lsz.cntrl.peer  action="ADEL" sAction="SAELMNT"
+                               procId="SZAC_MME_PROC" peerId="2" peerId_0="1"/>
+      </tapa.send>
+
+      # sz008.301 
+      #expect status indication
+      <tapa.expect>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" status="SZT_STATUS_ASSOC_DOWN"  staType="SZT_STA_TYPE_ASSOC" 
+            peerId="2" reason="SZT_STATUS_ASSOC_DOWN"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+      <tapa.sz.mme1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.2
+#
+#       Desc:    Verify Unsuccessful dynamic peer configuration is unsuccessful
+#       if dynamic peer flag is not enabled with Trillium SCTP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc7.xml
+#
+<tapa.testcase id="7.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify Unsuccessful dynamic peer configuration is unsuccessful if" 
+         "dynamic peer flag is not enabled with Trillium SCTP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize TUCL 
+      <tapa.hi.init/>
+
+      #Initialize SCTP 
+      <tapa.sb.init/>
+
+      # Initialise S1AP in an ENB configuration
+      <tapa.sz.enb0.init/>
+
+      # Initialise S1AP in an MME configuration with dynamic peer config
+      <tapa.sz.dynammme1.init dynamicPeer="1" DefaultSapId="1"/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect assoc indication at MME
+      <tapa.expect flag="SZ_SCTP">
+         <tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      <tapa.expset flag="SZ_KSCTP">
+         <tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>
+
+      # Send an assoc response from MME S1AP layer 
+      <tapa.send>
+         <tapa.szt.assocrsp procId="SZAC_MME_PROC" peerId="1" spId="1" addressType="4" priDstAddr="127.0.0.1" dstPort="10000" comProcStrm="4" locOutStrms="5" status="SZT_PRIM_NOK" cause="SZT_CAUSE_NOT_APPL"/>
+      </tapa.send>
+
+      # Expect Status Indication ASSOC DOWN at ENB  
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_TERM_IND" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+   </tapa.test>
+      
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+      <tapa.sz.mme1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.3
+#
+#       Desc:    Verify Unsuccessful dynamic peer configuration is unsuccessful
+#       if dynamic peer flag is not enabled with KSCTP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc7.xml
+#
+<tapa.testcase id="7.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+          "Verify Unsuccessful dynamic peer configuration is unsuccessful if"
+          "dynamic peer flag is not enabled with KSCTP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize TUCL 
+      <tapa.hi.init/>
+
+      #Initialize SCTP 
+      <tapa.sb.init/>
+
+      # Initialise S1AP in an ENB configuration
+      <tapa.sz.enb0.init/>
+
+      # Initialise S1AP in an MME configuration with dynamic peer config
+      <tapa.sz.dynammme1.init dynamicPeer="0"/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect Status Indiaction ASSOC DOWN at eNB  
+      <tapa.expset flag="SZ_SCTP">
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_DOWN" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+      
+      # Expect Status Indiaction ASSOC DOWN at eNB  
+      <tapa.expset flag="SZ_KSCTP">
+         #<tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_DOWN" status="SZT_STATUS_ASSOC_DOWN"/>
+         #<tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_DOWN" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+      <tapa.sz.mme1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.4
+#
+#       Desc:    Verficy the unsuccessful configuration of dynamic peer and
+#       after re-configuration, successful configuration of the dynamic peer
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc7.xml
+#
+<tapa.testcase id="7.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verficy the unsuccessful configuration of dynamic peer and after"
+         "re-configuration, successful configuration of the dynamic peer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize TUCL 
+      <tapa.hi.init/>
+
+      #Initialize SCTP 
+      <tapa.sb.init/>
+
+      # Initialise S1AP in an ENB configuration
+      <tapa.sz.enb0.init/>
+
+      # Initialise S1AP in an MME configuration with dynamic peer config
+      <tapa.sz.dynammme1.init dynamicPeer="0"/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect Status Indiaction ASSOC UP at eNB  
+      <tapa.expset flag="SZ_SCTP">
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_DOWN" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+
+      # Expect Status Indiaction ASSOC UP at eNB  
+      <tapa.expset flag="SZ_KSCTP">
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_DOWN" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+      <tapa.delay delay="10"/>
+      # Send an General re-configuration request
+      <tapa.send>
+         <tapa.lsz.cfg.gen procId="SZAC_MME_PROC" dynamicPeer="1" DefaultSapId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lsz.cfgcfm procId="SZAC_MME_PROC"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20"/>
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect assoc indication at MME
+      <tapa.expect>
+         <tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an assoc response from MME S1AP layer 
+      <tapa.send>
+         <tapa.szt.assocrsp procId="SZAC_MME_PROC" peerId="1" spId="1" addressType="4" priDstAddr="127.0.0.1" dstPort="10000" comProcStrm="0" locOutStrms="5" status="SZT_PRIM_OK" cause="SZT_CAUSE_NOT_APPL"/>
+      </tapa.send>
+
+      #<tapa.sz.sct.delay delay="5"/>
+      # Expect Status Indiaction ASSOC UP at MME and eNB  
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_PEER" reason="SZT_REASON_NOT_APPL" status="SZT_STATUS_DYNAM_PEERCFG_OK"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_UI_PEERASSOC_RSP"
+                          cause = "LSZ_CAUSE_DYNAM_PEERCFG_OK"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+      
+      # Expect S1 SETUP REQUEST message at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an S1 SETUP RESPONSE Msg from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_MME_PROC" peerId="1" spId="1"/>
+      </tapa.send>
+
+      # Expect S1 SETUP RESPONSE Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_ENB_PROC" peerId="2" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+      <tapa.sz.mme1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    7.5
+#
+#       Desc:    Verify successful dynamic peer configuration at MME and
+#       deletion of the Dynamic peer
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc7.xml
+#
+<tapa.testcase id="7.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify successful dynamic peer configuration at MME and deletion of"
+         "the Dynamic peer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize TUCL 
+      <tapa.hi.init/>
+
+      #Initialize SCTP 
+      <tapa.sb.init/>
+
+      # Initialise S1AP in an ENB configuration
+      <tapa.sz.enb0.init/>
+
+      # Initialise S1AP in an MME configuration with dynamic peer config
+      <tapa.sz.dynammme1.init dynamicPeer="1" DefaultSapId="1"/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect assoc indication at MME
+      <tapa.expect>
+         <tapa.szt.assocind procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an assoc response from MME S1AP layer 
+      <tapa.send>
+         <tapa.szt.assocrsp procId="SZAC_MME_PROC" peerId="1" spId="1" addressType="4" priDstAddr="127.0.0.1" dstPort="10000" comProcStrm="0" locOutStrms="5" status="SZT_PRIM_OK" cause="SZT_CAUSE_NOT_APPL"/>
+      </tapa.send>
+
+      # Expect Status Indiaction ASSOC UP at MME and eNB
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_PEER" reason="SZT_REASON_NOT_APPL" status="SZT_STATUS_DYNAM_PEERCFG_OK"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_UI_PEERASSOC_RSP"
+                          cause = "LSZ_CAUSE_DYNAM_PEERCFG_OK"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+      
+      # Expect S1 SETUP REQUEST message at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+      # Send an S1 SETUP RESPONSE Msg from MME to eNB
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_MME_PROC" peerId="1" spId="1"/>
+      </tapa.send>
+
+      # Expect S1 SETUP RESPONSE Msg at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_RSP" procId="SZAC_ENB_PROC" peerId="2" suId="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="10"/>
+      # Send an peer delete request
+      <tapa.send>
+         <tapa.lsz.cntrl.peer  action="ADEL" sAction="SAELMNT" procId="SZAC_ENB_PROC" peerId="2" peerId_0="2"/>
+      </tapa.send>
+
+      # Expect Status Indication ASSOC DOWN at ENB and MME 
+      <tapa.expset>
+        #sz008.301
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_TERM_IND" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_TERM_IND" status="SZT_STATUS_ASSOC_DOWN"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_IND"
+                          cause = "LSZ_CAUSE_ASSOC_DOWN"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"    
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_TERM_CFM"
+                          cause = "LSZ_CAUSE_PEER_DELETED"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"    
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>         
+
+      <tapa.delay delay="20"/>
+      # Send an peer config request
+      <tapa.send>
+         <tapa.lsz.cfg.peer peerNodeCfg="SZAC_LSZ_MME_PRC1"/>
+      </tapa.send>
+
+      # Receive the confirm confirm
+      <tapa.expect>
+         <tapa.lsz.cfgcfm procId="SZAC_ENB_PROC"/>
+      </tapa.expect>
+
+      <tapa.delay delay="10"/>
+      # Send an S1 SETUP REQUEST message from eNB to MME
+      <tapa.send>
+         <tapa.szt.udatreq eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_ENB_PROC" peerId="2" spId="0"/>
+      </tapa.send>
+
+      # Expect Status Indication ASSOC UP at MME and eNB
+      <tapa.expset>
+         <tapa.szt.staind procId="SZAC_MME_PROC" peerId="1" suId="1" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause = "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"
+                          procId = "SZAC_MME_PROC"                 />
+         <tapa.szt.staind procId="SZAC_ENB_PROC" peerId="2" suId="0" staType="SZT_STA_TYPE_ASSOC" reason="SZT_REASON_RCVD_COMM_UP" status="SZT_STATUS_ASSOC_UP"/>
+         <tapa.lsz.staInd category= "LCM_CATEGORY_PROTOCOL"
+                          event =   "LSZ_EVENT_LI_ASSOC_CFM"
+                          cause =   "LSZ_CAUSE_ASSOC_UP"
+                          type   =  "LSZ_USTA_DGNVAL_PEER"
+                          typeId =  "2"
+                          procId = "SZAC_ENB_PROC"                 />
+      </tapa.expset>
+
+      # Expect S1 SETUP REQUEST message at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_MME_PROC" peerId="1" suId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # s1ap cleanup operations
+      <tapa.sz.enb0.deinit/>
+      <tapa.sz.mme1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+-->
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     szac_tc7.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$        ---      vvashishth  1. Updated for S1AP release 3.1
+#/main/1     sz004.301 va          1. Updated for Transparent Container Enc/Dec
+#/main/1     sz008.301 akaranth    1. Test case 1, 5 fixes.
+#*********************************************************************91*/

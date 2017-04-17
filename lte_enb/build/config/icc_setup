@@ -1,0 +1,155 @@
+#!/bin/sh
+
+#/*
+# * Copyright(c) 2007-2014 Intel Corporation. All rights reserved.
+# *
+# * This program is free software; you can redistribute it and/or modify 
+# * it under the terms of version 2 of the GNU General Public License as
+# * published by the Free Software Foundation.
+# *
+# * This program is distributed in the hope that it will be useful, but 
+# * WITHOUT ANY WARRANTY; without even the implied warranty of 
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# * General Public License for more details.
+# *
+# * You should have received a copy of the GNU General Public License 
+# * along with this program; if not, write to the Free Software 
+# * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+# * The full GNU General Public License is included in this distribution 
+# * in the file called LICENSE.GPL.
+# *
+# * Contact Information:
+# * Intel Corporation
+# */
+# icc_setup
+
+# Available options for this script
+# -d <device> - specifies Device where ICC supposed to run
+#               t3300 - default
+#               t2200 - initializes ICC driver with local part only
+# -v <on/off> - specifies if VED function is needed or not,
+#               VED is OFF by default
+# -c <0,1,..> - specifies CPU to run on (new for AMP stack)
+#
+
+ERR_ICX=0
+ERR_ICC=0
+ERR_TDSP=0
+EXIT_STATUS=0
+
+# it is not possible to detect between T2200 and T3300
+# therefore module should be launched with the parameter specifying target Device
+# by default ICC is supposed to run at T3300
+ICC_ON_T2200=1
+ICC_ON_T3300=2
+
+# ICC thread should run at the core0 to provide communications to Secure Monitor
+CPUNO=0
+
+# AMP status
+ICC_AMP=0
+
+ICC_THREAD_PRIO=90
+
+ICC_SHM_ENABLE=1
+
+while getopts d:v:c:s:a: option
+do
+   case "${option}"
+   in
+      d) DEVICE=${OPTARG};;
+      v) VED=${OPTARG};;
+      c) CPUNO=${OPTARG};;
+      s) ICC_SHM_ENABLE=${OPTARG};;
+      a) ICC_AMP=${OPTARG};;
+   esac
+done
+
+if [ $CPUNO -eq 0 ]; then
+   ICC_CPUMASK=1
+else
+   ICC_CPUMASK=2
+fi
+
+InstallTdspDriver () {
+   echo "installing Tdsp driver"
+   modprobe tdspdrv
+   ERR_TDSP=$?
+}
+
+InstallIcxDriver () {
+   echo "installing ICX driver (PCI-E Link serviced by MDMA + VED)"
+   modprobe icxdrv   
+   ERR_ICX=$?
+   if [ $ERR_ICX -eq 0 ]; then
+      # set priority for ICX threads, and set them affinity to use same CPU as ICC
+      chrt -f -p 80 `pgrep icxll` && taskset -p $ICC_CPUMASK `pgrep icxll`
+      chrt -f -p 80 `pgrep LLRx` && taskset -p $ICC_CPUMASK `pgrep LLRx`
+      chrt -f -p 81 `pgrep sysmdma0` && taskset -p $ICC_CPUMASK `pgrep sysmdma0`
+   fi
+}
+
+InstallIccDriverT2200 () {
+   modprobe iccserv_pcie IccShmEnable=$ICC_SHM_ENABLE IccOnDevice=$ICC_ON_T2200 ThreadAmp=$ICC_AMP ThreadCpu=$CPUNO
+   ERR_ICC=$?
+}
+
+InstallIccDriverT3300 () {
+   if [ "x"$VED = "xon" ]; then
+      echo "installing ICC over ICX driver for T3300"
+      modprobe iccserv IccPoolMap="{192784,256},{104856,1024},{13980,2048},{20280,4096}" IccShmEnable=$ICC_SHM_ENABLE IccOnDevice=$ICC_ON_T3300 ThreadAmp=$ICC_AMP ThreadCpu=$CPUNO
+   else
+      echo "installing ICC with integrated PCI-E for T3300"
+      modprobe iccserv_pcie IccShmEnable=$ICC_SHM_ENABLE IccOnDevice=$ICC_ON_T3300 ThreadAmp=$ICC_AMP ThreadCpu=$CPUNO
+   fi
+   ERR_ICC=$?
+}
+
+
+SetupIcc () {
+   InstallTdspDriver
+
+   if [ "x"$DEVICE = "xt2200" ]; then
+      echo "installing ICC driver for T2200 (merged remote and local part)"
+      InstallIccDriverT2200
+   else
+      #here is the T3300 device case, depending on VED function
+      #we should install iccserv.ko (VED present) or iccserv_pcie.ko (VED disabled)
+      if [ "x"$VED = "xon" ]; then
+         InstallIcxDriver
+      fi
+      InstallIccDriverT3300
+   fi
+
+   if [ $ERR_TDSP -ne 0 ]; then
+      echo "error: TDSP driver could not be installed"
+      EXIT_STATUS=3
+   elif [ $ERR_ICX -ne 0 ]; then
+      echo "error: ICX driver could not be installed"
+      EXIT_STATUS=2
+   elif [ $ERR_ICC -ne 0 ]; then
+      echo "error: ICC driver could not be installed"
+      EXIT_STATUS=1
+   else
+      # increase ICC thread priority and move it to single CPU of a cluster
+      sleep 1 && chrt -f -p $ICC_THREAD_PRIO `pgrep iccserv`
+
+      if [ $ICC_AMP -eq 0 ]; then
+         taskset -p $ICC_CPUMASK `pgrep iccserv`
+      fi
+
+      # assign active CPU the same as ICC thread
+      (cd /proc/periodic_task/iccserv-*/ && echo $CPUNO > active_cpu)
+      EXIT_STATUS=$?
+      if [ $EXIT_STATUS -ne 0 ]; then
+         cat /proc/periodic_task/list
+         echo "Error: failed to assign active CPU for periodic task, check /proc/periodic_task/"
+      else
+         echo "OK: icc driver has been installed successfully"
+      fi
+   fi
+}
+
+SetupIcc
+
+exit $EXIT_STATUS

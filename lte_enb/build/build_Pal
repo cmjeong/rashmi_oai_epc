@@ -1,0 +1,103 @@
+#!/bin/bash
+
+function printUsageAndExit {
+   echo "Usage: $0  -m (TDD | FDD)  <dir_to_be_created>"
+   echo ""
+   echo "Mandatory arguments"
+   echo "==================="
+   echo "   -m, --mode (TDD | FDD)     Mode has to be either TDD or FDD"
+   echo "Optional arguments" 
+   echo "==================="
+   echo "   <opensourcepackages_dir>   Desitnation directory where compilation will be done"
+   echo ""
+   exit 1;
+}
+
+PLATFORM=
+DIR=$PWD/..
+echo $DIR
+MODE=
+TARGET_DIRS_FOUND=0
+PKG="NO"
+CMD_FILE="rsync -a"
+CMD_DIR="rsync -a"
+LINKS="NO"
+COPY="NO"
+DG_CODE="NO"
+BUILD="pal"
+OLD_BUILD="pal"
+OLD_MODE="TDD"
+
+if [ "$3" == "" ]
+then
+  echo "Command not proper "
+  printUsageAndExit
+fi
+
+while [ "$1" != "" ]; do
+   case $1 in
+      -m | --mode )  shift
+                     MODE=$1
+                     ;;
+      -PKG )         PKG="YES"
+                     ;;
+      -h | --help )   printUsageAndExit
+                     ;;
+      * )            OPENSRC_PATH=$1
+    esac
+shift
+done
+
+if [ "$MODE" != "FDD" ] && [ "$MODE" != "TDD" ]
+then
+  echo "Invalid mode specified $MODE"
+  printUsageAndExit
+fi
+
+if [ "$OPENSRC_PATH" == "" ]
+then
+  echo "Open Source path not specified"
+  printUsageAndExit
+fi
+
+echo "Mode: "$MODE "OpenSource Dir: "$OPENSRC_PATH
+
+OLD_BUILD=$(awk '{print $1}' ../build.txt)
+OLD_MODE=$(awk '{print $2}' ../build.txt)
+echo $BUILD $MODE > ../build.txt
+#echo $OLD_BUILD $OLD_MODE
+
+SRC_PATH=$DIR/src
+BIN_PATH=$DIR/bin
+CON_PATH=$DIR/build/config
+SCRIPTS=$DIR/build/scripts
+
+#echo $PWD $SRC_PATH $BIN_PATH
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/thirdparty
+$CMD_DIR $OPENSRC_PATH/thirdparty/kb_getc $SRC_PATH/tenb_commonplatform/software/thirdparty/
+$CMD_DIR $OPENSRC_PATH/thirdparty/md5 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/csoap $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/openssl-0.9.8 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/libs/bin
+$CMD_DIR $OPENSRC_PATH/bin/threeway $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/csoap $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/libxml2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+
+ln -sf $OPENSRC_PATH/boost $SRC_PATH/tenb_commonplatform/software/libs/common/include/
+
+cd $SRC_PATH/tenb_commonplatform/configfiles/
+pwd
+if [ "$MODE" == "TDD" ]
+then
+   $CMD_FILE configFile_TDD_intel configFile
+   $CMD_FILE mib-home-fap_TDD.nv mib-home-fap.nv
+else
+   $CMD_FILE configFile_FDD_intel configFile
+   $CMD_FILE mib-home-fap_FDD.nv mib-home-fap.nv
+fi
+cd -
+
