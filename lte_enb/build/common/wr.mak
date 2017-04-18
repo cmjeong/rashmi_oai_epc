@@ -56,8 +56,10 @@ ifeq ($(PLTFRM),PAL)
 endif
 
 ifeq ($(OAM_ENABLE), YES)
+ifeq ($(TIP),YES)
 ifneq ($(TIP_L3),YES)
-#C_SRCS:=$(filter-out %wr_smm_dyncfg.c, $(C_SRCS))
+C_SRCS:=$(filter-out %wr_smm_dyncfg.c, $(C_SRCS))
+endif
 endif
 #C_SRCS:=$(filter-out %wr_smm_enbapp_utils.c, $(C_SRCS))
 else
@@ -122,17 +124,19 @@ CCwrFLAGS=-DWR_RELAY -DEU_DAT_APP -DEGTP_U -DTFU_WRR_2 -DDG -DVALIDATION_CHK \
     -DWR_TEST_CODE -DWR_TEST_CLI -UMME_LDBAL -DDEBUGP  $(RrmFlags)\
 
 ifeq ($(OAM_ENABLE),YES)
-#ifeq ($(TIP_L3),YES)
+ifneq ($(TIP),YES)
 CCwrFLAGS+= -DWR_RSYS_OAM -DREM_ENABLE
-#endif 
-#ifeq ($(TIP_UPPER_L2),YES)
-#CCwrFLAGS+= -UWR_RSYS_OAM -UREM_ENABLE
-#endif 
-#ifeq ($(TIP_LOWER_L2),YES)
-#CCwrFLAGS+= -UWR_RSYS_OAM -UREM_ENABLE
-#endif 
 else
+ifeq ($(TIP_L3),YES)
+CCwrFLAGS+= -DWR_RSYS_OAM -DREM_ENABLE
+endif 
+ifeq ($(TIP_UPPER_L2),YES)
 CCwrFLAGS+= -UWR_RSYS_OAM -UREM_ENABLE
+endif 
+ifeq ($(TIP_LOWER_L2),YES)
+CCwrFLAGS+= -UWR_RSYS_OAM -UREM_ENABLE
+endif 
+endif 
 endif 
 
 MOD_FLAGS=-DWR $(CCwrFLAGS) $(SonFlags)
