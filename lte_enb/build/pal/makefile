@@ -348,8 +348,8 @@ prepare_code:
 copy_build: link_enb
 ifeq ($(TIP), YES)
 ifeq ($(OAM_ENABLE),YES)
-	@echo -e "Copying eNodeB Build, REM and Watchdog"
-	#$(Q)echo . | . ../brcm/TeNBCP_build linux
+	@echo -e "Copying eNodeB tip with oam build..."
+	$(Q)echo . | . ./TeNBCP_build linux
 	$(Q)mkdir -p rsys rsys/config rsys/bin rsys/scripts
 	$(Q)mkdir -p $(ROOT_DIR)/bin/unstripped
 ifneq ($(TEXT_LOG), YES)
@@ -383,6 +383,7 @@ endif
 	$(Q)cp -f ./lib/pal/ul2/*.a $(ROOT_DIR)/libs/ul2
 #	$(Q)if [ -e $(ROOT_DIR)/src/lteremapp/libs/arm-none-linux-gnueabi/libssi.a ];then cp -f $(ROOT_DIR)/src/lteremapp/libs/arm-none-linux-gnueabi/* $(ROOT_DIR)/libs/;fi
 else
+	@echo -e "Copying eNodeB TIP without oam build..."
 	$(Q)mkdir -p rsys_withoutoam  rsys_withoutoam/config rsys_withoutoam/bin
 	$(Q)mkdir -p $(ROOT_DIR)/bin/unstripped
 ifneq ($(TEXT_LOG), YES)
@@ -418,8 +419,8 @@ endif
 endif
 else
 ifeq ($(OAM_ENABLE),YES)
-	#@echo -e "Copying eNodeB Build, REM and Watchdog"
-	#$(Q)echo . | . ../brcm/TeNBCP_build linux
+	@echo -e "Copying eNodeB with oam build..."
+	$(Q)echo . | . ./TeNBCP_build linux
 	$(Q)mkdir -p rsys rsys/config rsys/bin rsys/scripts 
 	$(Q)mkdir -p $(ROOT_DIR)/bin/unstripped
 ifneq ($(TEXT_LOG), YES)
@@ -431,25 +432,14 @@ endif
 	$(Q)cp -f ./obj/pal/enodeb ./rsys/bin
 	$(Q)cp -f ../config/ssi_mem ./rsys/config/
 	$(Q)cp -f ../config/ssi_rem ./rsys/config/
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/start_TeNB_pal.sh ./rsys/scripts/start_TeNB.sh
 	$(Q)cp -f ../../src/tenb_commonplatform/scripts/install_pal.sh ./rsys/scripts/install.sh
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/reboot-fap ./rsys/scripts/reboot-fap
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/ftpput.sh ./rsys/scripts/ftpput.sh
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/ftpputLog.sh ./rsys/scripts/ftpputLog.sh
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/ftpget.sh ./rsys/scripts/ftpget.sh
-	$(Q)cp -f ../../src/tenb_commonplatform/scripts/upgrade.sh ./rsys/scripts/upgrade.sh
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/nas-system-configuration ./rsys/config/nas-system-configuration
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/mib-home-fap.nv ./rsys/config/mib-home-fap.nv
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/param-attribute.nv ./rsys/config/param-attribute.nv
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/developer ./rsys/config/developer
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/configFile ./rsys/config/configFile
-	$(Q)cp -f ../../src/tenb_commonplatform/configfiles/software-release ./rsys/config/software-release
-	#$(Q)cp -f $(ROOT_DIR)/src/lteremapp/obj/hbs2-iu/hbs2-4/$(BUILD)/rem  ./rsys/bin/
+	$(Q)cp -f $(ROOT_DIR)/src/lteremapp/obj/hbs2-iu/hbs2-4/$(BUILD)/rem  ./rsys/bin/
 	$(Q)cp -rf ./rsys $(ROOT_DIR)/bin/
 	$(Q)mkdir -p $(ROOT_DIR)/libs/
 	$(Q)cp -f ./lib/pal/*.a $(ROOT_DIR)/libs
-	#$(Q)if [ -e $(ROOT_DIR)/src/lteremapp/libs/$(BUILD)/libssi.a ];then cp -f $(ROOT_DIR)/src/lteremapp/libs/$(BUILD)/* $(ROOT_DIR)/libs/;fi
+	$(Q)if [ -e $(ROOT_DIR)/src/lteremapp/libs/$(BUILD)/libssi.a ];then cp -f $(ROOT_DIR)/src/lteremapp/libs/$(BUILD)/* $(ROOT_DIR)/libs/;fi
 else
+	@echo -e "Copying eNodeB build..."
 	$(Q)mkdir -p rsys_withoutoam  rsys_withoutoam/config rsys_withoutoam/bin rsys_withoutoam/scripts 
 	$(Q)mkdir -p $(ROOT_DIR)/bin/unstripped
 ifneq ($(TEXT_LOG), YES)
