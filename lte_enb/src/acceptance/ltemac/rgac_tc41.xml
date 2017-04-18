@@ -1,0 +1,347 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE-MAC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases For TDD 
+#
+#     File:    rgac_tc41.xml
+#
+#     Sid:     rgac_tc41.xml@@/main/1 - Tue Oct 11 02:40:03 2016
+#
+#     Prg:     mnawas
+#
+#*********************************************************************21*/
+
+
+
+#
+#       Test:    41.1
+#
+#       Desc:   DL Scheduling on PCELL and SCELL using RR Sched Type
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc41.xml
+#
+#
+<tapa.testcase id="41.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         HARQ ACK for SCell CE PDU
+      </tapa.desc>
+
+      <tapa.longdesc>
+         HARQ ACK for SCell CE PDU
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellLaaInit numTxAntPorts="2"/>
+
+      #Initialize 1 UE per instance
+      <tapa.rg.multiInst1UeOnFirstCell ueId="0" uniqueRntiVldt="FALSE" txModeEnum="RGR_UE_TM_3" tm="CRG_UE_TM_3" ueCatEnum="CM_LTE_UE_CAT_4"  />
+    
+      <tapa.rg.addSecCell ueId="0" cellId="3" txModeEnum="RGR_UE_TM_3" />
+
+      <tapa.send>
+         <tapa.rgr.actDeact.scell sCellActionType="2"/>
+      </tapa.send>
+      # expect cfm in the same tti
+      <tapa.expect>
+         <tapa.rgr.cfgCfm ueId="0"/>
+      </tapa.expect>
+      # Send TTI tick to get CE scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="4"  validate="TRUE" chkSCellDeActCe="TRUE" deActCeVal="2" />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req expRecpReq="1" schInstId="5" spId="0">
+               <tapa.tfu.hq.recp.req ueId="0"/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+              <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+
+      # Steps for LC creation for 1st Ue on instance 0
+      # Configure a dedicated logical channel for the created UE  
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch instId="0"  ueId="0" lcId="4" lcgId="0" dir="3" lcType="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm instId="0"/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="3" lcType="5" instId="5" spId="0" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5" spId="0"/>
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="18" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      #Steps for BO Updation
+      #Send BO for UE1 on instance 0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="1000"/>
+      </tapa.send>
+      #Steps for BO Updation
+ 
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expect>
+
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="4"/>
+      </tapa.send>
+ 
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="1" lchTb1Data="4"/>
+       </tapa.send>
+
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     <tapa.expset>
+      	<tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+      		<tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+      		<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="0" validate="TRUE"/>
+      	</tapa.tfu.dat.req>
+
+      	<tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+      		<tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+      		<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="1" validate="TRUE"/>
+      	</tapa.tfu.dat.req>
+      </tapa.expset>         
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+   #sending ERR IND for LAA SCELL
+      <tapa.send>
+         <tapa.tfu.err.ind instId="1" cellId="4" schSuId="1" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expset>
+
+      <tapa.tfu.recp.req schInstId="5" spId="0" ueId="0" >
+         <tapa.tfu.hq.recp.req/>
+      </tapa.tfu.recp.req>   
+
+      <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+         <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+      </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+      	<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="1" validate="TRUE"/>
+     	 </tapa.tfu.dat.req>
+
+      </tapa.expset>         
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+
+
+   #sending ERR IND for LAA SCELL
+      <tapa.send>
+         <tapa.tfu.err.ind instId="1" cellId="4" schSuId="1" />
+      </tapa.send>
+
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+      # ACK sent for First BO
+      # Send ACK for the received PDU
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+              <tapa.tfu.hq ueId="0"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expset>
+
+      <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+         <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+      </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+      	<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="1" validate="TRUE"/>
+     	 </tapa.tfu.dat.req>
+
+      </tapa.expset>         
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+     
+     
+
+     <tapa.repeat.start repeatCount="6"/>
+#######LOOP START
+   #sending ERR IND for LAA SCELL
+      <tapa.send>
+         <tapa.tfu.err.ind instId="1" cellId="4" schSuId="1" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expset>
+
+      <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+         <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+      </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+      	<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="1" validate="TRUE"/>
+     	 </tapa.tfu.dat.req>
+
+      </tapa.expset>         
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+     
+     
+#######LOOP END
+    <tapa.repeat.end/>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="4" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase> 
+
+

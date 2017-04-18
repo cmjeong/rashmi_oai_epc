@@ -1,0 +1,2273 @@
+#
+#/********************************************************************20**
+#
+#     Name:    PDCP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for ReEstablishment
+#
+#     File:    pjac_grp5.xml
+#
+#     Sid:     $SID$
+#
+#     Prg:     Adarsh
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:1:Group 5 Test Cases :pjac_grp5.xml
+
+#
+#
+#       Test:    5.1
+#
+#       Desc:    Perform Reestablishment with only SRB1 and SRB2 configured
+#
+#       Notes:   TC_REEST_GRP4_1
+#                Priority 1
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.1"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "Perform ReEstablishment with only SRBs configured "
+      </tapa.desc>
+
+      <tapa.longdesc>
+        " 1. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          2. Configure SRB2 on RLC and PDCP on ueId=1/2, cellId=1.
+          3. Send Data on SRB1 from (ueId=1, CellId=1) to (ueId=2, CellId=1) and validate.
+          4. Send Data on SRB2 from (ueId=1, CellId=1) to (ueId=2, CellId=1) and validate.
+          5. ReEstablish SRB1 and SRB2 on PDCP and RLC.
+          6. Verify successful reestablishment of SRB1 and SRB2.
+          7. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="1000" />
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+      #Send Data on SRB2 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb2ue1T2/>
+
+      #Send Data on SRB2 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb2ue2T1/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.delay delay="5" />
+
+      #Send a ReEstablish Request to  SRB1
+      <tapa.pj.srb1.reEstReq />
+
+       #Send a ReEstablishment request on DRBs ans SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="1"
+         rbId    = "2"
+         rbType  = "0"
+         cfgType = "4"
+         />
+      </tapa.send>
+
+
+     <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+         rbId    = "2"
+         rbType  = "0"
+         status = "1"
+         />
+   </tapa.expset>
+
+   <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.2
+#
+#       Desc:    Perform Reestablishment Failure because of security initiation failure.
+#
+#       Notes:   TC_REEST_GRP4_9, 
+#                Priority 1
+#                SEC_ASYNC only . OBD.
+#                Negative Testcase.
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.2"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "Perform ReEstablishment with only SRBs configured "
+      </tapa.desc>
+
+      <tapa.longdesc>
+        " 1. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          2. Send Data on SRB1 from (ueId=1, CellId=1) to (ueId=2, CellId=1) and validte it.
+          3. Send Data on SRB1 from (ueId=2, CellId=1) to (ueId=1, CellId=1) and validte it.
+          4. ReEstablish SRB1 on PDCP and RLC.
+          5. Verify that reestablishment of SRB1 fails because integrity fails..
+          6. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.delay delay="5"/>
+
+      #Send a ReEstablish Request to  SRB1
+      <tapa.pj.srb1.reEstReq intInitFail = "1" />
+
+      # Expect a negative reestablishment Confirm
+      <tapa.timeout/>
+      <tapa.expect>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="3"/>
+      </tapa.expect>
+
+      <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.3
+#
+#       Desc:    Perform Reestablishment of SRB 1/2 and DRB 1/2
+#
+#       Notes:   TC_REEST_GRP4_12
+#                Prioity 1
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.3"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+        " 1. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          2. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          3. Configure DRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          4. Configure DRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          5. ReEstablish SRB1 on PDCP and RLC.
+          6. Reestablish SRB2, DRB1, DRB2  on PDCP and RLC.
+          7. Verify successful reestablishment of SRB1.
+          8. Verify successful reestablishment of SRB1, DRB1 and DRB2.
+          9. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg   statusRepReqd0="0"/>
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb2cfg/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      #ReEstablish  SRB1
+      <tapa.pj.srb1.reEstReq />
+
+      #ReEstablish SRB2, DRB1, DRB2
+      <tapa.pj.cfgReEst numEnt="3" 
+         rbId    = "2:2:3"
+         rbType  = "0:1:1"
+         cfgType = "4:4:4"
+         status  = "1:1:1"
+         reason  = "0:0:0"
+         dir     = "3:2:3"
+         />
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.4
+#
+#       Desc:    Perform Reestablishment of SRB 1/2 and DRB 1/2
+#
+#       Notes:   TC_REEST_GRP4_14
+#                Prioity 1
+#                ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.4"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Configure DRB1 AM ueId=1/2, cellId=1, numEnt=1 .
+          4. Configure DRB2 UM ueId=1/2, cellId=1, numEnt=1 .
+          5. Configure DRB3 UM ueId=1/2, cellId=1, numEnt=1 .
+          6. Configure DRB4 UM ueId=1/2, cellId=1, numEnt=1 .
+          7. Configure DRB5 UM ueId=1/2, cellId=1, numEnt=1 .
+          8. Drop DL Data on DRB1 from UE 1 to 2. 
+          9. Drop DL Data on DRB2 from UE 2 to 1. 
+          10. Send a Reestablish Request to Reestatblish SRB1.
+          11. Send a CfgReq to 
+                11.1 ReEstablish  SRB2, DRB1 and DRB2 and DRB3 
+                11.2 Modify DRB4
+                11.3 DEL DRB5
+                11.4 Add DRB6 
+          12. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0"/>
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      #<tapa.drb1cfg discardTmr0="0" amUlReOrdTmr0="1500"/>
+      <tapa.drb1cfg amUlReOrdTmr0="200"  discardTmr0="500" />
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb2cfg/>
+
+      #Configure the DRB3, DRB4, DRB 5 at RLC and PDCP Layer 
+      <tapa.pj.drb345.cfg/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      #Step 2. Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+      #Step 3. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb2ue1T2/>
+
+      #Step 4. Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb2ue2T1/>
+
+#Send 1-5 sn from ue 1 to 5. Drop 2. DRB1
+
+      #Step 5. Send data for SN 0
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="1"/>
+
+      #Step 7. Drop data for SN 1
+      <tapa.ddrb1ue1T2.drop bo="302" totBufSize0="309" transId="2"/>
+
+      #Step 8. Send data for SN 2
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="1"/>
+
+      #Step 10. Send data for SN 3
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="1"/>
+
+
+      #Step 12. Send data for SN 4
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="1"/>
+      #Step 14. Wait for confirm to expire
+      <tapa.delay delay="1"/>
+
+      #Step 15. Wait for confirm to expire
+      <tapa.expset>
+         <tapa.pju.datcfm entity="ENTPX" sduId="0:1:2:3:4" ueId="1" cellId="1" rbId="1" rbType="1" status="2:2:2:2:2" numSdu="5" />
+      </tapa.expset>
+
+#Send 1-5 sn from ue 2 to 5. Drop 2. DRB3
+
+      #Step 16. Send data for SN 0
+      <tapa.ddrb1ue2T1.noCfm bo="302" totBufSize0="309" transId="1"/>
+      #Step 17. Expect a Status Response 
+      <tapa.expset>
+      #Expect confirm at other end.
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="3" valdType="1"/>
+      </tapa.expset>
+
+      #Step 18. Drop data for SN 1
+      <tapa.ddrb1ue2T1.drop bo="302" totBufSize0="309" transId="2"/>
+
+      #Step 19. Send data for SN 2
+      <tapa.ddrb1ue2T1.noCfm bo="302" totBufSize0="309" transId="1"/>
+
+      #Step 20. Send data for SN 2
+
+
+      #Send PDCP SDU from NH interface for DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="3" ueId="2" cellId="1" rbType="1" />
+      </tapa.send>
+
+      <!--    #Step 22
+      # pdcpdata(300)+2 byte(12 bit SN)+ 2 bytes(RLC Hdr)= 304
+      #Expect Status Response for the received SDU at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5"
+             estHdrSz="-1" staPduPrsnt="-1" bo="604"/>
+      </tapa.expect>
+
+      #Step 23
+      #Send StaInd  to RLC to accomodate SDU at DRB1
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind  lcId="5" ueId="2" cellId="1" numLch="1" totBufSize0="617"/>
+      </tapa.send>
+
+      #Step 24
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="2" cellId="1"
+            lchData="0:0:0:5:2:-1:-1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE"/>
+      </tapa.expect>
+
+      #Step 25
+       #kw002.201 Send DRB1 Data to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="1"
+            lchData="5:1:0:0:0:0"/>
+      </tapa.send>
+
+
+
+      #Step 26. Sta Rsp 
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="5" bo="4" estHdrSz="-1" staPduPrsnt="1"/>
+      </tapa.expect>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="-1" estHdrSz="-1" staPduPrsnt="-1"/>
+      </tapa.expect>
+      -->
+      #Step 27. Send data for SN 4
+<!--
+      <tapa.ddrb1ue2T1.noCfm bo="302" totBufSize0="307" transId="1"/>
+-->
+
+<!--      #Send PDCP SDU from NH interface for DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="3" ueId="2" cellId="1" rbType="1" />
+      </tapa.send>
+
+      #Step 28
+      # pdcpdata(300)+2 byte(12 bit SN)+ 2 bytes(RLC Hdr)= 304
+      #Expect Status Response for the received SDU at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="604"
+             estHdrSz="-1" staPduPrsnt="-1"/>
+      </tapa.expect>
+
+      #Step 29
+      #Send StaInd  to RLC to accomodate SDU at DRB1
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind  lcId="5" ueId="2" cellId="1" numLch="1" totBufSize0="617"/>
+      </tapa.send>
+
+      #Step 30
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="2" cellId="1"
+            lchData="0:0:0:5:2:-1:-1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE"/>
+      </tapa.expect>
+
+      #Step 31
+       #kw002.201 Send DRB1 Data to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="1"
+            lchData="5:1:0:0:0:0"/>
+      </tapa.send>
+
+
+
+
+      #Step 32. Send data for SN 4
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="5" bo="-1" estHdrSz="-1" staPduPrsnt="1"/>
+      </tapa.expect>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="-1" estHdrSz="-1" staPduPrsnt="-1"/>
+      </tapa.expect>-->
+
+      #Step 33. ReEstablish  SRB1
+      <tapa.pj.srb1.reEstReq />
+
+    #Step 34. ReEstablish  SRB2, DRB1 and DRB2 and DRB3 
+    #Modify DRB4
+    #DEL DRB5
+    #Add DRB6 
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="7"
+            rbId          = "2:1:2:3:4:5:6"
+            rbType        = "0:1:1:1:1:1:1"
+            cfgType       = "4:4:4:4:2:3:1"
+            discReqd      = "1:1:1:1:0:1:1"
+            cfmReqd       = "0:0:0:0:1:0:0"
+            discardTmr    = "0:0:0:0:100:100:100"
+            dir           = "3:3:2:3:3:3:3"
+            mode          = "3:3:3:3:3:3:3"
+            statusRepReqd = "0:0:0:0:0:0:0"
+         />
+      </tapa.send>
+
+
+      <!--    #Step 35.  Send a Reestablishment request to RLC
+     <tapa.send>
+        <tapa.ckw.cfgreq ueId="1" cellId="1" numEnt="4" 
+           cfgType       = "4:4:4:4"
+           rbId          = "2:1:2:3"
+           rbType        = "0:1:1:1"
+           entMode       = "3:3:2:3"
+           dir           = "3:3:3:3"
+           logChId0Id    = "1:1:1:1"
+           logChId0Typei = "1:1:1:1"
+           logChId1Id    = "1:1:1:1"
+           logChId1Type  = "1:1:1:1"
+           umDlSnLen     = "1:1:1:1"
+           />
+     </tapa.send>   -->
+
+
+      #Step 36.  Expect General Configuration Confirm
+     <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" rbId="1" rbType="1" status="0" transId="-1"/>
+         <tapa.cpj.cfgcfm ueId="1" numEnt="1" cellId="1" 
+            rbId   = "2:1:2:3:4:5:6"
+            rbType = "0:1:1:1:1:1:1"
+            status = "1:1:1:1:1:1:1"
+            reason = "0:0:0:0:0:0:0"
+            />
+         <!--    <tapa.ckw.cfgcfm numEnt="4"
+           rbId   = "2:1:2:3"
+           rbType = "0:1:1:1"
+           status = "1:1:1:1"
+           /> -->
+      </tapa.expset>
+     
+      #Step 37. ReEstablish  SRB1
+      <tapa.pj.srb1.reEstReq.ue2 />
+
+    #Step 38. ReEstablish  SRB2, DRB1 and DRB2 and DRB3 
+    #Modify DRB4
+    #DEL DRB5
+    #Add DRB6 
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="2" cellId="1" numEnt="4"
+            rbId          = "2:1:2:3"
+            rbType        = "0:1:1:1"
+            cfgType       = "4:4:4:4"
+            discReqd      = "1:1:1:1"
+            cfmReqd       = "0:0:0:0"
+            discardTmr    = "0:0:0:0"
+            dir           = "3:3:1:3"
+            mode          = "3:3:3:3"
+            statusRepReqd = "0:0:0:0"
+         />
+      </tapa.send>
+
+
+      <!--     #Step 39.  Send a Reestablishment request to RLC
+     <tapa.send>
+        <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="4" 
+           cfgType       = "4:4:4:4"
+           rbId          = "2:1:2:3"
+           rbType        = "0:1:1:1"
+           entMode       = "3:3:2:3"
+           dir           = "3:3:1:3"
+           logChId0Id    = "1:1:1:1"
+           logChId0Typei = "1:1:1:1"
+           logChId1Id    = "1:1:1:1"
+           logChId1Type  = "1:1:1:1"
+           umDlSnLen     = "1:1:1:1"
+           />
+     </tapa.send> -->
+     #Step 40. Delay
+     <tapa.delay delay="10"/>
+
+      #Step 41.  Expect General Configuration Confirm
+     <tapa.expset>
+        <!--       <tapa.ckw.cfgcfm numEnt="4"
+           rbId   = "2:1:2:3"
+           rbType = "0:1:1:1"
+           status = "1:1:1:1"
+           />  -->
+         <tapa.cpj.reestcfm ueId="2" cellId="1" rbId="1" rbType="1" status="0" transId="-1"/>
+         <tapa.cpj.cfgcfm ueId="2" numEnt="1" cellId="1" 
+            rbId   = "2:1:2:3"
+            rbType = "0:1:1:1"
+            status = "1:1:1:1"
+            reason = "0:0:0:0"
+            />
+         <!--         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="302" estHdrSz="-1" staPduPrsnt="-1"/>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="604" estHdrSz="-1" staPduPrsnt="-1"/>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="906" estHdrSz="-1" staPduPrsnt="-1"/>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="1208" estHdrSz="-1" staPduPrsnt="-1"/>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" lcId="5" bo="1510" estHdrSz="-1" staPduPrsnt="-1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="1" rbId="1" valdType="1"/>
+-->
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.5
+#
+#       Desc:    Verify Post-Reestablishment data transfer
+#
+#       Notes:   TC_REEST_GRP4_15
+#                Priority 1
+#                Positive Testcase
+#                SYNC and ASYNC
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+
+<tapa.testcase id="5.5"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify Post-ReEstablishment data transfer "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1, SRB2, DRB1 on RLC, PDCP on ueId=1,2 , cellId=1
+          2. Send data with sn 0-4 from Ue 1 to Ue2 . Drop sn 1.
+          3. Reestablish Ue 2. Expect status report at Ue1
+          4. Reestablish Ue 1. Expect status report at Ue2
+          5. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="500"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg amUlReOrdTmr0="1500"  discardTmr0="0" statusRepReqd0="1"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#Send 1-5 sn from ue 1 to 5. Drop 2.
+
+      #Step 1. Send data for SN 0
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="1"/>
+
+      #Step 4. Drop data for SN 1
+      <tapa.ddrb1ue1T2.drop bo="302" totBufSize0="309" transId="2"/>
+
+      #Step 5. Send data for SN 2
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="3"/>
+
+      #Step 7. Send data for SN 3
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="4"/>
+
+      #Step 9. Send data for SN 4
+      <tapa.ddrb1ue1T2.noCfm bo="302" totBufSize0="309" transId="5"/>
+
+#Reestablish both UEs
+      #Step 11. ReEstablish  SRB1
+#      <tapa.pj.srb1.reEstReq />
+
+      #Step 12. ReEstablish  SRB1 at ue2
+      <tapa.pj.srb1.reEstReq.ue2 />
+
+      #Send a ReEstablishment request on SRB2
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="2" cellId="1"
+            rbId="2"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="2" cellId="1" status="1" transId="-1"/>
+         <tapa.cpj.reestcfm ueId="2" cellId="1" status="1" transId="-1"/>
+      </tapa.expset>
+
+     # <tapa.delay delay="20" />
+      #Step 13  Send a ReEstablishment request on DRBs ans SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="2" cellId="1" rbId="1" rbType="1" cfgType="4" numEnt="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="2" cellId="1" rbId="1" rbType="1" suId="1" />
+      </tapa.send> 
+
+      #Step 15. Expect  the confirm and staus response for the received SDU at RGU
+     <tapa.expset>
+        <tapa.dummy.kwu.datreq />
+        <tapa.cpj.cfgcfm ueId="2" cellId="1" transId="-1" numEnt="1"
+                          rbId = "1" rbType = "1" status="1" reason = "0"/>
+      </tapa.expset>
+
+
+      <tapa.delay delay="5" />
+      <tapa.pj.srb1.reEstReq />
+      
+      #Send a ReEstablishment request on SRB2
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="2"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/>
+      </tapa.expset>
+      
+#REestablsih  at UE1 DRB and Expect status report
+      #Step 20. Send a ReEstablishment request on DRBs ans SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" rbId="1" rbType="1" cfgType="4" numEnt="1"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1" rbType="1" suId="1" />
+      </tapa.send> 
+
+      #Step 22. Expect  the confirm and staus response for the received SDU at RGU
+     <tapa.expset>
+        <tapa.dummy.kwu.datreq />
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+                          rbId = "1" rbType = "1" status="1" reason = "0"/>
+      </tapa.expset>
+
+      <tapa.delay delay="20" />
+      <tapa.send>
+         <tapa.cpj.datresumereq ueId="1" cellId="1" transId="1" />
+      </tapa.send>   
+
+      <tapa.delay delay="20" />
+
+      #Step 26. Expect PDCP to send the data again for DRB1 post Reestablishment
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+         <tapa.cpj.datresumecfm ueId="1" cellId="1" transId="1" status="1" reason="0" />
+      </tapa.expset>
+
+     <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.6
+#
+#       Desc:    Perform Reestablishment of SRB 1 when that alone is configured
+#
+#       Notes:   TC_REEST_GRP4_3
+#                Prioity 2
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.6"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          3. Now send a re-est request. Expect a re-est cfm immediately as we have
+             no other RBs."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      #kw006.201 changes for ccpu00111716
+      <tapa.delay delay="2"/>
+      #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+
+     <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" rbId="1" rbType="0" status="1" transId="-1" />
+      </tapa.expset> 
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.7
+#
+#       Desc:    Perform Reestablishment of DRBs without re-est for SRB1
+#
+#       Notes:   TC_REEST_GRP4_5
+#                Prioity 2
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.7"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Configure DRB1 ueId=1/2, cellId=1, numEnt=1 .
+          4. Configure DRB2 ueId=1/2, cellId=1, numEnt=1 .
+          5. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          6. Send some data on DRB 1 from UE 1 to UE 2 and get confirmations.
+          7. Send some data on DRB 2 from UE 1 to UE 2 and get confirmations.
+          8. Now send a re-est request to the DRBs without any re-establishment
+             request for SRB."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg/>
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg/>
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb2cfg/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb1ue1T2 pdcpSn="1" />
+
+      # Step 2 :Send Data on DRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.ddrb1ue1T2 bo="302"  totBufSize0="309" />
+
+      # Step 3 :Send Data on DRB2 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.ddrb2ue1T2/>
+
+       #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            cfgType= "4:4:4"
+         />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            status = "2:2:2"
+         />
+   </tapa.expset>
+
+   <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.8
+#
+#       Desc:    Perform Reestablishment of SRBs with data waiting for OBD o/p.
+#
+#       Notes:   TC_REEST_GRP4_7
+#                Prioity 2
+#                ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.8"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          4. Send some data on SRB 2 from UE 1 to UE 2 and get confirmations.
+          5. Send some data on SRB 1 from UE 1 and keep waiting for OBD output.
+          6. Send a re-est request for SRB1.
+          7. Send a re-est request for SRB2 also.
+          8. Expect the data to be discared at the SRBs.
+          9. Check for 0 SN when data transfer resumes."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb1ue1T2 pdcpSn="1" />
+
+      #kw006.201 Delay given so as the deletion of Acked PDU and sending DatCfm to
+      #PDCP completes before the next command is sent.
+      <tapa.delay delay="10" />
+
+      # Send data on SRB1 let discard tmr expire before integrity cfm received from
+      <tapa.obd.directive saveIntMsg="TRUE" id="1"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+             ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.obd.directive saveIntMsg="TRUE" id="1"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+            ueId="1" cellId="1" />
+       </tapa.send>
+
+       #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+      
+      #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="1"
+            rbId   = "2"
+            rbType = "0"
+            cfgType= "4"
+         />
+      </tapa.send>
+   
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="0" transId="-1"/> 
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+            rbId    = "2"
+            rbType  = "0"
+            status = "1"
+         />
+      </tapa.expset>
+
+      <!--       #Send PDCP SDU from NH interface for SRB1 to verify the SN after re-establishment
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # pdcpdata(300)+1 byte(5 bit SN)+ 4 bytes(MACI)+2 b bytes(RLC Hdr)= 306
+      #Expect Status Response for the received SDU at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" bo="305" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #Send StaInd  to RLC to accomodate SDU at DRB1
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="315" lcId="1" ueId="1" cellId="1" numLch="1" transId="5" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="5"
+            lchData="0:-1:0:1:1:-1:-1"
+            vrfPdcp="TRUE"
+            pdcpHdr="-1:-1:0:" intgProt="FALSE"  ciph ="FALSE" snSize="5" mode="3" />
+      </tapa.expect>  -->
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.9
+#
+#       Desc:    Perform Reestablishment of SRBs with data waiting for OBD o/p.
+#
+#       Notes:   TC_REEST_GRP4_8
+#                Prioity 2
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.9"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          4. Send some data on SRB 2 from UE 1 to UE 2 and get confirmations.
+          5. Send some data on SRB 1 from UE 1 and keep waiting for OBD output.
+          6. Send a re-est request for SRB1.
+          7. Send a re-est request for SRB2 also.
+          8. Expect the data to be discared at the SRBs.
+          9. Check for 0 SN when data transfer resumes."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+       <tapa.flag id="PJ_SEC_ASYNC"/>
+       <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" />
+      <!--   #Configure the DRB1 at RLC and PDCP Layer
+      <tapa.drb1cfg discardTmr0="0" statusRepReqd0="1"/>
+      #Configure the DRB2 at RLC and PDCP Layer
+      <tapa.drb2cfg discardTmr0="0" />
+      #Configure the DRB3 at RLC and PDCP Layer
+      <tapa.drb3cfg discardTmr0="0" />
+      #Configure the DRB4 at RLC and PDCP Layer
+      <tapa.drb4cfg discardTmr0="0" />  -->
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb2ue1T2 pdcpSn="1" />
+      <!--   #Send some data on DRB1 as well
+      <tapa.ddrb1ue1T2  bo="302"  totBufSize0="309"/>
+
+      <tapa.ddrb1ue1T2  bo="302"  totBufSize0="309" pdcpSn="1" />
+      <tapa.ddrb1ue1T2  bo="302"  totBufSize0="309" pdcpSn="2" />  -->
+     # Send data on SRB1 let discard tmr expire before integrity cfm received from
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+             ueId="1" cellId="1" saveCpMsg="TRUE" id="1"/>
+      </tapa.send>
+      <tapa.delay delay="10" />
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+            ueId="1" cellId="1" saveCpMsg="TRUE" id="2"/>
+       </tapa.send>
+
+      <tapa.delay delay="10" />
+
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1"
+            ueId="1" cellId="1" saveCpMsg="TRUE" id="2"/>
+       </tapa.send>
+
+      <tapa.delay delay="10" />
+      #kw006.201 Delay given so as the deletion of Acked PDU and sending DatCfm to
+      #PDCP completes before the next command is sent.
+      <tapa.delay delay="10" />
+
+       #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+
+      #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            cfgType= "4:4:4"
+         />
+      </tapa.send>
+   
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId    = "2:1:2"
+            rbType  = "0:1:1"
+            status = "1:1:1"
+         />
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="0" transId="-1"/> 
+      </tapa.expset>
+
+   
+#Pradeep - commented
+<!--
+      #Send StaInd  to RLC to accomodate SDU at DRB1 - for the status report
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="315" lcId="3" ueId="1" cellId="1" numLch="1" transId="8" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="8"
+            lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" 
+            vrfPdcp="FALSE"
+            pdcpHdr="-1:-1:-1:-1" intgProt="FALSE"  ciph ="FALSE" snSize="12" mode="3" />
+      </tapa.expect>
+ -->
+
+ <!--       #Send PDCP SDU from NH interface for SRB1 to verify the SN after re-establishment
+      <tapa.send> 
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # pdcpdata(300)+1 byte(5 bit SN)+ 4 bytes(MACI)+2 b bytes(RLC Hdr)= 306
+      #Expect Status Response for the received SDU at RGU 
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" bo="305" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #Send StaInd  to RLC to accomodate SDU at DRB1
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="312" lcId="1" ueId="1" cellId="1" numLch="1" transId="5" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="5"
+            lchData="-1:-1:0:1:1:-1:-1"
+            vrfPdcp="TRUE"
+            pdcpHdr="-1:-1:0:" intgProt="FALSE"  ciph ="FALSE" snSize="5" mode="3" />
+      </tapa.expect>
+
+
+       #Send PDCP SDU from NH interface for SRB1 to verify the SN after re-establishment
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1" rbType="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+      # pdcpdata(300)+1 byte(5 bit SN)+ 4 bytes(MACI)+2 b bytes(RLC Hdr)= 306
+      #Expect Status Response for the received SDU at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="3" bo="304" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #Send StaInd  to RLC to accomodate SDU at DRB1
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="315" lcId="3" ueId="1" cellId="1" numLch="1" transId="6" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at RGU
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="6"
+            lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" 
+            vrfPdcp="TRUE"
+            pdcpHdr="-1:-1:3:" intgProt="FALSE"  ciph ="FALSE" snSize="12" mode="3" />
+      </tapa.expect> -->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.10
+#
+#       Desc:    Perform Reestablishment of SRBs with data waiting for OBD o/p.
+#
+#       Notes:   TC_REEST_GRP4_13
+#                Prioity 2
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.10"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          4. Send some data on SRB 2 from UE 1 to UE 2 and get confirmations.
+          5. Send some data on SRB 1 from UE 1 and keep waiting for OBD output.
+          6. Send a re-est request for SRB1.
+          7. Send a re-est request for SRB2 also.
+          8. Expect the data to be discared at the SRBs.
+          9. Check for 0 SN when data transfer resumes."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" />
+      <tapa.drb1cfg discardTmr0="0" />
+      <tapa.drb2cfg discardTmr0="0" />
+      <tapa.drb3cfg discardTmr0="0" />
+      <tapa.drb4cfg discardTmr0="0" />
+      <tapa.drb5cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb1ue1T2 pdcpSn="1" />
+
+      <tapa.ddrb1ue1T2 bo="302"  totBufSize0="309" />
+
+      # Send data on SRB1 let discard tmr expire before integrity cfm received from
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1"
+             ueId="1" cellId="1"  id="1"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1"
+            ueId="1" cellId="1" id="1"/>
+       </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+      </tapa.expect>
+
+       <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="30" rbId="4" rbType="1"
+            ueId="1" cellId="1" id="1"/>
+       </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" cellId="1" ueId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1"
+           pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE" />
+      </tapa.expect>
+
+       #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+      
+         #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="7"
+            rbId   = "6:5:2:3:4:1:2"
+            rbType = "1:1:1:1:1:1:0"
+            cfgType= "1:2:3:4:4:4:4"
+
+            discReqd="0:0"
+            cfmReqd="0:0"
+            discardTmr="0:0"
+#Pradeep 
+            dir="1:1:2:3:3:3:3"
+            mode="2:2"
+            statusRepReqd="0:0"
+            pdcpSNSize="12:12"
+            hdrCompUsed="0:0"
+            maxCid="0:0"
+            profile="0:0"
+            bitFlag="0:0"
+            isHoPres="0:0"
+            dlCount="0:0"
+            ulCount="0:0"
+            numBits="0:0"
+            ulBitMap="0:0"
+         />
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="3:4:1" rbType="1:1:1" suId="1" />
+      </tapa.send> 
+      
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/> 
+         
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="7"
+            rbId   = "6:5:2:3:4:1:2"
+            rbType = "1:1:1:1:1:1:0"
+            status = "1:1:1:1:1:1:1"
+         />
+
+      </tapa.expset>
+
+      <tapa.delue1N2/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.11
+#
+#       Desc:    Perform Reestablishment of DRB UM with data waiting for OBD o/p.
+#
+#       Notes:   TC_REEST_GRP4_17
+#                Prioity 2
+#                ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.11"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of DRB  UM with data from Off-boarding present."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          4. Send some data on DRB 1 from UE 1 to UE 2 and get confirmations.
+          5. Send some data on DRB 2 from UE 1 to UE 2.
+          6. Send some data on DRB 2 from UE 1 and keep waiting for OBD output from compression.
+          7. Send a re-est request for SRB1 at PDCP.
+          8. Send a re-est request for SRB1  at RLC.
+          9. Send a config request with re-establishment for SRB2, DRB1 and DRB2.
+          10. Expect the data to come again at the DRB2.
+          11. Send some data on DRB 2 from UE 1 and keep waiting for OBD output from ciphering.
+          12. Send a re-est request for SRB1 at PDCP.
+          13. Send a re-est request for SRB1  at RLC.
+          14. Send a config request with re-establishment for SRB2, DRB1 and DRB2.
+          15. Expect the data to come again at the DRB2.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+       <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+
+
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" />
+      <tapa.drb1cfg discardTmr0="0" />
+      <tapa.drb2cfg discardTmr0="0" />
+      <tapa.drb3cfg discardTmr0="0" />
+      <tapa.drb4cfg discardTmr0="0" />
+      <tapa.drb5cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#initially send some data.
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb1ue1T2 pdcpSn="1" />
+
+      <tapa.ddrb1ue1T2 bo="302"  totBufSize0="309" />
+
+      <tapa.ddrb2ue1T2 />
+
+      # Send data on DRB2 let discard tmr expire before integrity cfm received from
+      <tapa.obd.directive  id="63" saveCmpMsg="TRUE" />
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="2" rbType="1"
+             ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.delay delay="10" />
+      <tapa.obd.directive  id="64" saveCmpMsg="TRUE" />
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="2" rbType="1"
+            ueId="1" cellId="1"/>
+       </tapa.send>
+      <tapa.delay delay="10" />
+
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+      <!--       #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.ckw.cfgreq  ueId="1" cellId="1" numEnt="1"
+            rbId   = "1"
+            rbType = "0"
+            cfgType= "4"
+#Pradeep 
+            dir    = "3"
+         />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+            rbId    = "1"
+            rbType  = "0"
+            status = "1"
+         />
+       </tapa.expect>
+       -->
+         #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            cfgType= "4:4:4"
+
+         />
+      </tapa.send>
+   
+      <!--      # Send a Reestablishment request to RLC
+      <tapa.send>
+        <tapa.ckw.cfgreq ueId="1" cellId="1" numEnt="3"
+         rbId    = "2:1:2"
+         rbType  = "0:1:1"
+         cfgType = "4:4:4"
+         dir     = "3:3:2"
+         />
+   </tapa.send>  -->
+      
+
+     <tapa.expset>
+        <!--  <tapa.ckw.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            status = "1:1:1"
+            dir     = "3:3:2"
+            /> -->
+      <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            status = "1:1:1"
+         />
+      <!--      <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="4" bo="302" valdType="0" estHdrSz="3" staPduPrsnt="0"/>
+      <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="4" valdType="0" bo="604" estHdrSz="5" staPduPrsnt="0"/> -->
+          <tapa.cpj.reestcfm ueId="1" cellId="1" status="0" transId="-1"/>
+
+     </tapa.expset>
+
+
+      # Send data on DRB2 let discard tmr expire before integrity cfm received from
+      <tapa.obd.directive  id="61" saveCpMsg="TRUE" />
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="2" rbType="1"
+             ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.delay delay="10" />
+      <tapa.obd.directive  id="62" saveCpMsg="TRUE" />
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="2" rbType="1"
+            ueId="1" cellId="1"/>
+       </tapa.send>
+      <tapa.delay delay="10" />
+
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="1"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+         #Send a ReEstablishment request on SRB1
+         <!--    <tapa.send>
+         <tapa.ckw.cfgreq  ueId="1" cellId="1" numEnt="1"
+            rbId   = "1"
+            rbType = "0"
+            cfgType= "4"
+            dir    = "3"
+         />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+            rbId    = "1"
+            rbType  = "0"
+            status = "1"
+         />
+   </tapa.expect>  -->
+
+         #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            cfgType= "4:4:4"
+
+         />
+      </tapa.send>
+   
+      <!--    # Send a Reestablishment request to RLC
+      <tapa.send>
+        <tapa.ckw.cfgreq ueId="1" cellId="1" numEnt="3"
+         rbId    = "2:1:2"
+         rbType  = "0:1:1"
+         cfgType = "4:4:4"
+         dir     = "3:3:2"
+         />
+   </tapa.send>  -->
+      
+
+     <tapa.expset>
+          <tapa.cpj.reestcfm ueId="1" cellId="1" status="0" transId="-1"/>
+          <!--    <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="4" bo="906" valdType="1" estHdrSz="3" staPduPrsnt="0"/>
+          <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="4" valdType="1" bo="1208" estHdrSz="5" staPduPrsnt="0"/> -->
+      <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId   = "2:1:2"
+            rbType = "0:1:1"
+            status = "1:1:1"
+         />
+      <!--    <tapa.ckw.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+             rbId   = "2:1:2"
+            rbType = "0:1:1"
+            status = "1:1:1"
+            />  -->
+
+     </tapa.expset>
+
+     <tapa.delay delay="2" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.12
+#
+#       Desc:    Perform Reestablishment of DRB AM/UM when the PDU fails in OBD.
+#
+#       Notes:   TC_REEST_GRP4_7
+#                Prioity 2
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.12"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1, DRB1(AM), DRB3(UM) ueId=1/2, cellId=1, numEnt=1 .
+          2. Configure SRB2 ueId=1/2, cellId=1, numEnt=1 .
+          3. Send some data on SRB 1 from UE 1 to UE 2 and get confirmations.
+          4. Send some data on SRB 2 from UE 1 to UE 2 and get confirmations.
+          5. Send some data on SRB 1 from UE 1 and keep waiting for OBD output.
+          6. Send a re-est request for SRB1.
+          7. Send a re-est request for SRB2 also.
+          8. Expect the data to be discared at the SRBs.
+          9. Check for 0 SN when data transfer resumes."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init obdTmrInt0="5" obdWtTmrInt="100"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" selSecAct0="FALSE"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg discardTmr0="0" />
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb3cfg />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #initially send some data.
+      <!--  
+      <tapa.dummy.rgu.rxPduCreate cellId="1" ueId="1" numLch="2"
+          lchData="mode:lcId:numPdu:pduSzLst:isSegFlag:pduHdrLst(SN:FI:P:DC:RF:LSF:SO:LI:LISZ'LISZ);
+                   mode:lcId:numPdu:pduSzLst:isSegFlag:pduHdrLst(SN:FI:P:DC:RF:LI)"
+          lchData="1:4:2051,2051,2051,20:1:
+                   SN(0,1,2,3):FI(1,3,3,2):P(-1):DC(-1):RF(-1):LSF(-1):SO(-1):LI(-1):LILEN"
+          pdcppdutype="1(OOS)/2(DropPDUs)/3(Duplicate)/4(Invalid)"
+      />
+      -->
+      <!--      #Step 1. Send a pdcp pdu with sn as 5
+      <tapa.send>
+         <tapa.dummy.rgu.rxPdcpPduCreate cellId="1" ueId="1" numLch="1" transId="1" sn="0"
+            lchData="3:3:1:200:0:1:0:1:1:0:0:0:1:102"
+            pdcppdutype="5" />
+      </tapa.send>
+
+      #Step 2. MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="1" transId="1"
+            lchData="3:1:0" />
+      </tapa.send>   -->
+
+      #Step 3. Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId       = "1"
+            rbType     = "0"
+            intkey     = "123456789012345678901234567890123"
+            ctrlplnkey = "123456789012345678901234567890123"
+            usrplnkey  = "123456789012345678901234567890123"
+         />
+      </tapa.send>
+      #Step 4. Send ReEstablishment Requests.
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="2"
+            rbId   = "1:3"
+            rbType = "1:1"
+            cfgType= "4:4"
+         />
+      </tapa.send>
+   
+      #Step 5. Send a ReEstablishment request to RLC
+      <tapa.obd.directive  saveDecpMsg="TRUE" id="1"/>
+      <!--   <tapa.send>
+         <tapa.ckw.cfgreq  ueId="1" cellId="1" numEnt="3"
+            rbId   = "1:1:3"
+            rbType = "0:1:1"
+            cfgType= "4:4:4"
+            dir    = "3:3:3"
+         />
+   </tapa.send>  -->
+
+      #Step 6. Delay
+      <tapa.delay delay="10"/>
+
+      #Step 7. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="1" dropMsg="TRUE"/>
+      </tapa.send>
+
+      #Step 8. Delay
+      <tapa.delay delay="5"/>
+
+
+      #Step 9. Receive confirms
+      <tapa.expset>
+         <!--       <tapa.ckw.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="3"
+            rbId   = "1:1:3"
+            rbType = "0:1:1"
+            status = "1:1:1"
+            />  -->
+         #<tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" rbId="1" rbType="1" valdType="1"/>
+         <tapa.pju.staind  entity="ENTPX" rbId="1" rbType="1" cellId="1" ueId="1" valdType="1" 
+                           cause="2" bufPrsnt="0"/>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="0" transId="-1"/> 
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="2"
+            rbId   = "1:3"
+            rbType = "1:1"
+            status = "1:1"
+         />
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.13
+#
+#       Desc:    Perform Reestablishment of SRB 1/2 and DRB 1/2
+#
+#       Notes:   TC_REEST_GRP4_12
+#                Prioity 1
+#                SYNC and ASYNC
+#                Positive Testcase
+#              
+#       Module:  PDCP ReEst Module 
+#
+#       File:    pjac_grp5.xml
+#
+#
+<tapa.testcase id="5.13"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="reest"/>
+
+      <tapa.desc>
+         "To verify ReEstablishment of SRBs and DRBs "
+      </tapa.desc>
+
+      <tapa.longdesc>
+        " 1. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          2. Configure SRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          3. Configure DRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          4. Configure DRB1 on RLC and PDCP on ueId=1/2, cellId=1.
+          5. ReEstablish SRB1 on PDCP and RLC.
+          6. Reestablish SRB2, DRB1 on PDCP and RLC.
+          7. Verify successful reestablishment of SRB1.
+          8. Verify successful reestablishment of SRB1, DRB1 and DRB2.
+          9. Shutdown the layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg/>
+
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg   statusRepReqd0="0"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      #ReEstablish  SRB1
+      <tapa.pj.srb1.reEstReq />
+
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="3"
+            rbType="1"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" rbId="1" rbType="0" status="1"
+            transId="-1" />
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+         />
+      </tapa.expset>
+
+      <tapa.delue1N2 />
+   
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     vb  1. LTE PDCP Initial Release 2.1.
+#*********************************************************************91*/
+

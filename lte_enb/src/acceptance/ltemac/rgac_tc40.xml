@@ -1,0 +1,3400 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE-MAC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases For CA PFS 
+#
+#     File:    rgac_tc40.xml
+#
+#     Sid:     rgac_tc40.xml@@/main/1 - Thu Mar 26 01:11:03 2009
+#
+#     Prg:     sagarwal
+#
+#*********************************************************************21*/
+
+#
+#       Test:    40.1
+#
+#       Desc:   DL Scheduling on PCELL using PFS Sched Type for DRB0
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL using PFS Sched Type for DRB0
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL using PFS Sched Type for DRB0
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #Initialize 1 UE per instance
+      <tapa.rg.multiInst1UeOnFirstCell ueId="0" uniqueRntiVldt="FALSE"/>
+    
+      <tapa.rg.addSecCell ueId="0" cellId="3"/>
+
+      <tapa.send>
+         <tapa.rgr.actDeact.scell sCellActionType="2"/>
+      </tapa.send>
+      # expect cfm in the same tti
+      <tapa.expect>
+         <tapa.rgr.cfgCfm ueId="0"/>
+      </tapa.expect>
+      # Send TTI tick to get CE scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="4"  validate="TRUE" chkSCellDeActCe="TRUE" deActCeVal="2" />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req expRecpReq="1" schInstId="5" spId="0">
+               <tapa.tfu.hq.recp.req ueId="0"/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send>
+
+      # Steps for LC creation for 1st Ue on instance 0
+      # Configure a dedicated logical channel for the created UE  
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch instId="0"  ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm instId="0"/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="3" lcType="4" instId="5" spId="0" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5" spId="0"/>
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="18" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      #Steps for BO Updation
+      #Send BO for UE1 on instance 0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="800"/>
+      </tapa.send>
+      #Steps for BO Updation
+ 
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expect>
+
+      <!--
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expect>
+      -->
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="4"/>
+      </tapa.send>
+ 
+      <!--
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="1" lchTb1Data="4"/>
+       </tapa.send>
+       -->
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     <tapa.expset>
+      	<tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+      		<tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+      		<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="0" validate="TRUE"/>
+      	</tapa.tfu.dat.req>
+
+         <!--
+      	<tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+      		<tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+      		<tapa.tfu.pdsch.dat.req lcId="4" ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+         -->
+      </tapa.expset>         
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req schInstId="5" spId="0" ueId="0" >
+               <tapa.tfu.hq.recp.req/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      # ACK sent for First BO
+      # Send ACK for the received PDU
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+              <tapa.tfu.hq ueId="0"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+      -->
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>  
+
+#
+#       Test:    40.2
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+#                with 1 LC
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with 1 LC
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with 1 LC
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #Initialize 1 UE per instance
+      <tapa.rg.multiInst1UeOnFirstCell ueId="0" uniqueRntiVldt="FALSE" ambrPres="TRUE" dlAmbr="2000"/>
+    
+      <tapa.rg.addSecCell ueId="0" cellId="3"/>
+
+      <tapa.send>
+         <tapa.rgr.actDeact.scell sCellActionType="2"/>
+      </tapa.send>
+      # expect cfm in the same tti
+      <tapa.expect>
+         <tapa.rgr.cfgCfm ueId="0"/>
+      </tapa.expect>
+      # Send TTI tick to get CE scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="4"  validate="TRUE" chkSCellDeActCe="TRUE" deActCeVal="2" />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req expRecpReq="1" schInstId="5" spId="0">
+               <tapa.tfu.hq.recp.req ueId="0"/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send>
+
+      <tapa.send>
+         # Configure a GBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="3" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Configure an AMBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      # Configure GBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="3" dir="1" lcType="4"
+            dlQci="1" instId="5" dlGbr="4000" dlMbr="5000"/>
+      </tapa.send>
+
+      # Configure AMBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4"
+            dlQci="7" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the successful confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset> 
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="18" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      #Steps for BO Updation
+      #Send BO for UE1 on instance 0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+      #Steps for BO Updation
+ 
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+      </tapa.send>
+ 
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+       </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+         <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+          <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>         
+
+    # Send TTI indication for default cell
+    <tapa.send>
+       <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+    </tapa.send>
+
+    <tapa.expset>
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+          <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>          
+
+    # Send TTI indication for default cell
+    <tapa.send>
+       <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+    </tapa.send>
+
+    ## expect hq feedback for the first Ue's on both instance
+    <tapa.expect>
+       <tapa.tfu.recp.req schInstId="5" spId="0" ueId="0" >
+               <tapa.tfu.hq.recp.req/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req schInstId="5" spId="0" ueId="0" >
+            <tapa.tfu.hq.recp.req/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send> 
+
+      # ACK sent for First BO
+      # Send ACK for the received PDU
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send> 
+
+      # ACK sent for Second BO
+      # Send ACK for the received PDU
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send> 
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>   
+
+#
+#       Test:    40.3
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 2 UE
+#                with multiple LCs
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+ 
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="1" lchTb1Data="4"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+          <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>          
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>     
+
+#
+#       Test:    40.4
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 2UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 2 is fav cell for both the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for both Ues  throgh PCELL and SCELL
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 2 is fav cell for both the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for both Ues  throgh PCELL and SCELL
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 2 is fav cell for both the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for both Ues  throgh PCELL and SCELL
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+ 
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+       <tapa.send>
+          # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="1" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+       <tapa.send>
+          # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="1" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send> 
+
+       # Send TTI indication for default cell
+       <tapa.send>
+          <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+       </tapa.send>
+
+       <tapa.expset>
+          <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="2"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="3"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="2" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="1" use="3" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>      
+
+#
+#       Test:    40.5
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for both the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 throgh Scell (CELL2)
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 1 as secondary cell.
+         3. Cell 1 is fav cell for both the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2).
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 1 as secondary cell.
+         3. Cell 1 is fav cell for both the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2).
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1" 
+         dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="1" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+       <tapa.send>
+          # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+       # Send TTI indication for default cell
+       <tapa.send>
+          <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+       </tapa.send>
+
+       <tapa.expset>
+          <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+
+          <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+          <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>       
+
+#
+#       Test:    40.6
+#
+#       Desc:    1. Attach 3 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 throgh Scell (CELL2). Data should not be 
+#                   scheduled for UE3 through any of the cell.  
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). Data should not be
+            scheduled for UE3 through any of the cell.
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). Data should not be
+            scheduled for UE3 through any of the cell.
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1" 
+         dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0;4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="2" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0" deActTmrVal="-1"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" /> 
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="1" numLchTb1="1" lchTb1Data="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+            <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.dat.req macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+         </tapa.tfu.dat.req> 
+
+         <tapa.tfu.dat.req macInstId="1" spId="1">
+            <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>        
+
+#
+#       Test:    40.7
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 throgh Scell (CELL2). 
+#                6. LC of UE2 is repositioned in the priority Q and later
+#                   picked for scheduling throgh cell2.
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). 
+         6. LC of UE2 is repositioned in the priority Q and later
+            picked for scheduling throgh cell2.    
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). 
+         6. LC of UE2 is repositioned in the priority Q and later
+            picked for scheduling throgh cell2.    
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1" 
+         dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:3:1:4:1000:1500" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0;4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="300"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="400"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="500"/>
+      </tapa.send>
+
+      # send cqiRpt for cell2 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="1" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="1" sndCqi="TRUE"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" /> 
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+            <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.dat.req macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+         </tapa.tfu.dat.req> 
+
+         <tapa.tfu.dat.req macInstId="1" spId="1">
+            <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>         
+
+#
+#       Test:    40.8
+#
+#       Desc:    1. Attach 3 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. LC of UE2 is repositioned in the priority Q and later
+#                   not picked for scheduling through cell2.
+#                6. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE3 throgh Scell (CELL2). 
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. LC of UE2 is repositioned in the priority Q and later
+            not picked for scheduling through cell2.
+         6. Data should be scheduled for UE1 through Pcell (cell1) 
+            and for UE3 throgh Scell (CELL2). 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. LC of UE2 is repositioned in the priority Q and later
+            not picked for scheduling through cell2.
+         6. Data should be scheduled for UE1 through Pcell (cell1) 
+            and for UE3 throgh Scell (CELL2). 
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1" 
+         dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="2" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # send cqiRpt for cell2 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="1" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="1" sndCqi="TRUE"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" /> 
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+            <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="2" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.dat.req macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+         </tapa.tfu.dat.req> 
+
+         <tapa.tfu.dat.req macInstId="1" spId="1">
+            <tapa.tfu.pdsch.dat.req lcId="4" ueId="2" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>          
+
+#
+#       Test:    40.9
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+#                In some subframes new data is not schduled due to Retx is 
+#                being scheduled
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         In some subframes new data is not schduled due to Retx is 
+         being scheduled
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="800"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+      </tapa.send>
+ 
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>          
+
+    # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+     <tapa.expect>
+        <tapa.tfu.recp.req schInstId="5" spId="0"  >
+           <tapa.tfu.hq.recp.req ueId="0" useScellPdcchIdx="1" validate1B="FALSE" scellResIdx="1" isScell2ndTbValid="FALSE"/>
+        </tapa.tfu.recp.req>   
+     </tapa.expect>
+
+     # Send TTI indication for default cell
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+     # Sending NACK on Pcell and ACK on Scell 
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+           <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:0:0:0"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="800"/>
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+     # Expect Format1A 
+     <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+           <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+        <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+           <tapa.tfu.pdsch.dat.req lcId="3" ueId="0"  use="9" 
+              isTb1="TRUE"/>
+        </tapa.tfu.dat.req>
+        <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req saveTo="9" cellId="3" ueId="0" vldDciFrmt="TRUE" isFormat1a="TRUE"
+              isTb1Pres="TRUE" vldtRetx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+
+     </tapa.expset>  
+
+     <tapa.delay delay="1"/>      
+  </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+     #Command To ShutDown LTEMAC Layer
+     <tapa.rg.multiInstmacDeInit/>
+  </tapa.clean>
+
+  # Shutdown subsection
+  <tapa.shutdown/>
+
+</tapa.testcase>      
+
+#
+#       Test:    40.10
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+#                with multiple LCs. In some subframe Data is not scheduled through
+#                SCELL due to Retx is being scheduled for the same UE
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs. In some subframes new data is not schduled 
+         due to Retx is being scheduled
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs. In some subframes new data is not schduled 
+         due to Retx is being scheduled
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="1500"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+           <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>          
+
+    # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+     <tapa.expect>
+        <tapa.tfu.recp.req schInstId="5" spId="0"  >
+           <tapa.tfu.hq.recp.req ueId="0" useScellPdcchIdx="1" validate1B="FALSE" scellResIdx="1" isScell2ndTbValid="FALSE"/>
+        </tapa.tfu.recp.req>   
+     </tapa.expect>
+
+     # Send TTI indication for default cell
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+    # Sending NACK on Scell and ACK on Pcell 
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+           <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="0:0:1:0"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="1500"/>
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+     </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+     </tapa.send>
+
+     # Expect Format1A 
+     <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+        <tapa.tfu.dat.req datReqs="1" macInstId="1" spId="1">
+           <tapa.tfu.pdsch.dat.req lcId="3" ueId="0"  use="9" 
+              isTb1="TRUE"/>
+        </tapa.tfu.dat.req>
+        <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="1">
+           <tapa.tfu.pdcch.cntrl.req saveTo="9" cellId="4" ueId="0" vldDciFrmt="TRUE" isFormat1a="TRUE"
+              isTb1Pres="TRUE" vldtRetx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+
+     </tapa.expset>  
+
+     <tapa.delay delay="1"/>      
+  </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+     #Command To ShutDown LTEMAC Layer
+     <tapa.rg.multiInstmacDeInit/>
+  </tapa.clean>
+
+  # Shutdown subsection
+  <tapa.shutdown/>
+
+</tapa.testcase>       
+
+#
+#       Test:    40.11
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 2 UE
+#                with multiple LCs in MIMO case
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs in MIMO case
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with multiple LCs in MIMO case
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10" numTxAntPorts="2"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0" txModeEnum="RGR_UE_TM_3"/> 
+
+      # send Ri Repprt for cell1 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="0" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="0" sndCqi="TRUE" sndRi="TRUE"/>
+      </tapa.send>
+
+      # send Ri Repprt for cell2 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="1" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="0" sndCqi="TRUE" sndRi="TRUE"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3"  numLchTb2="2" lchTb2Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="2" lchTb1Data="3:4" numLchTb2="1" lchTb2Data="4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>      
+
+#
+#       Test:    40.12
+#
+#       Desc:    1. Attach 3 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 throgh Scell (CELL2). Data should not be 
+#                   scheduled for UE3 through any of the cell.  
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). Data should not be
+            scheduled for UE3 through any of the cell.
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1)
+            and for UE2 throgh Scell (CELL2). Data should not be
+            scheduled for UE3 through any of the cell.
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0;4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="2" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0" deActTmrVal="-1"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" /> 
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="1" lchTb1Data="3"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="1" numLchTb1="1" lchTb1Data="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+            <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.dat.req macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+         </tapa.tfu.dat.req> 
+
+         <tapa.tfu.dat.req macInstId="1" spId="1">
+            <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>        
+
+#
+#       Test:    40.13
+#
+#       Desc:    1. Attach 3 Ues on cell 1 with 1UE/tti
+#                2. Add cell 2 as secondary cell.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. LC of UE2 is repositioned in the priority Q and later
+#                   not picked for scheduling through cell2.
+#                6. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE3 throgh Scell (CELL2). 
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. LC of UE2 is repositioned in the priority Q and later
+            not picked for scheduling through cell2.
+         6. Data should be scheduled for UE1 through Pcell (cell1) 
+            and for UE3 throgh Scell (CELL2). 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 3 Ues on cell 1 with 2UE/tti
+         2. Add cell 2 as secondary cell.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. LC of UE2 is repositioned in the priority Q and later
+            not picked for scheduling through cell2.
+         6. Data should be scheduled for UE1 through Pcell (cell1) 
+            and for UE3 throgh Scell (CELL2). 
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="2" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # send cqiRpt for cell2 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="1" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="1" sndCqi="TRUE"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" /> 
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+            <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="2" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+
+         <tapa.tfu.dat.req macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+         </tapa.tfu.dat.req> 
+
+         <tapa.tfu.dat.req macInstId="1" spId="1">
+            <tapa.tfu.pdsch.dat.req lcId="4" ueId="2" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+       </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>          
+
+
+#
+#       Test:    40.14
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+#                2. Add cell 2 as secondary cell for UE1.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 alos throgh PCell (CELL2). 
+#                6. Data should be scheduled for UE3 through Cell4 and UE1
+#                   remaining Data should also be scheduled through Cell4
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 alos throgh PCell (CELL2). 
+         6. Data should be scheduled for UE3 through Cell4 and UE1
+              remaining Data should also be scheduled through Cell4
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 alos throgh PCell (CELL2). 
+         6. Data should be scheduled for UE3 through Cell4 and UE1
+              remaining Data should also be scheduled through Cell4
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.fiveInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.fiveInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.fiveInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"
+         maxUePerDlSf="2" maxDlUeNewTxPerTti="2" cfi="1" maxDlHqTx="1" maxDlBwPerUe="50"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:3:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.nonCa ueId="2" cellId="4" suId="1" spId="1"
+         instId="1" macInstId="1" macInst="0" ambrPres="TRUE" dlAmbr="400" lchData="3:1:1:4:4000:5000"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="300"/>
+      </tapa.send>
+
+      # Data For UE 2 in Cell 2
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="1" cellId="4"  ueId="2" lcId="3" bo="500"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <!--
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         -->
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="2" saveTo="2"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="3"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="2" use="2" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="3" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.fiveInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>         
+
+
+
+#
+#       Test:    40.15
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+#                2. Add cell 2 as secondary cell for UE1.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 alos throgh PCell (CELL2). 
+#                6. Data should be scheduled for UE3 through Cell4 and UE1
+#                   remaining Data should also be scheduled through Cell4
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 also throgh PCell (CELL2). 
+         6. Data should be scheduled for UE3 through Cell2 and UE1
+            remaining Data should also be scheduled through Cell2. 
+         7. UE2 should not be scheduled through Cell2 as it has lower 
+            priority than UE1 in Cell2
+          
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 alos throgh PCell (CELL2). 
+         6. Data should be scheduled for UE3 through Cell2 and UE1
+            remaining Data should also be scheduled through Cell2. 
+         7. UE2 should not be scheduled through Cell2 as it has lower 
+            priority than UE1 in Cell2
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.fiveInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.fiveInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.fiveInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"
+         maxUePerDlSf="2" maxDlUeNewTxPerTti="2" cfi="1" maxDlHqTx="1" maxDlBwPerUe="50"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:3:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="4:3:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.nonCa ueId="2" cellId="4" suId="1" spId="1"
+         instId="1" macInstId="1" macInst="0" ambrPres="TRUE" dlAmbr="400" lchData="3:1:1:4:4000:5000"/> 
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Data For UE 2 in Cell 2
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="1" cellId="4"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="2" saveTo="2"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="3"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="2" use="2" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="3" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.fiveInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>         
+
+
+#
+#       Test:    40.16
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+#                2. Add cell 2 as secondary cell for UE1.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 alos throgh PCell (CELL2). 
+#                6. Data should be scheduled for UE1 and UE2 through Cell2 and
+#                   remove UE3 from Cell2 Scheduling list
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 also throgh PCell (CELL2). 
+         6. Data should be scheduled for UE1 and UE2 through Cell2
+         7. UE3(non-CA UE) should not be scheduled through Cell2 as it has lower 
+            priority than UE1 and UE2 in Cell2
+          
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 alos throgh PCell (CELL2). 
+         6. Data should be scheduled for UE3 through Cell2 and UE1
+            remaining Data should also be scheduled through Cell2. 
+         7. UE2(non-CA UE) should not be scheduled through Cell2 as it has lower 
+            priority than UE1 in Cell2
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.fiveInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.fiveInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.fiveInstCellInit dlSchdType="1" dlThroughputFactor="10"
+         dlFairnessFactor="0"
+         maxUePerDlSf="2" maxDlUeNewTxPerTti="2" cfi="1" maxDlHqTx="1" maxDlBwPerUe="50"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.nonCa ueId="2" cellId="4" suId="1" spId="1"
+         instId="1" macInstId="1" macInst="0" ambrPres="TRUE" dlAmbr="4000" lchData="3:7:1:4:0:0"/> 
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Data For UE 2 in Cell 2
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="1" cellId="4"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="2"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="3"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="2" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="3" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.fiveInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>         
+
+
+#
+#       Test:    40.17
+#
+#       Desc:    1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+#                2. Add cell 2 as secondary cell for UE1.
+#                3. Cell 1 is fav cell for all the UEs
+#                4. Configure one LC to each UE and pump the data.
+#                5. Data should be scheduled for UE1 through Pcell (cell1) 
+#                   and for UE2 alos throgh PCell (CELL2). 
+#                6. Data should be scheduled for UE1 and UE2 through Cell2 and
+#                   remove UE3 from Cell2 Scheduling list
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 also throgh PCell (CELL1). 
+         6. Data should be scheduled for UE3 and UE2 through Cell2
+         7. UE1 should not be scheduled through Cell2 as it has lower 
+            priority than UE3 and UE2 in Cell2
+          
+      </tapa.desc>
+
+      <tapa.longdesc>
+         1. Attach 2 Ues on cell 1 with 2UE/tti and 1 UE on Cell 2
+         2. Add cell 2 as secondary cell for UE1.
+         3. Cell 1 is fav cell for all the UEs
+         4. Configure one LC to each UE and pump the data.
+         5. Data should be scheduled for UE1 through Pcell (cell1) 
+              and for UE2 also throgh PCell (CELL1). 
+         6. Data should be scheduled for UE3 and UE2 through Cell2
+         7. UE1 should not be scheduled through Cell2 as it has lower 
+            priority than UE3 and UE2 in Cell2
+      </tapa.longdesc>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.fiveInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.fiveInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.fiveInstCellInit dlSchdType="1" dlThroughputFactor="10"
+         dlFairnessFactor="0"
+         maxUePerDlSf="2" maxDlUeNewTxPerTti="2" cfi="1" maxDlHqTx="1" maxDlBwPerUe="50"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="4:1:1:4:4000:5000" deActTmrVal="-1"/> 
+
+      <tapa.rg.pfsSim.ueCfg.nonCa ueId="2" cellId="4" suId="1" spId="1"
+         instId="1" macInstId="1" macInst="0" ambrPres="TRUE" dlAmbr="4000" lchData="3:1:1:4:4000:5000"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Data For UE 2 in Cell 2
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="1" cellId="4"  ueId="2" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      # send cqiRpt for cell2 
+      <tapa.send>
+         <tapa.rg.pfssim.cqiCfg cellId ="3" sCellIdx="1" ttiTime="330" cqiPattern="100"
+            cqiConfigPattern="4" ueLst="0" sndCqi="TRUE"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="4" valdtTrue="1" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="2" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="0">
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="1" saveTo="1"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.cntrl.req expCntrlReq="2" schInstId="5" spId="1">
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="2" saveTo="2"/>
+             <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="1" saveTo="3"/>
+          </tapa.tfu.cntrl.req>
+
+          <tapa.tfu.dat.req macInstId="0" spId="0">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="1" validate="TRUE"/>
+          </tapa.tfu.dat.req> 
+
+          <tapa.tfu.dat.req macInstId="1" spId="1">
+             <tapa.tfu.pdsch.dat.req lcId="3" ueId="2" use="2" validate="TRUE"/>
+             <tapa.tfu.pdsch.dat.req lcId="4" ueId="1" use="3" validate="TRUE"/>
+          </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.fiveInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>         
+
+
+#
+#       Test:    40.18
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+#                with multiple LCs
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with one GBr and one Non-GBR
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with one GBr and one Non-GBR
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1"/>
+
+      #Initialize 1 UE per instance
+      <tapa.rg.multiInst1UeOnFirstCell ueId="0" uniqueRntiVldt="FALSE" ambrPres="TRUE" dlAmbr="8000"/>
+    
+      <tapa.rg.addSecCell ueId="0" cellId="3"/>
+
+      <tapa.send>
+         <tapa.rgr.actDeact.scell sCellActionType="2"/>
+      </tapa.send>
+      # expect cfm in the same tti
+      <tapa.expect>
+         <tapa.rgr.cfgCfm ueId="0"/>
+      </tapa.expect>
+      # Send TTI tick to get CE scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="4"  validate="TRUE" chkSCellDeActCe="TRUE" deActCeVal="2" />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req expRecpReq="1" schInstId="5" spId="0">
+               <tapa.tfu.hq.recp.req ueId="0"/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send>
+
+      <tapa.send>
+         # Configure a GBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="3" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Configure an AMBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      # Configure GBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="3" dir="1" lcType="4"
+            dlQci="1" instId="5" dlGbr="8000" dlMbr="9000"/>
+      </tapa.send>
+
+      # Configure AMBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4"
+            dlQci="7" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the successful confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset> 
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="18" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="8000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="4" bo="2000"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 0
+          <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+ 
+      <tapa.send>
+         # Send DDatReq for 1st Ue on inst 1
+          <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+       </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="2" lchTb1Data="3:4" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="0" cellId="3" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq  instId="1" cellId="4" ueId="0" numLchTb1="2" lchTb1Data="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+          <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>         
+
+    <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>    
+
+#
+#       Test:    40.19
+#
+#       Desc:    DL Scheduling on PCELL and SCELL using PFS Sched Type with 2 UE
+#                with multiple LCs
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with one GBr and one Non-GBR
+         UE1 - GBR + AMBR
+         UE2 - GBR
+         Serve less data for UE1->GBR compared to UE2->GBR. Then push UE1 over
+         UE2 in cellId 4
+      </tapa.desc>
+
+      <tapa.longdesc>
+         DL Scheduling on PCELL and SCELL using PFS Sched Type with 1 UE
+         with one GBr and one Non-GBR
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" maxDlUeNewTxPerTti="1"/>
+
+      #lchData="lcId:qci:dir:lcType:gbr:mbr"
+      <tapa.rg.pfsSim.ueCfg.ca ueId="0" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:1:1:4:4000:5000;4:7:1:4:0:0"/> 
+
+      <tapa.rg.pfsSim.ueCfg.ca ueId="1" cellId="3" numSCells="1" sCellIdx="1" sCellId="4" suId="0" spId="0" instId="0" macInstId="0"
+         macInst="1" ambrPres="TRUE" dlAmbr="8000" lchData="3:7:1:4:0:0"/> 
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="1" lcId="3" bo="2000"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.dstaind instId="0" ueId="1" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+         <tapa.rgu.dstaind instId="1" ueId="1" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+          <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>         
+
+    <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>    
+
+#
+#       Test:    40.20
+#
+#       Desc:    Verify the Scell activation and deactivation with PFS
+#
+#       Notes:   None
+#
+#       Module:  "MAC Module"
+#
+#       File:    rgac_tc40.xml
+#
+#
+<tapa.testcase id="40.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         Verify the Scell activation and deactivation with PFS
+      </tapa.desc>
+
+      <tapa.longdesc>
+         Verify the Scell activation and deactivation with PFS
+      </tapa.longdesc>
+
+   </tapa.doc>
+ # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Initialize LTEMAC instances for 2 Cell
+      <tapa.rg.multiInstMacInit/>
+      #Initialize Saps for 2 Cells
+      <tapa.rg.multiInstCellSapInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Initialize Cells per instance
+      <tapa.rg.multiInstCellInit dlSchdType="1" dlThroughputFactor="10" dlFairnessFactor="10"/>
+
+      #Initialize 1 UE per instance
+      <tapa.rg.multiInst1UeOnFirstCell ueId="0" uniqueRntiVldt="FALSE" ambrPres="TRUE" dlAmbr="2000"/>
+    
+      <tapa.rg.addSecCell ueId="0" cellId="3"/>
+
+      <tapa.send>
+         <tapa.rgr.actDeact.scell sCellActionType="2"/>
+      </tapa.send>
+      # expect cfm in the same tti
+      <tapa.expect>
+         <tapa.rgr.cfgCfm ueId="0"/>
+      </tapa.expect>
+      # Send TTI tick to get CE scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="2" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1" schInstId="5" spId="0">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1" macInstId="0" spId="0">
+            <tapa.tfu.pdsch.dat.req lcId="4"  validate="TRUE" chkSCellDeActCe="TRUE" deActCeVal="2" />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     ## expect hq feedback for the first Ue's on both instance
+      <tapa.expect>
+         <tapa.tfu.recp.req expRecpReq="1" schInstId="5" spId="0">
+               <tapa.tfu.hq.recp.req ueId="0"/>
+            </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send TTI indication for waiting for hq feedback
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+            <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+         </tapa.tfu.hq.ind>   
+      </tapa.send>
+
+      <tapa.send>
+         # Configure a GBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="3" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Configure an AMBR DTCH at MAC (not scheduler) for UE 0
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0"
+            dir="3" lcType="4"/>
+      </tapa.send>
+
+      # Configure GBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="3" dir="1" lcType="4"
+            dlQci="1" instId="5" dlGbr="4000" dlMbr="5000"/>
+      </tapa.send>
+
+      # Configure AMBR DTCH (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4"
+            dlQci="7" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the successful confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset> 
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="16" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.rgu.dstarsp instId="0" cellId="3"  ueId="0" lcId="3" bo="1500"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="0" ueId="0" cellId="3" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.rgu.dstaind instId="1" ueId="0" cellId="4" numLchTb1="1" lchTb1Data="3" valdtTrue="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="1" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="0">
+           <tapa.tfu.pdcch.cntrl.req cellId="3" ueId="0" saveTo="0"/>
+     	 </tapa.tfu.cntrl.req>
+      
+       <tapa.tfu.dat.req macInstId="0" spId="0">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="0" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+
+       <tapa.tfu.cntrl.req expCntrlReq="1" schInstId="5" spId="1">
+          <tapa.tfu.pdcch.cntrl.req cellId="4" ueId="0" saveTo="1"/>
+       </tapa.tfu.cntrl.req>
+
+       <tapa.tfu.dat.req macInstId="1" spId="1">
+          <tapa.tfu.pdsch.dat.req lcId="3" ueId="0" use="1" validate="TRUE"/>
+       </tapa.tfu.dat.req>
+    </tapa.expset>         
+
+    <tapa.send>
+       <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="4" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+    </tapa.send>
+
+    <tapa.expect>
+       <tapa.tfu.recp.req schInstId="5" spId="0" ueId="0" >
+               <tapa.tfu.hq.recp.req/>
+            </tapa.tfu.recp.req>   
+    </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="3" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send>
+
+     <tapa.send>
+        <tapa.tfu.hq.ind hqInds="1" cellId="3" suId="0" schInstId="5">
+           <tapa.tfu.hq ueId="0" is1BWithCs="TRUE" hqBits="1:1:1:1"/>
+        </tapa.tfu.hq.ind>   
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind multiInstEna="1"  numInst="2" numTti="85" macInstId="0:1" schInstId="5" macSuId="0:1" schSuId="0:1" cellId="3:4"/>
+      </tapa.send> 
+
+      <tapa.delay delay="1"/>      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.multiInstmacDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown/>
+
+</tapa.testcase>    

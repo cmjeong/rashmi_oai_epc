@@ -1,0 +1,4211 @@
+#
+#/********************************************************************20**
+#
+#     Name:    PDCP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for UL/DL. Group 9. 
+#
+#     File:    pjac_grp4.xml
+#
+#     Sid:     $SID$
+#
+#     Prg:     Adarsh 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:1:Group 4 Test Cases :pjac_grp4.xml
+
+#
+#
+#       Test:    4.1
+#
+#       Desc:    PDCP Rx Status Indiation from RLC after Rx Threshold expire
+#       while sending data on SRB1
+#
+#       Notes:   Configure the Discard Timer value bigrs. 
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.1"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Handling Status Indication from RLC while sending data on SRB1.
+(TC_DL_UL_GRP3_7)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1, numEnt=1 (1-AM(SRB1)) successful configuration .
+          2. Config Request for RLC  and PDCP for 1 entities ueId=1, cellId=1.
+          3. Config Security for ueId=1, cellId=1.
+          4. ueId=2, cellId=1, numEnt=1 (1-AM(SRB1)) successful configuration .
+          5. Config Request for RLC  and PDCP for 1 entities  ueId=2, cellId=1.
+          6. Send Data on SRB1(ueId=1, CellId=1).
+          7. Receive Data on SRB1 (ueId=2, CellId=1).
+          8. Verify the data recived in step:7 is same data sent in step 6.
+          9. Send Data on SRB1(ueId=1, CellId=1)sduId=1,2,3.
+          10. At RGU Interface Send 1 and 3 packets to UE2.
+          11. PjuDataCfm with status PJU_RLC_TRANS_FAIL for sduId=2
+          12. Delete RLC UE entities.
+          13. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #kw002.201 Configure the SRB1 at RLC and PDCP Layer 
+      #kw005.201 Modified the value of amUlReOrdTmr0 from 20 to 2000
+      <tapa.srb1cfg amUlReOrdTmr0="200" discardTmr0="5000"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+      #Send Data on SRB1 and let RGU interface drop few pakcets 
+      # from udIe=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1drpkt/> 
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.2
+#
+#       Desc:    Integrity Verification Failure for SRB1 Data
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.2"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Handling Status Indication from RLC while sending data on SRB1.
+(TC_DL_UL_GRP3_9)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1, numEnt=1 (1-AM(SRB1)) successful configuration .
+          2. Config Request for RLC  and PDCP for 1 entities ueId=1, cellId=1.
+          3. Config Security for ueId=1, cellId=1.
+          4. ueId=2, cellId=1, numEnt=1 (1-AM(SRB1)) successful configuration .
+          5. Config Request for RLC  and PDCP for 1 entities  ueId=2, cellId=1.
+          6. Send Data on SRB1(ueId=1, CellId=1).
+          7. Receive Data on SRB1 with Integrity Verification Failure (ueId=2, CellId=1).
+          8. Delete RLC UE entities.
+          9. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+
+      <tapa.delay delay="2"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+     
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1" pdcpHdr="-1:-1:0:-1"
+            snSize="5" mode="3" vrfPdcp="TRUE" />
+      </tapa.expect>   
+
+      <tapa.obd.directive intVerFail="TRUE"/>
+      #Send SRB1 Data to Peer RLC
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2" lchData="0:0:0" rbId="1" rbType="0" />
+      </tapa.send>
+
+      <tapa.delay delay="20"/>
+
+    # Expect Status Indication with cause "PJU_INTVER_FAILED" at PJU for SRB1 Data
+      <tapa.expset>
+         <tapa.pju.staind entity="ENTNH" bufPrsnt="1" cellId="1" ueId="2" rbId="1" cause="1" inst="1"/>
+     </tapa.expset> 
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+     <tapa.dsrb1ue1T2 pdcpSn="2" />  
+
+      #Expect a Data Confirm at RRC for SRB1
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1 pdcpSn="1" />  
+     <tapa.delay delay="2"/>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.3
+#
+#       Desc:   PDCP Layer should send Discard Request to RLC after Disc Tmr Exp 
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.3"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "PDCP send Discard Request after Discard Tmr exp to RLC(TC_DL_UL_GRP3_25)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+          1. Configure SRB1 for ueId=1, cellId=1, discardTmr configuration.
+          2. Configure SRB1 for ueId=2, cellId=1, discardTmr configuration.
+          3. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          4. RLC Request Buffer to MAC, Do not send reply to RLC.
+          5. PDCP Discard Tmr Exp, PDCP Layer request to discard pkt at RLC. 
+          6. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Receive data at  DRB1(udId=2, CellId=1) sent in step 6.
+          8. Delete RLC UE entities.
+          9. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg />
+      <tapa.delay delay="2"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+      <!--   #Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq numLch="1" ueId="1" cellId="1" lchData="0:-1:0:1:1:-1:-1"
+           pdcpHdr="-1:-1:0:-1" snSize="5" mode="3" vrfPdcp="TRUE" /> 
+         </tapa.expect>    -->  
+     # TODO: Check the discard timer value. Let Dicard Timer expire 
+     <tapa.delay delay="20"/>
+     
+     #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2 pdcpSn="2" />
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1 pdcpSn="1" />
+
+       #Send Delete UE1 and UE2 from RLC and PDCP 
+       <tapa.delue1N2/>     
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.4
+#
+#       Desc:    De Compression Failure for DRB1(AM) and DRB2(UM)
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.4"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "De Compression Failure for DRB1(AM) and DRB2(UM) (TC_DL_UL_GRP3_27)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp, cfmReq enabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp, cfmReq enabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. DRB1(ueId=1, CellId=1),receive Rohc feedback pkt.
+          7. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          8. Delete RLC UE entities.
+          9. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg />
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+     #Step 1. Cfg DRB1
+      <tapa.drb1cfg hdrCompUsed0="1"/>
+     #Step 2. Cfg DRB3
+      <tapa.drb3cfg />
+ 
+      
+       #Step 7. Send DRB1 Data to Peer RLC
+      <tapa.obd.directive decmpFail="TRUE"/>
+
+       #Step 19. Send DRB1 Data to Peer RLC
+       <tapa.obd.directive decmpFail="TRUE"/>
+       
+  #Delete RCL and PDCP entity
+    <tapa.delue1N2/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.5
+#
+#       Desc:    Send out of sequence and Retrnsmit pdus at RUG 
+#
+#       Notes:  TODO: THis test need to re look 
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.5"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Out of Sequece packets at RGU interface and
+Retransmit((TC_DL_UL_GRP3_29)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1(AM)for ueId=1, cellId=1, cfmReq enabled with successful configuration.
+          2. Configure SRB2(AM)for ueId=2, cellId=1, cmfReq enabled with successful configuration.
+          3. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          4. At RGU Inteface inject out of sequence pkts.
+          5. At RGU Inteface retrnamit same packets.
+          6. Delete RLC UE entities.
+          7. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+       
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg />
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.ddrb1oos />
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.6
+#
+#       Desc:    Invalid PDCP PDU Type  
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.6"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Invalid PDU type in PDCP header ((TC_DL_UL_GRP3_33)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, cfmReq enabled with successful configuration.
+          2. Configure DRB2(AM)for ueId=2, cellId=1, cmfReq enabled with successful configuration.
+          3. Send Data from DRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          4. At RGU Inteface inject out of sequence pkts.
+          5. At RGU Inteface retrnamit same packets.
+          6. Delete RLC UE entities.
+          7. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="10"/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg discardTmr0="0"/>
+      <tapa.delay delay="2"/>
+
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.ddrb1oos />
+
+  #Delete RCL and PDCP entity
+     <tapa.delue1N2/>
+      <tapa.delay delay="2"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.7
+#
+#       Desc:    Discard timer expiry handling due to OBD integrity/ciphering
+#       late confirmation.  
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.7"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Discard timer expiry handling due to OBD integrity/ciphering late
+confirmation.(TC_DL_UL_GRP3_6)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1(AM: ueId=1, cellId=1) cfmReq,discardTmr enabled.
+          2. Configure DRB1(AM: ueId=1, cellId=1) cmfReq,discarTmr  enabled.
+          3. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          4. At OBD Integrity cfm will send after discard Timer expire.
+          5. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          6. At OBD Cipher cfm will send after discard Timer expire.
+          7. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          8. At OBD Comp cfm will send after discard Timer expire.
+          9. Send Data from DRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          10. At OBD Cipher cfm will send after discard Timer expire.
+          11. Send Data on SRB1 and DRB1
+          12. Delete RLC UE entities.
+          13. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr="1500" selSecAct0="FALSE"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg discardTmr="1000"/>
+      <tapa.delay delay="2"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+   # Send data on SRB1 let discard tmr expire before integrity cfm received from
+   # obd
+      <tapa.obd.directive saveIntMsg="TRUE" id="1"/>
+
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+    #TODO Let Discar Timer expire  
+    <tapa.delay delay="50"/>
+
+     #Expect a Data Confirm at RRC for SRB1 with PJU_DISCARD_TMR_EXP
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTNH" sduId="0" ueId="1" cellId="1" rbId="1"
+          status="2"
+        />
+      </tapa.expect>
+
+   # Late Reponse from OBD Intergrity Cfm 
+   <tapa.send>
+   <tapa.obd.intProt.out id="1"/>
+ 
+   </tapa.send>
+   # Send data on SRB1 let discard tmr expire before ciphering cfm received from
+   # obd
+      <tapa.obd.directive  saveCpMsg="TRUE" id="2"/>
+
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="2" sduSize="300" rbId="1"
+ueId="1" cellId="1"/>
+   </tapa.send>
+ 
+    #TODO Let Discar Timer expire  
+    <tapa.delay delay="50"/>
+
+     #Expect a Data Confirm at for SRB1 with PJU_DISCARD_TMR_EXP
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTNH" sduId="1" ueId="1" cellId="1" rbId="1"
+          status="2"
+        />
+      </tapa.expect>
+
+   # Late Reponse from OBD Cipher Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="2"/>
+   </tapa.send>
+
+
+   #Send the reconfig request for drb 1 with cmp enabled
+   <tapa.send>
+      <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="2"
+            rbType="1"
+            discReqd="1"
+            cfmReqd="1"
+            discardTmr="1000"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="0"
+            pdcpSNSize="12"
+    
+            hdrCompUsed="1"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+   </tapa.send>
+
+   #Expect a config confirm for the above reconfig request
+   <tapa.expect>
+      <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+         />
+   </tapa.expect>
+ 
+
+   #Send the reconfig request for drb 1 with cmp enabled
+   <tapa.send>
+      <tapa.cpj.cfgreq ueId="2" cellId="1" numEnt="1"
+           rbId="1"
+            cfgType="2"
+            rbType="1"
+            discReqd="1"
+            cfmReqd="1"
+            discardTmr="1000"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="0"
+            pdcpSNSize="12"
+    
+            hdrCompUsed="1"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+   </tapa.send>
+
+   #Expect a config confirm for the above reconfig request
+   <tapa.expect>
+      <tapa.cpj.cfgcfm ueId="2" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+         />
+   </tapa.expect>
+
+   # Send data on DRB1 let discard tmr expire before Compressor cfm received from
+   # obd
+   <tapa.obd.directive saveCmpMsg="TRUE" id="3"/>
+
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="3" sduSize="300" rbId="1" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+    #TODO Let Discar Timer expire  
+    <tapa.delay delay="50"/>
+
+     #Expect a Data Confirm at RRC for DRB1 with PJU_DISCARD_TMR_EXP
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduId="0" ueId="1" cellId="1" rbId="1" rbType="1"
+          status="2"
+        />
+      </tapa.expect>
+
+   # Late Reponse from OBD Compression Cfm 
+   <tapa.send>
+   <tapa.obd.comp.out id="3"/>
+   </tapa.send>
+      <tapa.delay delay="5"/>
+ 
+   # Send data on DRB1 let discard tmr expire before ciphering cfm received from
+   # obd
+   <tapa.obd.directive saveCpMsg="TRUE" id="4"/>
+
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+    #TODO Let Discar Timer expire  
+    <tapa.delay delay="50"/>
+
+     #Expect a Data Confirm for DRB1 with PJU_DISCARD_TMR_EXP
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduId="1" ueId="1" cellId="1" rbId="1" rbType="1"
+          status="2"
+        />
+      </tapa.expect>
+
+   # Late Reponse from OBD Cipher Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="4"/>
+   </tapa.send>
+
+   # Send data on SRB1
+    <tapa.dsrb1ue1T2  pdcpSn="2" />
+
+    # Send data on DRB1
+    <tapa.ddrb1ue1T2 bo="303" totBufSize0="310"  pdcpSn="2"/>
+
+    <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.8
+#
+#       Desc:    out of sequence messages from OBD integrity cfm/ciphering
+#       cfm/comp cfm.
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.8"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verify Out Of Sequence PDUs handling in PDCP(TC_DL_UL_GRP3_12)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1(AM: ueId=1, cellId=1) cfmReq,discardTmr enabled.
+          2. Configure DRB1(AM: ueId=1, cellId=1) cmfReq,discarTmr  enabled.
+          3. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          4. At OBD Integrity cfm will send OOS.
+          5. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          6. At OBD Cipher cfm will send OOS.
+          7. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          8. At OBD Comp cfm will send OOS.
+          9. Send Data from DRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          10. At OBD Cipher cfm will send OOS.
+          11. Send Data on SRB1 and DRB1
+          12. Delete RLC UE entities.
+          13. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+    
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="5"/>
+
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+      <tapa.delay delay="2"/> 
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg  hdrCompUsed0="1"  discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+   
+   # Send data on SRB1
+    <tapa.dsrb1ue1T2/>
+
+    # Send data on DRB1
+    <tapa.ddrb1ue1T2 bo="303" totBufSize0="315" />
+ 
+   <tapa.obd.directive saveIntMsg="TRUE" id="10"/>
+
+   # OOS Intergrity Cfm from OBD for SRB1
+   <tapa.send>
+      <tapa.pju.datreq entity="ENTNH" sduId="11" sduSize="300" rbId="1" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />  
+
+   <tapa.obd.directive saveIntMsg="TRUE" id="11"/>
+
+   <tapa.send>
+          <tapa.pju.datreq entity="ENTNH" sduId="11" sduSize="200" rbId="1" rbType="0"
+ueId="1" cellId="1"  />
+   </tapa.send>
+   
+   <tapa.delay delay="10" />  
+
+   # Late Reponse from OBD Intergrity Cfm 
+   <tapa.send>
+   <tapa.obd.intProt.out id="11"/>
+   </tapa.send>
+    
+  # Late Reponse from OBD Intergrity Cfm 
+  <tapa.send>
+   <tapa.obd.intProt.out id="10"/>
+  </tapa.send>
+ 
+    <tapa.obd.directive saveCpMsg="TRUE" id="20"/>
+
+  
+  # OOS Data from Ciphering CFM for SRB1
+    <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="20" sduSize="100" rbId="1" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />  
+
+    <tapa.obd.directive saveCpMsg="TRUE" id="21"/>
+   <tapa.send>
+          <tapa.pju.datreq entity="ENTNH" sduId="21" sduSize="300" rbId="1" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" /> 
+
+   # Late Reponse from OBD Intergrity Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="21"/>
+   </tapa.send>
+
+
+  # Late Reponse from OBD Intergrity Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="20"/>
+   </tapa.send>
+
+   <tapa.obd.directive  id="30" saveCmpMsg="TRUE" />
+
+   # OOS data from Comp OBD for DRB1 
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="30" sduSize="10" rbId="1" rbType="1" 
+ueId="1" cellId="1"/>
+   </tapa.send>
+
+
+   <tapa.delay delay="10" />  
+
+   <tapa.obd.directive  id="31" saveCmpMsg="TRUE" />
+
+   <tapa.send>
+     <tapa.pju.datreq entity="ENTNH" sduId="31" sduSize="20" rbId="1" rbType="1" 
+ueId="1" cellId="1"/>
+   </tapa.send>
+ 
+
+   <tapa.delay delay="10" />
+   # OOS Reponse from OBD Compression Cfm 
+   <tapa.send>
+   <tapa.obd.comp.out id="31"/>
+   </tapa.send>
+
+   
+   <tapa.send>
+   <tapa.obd.comp.out id="30"/>
+   </tapa.send>
+
+      <tapa.delay delay="2"/>
+
+  #Delete RCL and PDCP entity
+     <tapa.delue1N2/>
+
+      <tapa.delay delay="2"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.9
+#
+#       Desc:    Late OBD Response after deleting SRB(Integrity, Ciphering),
+#       DRB(UM, AM) for Ciphering and Compression.
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.9"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Verify confirmation handling from OBD in case of RB got deleted in
+between(TC_DL_UL_GRP3_17)" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1, SRB2(AM: ueId=1, cellId=1).
+          2. Configure DRB1(AM: ueId=1, cellId=1).
+          3. Configure DRB2(DL: UM: ueId=1, cellId=1).
+          3. Send Data from SRB2(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          4. Delete SRB2 before OBD Integrity cfm received.
+          5. Send Data from SRB2(ueId=1, CellId=1) to SRB2(udId=2, CellId=1).
+          6. Delete SRB1 before OBD Ciphering cfm received.
+          7. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          8. Delete DRB1 before OBD Comp cfm received.
+          9. Send Data from DRB2(ueId=1, CellId=1) to DRB2(udId=2, CellId=1).
+          10. Delete DRB1 before OBD Cipher cfm received.
+          11. Delete RLC UE entities.
+          12. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg discardTmr0="0" cfmReq="0" discReqd="0" hdrCompUsed0="1"  />
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb2cfg discardTmr0="0" cfmReq="0" discReqd="0" hdrCompUsed0="1" />
+      <tapa.delay delay="2"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+
+    <tapa.obd.directive saveCpMsg="FALSE" id="12"/>
+
+      # Send Data on SRB1
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="3" sduSize="99" rbId="1" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+
+   # Delete SRB1
+   <tapa.delsrb1/>
+
+   <tapa.delay delay="10" />
+
+    <tapa.obd.directive saveCpMsg="FALSE" id="11"/>
+   # Send Data on SRB2
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="2" sduSize="100" rbId="2" rbType="0"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   # Delete SRB2
+   <tapa.delsrb2/>
+
+   <tapa.delay delay="10" />
+
+    # Send Data on DRB1
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="100" rbId="1" rbType="1"
+ueId="1" cellId="1"  id="10"/>
+   </tapa.send>
+
+
+   # Delete DRB1
+   <tapa.deldrb1/>
+  <tapa.delay delay="10" /> 
+   # Send Data on DRB2
+    <tapa.obd.directive saveCmpMsg="FALSE" id="9"/>
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="10" sduSize="100" rbId="2" rbType="1"
+ueId="1" cellId="1"/>
+   </tapa.send>
+
+
+   # Delete DRB2
+   <tapa.deldrb2/>
+
+   <tapa.delay delay="10" />
+
+  #Delete RCL and PDCP entity
+  <tapa.delue1N2/>
+  <tapa.delay delay="2"/>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.10
+#
+#       Desc:    Late OBD Response after deleting UE. 
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Verify confirmation handling from OBD in case of UE got deleted in
+between.(TC_DL_UL_GRP3_18)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1, SRB2(AM: ueId=1, cellId=1).
+          2. Configure DRB1(AM: ueId=1, cellId=1).
+          3. Configure DRB2(DL: UM: ueId=1, cellId=1).
+          4. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          5. Send Data from SRB2(ueId=1, CellId=1) to SRB2(udId=2, CellId=1).
+          6. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Send Data from DRB2(ueId=1, CellId=1) to DRB2(udId=2, CellId=1).
+          8. Delete UE and send cfm for all msg from OBD .
+          9. Delete RLC UE entities.
+          10. Delete PDCP UE entities."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="5" obdWtTmrInt="3"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+      #Configure the SRB2 at RLC and PDCP Layer 
+      <tapa.srb2cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg discardTmr0="0"  hdrCompUsed0="1"  cfmReq="0" discReqd="0"/>
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb2cfg discardTmr0="0" hdrCompUsed0="1" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#SEND LATE DATA ON UE 1
+      <tapa.obd.directive saveCmpMsg="TRUE" id="1"/>
+
+      #Step 1. Send Data on DRB2
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="10" rbId="2" rbType="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #Step 2. Delay
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveCmpMsg="TRUE" id="2"/>
+
+      #Step 3. Send Data on DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="2" sduSize="10" rbId="1" rbType="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #Step 4. Delay
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveIntMsg="TRUE" id="3"/>
+
+      #Step 5. Send Data on SRB2
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="3" sduSize="10" rbId="2" rbType="0"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #Step 6. Delay
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveCpMsg="TRUE" id="4"/>
+
+      #Step 7. Send Data on SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="4" sduSize="10" rbId="1" rbType="0"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #Step 8. Delay
+      <tapa.delay delay="5"/>
+
+      #Step 9. Send UE Delete REq
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+            />
+      </tapa.send>
+
+      #Step 10. Delay
+      <tapa.delay delay="2"/>
+
+      #Step 11. Late Reponse from OBD Compression Cfm 
+      <tapa.send>
+         <tapa.obd.comp.out id="1"/>
+      </tapa.send>
+
+      #Step 12. Late Reponse from OBD Compression Cfm 
+      <tapa.send>
+         <tapa.obd.comp.out id="2"/>
+      </tapa.send>
+
+      #Step 13. Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.intProt.out id="3"/>
+      </tapa.send>
+
+      #Step 14. Late Reponse from OBD Cipher Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="4"/>
+      </tapa.send>
+
+      #Step 15. Send UE Delete REq
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+            />
+      </tapa.expect>
+
+      #Step 16. Delay
+      <tapa.delay delay="5"/>
+
+#SEND LATE DATA ON UE 2
+
+      <tapa.obd.directive saveCmpMsg="TRUE" id="6"/>
+
+      #Step 17. Send Data on DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="2" sduSize="10" rbId="1" rbType="1"
+            ueId="2" cellId="1" />
+      </tapa.send>
+
+      #Step 18. Delay
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveIntMsg="TRUE" id="7"/>
+
+      #Step 19. Send Data on SRB2
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="3" sduSize="10" rbId="2" rbType="0"
+            ueId="2" cellId="1" />
+      </tapa.send>
+
+      #Step 20. Delay
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveCpMsg="TRUE" id="8"/>
+
+      #Step 21. Send Data on SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="4" sduSize="10" rbId="1" rbType="0"
+            ueId="2" cellId="1" />
+      </tapa.send>
+
+      #Step 22. Delay
+      <tapa.delay delay="2"/>
+
+
+      #Step 24. Late Reponse from OBD Compression Cfm 
+      <tapa.send>
+         <tapa.obd.comp.out id="6"/>
+      </tapa.send>
+
+      #Step 25. Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.intProt.out id="7"/>
+      </tapa.send>
+
+      #Step 26. Late Reponse from OBD Cipher Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="8"/>
+      </tapa.send>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.11
+#
+#       Desc:    out of sequence messages from OBD integrity cfm/ciphering
+#       cfm/comp cfm and Integrity verification/DeComp failures.
+#
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.11"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verify handling of OBD confirmation in Out Of Sequence with one of
+the confirmation as failure.(TC_DL_UL_GRP3_24)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1(AM: ueId=1, cellId=1) .
+          2. Configure SRB2(AM: ueId=1, cellId=1) .
+          3. Configure DRB1(AM: ueId=1, cellId=1) .
+          4. Send Data from SRB1(ueId=1, CellId=1) to SRB1(udId=2, CellId=1).
+          5. At OBD Integrity Verfication cfm will send OOS and failure.
+          6. Send Data from SRB2(ueId=1, CellId=1) to SRB2(udId=2, CellId=1).
+          7. At OBD Intergrity Verfication cfm will send OOS and failure .
+          8. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          9. At OBD DeComp Verfication cfm will send OOS and failure .
+          10. Send Data from DRB2(ueId=1, CellId=1) to DRB2(udId=2, CellId=1).
+          11. At OBD DeComp Verfication cfm will send OOS and failure .
+          12. Delete RLC UE entities.
+          13. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg amUlReOrdTmr0="50" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer 
+      <tapa.drb1cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      <tapa.drb2cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+   
+   # Send data on SRB1
+    <tapa.dsrb1ue1T2 />
+
+    # Send data on DRB1
+    <tapa.ddrb1ue1T2   bo="303"  totBufSize0="319"  />
+
+    <tapa.obd.directive saveCpMsg="TRUE" id="12"/>
+
+   # OOS Cipher Cfm with fail from OBD for SRB1
+   <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="12" sduSize="30" rbId="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+   <tapa.obd.directive saveCpMsg="TRUE" cipFail="TRUE" id="13"/>
+
+   <tapa.send>
+          <tapa.pju.datreq entity="ENTNH" sduId="13" sduSize="10" rbId="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+   <tapa.delay delay="50" />
+
+   # OOS Reponse from OBD Cipher Cfm  and with failure
+   <tapa.send>
+   <tapa.obd.cipher.out id="13"/>
+   </tapa.send>
+    
+
+   <tapa.expect>
+       #Expect Status Indication with cause "PJU_INTVER_FAILED" at PJU for SRB1 Data
+         <tapa.pju.datcfm entity="ENTNH" sduSize="300"  numSdu="1" rbType="0" sduId="2" 
+            cellId="1" ueId="1" rbId="1" cause="1" status="0" />
+   </tapa.expect>
+  # Late Reponse from OBD Intergrity Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="12"/>
+   </tapa.send>
+
+      <tapa.obd.directive saveCpMsg="TRUE" id="40"/>
+
+   # OOS data from Cipher Cfm OBD for DRB2  with few failures
+   <tapa.send>
+
+         <tapa.pju.datreq entity="ENTPX" sduId="40" sduSize="10" rbId="2" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE" cipFail="TRUE" id="41"/>
+
+   <tapa.send>
+     <tapa.pju.datreq entity="ENTPX" sduId="41" sduSize="30" rbId="2" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+   <tapa.delay delay="50" />
+
+   # OOS Reponse from OBD Compression Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="41"/>
+   </tapa.send>
+
+   # No Data cfm as this is UM mode
+     # <tapa.expect>
+      #   <tapa.pju.datcfm entity="ENTPX" sduSize="300" sduId="2" status="0" rbType="1"
+            cellId="1" ueId="1" rbId="2" cause="1"/>
+     # </tapa.expect> 
+   <tapa.send>
+   <tapa.obd.cipher.out id="40"/>
+   </tapa.send>
+
+      <tapa.obd.directive saveCpMsg="TRUE" id="42"/>
+
+   # OOS data from Comp Cfm OBD for DRB2  with few failures
+   <tapa.send>
+
+         <tapa.pju.datreq entity="ENTPX" sduId="42" sduSize="10" rbId="2" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE" cipFail="TRUE" id="43"/>
+
+   <tapa.send>
+     <tapa.pju.datreq entity="ENTPX" sduId="43" sduSize="30" rbId="2" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+   <tapa.delay delay="50" />
+
+   # OOS Reponse from OBD Cipher Cfm 
+   <tapa.send>
+   <tapa.obd.cipher.out id="43"/>
+   </tapa.send>
+
+       #Expect Status Indication with cause "PJU_INTVER_FAILED" at PJU for SRB1 Data
+#     <tapa.expect>
+ #        <tapa.pju.datcfm entity="ENTPX" sduSize="300"  status="0" rbType="1" sduId="4"
+ #           cellId="1" ueId="1" rbId="2" cause="0"/>
+ #     </tapa.expect>
+   <tapa.send>
+   <tapa.obd.cipher.out id="42"/>
+   </tapa.send>
+      <tapa.obd.directive saveCmpMsg="TRUE" id="30"/>
+
+   # OOS data from Comp Cfm OBD for DRB1  with few failures
+   <tapa.send>
+
+         <tapa.pju.datreq entity="ENTPX" sduId="30" sduSize="10" rbId="1" rbType="1" 
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCmpMsg="TRUE" cmpFail="TRUE" id="31"/>
+
+   <tapa.send>
+     <tapa.pju.datreq entity="ENTPX" sduId="31" sduSize="30" rbId="1" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+
+   <tapa.delay delay="50" />
+   # OOS Reponse from OBD Compression Cfm 
+   <tapa.send>
+   <tapa.obd.comp.out id="31"/>
+   </tapa.send>
+
+       #Expect Status Indication with cause "PJU_INTVER_FAILED" at PJU for SRB1 Data
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduSize="300" sduId="6"
+            cellId="1" ueId="1" rbId="1" cause="1" rbType="1" />
+      </tapa.expect>
+
+   <tapa.delay delay="10" />
+
+   <tapa.send>
+   <tapa.obd.comp.out id="30"/>
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCmpMsg="TRUE" id="32"/>
+
+   # OOS data from Comp Cfm OBD for DRB1  with few failures
+   <tapa.send>
+
+         <tapa.pju.datreq entity="ENTPX" sduId="32" sduSize="10" rbId="1" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+   <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCmpMsg="TRUE" cmpFail="TRUE" id="33"/>
+
+   <tapa.send>
+     <tapa.pju.datreq entity="ENTPX" sduId="33" sduSize="30" rbId="1" rbType="1"
+ueId="1" cellId="1" />
+   </tapa.send>
+ 
+   <tapa.delay delay="50" />
+
+   # OOS Reponse from OBD Compression Cfm 
+   <tapa.send>
+   <tapa.obd.comp.out id="33"/>
+   </tapa.send>
+
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduSize="300"  sduId="8" rbType="1"
+            cellId="1" ueId="1" rbId="1" cause="1"/>
+      </tapa.expect>
+   <tapa.delay delay="10" />
+
+   <tapa.send>
+   <tapa.obd.comp.out id="32"/>
+   </tapa.send>
+
+   <tapa.delay delay="10" />
+
+  #Delete RCL and PDCP entity
+  <tapa.delue1N2/>
+      <tapa.delay delay="2"/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.12
+#
+#       Desc:    PDCP Rx no Status Indiation from RLC after Rx Threshold expire
+#                while sending data on SRB1
+#
+#       Notes:   TC_DL_UL_GRP3_8
+#                Priority 2
+#                Positive Testcase
+#                SYNC and ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.12"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Handling Status Indication from RLC while sending data on SRB1."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE 1,2 .
+          2. Send SRB1 data between UE1 and UE2.
+          3. Discard timer times out and send confirm.
+          4. Wait for reTx threshold to timeout.
+          5. Verify that no data confirm is received.
+          6. Shutdown layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      #kw005.201 Modified the value of amUlReOrdTmr0 from 20 to 200
+      <tapa.srb1cfg amUlReOrdTmr0="200" discardTmr0="500"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#SEND SOME INITIAL DATA
+      #Step 1. Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+      #Step 2. Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+
+      
+      #SEND PDCP SDU FROM NH INTERFACE FOR SRB1 : SDUID:1 WILL BE DROPPED
+      #Step 3. Send Data on SRB1 and let RGU interface drop few pakcets 
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1"  
+            pdcpHdr="-1:-1:0:-1" 
+            snSize="5" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+      #Step 7. Delay 
+      <tapa.delay delay="10"/>
+       #Send SRB1 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1" ueId="2" lchData="0:0:0" rbId="1" rbType="0"  />
+      </tapa.send>
+      #Expect a Data Confirm at RRC for SRB1
+      <tapa.expset>
+         <tapa.pju.datind entity="ENTNH"  ueId="2" cellId="1" rbId="1" rbType="0" status="0" numSdu="1"/>
+      </tapa.expset>
+
+
+#SEND PKT 2 PDCP SDU FROM NH INTERFACE FOR SRB1
+      #Step 9. Send Pkt 2 PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1"  
+            pdcpHdr="-1:-1:0:-1" 
+            snSize="5" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+       #Send SRB1 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1" ueId="2" lchData="0:0:0" rbId="1" rbType="0"  />
+      </tapa.send>
+      #Expect a Data Confirm at RRC for SRB1
+      <tapa.expset>
+         <tapa.pju.datind entity="ENTNH"  ueId="2" cellId="1" rbId="1" rbType="0" status="0" numSdu="1"/>
+      </tapa.expset>
+      
+
+#SEND PKT 2 PDCP SDU FROM NH INTERFACE FOR SRB1
+      #Step 23. Send Pkt 2 PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1"  
+            pdcpHdr="-1:-1:0:-1" 
+            snSize="5" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.13
+#
+#       Desc:    Integrity Verification Failure for SRB1 Data
+#
+#       Notes:   TC_DL_UL_GRP3_10
+#                Priority 2
+#                Positive Testcase
+#                SYNC and ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.13"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Handling Status Indication from RLC while sending data on SRB1"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Configure security with discReqd disabled.
+          3. Integrity verification fails.
+          4. Staus indication is not received.
+          5. Shutdown layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discReqd0="0" discardTmr0="1000" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+      <tapa.dsrb1ue1T2/>
+
+       #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+      <tapa.dsrb1ue2T1/>
+     
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1"  
+            pdcpHdr="-1:-1:0:-1" 
+            snSize="5" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+      <tapa.obd.directive intVerFail="TRUE"/>
+       #Send SRB1 Data to Peer RLC
+       <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1" ueId="2" lchData="0:0:0" rbId="1" rbType="0"  />
+      </tapa.send>
+
+      <tapa.delay delay="20"/>
+
+      #Expect Status Indication with cause "PJU_INTVER_FAILED" at PJU for SRB1 Data
+      <tapa.expset>
+         <tapa.pju.staind entity="ENTNH" bufPrsnt="1" cellId="1" ueId="2" rbId="1" cause="1"/>
+     </tapa.expset>  
+
+     #Send Data on SRB1 from ueId=1 CellId=1 to ueId=2 CellId=1 
+     <tapa.dsrb1ue1T2 pdcpSn="2" />
+
+     #Send Data on SRB1 from ueId=2 CellId=1 to ueId=1 CellId=1 
+     <tapa.dsrb1ue2T1 pdcpSn="1" />
+     <tapa.delay delay="2"/>
+
+     <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.14
+#
+#       Desc:    Discard timer expiry handling due to OBD integrity/ciphering
+#                late confirmation.  
+#
+#       Notes:   TC_DL_UL_GRP3_14
+#                Priority 2
+#                Positive Testcase
+#                SEC ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.14"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Discard timer expiry handling due to OBD integrity/ciphering late
+          confirmation." 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Send data from UE1 to UE 2.
+          3. At OBD Integrity cfm will be send after discard Timer expire.
+          4. Data is dropped.
+          5. Shutdown layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="10"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send data on SRB1 let discard tmr expire before integrity cfm received from
+      # obd
+      <tapa.obd.directive saveIntMsg="TRUE" id="1"/>
+
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #TODO Let OBD Timer expire  
+      <tapa.delay delay="5"/>
+
+      #Expect a Data Confirm at RRC for SRB1 with PJU_DISCARD_TMR_EXP
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTNH" sduId="0" ueId="1" cellId="1" rbId="1"
+            status="2"
+            />
+      </tapa.expect>
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.intProt.out id="1"/>
+      </tapa.send>
+
+      # Send data on SRB1 let discard tmr expire before ciphering cfm received from
+      # obd
+      <tapa.obd.directive saveCpMsg="TRUE" id="2"/>
+
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="2" sduSize="300" rbId="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      #TODO Let OBD Timer expire  
+      <tapa.delay delay="5"/>
+
+      #Expect a Data Confirm at for SRB1 with OBD Timer expiry
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTNH" sduId="1" ueId="1" cellId="1" rbId="1"
+            status="2"
+            />
+      </tapa.expect>
+
+      # Late Reponse from OBD Cipher Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="2"/>
+      </tapa.send>
+
+      #TODO Let OBD Timer expire  
+      <tapa.delay delay="5"/>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.15
+#
+#       Desc:    Verify handling of corrupted data bits.
+#
+#       Notes:   TC_DL_UL_GRP3_15
+#                Priority 2
+#                Positive Testcase
+#                SYNC and ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.15"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Discard timer expiry handling due to OBD integrity/ciphering late
+          confirmation." 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Send some data from UE1 and UE2.
+          2. Corrupt the reserved bits. Verify handling.
+          4. Data is dropped.
+          5. Shutdown layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.16
+#
+#       Desc:    Verify deletion of RB while handling of data.
+#
+#       Notes:   TC_DL_UL_GRP3_16
+#                Priority 2
+#                Positive Testcase
+#                SYNC and ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.16"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Discard timer expiry handling due to OBD integrity/ciphering late
+          confirmation." 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Send some data from UE1 and UE2.
+          2. Corrupt the reserved bits. Verify handling.
+          3. At OBD Integrity cfm will be send after discard Timer expire.
+          4. Data is dropped.
+          5. Shutdown layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#DELETE SRB1
+      #Step 1. Send a Delete UE Request for UE ID - 1 
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="0"
+            cfgType="3"
+         />
+      </tapa.send>
+      #Step 1. Expect a config confirm 
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="0"
+            status="1"
+            reason="0"
+         />
+      </tapa.expect>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.17
+#
+#       Desc:    Check to see if ACK is dropped when PDCP is deleted before ACK is received.
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.17"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Check to see if ACK is dropped when PDCP is deleted before ACK is received.(TC_DL_UL_GRP3_16)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+
+      <tapa.delay delay="2"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:-1:0:1:1:-1:-1"  
+            pdcpHdr="-1:-1:0:-1" 
+            snSize="5" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+       #Send SRB1 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1" ueId="2" lchData="0:0:0" rbId="1" rbType="0"  />
+      </tapa.send>
+      
+      #Expect a Data Confirm at RRC for SRB1
+      <tapa.expset>
+         <tapa.pju.datind entity="ENTNH"  ueId="2" cellId="1" rbId="1" rbType="0" status="0" numSdu="1"/>
+      </tapa.expset>
+
+      #Send a delete request for srb1 before confirmation is received.
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="3"
+            rbType="0"
+         />
+      </tapa.send>
+
+      #Expect a config confirm for the above reconfig request
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+         />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.kwu.datcfm cellId="1"  ueId="1" rbId="1" rbType="0"  /> 
+      </tapa.send>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.18
+#
+#       Desc:    OOS packets from OBD for a UM DRB.
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.18"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "OOS packets from OBD to a DRB UM in DL.(TC_DL_UL_GRP3_23)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+      <tapa.drb2cfg discardTmr0="0" />
+      <tapa.delay delay="2"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      # OOS Data from Ciphering CFM for SRB1
+      <tapa.obd.directive saveCpMsg="TRUE" id="20"/>
+
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="20" sduSize="100" rbId="2" rbType="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" />  
+   
+      <tapa.obd.directive saveCpMsg="TRUE" id="21"/>
+
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTNH" sduId="21" sduSize="300" rbId="2" rbType="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" /> 
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="21"/>
+      </tapa.send>
+
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="20"/>
+      </tapa.send>
+      <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveDecpMsg="TRUE" id="21" />
+
+      <tapa.delay delay="10" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="21"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="20"/>
+      </tapa.send>
+      <tapa.delay delay="2" />
+
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="2" valdType="1"/>
+      </tapa.expset>
+
+      <tapa.delue1N2/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.19
+#
+#       Desc:    Verification of ciphering/deciphering failures and OBD timer expiry for UM DRB.
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.19"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verification of ciphering/deciphering failures and OBD timer expiry for UM DRB.(TC_DL_UL_GRP3_26)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init obdTmrInt0="6"/>
+
+      <tapa.delay delay="2"/>
+       #Configure the SRB1 at RLC and PDCP Layer  
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer
+      <tapa.drb1cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      <tapa.drb2cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send data on DRB1
+      <tapa.ddrb1ue1T2   bo="303"  totBufSize0="319"  />
+
+      # OOS Cipher Cfm with fail from OBD for SRB1
+      <tapa.obd.directive saveCpMsg="TRUE" id="12"/>
+
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="12" sduSize="30" rbId="2" rbType="1"  
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE" cipFail="TRUE" id="13"/>
+
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="10"  rbId="2" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE"  id="14"/>
+
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="10"  rbId="2" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+ 
+      <tapa.delay delay="20" />
+
+      # OOS Reponse from OBD Cipher Cfm  and with failure
+      <tapa.send>
+         <tapa.obd.cipher.out id="13"/>
+      </tapa.send>
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="12"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.obd.cipher.out id="14"/>
+      </tapa.send>
+
+      <tapa.delay delay="80" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="21"/>
+      </tapa.send>
+
+     <tapa.delay delay="2" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="20"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+      <tapa.expset>
+         <tapa.pju.staind entity="ENTPX" bufPrsnt="0" cellId="1" ueId="2" rbId="2" cause="2" rbType="1" />
+          <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" valdType="1"/>
+      </tapa.expset>
+
+      <tapa.obd.directive saveCpMsg="FALSE"  id="14"/>
+
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="12"  rbId="2" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.obd.directive saveDecpMsg="TRUE" id="24" />
+      <tapa.delay delay="50" />
+      <tapa.expect>
+         <tapa.pju.staind entity="ENTPX" bufPrsnt="0" cellId="1" ueId="2" rbId="2" cause="2" rbType="1" />
+      </tapa.expect>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.20
+#
+#       Desc:    Verification of decompression failures. 
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.20"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verification of ciphering/deciphering failures (TC_DL_UL_GRP3_22)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+       #Configure the SRB1 at RLC and PDCP Layer  
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer
+      <tapa.drb1cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      <tapa.drb2cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.obd.directive feedback="TRUE" />
+      #Send PDCP SDU from NH interface for DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="0" sduSize="300" rbId="1" ueId="1" cellId="1" rbType="1" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at KWU
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:3:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" 
+            snSize="12" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+      #Send DRB1 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2"  rbId="1" rbType="1"
+            lchData="3:2:0,0:0,0:0,0:0,0"/>
+      </tapa.send>
+
+      #Expect DatInd at PJU for DRB1 Data
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq cellId="1" ueId="2" rbId="1" />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" 
+            cellId="1" ueId="2" rbId="1" rbType="1" status="0" numSdu="1"/>
+      </tapa.expset>
+
+      #Send a data Cfm to PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datcfm cellId="1"  ueId="1" rbId="1" rbType="1"
+            />
+      </tapa.send>
+
+      #Expect a Data Confirm at RRC for DRB1
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduId="0" status="0" numSdu="1" />
+      </tapa.expect> 
+
+      <tapa.obd.directive feedback="TRUE" />
+      # OOS Cipher Cfm with fail from OBD for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="12" sduSize="30" rbId="2" rbType="1"  
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="10"  rbId="2" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:4:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="-1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" vrfPdcp="TRUE" snSize="7" mode="2" />
+      </tapa.expect>
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:4:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="-1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" vrfPdcp="TRUE" snSize="7" mode="2" />
+      </tapa.expect>
+
+      <tapa.obd.directive decipFail="TRUE"/>
+       #Send DRB2 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2"  rbId="2" rbType="1"
+            lchData="4:1:0:0:0:0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.pju.staind entity="ENTPX" bufPrsnt="0" cellId="1" ueId="2" rbId="2" cause="2" rbType="1" />
+      </tapa.expect>
+       #Send DRB2 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2"  rbId="2" rbType="1"
+            lchData="4:1:0:0:0:0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq cellId="1" ueId="2" rbId="1" />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" valdType="1"/>  
+      </tapa.expset>
+
+      <tapa.delue1N2/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.21
+#
+#       Desc:    Verification of ciphering/deciphering failures and OBD OOS for DRB AM.
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.21"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verification of ciphering/deciphering failures and OOS for UM DRB.(TC_DL_UL_GRP3_32)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+       #Configure the SRB1 at RLC and PDCP Layer  
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer
+      <tapa.drb1cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      <tapa.drb2cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send data on DRB1
+      <tapa.ddrb1ue1T2   bo="303"  totBufSize0="319"  />
+
+      # OOS Cipher Cfm with fail from OBD for SRB1
+      <tapa.obd.directive saveCpMsg="TRUE" id="12"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="12" sduSize="30" rbId="1" rbType="1"  
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE" cipFail="TRUE" id="13"/>
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="10"  rbId="1" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+
+      <tapa.obd.directive saveCpMsg="TRUE"  id="14"/>
+      <tapa.send>
+          <tapa.pju.datreq entity="ENTPX" sduId="13" sduSize="10"  rbId="1" rbType="1" 
+            ueId="1" cellId="1" />
+      </tapa.send>
+ 
+      <tapa.delay delay="50" />
+
+      # OOS Reponse from OBD Cipher Cfm  and with failure
+      <tapa.send>
+         <tapa.obd.cipher.out id="13"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduId="2" ueId="1" cellId="1" rbId="1" rbType="1" status="6" numSdu="1"/>
+
+      </tapa.expect>
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="12"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.obd.cipher.out id="14"/>
+      </tapa.send>
+
+
+      <tapa.obd.directive saveDecpMsg="TRUE" id="20" decipFail="TRUE" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="21"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+      # Late Reponse from OBD Intergrity Cfm
+      <tapa.send>
+         <tapa.obd.decipher.out id="20"/>
+      </tapa.send>
+      <tapa.delay delay="20" />
+
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" valdType="1"/>
+         <tapa.pju.staind entity="ENTPX" bufPrsnt="0" cellId="1" ueId="2" rbId="1" cause="2" rbType="1" />
+      </tapa.expset>
+
+      <tapa.delue1N2/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.22
+#
+#       Desc:    Verification of invalid DRB PDUs for DRB AM.
+#                
+#       Notes:   
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.22"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         " Verification of invalid DRB AM  data PDUs. (TC_DL_UL_GRP3_31)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Configure DRB1(AM)for ueId=2, cellId=1, comp disabled with successful configuration.
+          3. Configure DRB2(UM, DL)for ueId=1, cellId=1, comp enabled  with successful configuration.
+          4. Configure DRB2(UM, UL )for ueId=2, cellId=1, comp enabled with successful configuration.
+          5. Send Data from DRB1(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          6. Send Data from DRB2(ueId=1, CellId=1) to DRB1(udId=2, CellId=1).
+          7. Verify the PDCP Header.
+          8. Get Rx/Tx Count
+          9. Get Count request  
+          10. Delete RLC UE entities.
+          11. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0/>
+
+      <tapa.delay delay="2"/>
+       #Configure the SRB1 at RLC and PDCP Layer  
+      <tapa.srb1cfg discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      #Configure the DRB1 at RLC and PDCP Layer
+      <tapa.drb1cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+      <tapa.delay delay="2"/>
+
+      <tapa.drb2cfg hdrCompUsed0="1" discardTmr0="0" cfmReq="0" discReqd="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.obd.directive feedback="TRUE" />
+      #Send PDCP SDU from NH interface for DRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="0" sduSize="300" rbId="1" ueId="1" cellId="1" rbType="1" />
+      </tapa.send>
+
+      #Expect the first SDU on DRB1 with size 307 at KWU
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:3:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" 
+            snSize="12" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>
+
+      #Send DRB1 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2"  rbId="1" rbType="1"
+            lchData="3:2:0,0:0,0:0,0:0,0"/>
+      </tapa.send>
+
+      #Expect DatInd at PJU for DRB1 Data
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq cellId="1" ueId="2" rbId="1" />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" 
+            cellId="1" ueId="2" rbId="1" rbType="1" status="0" numSdu="1"/>
+      </tapa.expset>
+
+      #Send a data Cfm to PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datcfm cellId="1"  ueId="1" rbId="1" rbType="1"
+            />
+      </tapa.send>
+
+      #Expect a Data Confirm at RRC for DRB1
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTPX" sduId="0" status="0" numSdu="1" />
+      </tapa.expect> 
+      
+      <tapa.obd.directive feedback="TRUE" />
+      #Send PDCP SDU from NH interface for DRB2
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="0" sduSize="300" rbId="2"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #Expect the first SDU on DRB2 with size 307 at KWU
+      # TODO: Need to look the lcID
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:4:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="-1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" vrfPdcp="TRUE" snSize="7" mode="2" />
+      </tapa.expect>
+
+       #Send DRB2 Data to Peer PDCP
+      <tapa.send>
+         <tapa.dummy.kwu.datind numLch="1" cellId="1"  ueId="2"  rbId="2" rbType="1"
+            lchData="4:1:0:0:0:0"/>
+      </tapa.send>
+     
+      #Expect DatInd at PJU for DRB2 Data
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq cellId="1" ueId="2" rbId="2" />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" 
+            cellId="1" ueId="2" rbId="2"  rbType="1" status="0" numSdu="1"/>
+      </tapa.expset>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.23
+#
+#       Desc:    Discard timer expiry handling due to OBD integrity/ciphering
+#                late confirmation and delivery of remaining ones.  
+#
+#       Notes:   TC_DL_UL_GRP3_34
+#                Priority 2
+#                Positive Testcase
+#                SEC_ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.23"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Discard timer expiry handling due to OBD integrity/ciphering late
+          confirmation and delivery of remaining ones." 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Send data from UE1 to UE 2 - 3 SDUs.
+          3. At OBD Integrity cfm will be send after OBD Timer expire.
+          4. Update the variables and send the next PDU to the lower layer.
+          5. Output the 3rd SDU from off-board and expect that one also.
+          6. Shutdown the layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="10"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send data on SRB1 let discard tmr expire before integrity cfm received from
+      # obd
+      <tapa.obd.directive saveIntMsg="TRUE" id="1"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="2"/>
+      <tapa.obd.directive saveCpMsg="FALSE" id="2"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="2" sduSize="200" rbId="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+
+
+      #TODO Let OBD Timer expire  
+      <tapa.delay delay="5"/>
+
+      <tapa.obd.directive saveCpMsg="TRUE" id="3"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="2" sduSize="300" rbId="1"
+            ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.delay delay="2"/>
+
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.intProt.out id="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="2"/>
+      # Late Reponse from OBD Intergrity Cfm 
+      <tapa.send>
+         <tapa.obd.cipher.out id="3"/>
+      </tapa.send>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.24
+#
+#       Desc:    Check that SRB deliver to the upper layer in sequence
+#                even if it is received out of sequence from off board.
+#
+#       Notes:   TC_DL_UL_GRP3_36
+#                Priority 2
+#                Positive Testcase
+#                SEC_ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.24"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Received from off board out of sequence but sent to the upper
+          layer in sequence "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure SRB1 for UE1 and UE2.
+          2. Send data from UE2 to UE1
+          3. At OBD return them out of sequence. 
+          4. Check that it is delivered properly at the PJU interface.
+          5. Shutdown the layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="3"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" selSecAct0="FALSE"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+
+#PUMP 4 DATA FROM UE2
+
+      #Step 1. Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #Step 2. Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 3. Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 4. Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="1" sduSize="300" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+       #Step 8. Send SRB1 Data to Peer RLC
+      <tapa.obd.directive seqStart="TRUE" seqOn="TRUE" saveDecpMsg="TRUE" />
+
+      #Step 9. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+      <tapa.obd.directive seqOn="FALSE" />
+
+
+#PUMP THE DATA FROM OBD
+      #Step 11. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="1"/>
+      </tapa.send>
+
+      #Step 12. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 13. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="2" dropMsg="TRUE"/>
+      </tapa.send>
+
+      #Step 14. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 15. Pump data from obd
+      <tapa.obd.directive saveIntVerMsg="TRUE" id="3"/>
+      <tapa.send>
+         <tapa.obd.decipher.out id="3" />
+      </tapa.send>
+
+      #Step 16. delay for actvTsk to be called 
+      <tapa.delay delay="10"/>
+
+      #Step 17. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="4"/>
+      </tapa.send>
+
+      #Step 18. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 19. Pump data from obd
+      <tapa.send>
+         <tapa.obd.intVer.out id="3" />
+      </tapa.send>
+
+      #Step 20. delay for actvTsk to be called 
+      <tapa.delay delay="30"/>
+
+#RECEIVE THE DATA AT PJU INTERFACE
+      #Step 21. Expect datInd
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTNH" sduSize="300" cellId="1" ueId="2" rbId="1" rbType="0"/>
+         <tapa.pju.datind  entity="ENTNH" sduSize="300" cellId="1" ueId="2" rbId="1" rbType="0"/>
+         <tapa.pju.datind  entity="ENTNH" sduSize="300" cellId="1" ueId="2" rbId="1" rbType="0"/>
+         <tapa.pju.staind  entity="ENTNH" rbId="1" rbType="0" cellId="1" ueId="2" valdType="1" 
+                           cause="2" bufPrsnt="0"/>
+      </tapa.expset>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.25
+#
+#       Desc:    Check that DRB UM deliver to the upper layer in sequence
+#                even if it is received out of sequence from off board.
+#
+#       Notes:   TC_DL_UL_GRP3_36
+#                Priority 2
+#                Positive Testcase
+#                SEC_ASYNC  and CMP_ASYNC
+#              
+#       Module:  PDCP UL/DL Module 
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.25"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="dlul"/>
+
+      <tapa.desc>
+         "Received from off board out of sequence but sent to the upper
+          layer in sequence "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB2 for UE1 and UE2 in UM mode.
+          2. Send data from UE1 to UE2.
+          3. At OBD return them out of sequence. 
+          4. Check that it is delivered properly at the PJU interface.
+          5. Shutdown the layer.
+          "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init0 obdTmrInt0="5"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="0" selSecAct0="FALSE"/>
+
+      #Configure the DRB2 at RLC and PDCP Layer 
+      <tapa.drb3cfg discardTmr0="0" />
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+
+#PUMP 6 DATA FROM UE2
+
+      #Step 1. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 2. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 3. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 4. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 5. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      #Step 6. Send PDCP SDU from NX interface for DRB3
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduSize="300" rbId="3"  rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+
+#MARK THE DATA TO BE SAVED IN OFFBOARDING
+      <tapa.obd.directive seqStart="TRUE" seqOn="TRUE" saveDecpMsg="TRUE" />
+
+      #Step 11. delay for actvTsk to be called 
+      <tapa.delay delay="20"/>
+      <tapa.obd.directive seqOn="FALSE" />
+
+#PUMP THE DATA FROM OBD
+      #Step 12. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="1" dropMsg="TRUE"/>
+      </tapa.send>
+
+      #Step 13. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 14. Pump data from obd
+      <tapa.obd.directive saveDecmpMsg="TRUE" id="2"/>
+      <tapa.send>
+         <tapa.obd.decipher.out id="2" />
+      </tapa.send>
+
+      #Step 15. delay for actvTsk to be called 
+      <tapa.delay delay="50"/>
+
+      #Step 16. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="3" />
+      </tapa.send>
+
+      #Step 17. delay for actvTsk to be called 
+      <tapa.delay delay="10"/>
+
+      #Step 18. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="4"/>
+      </tapa.send>
+
+      #Step 19. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 20. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decomp.out id="2" />
+      </tapa.send>
+
+      #Step 21. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 22. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="6"/>
+      </tapa.send>
+
+      #Step 23. delay for actvTsk to be called 
+      <tapa.delay delay="10"/>
+
+      #Step 24. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="5"/>
+      </tapa.send>
+      #Step 25. delay for actvTsk to be called 
+      <tapa.delay delay="5"/>
+
+      #Step 26. delay for actvTsk to be called 
+      <tapa.delay delay="30"/>
+
+#RECEIVE THE DATA AT PJU INTERFACE
+      #Step 27. Expect datInd
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+         <tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+        #<tapa.pju.datind  entity="ENTPX" sduSize="300" cellId="1" ueId="2" rbId="3" rbType="1" valdType="1"  />
+
+         <tapa.pju.staind  entity="ENTPX" rbId="3" rbType="1" cellId="1" ueId="2" valdType="1"  cause="2" bufPrsnt="0"/>
+      </tapa.expset>
+
+      <tapa.delue1N2/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    4.26
+#
+#       Desc:    Verify SDU size with more than 8188 octets
+#
+#       Notes:  Send data after enabling the security. 
+#              
+#       Module:  External TCs
+#
+#       File:    kwac_grp7.xml
+#
+#
+<tapa.testcase id="4.26"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:8.5.0" section="None"/>
+      <tapa.module id="External"/>
+
+      <tapa.desc>
+         "Verify SDU size with more than 8188 octets"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+      <tapa.ifndef>
+         <tapa.flag id="CCPU_OPT"/>
+      </tapa.ifndef>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+      <tapa.delay delay="2"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send PDCP SDU from NH interface for SRB1
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTNH" sduId="0" sduSize="8190" rbId="1" rbType="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.pju.datcfm entity="ENTNH" sduId="0" ueId="1" cellId="1" rbId="1" rbType="0" status="1" numSdu="1"/>
+      </tapa.expect>
+   <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.27
+#
+#       Desc:    PDCP SN Wrap around Check 
+#
+#       Notes:   
+#              
+#       Module:  Internal TCs
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.27"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:9.0.0" section="None"/>
+      <tapa.module id="External"/>
+
+      <tapa.desc>
+         "Verify that PDCP Sequence number wraps around after 4095"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Send Data from DRB1(ueId=1, CellId=1) 4095 times.
+          3. Send Data from DRB1 with PDCP SN=0.
+          4. Delete RLC UE entities.
+          5. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+
+      <tapa.delay delay="2"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+     #Cfg DRB1 and DRB2 
+      <tapa.drb1cfg discardTmr0="1000" />
+      <tapa.delay delay="2"/>
+ 
+     #kw006.201 Changes for ccpu00111716
+     <tapa.repeat.start repeatCount="4096"/>
+     #Send data on DRB1 
+      <tapa.ddrb1ue1  bo="302"  totBufSize0="309" />
+     <tapa.repeat.end/>
+      <tapa.delay delay="2"/>
+     #Send data on DRB1 
+      <tapa.ddrb1ue1  bo="302"  totBufSize0="309" />
+
+     #kw006.201 Changes for ccpu00111716
+     <tapa.delay delay="5"/>
+     #Delete RCL and PDCP entity
+     <tapa.delue1N2/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    4.28
+#
+#       Desc:    PDCP SN Wrap around Check 
+#
+#       Notes:   
+#              
+#       Module:  Internal TCs
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.28"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:9.0.0" section="None"/>
+      <tapa.module id="External"/>
+
+      <tapa.desc>
+         "Verify that PDCP Sequence number wraps around after 4095"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Send Data from DRB1(ueId=1, CellId=1) 4095 times.
+          3. Send RLC Reestablishement from upper layer.
+          4. Send Data from DRB1 with PDCP SN=0.
+          5. Delete RLC UE entities.
+          6. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+
+      <tapa.delay delay="2"/>
+
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+     #Cfg DRB1 and DRB2 
+      <tapa.drb1cfg discardTmr0="1000" />
+      <tapa.delay delay="2"/>
+ 
+     #kw006.201 Changes for ccpu00111716
+     <tapa.repeat.start repeatCount="4096"/>
+     #Send data on DRB1 
+      <tapa.ddrb1ue1  bo="302"  totBufSize0="309" />
+      <tapa.repeat.end/>
+
+     #kw006.201 Changes for ccpu00111716
+      <tapa.delay delay="2"/>
+      <tapa.delay delay="2"/>
+     #Send data on DRB1 
+     <tapa.ddrb1ue1  bo="302"  totBufSize0="309" />
+     
+     #kw006.201 Changes for ccpu00111716
+      <tapa.delay delay="5"/>
+     #Delete RCL and PDCP entity
+     <tapa.delue1N2/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#
+#       Test:    4.29
+#
+#       Desc:    PDCP Queueing of Packets 
+#
+#       Notes:   
+#              
+#       Module:  Internal TCs
+#
+#       File:    pjac_grp4.xml
+#
+#
+<tapa.testcase id="4.29"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323 v:9.0.0" section="None"/>
+      <tapa.module id="External"/>
+
+      <tapa.desc>
+         "Verify that PDCP Sequence number wraps around after 4095"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Configure DRB1(AM)for ueId=1, cellId=1, comp disabled with successful configuration.
+          2. Send Data from DRB1(ueId=1, CellId=1) 500 times.
+          3. Send PDCP Reestablishement from upper layer.
+          4. Send Data from DRB1 .
+          5. Delete PDCP UE entities."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg discardTmr0="1000" />
+
+      <tapa.delay delay="2"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+     #Cfg DRB1 and DRB2 
+      <tapa.drb1cfg discardTmr0="1000" />
+      <tapa.delay delay="2"/>
+ 
+     #kw006.201 Changes for ccpu00111716
+     <tapa.repeat.start repeatCount="10"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>   
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:3:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" 
+            snSize="12" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>   
+     <tapa.delay delay="1"/>
+     <tapa.repeat.end/>     
+
+     #Send a ReEstablish Request to  SRB1
+      <tapa.pj.srb1.reEstReq />
+      
+      <tapa.expect>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/>
+      </tapa.expect> 
+     
+      #Send a ReEstablishment request on DRBs ans SRB1
+       <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="1"
+         rbId    = "1"
+         rbType  = "1"
+         cfgType = "4"/>
+      </tapa.send> 
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1" rbType="1" suId="1" />
+      </tapa.send> 
+
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1" status  = "1" reason = "0" transId="-1"/> 
+      </tapa.expect> 
+      
+      #kw006.201 Changes for ccpu00111716
+     <tapa.repeat.start repeatCount="10"/>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      <tapa.expect>   
+         <tapa.dummy.kwu.datreq  numLch="1" ueId="1" cellId="1" 
+            lchData="0:0:0:3:1:-1:
+                     -1:-1:-1:-1:-1"
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE"  ciph ="FALSE" 
+            snSize="12" mode = "3" vrfPdcp="TRUE" /> 
+      </tapa.expect>   
+     <tapa.delay delay="1"/>
+     <tapa.repeat.end/>     
+
+     <tapa.delay delay="1"/>
+
+
+     #kw006.201 Changes for ccpu00111716
+      <tapa.delay delay="2"/>
+     
+     #kw006.201 Changes for ccpu00111716
+      <tapa.delay delay="5"/>
+     #Delete RCL and PDCP entity
+     <tapa.delue1N2/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1        ---     vb               1. LTE PDCP Initial Release 2.1.
+#*********************************************************************91*/

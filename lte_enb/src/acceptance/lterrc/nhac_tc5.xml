@@ -1,0 +1,6239 @@
+#*********************************************************************17*/
+#/********************************************************************20**
+#
+#     Name:    LTE RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc5.xml
+#
+#     Sid:     
+#
+#     Prg:     Ramana
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=9:rp:nhac_tc5.xml
+
+#
+#
+#       Test:    5.1
+#
+#       Desc:    Successful PDCP configuration
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323" section="5.5,5.6,5.7,6.3,7.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to set the configurable 
+			  PDCP parameters. RRC will send a configuration request with these 
+			  parameters. RRC should receive configuration confirm from PDCP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  pdcpId="1" 
+          addBitMskStr="5" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" />
+         <tapa.dummy.ckw.cfgreq use="1" />
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+     </tapa.send> 
+
+     #Send configuration confirm from RLC 
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.2
+#
+#       Desc:    Successful RLC configuration.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="9.1,9.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will use the configuration provided by NHU to configure RLC parameters.
+			 RRC will send Configuration request with the values and it should receive 
+			 Configuration confirm from RLC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to RLC and MAC
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="6,1" 
+          addBitMskStr="1" addLcIdStr="2"/>
+      </tapa.send>
+
+      # Expect Config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC. RRC will send config 
+      # confirm to RRC user on receiving confirm from RLC and MAC 
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.3
+#
+#       Desc:    Successful MAC configuration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="All"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			"RRC will use the configuration provided by NHU to configure MAC parameters.
+			RRC will send Configuration request with the values and it should receive 
+			Configuration confirm from MAC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="100" tCrnti="100" cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send the message to MAC
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="2"
+          transId="1" 
+          rbId="1" cellId="1" ueId = "100" logChType="0" />
+      </tapa.send>
+
+      # Expect Config request at MAC
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      # Send Config Confirm to RRC. RRC will send the confirm to RRC user
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "100"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1" />
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.4
+#
+#       Desc:    Successful RLC configuration with default configuration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="9.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC will use the configuration provided by NHU and default configuration 
+			  parameters to configure RLC. RRC will send Configuration request with 
+			  the values and it should receive Configuration confirm from RLC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="100" tCrnti="100" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # Send Config Request to RRC with default rlc cfg(ulrlcCfgType=default(4)).RRC will 
+         # send it to RLC and MAC
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="3"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "100" modRbIdStr="1,0" 
+          modBitMskStr="3" modLcIdStr="1"
+          ulrlcCfgType="4" ulLcCfgType="4" dlrlcCfgType="4" trChCfgType="4" />
+      </tapa.send>
+
+      #Expect Config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send config confirm from CKW to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId = "100"/>
+      </tapa.send>
+
+      # Send config confirm from CRG to RRC.RRC will send it to
+      # RRC user on recienving confirm from RLC and MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="100"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="100"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.5
+#
+#       Desc:    Successful MAC configuration with default configuration.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="All"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will use the default configuration and other parameters provided by 
+			 NHU to configure MAC parameters. RRC will send Configuration request with 
+			 the values and it should receive Configuration confirm from MAC."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1" transId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" tCrnti="1" cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Config Request to RRC with default MAC cfg(trChCfgType=default(4)). 
+      # RRC will send it to MAC
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="2"
+          rbCfgType="2"  numModRb="1" transId="1" modRbIdStr="1,0" 
+          rbId="1" cellId="1" ueId ="1" logChType="0" trChCfgType="4"/>
+      </tapa.send>
+
+      # Expect Config request at MAC 
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      # Send Config Confirm to RRC. RRC will send the confirm to RRC user
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="1" ueId="1" />
+      </tapa.send>
+      <tapa.delay delay="5"/>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.6
+#
+#       Desc:    PDCP configuration failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323" section="5.5,5.6,5.7,6.3,7.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to set the configurable 
+			  PDCP parameters. RRC will send a configuration request with these 
+			  parameters. if RRC receives configuration failure from PDCP, all
+			  the successfully configured layers should revert the configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1" addBitMskStr="7" 
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  pdcpId="4" addLcIdStr="1"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC,RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from PDCP with failure status.
+      # RRC will send config request to MAC and RLC, and Config confirm to
+      # to RRC user with failure configuration status
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1"  failedRbIdStr="4,1" ueId="2"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Config Request at MAC and RLC to revert back configuration
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         # Expect Config confirm at RRC user
+         <tapa.nhu.cfgcfm status="0"/>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.7
+#
+#       Desc:    RLC configuration failure.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="9.1,9.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will use the configuration provided by NHU to configure RLC parameters.
+			 RRC will send Configuration request with the values. If RRC receives a 
+			 Configuration failure from RLC, all the successfully configured layers should
+			 revert the configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC,RLC 
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="6,1"  addBitMskStr="1"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC and RLC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC with failure config status
+      # RRC will send config request to MAC and Config confirm to
+      # to RRC user with failure configuration status
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="0" numFailedRb="1" failedRbIdStr="6,1" ueId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      # Expect Config Request at MAC to revert back configuration
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      </tapa.expect>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="0"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.8
+#
+#       Desc:    MAC configuration failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="All"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			"RRC will use the configuration provided by NHU to configure MAC parameters.
+			RRC will send Configuration request with the values. if RRC receives a 
+			Configuration failure from MAC, all the successfully configured layers should
+			revert the configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="100" tCrnti="100" cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC and RLC
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "100" addRbIdStr="6,1" addBitMskStr="1" addLcIdStr="2"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC and RLC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC with failure config status
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" ueId="100"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC. RRC will send config request 
+      # to RLC to revert back configuration and Config confirm to
+      # to RRC user with failure configuration status
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="100"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      # Expect Config Request at RLC to revert back configuration
+      <tapa.expect>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+      </tapa.expect>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.9
+#
+#       Desc:    To verify that configuration happens within guard timer expiry.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this test case, RRC sends configuration requests to
+			 1.PDCP
+			 2.RLC and 
+			 3.MAC
+			 And starts guard timer, the configuration confirm messages from each of the 
+			 layers should be received before the expiry of the guard timer."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+      # RRC starts guard timer with timer value 30ms
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="2" transId="1"  addBitMskStr="7" addLcIdStr="1,2"
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="6,1,7,1"  pdcpId="1" tmrVal="30"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC,RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC for rbId 6
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from MAC for rbId 7
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from PDCP. RRC will send confirm to 
+      # RRC user on receiving confirms from RLC, MAC and PDCP
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.10
+#
+#       Desc:    To test expiry of Guard timer for configuration.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this test case, RRC sends configuration requests to
+			 1.PDCP
+			 2.RLC and 
+			 3.MAC
+			 And starts guard timer, if the configuration confirm messages from any of 
+			 the layers is received after the expiry of the guard timer all the 
+			 configuration which has been successful should be reverted back."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+      # RRC starts guard timer with timer value 20ms
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1"  addLcIdStr="1"
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="6,1" addBitMskStr="7" pdcpId="1" tmrVal="20"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC,RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         <tapa.dummy.cpj.cfgreq use="1" storeCfms="0"/>
+      </tapa.expset>
+
+      <tapa.delay delay="20"/>
+
+      # Since none of the layers send config confirm, timer expires and RRC
+      # sends config requests to RLC,MAC and PDCP to revert configuration.
+      # RRC also sends Config confirm to RRC user with failure status
+
+      # Expect Config request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         <tapa.dummy.cpj.cfgreq use="1" storeCfms="0"/>
+      </tapa.expset>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="0"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.11
+#
+#       Desc:    Successful creation of a cell
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the successful creation of a cell.
+			  Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. Expect config request at CKW and CRG from 
+			  RRC. After successful configuration of CKW and CRG, expect Cell config 
+			  confirm from RRC, at RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Config confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      #Send Config confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="4"/>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+       #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.12
+#
+#       Desc:    Successful cell modification.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test successful Modify Configuration of a cell.
+			 Modify the configuration of a cell, Send cell 
+			 Modify configuration request from NHU. Expect config request at CKW and CRG 
+			 from RRC. After successful configuration of CKW and CRG, expect Cell config 
+			 confirm from RRC, at RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Cell Config - Set up request
+      <tapa.rrc.cellcfg cellId="1" transId="30"/>
+      <tapa.delay delay='3'/>
+
+      #Send Cell config Request  to modify (to add a RB)
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="50" cellId="1" cellCfgBitMask="8"
+                        numTxAntennas="2" rbCfgType="1" spId="1" dlRlcMode="3" numRlsRb="1"/>
+      </tapa.send>
+      <tapa.delay delay="9"/>
+
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="9"/>
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.13
+#
+#       Desc:    successful cell configuration release.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "To test successful cell configuration release.
+			Configure a new cell, Send cell Setup 
+			configuration request from NHU. Expect config request at CKW and CRG from 
+			RRC. After successful configuration of CRG and CKW, expect Cell config 
+			confirm from RRC, at NHU. Now send cell configuration Release from NHU. And 
+			expect a Cell config confirm for Release from RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Cell Config - Set up request
+      <tapa.rrc.cellcfg cellId="1" transId="30"/>
+      <tapa.delay delay='3'/>
+
+      #Send Cell config Setup Request to release
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="4" transId="33" cellCfgBitMask="8"
+         cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+      #Expect config request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Config Confirm from RLC to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      #Send Config Confirm from MAC to RRC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.14
+#
+#       Desc:    To test guard timer for cell configuration.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "Configure a new cell, Send cell Setup 
+			configuration request from NHU. Expect config request at CKW and CRG from 
+			RRC.  See that the guard Timer is started at RRC. Wait till the guard timer 
+			expires. After Expiry the RRC will Send Config Request toRLC and MAC, 
+         and Config confirm with failure status to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Cell Config - Set up request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+         numTxAntennas="1" numCellRb="6" rbCfgType="1"
+         spId="1" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect config request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+      </tapa.expset>
+
+      <tapa.delay delay="30"/>
+
+      #Guard timer expires. No confirms from RLC and MAC. RRC sends 
+      #config request to RLC and MAC to revert configuration. Also RRC
+      #sends cell config confirm with failure status to RRC user
+
+      #Expect config request at RLC and MAC from RRC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         #<tapa.lnh.staind category="3" event="4" cause="0" alarmType="7"/>
+      </tapa.expset>
+
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.15
+#
+#       Desc:    To test The expiry of guard timer for cell configuration 
+#                modification at RRC.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "configure a new cell, Send cell modifiy 
+			 configuration request from NHU. Expect config request at CKW and CRG from 
+			 RRC.  See that the guard Timer is started at RRC. Wait till the guard timer 
+			 expires. After Expiry the RRC will revert the cell configuration."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Cell Config - Set up request
+      <tapa.rrc.cellcfg cellId="1" transId="30"/>
+      <tapa.delay delay='3'/>
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="33" cellId="1" 
+                  cellCfgBitMask="8" numTxAntennas="2" rbCfgType="1" spId="1" 
+                  dlRlcMode="3" numRlsRb="1"/>
+      </tapa.send>
+      <tapa.delay delay="9"/>
+
+      #Expect config request at MAC
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20"/>
+
+      #Guard timer expires. No confirms from MAC for cell modification. RRC sends 
+      #config request to MAC to revert configuration. Also RRC
+      #sends cell config confirm with failure status to RRC user
+
+      #Expect config request at MAC as timer started for cell modification expires 
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      </tapa.expect>
+
+      #Expect Cell config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="0"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.16
+#
+#       Desc:    To test successful processing of simultaneous cell setup/modify requests.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "Pre-condition: Cell with Id 2 has been configured.
+           Configure a new cell, Send cell Setup 
+			  configuration request from NHU with cell id = 1, In the mean time Issue 
+			  Cell Config Modify request for Cell Id = 2, from NHU. RRC should process 
+			  both the requests successfully."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Cell Config - Set up request to create cell
+      <tapa.rrc.cellcfg transId="37" cellId="2" />
+
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+          cellCfgBitMask="9" numTxAntennas="1" numCellRb="6" rbCfgType="1"
+          spId="2" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="6"/>
+
+      #Expect config request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send config confirm from RLC to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      
+      #Send config confirm from MAC to RRC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.delay delay="7"/>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="8"/>
+      
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+
+      #Send Cell config Setup Request to modify
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="38" cellId="2"  cellCfgBitMask="8"
+                        numTxAntennas="4" numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" numRlsRb="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect cfg request at MAC
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      #Send config confirm from MAC to RRC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="1" cellId="2"/>
+      </tapa.send>
+
+
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.17
+#
+#       Desc:    To test cell modification for cell which is not setup.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test No cell is configured, and RRC issues Cell modify configuration request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Cell config Setup Request to modify cell ( cellCfgType = 2 to modify)
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="33" cellId="1" 
+                  cellCfgBitMask="8" numTxAntennas="2" numCellRb="6" 
+                  rbCfgBitMask="2" spId="1" dlRlcMode="1" numRlsRb="1"/>
+      </tapa.send>
+      #Insert delay delay of few ms
+      <tapa.delay delay="20"/>
+
+      #RRC sends Error Indication to RRC user as cell is not created
+      <tapa.expect>
+         <tapa.nhu.errind/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.18
+#
+#       Desc:    To test cell release for cell which is not setup.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test No cell is configured, and RRC issues Cell release configuration request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Cell config Setup Request to release cell ( cellCfgType = 3 to release)
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="3" transId="33" cellId="1" 
+                  cellCfgBitMask="8" numTxAntennas="2" numCellRb="6" 
+                  rbCfgType="2" spId="1" dlRlcMode="1" numRlsRb="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="20"/>
+
+      #RRC sends Error Indication to RRC user as cell is not created
+      <tapa.expect>
+         <tapa.nhu.errind/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.19
+#
+#       Desc:    To test successful processing of simultaneous cell setup/modify requests.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "Pre-condition: Cell with Id 1 has been configured.
+           Configure a new cell, Send cell Setup 
+			  configuration request from NHU with cell id = 2, In the mean time Issue 
+			  Cell Config Modify request for Cell Id = 1, from NHU. RRC should process 
+			  both the requests successfully."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Cell Config - Set up request to create a cell
+      <tapa.rrc.cellcfg cellCfgType="1" transId="30" cellId="1" />
+
+      #Send Cell config Setup Request cellID = 2
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="2" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgBitMask="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send cell config request to modify cell 1
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="99" cellId="1" 
+         cellCfgBitMask="8"
+                        numTxAntennas="4" spId="1" />
+      </tapa.send>
+
+      #Send Config confirm fro RLC to RRC for cell ID 2
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="2"/>
+      </tapa.send>
+
+      #Send Config confirm fro MAC to RRC for cell ID 2
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+      <tapa.delay delay="4"/>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+
+      #Expect config request for cell ID 1
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      #Send Config confirm for cell ID 1
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="2"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="10"/>
+
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+
+      #Send Cell config Modification confirm for cellid 1
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    5.20
+#
+#       Desc:    In case of cell release, revert does not happen.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test cell release revert."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+      # Configure cell1 and common resources
+     <tapa.rrc.cellcfg cellId="1" transId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Cell config release request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="4" transId="2" cellId="1" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send configuration negative confirm from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+      </tapa.send>
+
+      #Send configuration confirm from RLC
+      <tapa.send>
+        <tapa.dummy.ckw.cfgcfm  use="1" status="1" cellId="1"/>
+      </tapa.send>
+
+      #Insert delay of few ms
+      <tapa.delay delay="5"/>
+     #Expect 
+      <tapa.expset>
+         <tapa.nhu.cellcfgcfm status='0'/>
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    5.21
+#
+#       Desc:    To test cell modify revert.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test cell modify revert."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+      # Configure cell1 and common resources
+     <tapa.rrc.cellcfg cellId="1" transId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Cell config modify request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="50" cellId="1" cellCfgBitMask="8"
+                        numTxAntennas="2" spId="1" />
+      </tapa.send>
+   #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+   #Expect config request at MAC
+   <tapa.expect>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+   </tapa.expect>
+
+   #Send configuration negative confirm from MAC
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="1" cellId="1"/>
+   </tapa.send>
+
+   #Insert delay of few ms
+      <tapa.delay delay="5"/>
+     #Expect 
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='0'/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    5.22
+#
+#       Desc:    To test MAC cell revert in case of add config of cell and 
+#                logical channel but failure of cell add config and success of
+#                logical channel.  
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test cell add revert in case of failure of cell add request
+          but successful logical channel add config request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgBitMask="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+   #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+   #Expect config request at RLC and MAC
+   <tapa.expset>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.ckw.cfgreq use="1"/>
+   </tapa.expset>
+
+   #Send Config confirm from MAC to RRC
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.delay delay="4"/>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   #send negative config confirm for cell add
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+   </tapa.send>
+
+   #Send Config confirm from RLC to RRC
+   <tapa.send>
+      <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+   </tapa.send>
+
+   <tapa.delay delay="10"/>
+   #MAC Logical revert cfg req
+   <tapa.expset>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+      #<tapa.lnh.staind category="3" event="4" cause="0" alarmType="7"/>
+      #RRC sends Cell config cfm to RRC user
+      <tapa.nhu.cellcfgcfm status='0'/>
+   </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.23
+#
+#       Desc:    To test MAC logical chnl revert in case of add config of cell and 
+#                logical channel but sucess of cell add config and failure of
+#                logical channel.  
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test logical channel add revert in case of success cell add request
+          but failure of logical channel add config request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" ueId="100"
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgBitMask="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+   #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect Config request at MAC and RLC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Config confirm from MAC to RRC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="4"/>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      #Send Config confirm from RLC to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+      #MAC Logical channel revert cfg req
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         #<tapa.lnh.staind category="3" event="4" cause="0" alarmType="7"/>
+         #RRC sends Cell config cfm to RRC user
+         <tapa.nhu.cellcfgcfm status='0'/>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.24
+#
+#       Desc:    To test MAC logical chnl revert in case of add config of  
+#                multiple logical channels but failure of multiple
+#                logical channel config.  
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test logical channel add revert in case of failure of multiple
+          logical channel add config request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgBitMask="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1" numRlsRb="1" logChCfgpres="7"/>
+      </tapa.send>
+   #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+   <tapa.expset>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.crg.cfgreq store_tid="1"/>
+      <tapa.dummy.ckw.cfgreq use="1"/>
+   </tapa.expset>
+
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+   </tapa.send>
+
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.delay delay="4"/>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+   </tapa.send>
+   <tapa.send>
+      <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+   </tapa.send>
+
+
+   <tapa.delay delay="10"/>
+   #MAC Logical channel revert cfg req
+   <tapa.expset>
+      <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+      <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+      #<tapa.lnh.staind category="3" event="4" cause="0" alarmType="7"/>
+      #RRC sends Cell config cfm to RRC user
+      <tapa.nhu.cellcfgcfm status='0'/>
+   </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.25
+#
+#       Desc:    To test cell add followed by delete and then cell add with 
+#                same cell id.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test cell add followed by delete of the cell and then cell add
+          with same cell id."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+      # Configure cell1 and common resources
+     <tapa.rrc.cellcfg cellId="1"/>
+      # Release cell1 and common resources
+     <tapa.rrc.cellcfg.rls cellId="1"/>
+      # Configure cell1 and common resources
+     <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   # no steps required here since cell add/del is being done through the command 
+   <tapa.test>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.26
+#
+#       Desc:    Unsuccessful RLC configuration, with different number of
+#                entities in cfgCfm than in cfgReq.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section=""/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will send Configuration request to RLC for multiple entities"
+          "but in configuration confirm the number of entities is lesser than"
+          " in configuration request. This is to simulate interface problem"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send config Request to add RB
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgBitMask="1"  numAddRb="4" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="6,1,5,1,4,1,3,1" rbCfgBitMaskType="1" />
+      </tapa.send>
+      # expect cfg req for RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+      </tapa.expset>
+      # send cfg cfm from RLC and MAC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" change="1" ueId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" change="1" ueId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="1" />
+      </tapa.send>
+
+
+      <tapa.delay delay="5"/>
+
+      #expect alarm
+      <tapa.expset>
+         <tapa.lnh.staind category="2" event="256" cause="0" alarmType="7" />
+         <tapa.lnh.staind category="2" event="256" cause="0" alarmType="7"/>
+      </tapa.expset>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.27
+#
+#       Desc:    Unsuccessful RLC configuration and check for revert alarm.
+#                send cfg cfm from RLC and MAC
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section=""/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will send Configuration request to RLC for multiple entities"
+          "Check for alarm for revert failure."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgBitMask="1"  numAddRb="4" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="6,1,5,1,4,1,3,1" rbCfgBitMaskType="1" />
+      </tapa.send>
+
+      #cfg req for RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+      </tapa.expset>
+ 
+      #send cfg cfm for RLC and MAC
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" numFailedRb="1"
+         failedRbIdStr="6,1" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+
+
+      <tapa.delay delay="15"/>
+
+      # config revert
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expset>
+
+      <tapa.delay delay="15"/>
+      # send config confirm
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15" ueId = "1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         #expect alarm
+         <tapa.lnh.staind category="2" event="259" cause="0" alarmType="7"/>
+      </tapa.expset>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.28
+#
+#       Desc:    RRC Cell Configuration Validations
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.28">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "To test the validation conditions during cell configuration 
+           and modify."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Send Cell config Setup Request with invalid cfgType
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="1" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="8"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="11" errorCause="18" />
+      </tapa.expect>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="1" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+ #Send Cell config Modify Request with.Expect errorindication as cell addition
+      is not complete yet.
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="50" cellId="1" 
+            cellCfgBitMask="1" numTxAntennas="2" rbCfgType="1" 
+            spId="1" dlRlcMode="3" numRlsRb="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="9"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="5" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.delay delay="5"/>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.delay delay="5"/>
+      
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+
+      #Send Cell config Modify Request with invalid cfgMask (RB)
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="50" cellId="1" 
+            cellCfgBitMask="1" numTxAntennas="2" rbCfgType="1" 
+            spId="1" dlRlcMode="3" numRlsRb="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="9"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="14" />
+      </tapa.expect>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Send Cell config Setup Request for cell 2 with invalid cfmBitMask
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="2" cellCfgBitMask="0" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="13" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request for cell 2 with invalid cfmBitMask
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="2" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="0" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="21" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request for cell 2 with invalid cfmBitMask
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="2" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="7" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="21" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request for cell 0
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="0" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="6" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request, duplicate cell 1 config
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="1" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="28" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request to release
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="4" transId="33" cellCfgBitMask="8"
+         cellId="2" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="2" />
+      </tapa.expect>
+
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellId="2" cellCfgBitMask="9" numTxAntennas="1" 
+          numCellRb="6" rbCfgBitMask="1" spId="1" dlRlcMode="1" 
+          ulRlcMode="1" logChCfgpres="7" cellCfgType="1"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"  storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Cell config Setup Request to release cell 2 for which cfm
+      #has not arrived yet.
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="4" transId="33" cellCfgBitMask="8"
+         cellId="2" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="5" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    5.29
+#
+#       Desc:    UE context reconfiguration using configuration request
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "After RRC connection is established, RRC user will use 
+            explicit configuration request to re-configure the 
+            UE id in the stack."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="8"
+          transId="1" cellId="1" ueId = "2" 
+          pdcpId="1" fillUeIdCfg="1" tCrnti="3"/>
+      </tapa.send>
+
+      #Expect UE ID change configuration at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.ueidchngreq use="1"/>
+         <tapa.dummy.cpj.ueidchngreq use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "3"/>
+     </tapa.send>
+
+     #Send  ueIdChgCfm confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+     #Send  ueidchange  confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="3" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.30
+#
+#       Desc:    Validation for Config request and Config info
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to set the configurable 
+			   parameters. RRC will validate the incoming config request and throws
+            error indication with respective error type and cause."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+#send cfgreq with Hdr->ueId=0, and dont send the NHU_EXP_CFG_UE_CFG
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "0" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="4"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="31" />
+      </tapa.expect>
+#send cfgreq with Hdr->ueId != 0, and ueId has some other value.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "10" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="4"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="7" />
+      </tapa.expect>
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="2" ueId = "2" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="4"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="2" />
+      </tapa.expect>
+
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="8"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="4" tCrnti="2"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="11" errorCause="13" />
+      </tapa.expect>
+
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="5"/>
+      </tapa.send>
+
+      # Expect Config request at PDCP on CPJ interface
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" />
+         <tapa.dummy.ckw.cfgreq use="1" />
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+ 
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+      # Send Config Confirm to RRC. RRC will send the confirm to RRC user
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId = "2"/>
+      </tapa.send>
+
+      # Expect Config confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  
+          pdcpId="1" addBitMskStr="4"/>
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="15" errorCause="21" />
+      </tapa.expect>
+
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="2" cellId="1" ueId="2" modRbIdStr="5,1" />
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="15" errorCause="21" />
+      </tapa.expect>
+
+      # Send Config Request to RRC. RRC will send it to PDCP.
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="4"  numRlsRb="1" transId="1" 
+          rbId="2" cellId="1" ueId="2" rlsRbIdStr="5,1" />
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="15" errorCause="21" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls cellId="1" ueId="2" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.31
+#
+#       Desc:    Un Successful creation of a cell,
+#                RLC Sends failure for configuration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the un successful creation of a cell.
+			Send Cell Setup, configuration request from NHU. Expect 
+			config request at CKW and CRG from RRC. 
+			configuration fails at of CKW. CRG config is successful"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9" numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send failure configuration confirm from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" numFailedRb="1" failedRbIdStr="1,0" cellId="1"/>
+      </tapa.send>
+      
+	  #Send Config confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+	  #Expect revert configuration request at MAC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  storeCfms="0"/>
+		   <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         #<tapa.lnh.staind category="3" event="4" cause="0" alarmType="7"/>
+         <tapa.nhu.cellcfgcfm status='1' />
+      </tapa.expset>
+#send cellConfiguration request again      
+      <tapa.rrc.cellcfg cellId="1"/>
+
+#Now release the cell
+#
+      #Send Cell config Setup Request to release
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="4" transId="33" cellCfgBitMask="8"
+         cellId="1" />
+      </tapa.send>
+
+
+      #Expect config request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send failed Config Confirm from RLC to RRC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="2" cellId="1"/>
+      </tapa.send>
+      #Send Config Confirm from MAC to RRC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+      #RRC sends Cell config cfm to RRC user
+      <tapa.expset>
+         <tapa.nhu.cellcfgcfm status="0"/>
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.32
+#
+#       Desc:    config confirm for mac/RLC/pdcp with invalid ueId, transId, cellId 
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section=""/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			 "RRC will send Configuration request to RLC,MAC and PDCP."
+          "All the lower layers send config confirm with invalid transId,"
+          "UeId and cellId. Timer expires and RRC sends config request to "
+          "revert configuration"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+      <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" addBitMskStr="7"
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="4,1"  pdcpId="4" addLcIdStr="1"/>
+      </tapa.send>
+
+      # Expect Config Request at MAC,RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         <tapa.dummy.cpj.cfgreq use="1" storeCfms="1"/>
+      </tapa.expset>
+
+      # Send Config Confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm invalidUeId="9" status="0" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm invalidUeId="1" invalidCellId="9" invalidTransId="1" status="0" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm invalidUeId="1" invalidCellId="1" invalidTransId="9" status="0" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm duplicate="1" status="0" failedRbIdStr="4,1" invalidUeId="1" invalidTransId="9" invalidCellId="1" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm duplicate="1" status="0" failedRbIdStr="4,1" invalidUeId="9" invalidCellId="1" invalidTransId="1" numEnt="1" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm duplicate="1" status="0" failedRbIdStr="4,1" invalidUeId="1" invalidTransId="1" invalidCellId="9" numEnt="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # Send Config Confirm to RRC from PDCP
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm duplicate="1" invalidUeId="99" invalidCellId="1" invalidTransId="1" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm duplicate="1" invalidUeId="1" invalidCellId="99" invalidTransId="1" ueId="1" cellId="1" cleanup="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm duplicate="1" invalidUeId="1" invalidCellId="1" failedRbIdStr="4,1" invalidTransId="99" ueId="1" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="10"/>
+
+      <tapa.expset>
+         # Expect Config Request at MAC,PDCP and RLC to revert back configuration
+         <tapa.dummy.crg.cfgreq store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq use="1" storeCfms="0"/>
+         <tapa.dummy.cpj.cfgreq use="1" storeCfms="0"/>
+         # Expect Config confirm at RRC user
+         <tapa.nhu.cfgcfm status="0" />
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls cellId="1" ueId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.33
+#
+#       Desc:    UeIdChgCfm for invalid cellId, invalid UeId, transId 
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "RRC user sends configuration request to RRC. RRC sends configuration"
+         "request to MAC, PDCP and RLC layers, and UE Id change request to RLC"
+         "and PDCP. RRC receives configuration confirm from all the lower layers"
+         "and UE ID change confirm from RLC and PDCP with invalid UeId/transId/cellId."
+         "After receiving the successful UeId change confirm from PDCP and RLC,"
+         " RRC sends connection setup to RLC and sends config confirm to RRC user" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure RRC
+      <tapa.rrc.init />
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1,0" pdcpId="1" valChk="0" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+      # Re-send RRC Connection Request from RLC with RB Configuration
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="6" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="6" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user with UE ID Change Request
+      #and RB re-configuration
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="2"  numModRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="6" cellId="1" 
+          modRbIdStr="1,0" modLcIdStr="1" 
+          pdcpId="1" ueId="2"  valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect UE ID and RB change configuration at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.ueidchngreq use="1" />
+         #<tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.ueidchngreq  use="1" />
+         <tapa.dummy.cpj.cfgreq use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="6"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="6"/>
+     </tapa.send>
+     
+     #<tapa.send>
+      #   <tapa.dummy.ckw.cfgcfm   use="1" ueId="6"/>
+     #</tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="6"/>
+     </tapa.send>
+
+     #Send  ueIdChgCfm confirm from RLC
+    # <tapa.send>
+    #     <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="2" invalidTransId="10"  invalidUeId="5"/>
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="2" invalidTransId="10"  invalidUeId="2" invalidCellId="99"/>
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="2" invalidTransId="99"  invalidUeId="2" invalidCellId="1"/>
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.ckw.ueidchngcfm duplicate="1" status="1" invalidUeId="2" invalidCellId="1" invalidTransId="10"/>
+    # </tapa.send>
+     #Send  ueIdChgCfm confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+
+     #Send  ueidchange  confirm from PDCP
+    # <tapa.send>
+    #     <tapa.dummy.cpj.ueidchngcfm  invalidTransId="99" duplicate="1" status="1" invalidUeId="2"/>
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.cpj.ueidchngcfm  invalidTransId="10" invalidUeId="9" duplicate="1" status="1" invalidCellId="1"/>
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.cpj.ueidchngcfm  invalidTransId="10" invalidUeId="2" invalidCellId="11" duplicate="1" status="1" />
+    # </tapa.send>
+    # <tapa.send>
+    #     <tapa.dummy.cpj.ueidchngcfm  duplicate="1" status="0" invalidUeId="2" invalidCellId="1" invalidTransId="10"/>
+    # </tapa.send>
+     #Send  ueidchange  confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="6"
+         cellId="1" />
+        <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls cellId="1" ueId="6" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    5.34
+#
+#       Desc:    Cell Configuration failure due to invalid rlc mode.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           " Cell Configuration failure due to invalid rlc mode.
+			  "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request invalid RlcMode
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="2"  logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="3"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expect>
+         <tapa.nhu.errind errType="11" errCause="21"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="2" ulRlcMode="1"  logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="3"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expect>
+         <tapa.nhu.errind errType="11" errCause="21"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.35
+#
+#       Desc:    Successful RRC Connection re-establishment configuration
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.35">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323" section="5.5,5.6,5.7,6.3,7.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to configure 
+			  lower layers before sending RRC Connection re-establishment message."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="4,1"  pdcpId="1" 
+          addBitMskStr="5" conReCfgCause="4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.ueidchngreq use="1"/>
+         #<tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.ueidchngreq use="1"/>
+         <tapa.dummy.cpj.reestreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send> 
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC 
+     #<tapa.send>
+      #   <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     #</tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.reestcfm use="1" status="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+
+   #send connection re-establishment message
+     <tapa.send>
+    <tapa.nhu.datrsp cellId="1" ueId="10" spId="0" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          valChk="0" />
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2"
+         cellId="1" />
+     </tapa.expect>
+
+     #Send RRC Connection re-establishment Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="3" spId="0"
+                         suId="0" ueId="10" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection re-establishment Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="10" cellId="1" />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.36
+#
+#       Desc:    Un-Successful RRC Connection re-establishment configuration
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.36">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323" section="5.5,5.6,5.7,6.3,7.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to configure 
+			  lower layers before sending RRC Connection re-establishment message.
+                          RRC message fails to encode."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "1" addRbIdStr="4,1"  pdcpId="1" 
+          addBitMskStr="5" conReCfgCause="4"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.ueidchngreq use="1"/>
+         #<tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.ueidchngreq use="1"/>
+         <tapa.dummy.cpj.reestreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send> 
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC 
+     #<tapa.send>
+     #    <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     #</tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.reestcfm use="1" status="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+
+   #send connection re-establishment message
+     <tapa.send>
+    <tapa.nhu.datrsp cellId="1" ueId="10" spId="0" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          valChk="0" decode_error="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.errind errorType="7" errorCause="0" />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.37
+#
+#       Desc:    SRB1 release testcase
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.37">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.323" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration to set the configurable 
+			  PDCP parameters. RRC will send a configuration request with these 
+			  parameters. RRC should receive configuration confirm from PDCP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="4"  numRlsRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" rlsRbIdStr="1,0"  pdcpId="1" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" />
+         <tapa.dummy.ckw.cfgreq use="1" />
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+     </tapa.send> 
+
+     #Send configuration confirm from RLC 
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.38
+#
+#       Desc:    To verify cell release during the ongoing transaction
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.38">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="9.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "To verify cell release during the ongoing transaction."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="100" tCrnti="100" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # Send Config Request to RRC with default rlc cfg(ulrlcCfgType=default(4)).RRC will 
+         # send it to PDCP and MAC
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="3"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "100" modRbIdStr="1" 
+          modBitMskStr="4" modLcIdStr="1" pdcpCfgBitMsk="32" isHoPres="1" dlCntVal="1"
+          ulCntVal="1" numBits="17" ulrlcCfgType="4" ulLcCfgType="4" dlrlcCfgType="4" 
+          trChCfgType="4" pdcpId="1" drbSduStaStr="1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1"/>
+      </tapa.send>
+
+      #Expect Config Request at MAC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+      # Release the cell
+      <tapa.rrc.cellcfg.rls cellId="1" />
+
+      <tapa.delay delay="5"/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.39
+#
+#       Desc:    UE context reconfiguration using configuration request
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.39">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "After RRC connection is established, RRC user will use 
+            explicit configuration request to re-configure the 
+            UE id in the stack."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="8"
+          transId="1" cellId="1" ueId = "2" 
+          pdcpId="1" fillUeIdCfg="1" tCrnti="3"/>
+      </tapa.send>
+
+      #Expect UE ID change configuration at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.ueidchngreq use="1"/>
+         <tapa.dummy.cpj.ueidchngreq use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "3"/>
+     </tapa.send>
+
+     #Send  ueIdChgCfm confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="1" ueId="2" invalidCellId="3" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="1"  ueId="2" invalidUeId="3" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  duplicate="1" status="1"  ueId="2" invalidTransId="10" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm  use="1" status="1" ueId = "2"/>
+     </tapa.send>
+     #Send  ueidchange  confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm duplicate="1" status="1" ueId="2" invalidCellId="3" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm duplicate="1" status="1"  ueId="2" invalidUeId="3" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm duplicate="1" status="1"  ueId="2" invalidTransId="10" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="3" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.40
+#
+#       Desc:    To verify cell release during the ongoing transaction
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.40">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="9.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "To verify cell release during the ongoing transaction."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init/>
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="100" tCrnti="100" cellId="1"/>
+
+      <tapa.rrc.security_actv ueId="100" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # Send Config Request to RRC with default rlc cfg(ulrlcCfgType=default(4)).RRC will 
+         # send it to PDCP and MAC
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="3"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "100" modRbIdStr="1" 
+          modBitMskStr="4" modLcIdStr="1" pdcpCfgBitMsk="127" isHoPres="17" dlCntVal="1"
+          ulCntVal="1" numBits="17" ulrlcCfgType="4" ulLcCfgType="4" dlrlcCfgType="4" 
+          trChCfgType="4" pdcpId="1" drbSduStaStr="1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1"/>
+      </tapa.send>
+
+      #Expect Config Request at MAC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+     # Send config confirm from CPJ to RRC
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId = "100"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1"  ueId = "100"/>
+     </tapa.send>
+
+     <tapa.delay delay="5"/>
+
+     # Expect Config confirm at RRC user
+     <tapa.expset>
+         <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expset>
+
+      <tapa.send>
+         # Send Config Request to RRC with default rlc cfg(ulrlcCfgType=default(4)).RRC will 
+         # send it to PDCP and MAC
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="3"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "100" modRbIdStr="1" 
+          modBitMskStr="4" modLcIdStr="1" pdcpCfgBitMsk="111" isHoPres="1" dlCntVal="1"
+          ulCntVal="1" numBits="17" ulrlcCfgType="4" ulLcCfgType="4" dlrlcCfgType="4" 
+          trChCfgType="4" pdcpId="1" drbSduStaStr="1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1"/>
+      </tapa.send>
+
+      #Expect Config Request at MAC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+     # Send config confirm from CPJ to RRC
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId = "100"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="15"  ueId = "100"/>
+     </tapa.send>
+
+     <tapa.delay delay="5"/>
+
+     # Expect Config confirm at RRC user
+     <tapa.expset>
+       #  <tapa.dummy.cpj.cfgreq use="1"/>
+         <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.41
+#
+#       Desc:    Unsuccessful creation of a cell - NULL SDU
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.41">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the successful creation of a cell.
+			  Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. Expect config request at CKW and CRG from 
+			  RRC. After successful configuration of CKW and CRG, expect Cell config 
+			  confirm from RRC, at RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1" nullSdu="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.42
+#
+#       Desc:    Error cases for RRC Connection Establishment Procedure.  
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.42">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the erroneous scenario of "
+           "RRC connection establishment procedure. It involves"
+           "1. Cell config for cell 2 with config type as modify."
+           "2. RRC conn req, setup (with RB Id str as 3,0), err ind(15,21)"
+           "3. RRC conn req, setup, secu, err ind (15, 26)"
+           "4. RRC conn req, setup, setup cmp, cfgreq (for SRB1 again), err ind"
+           "5. RRC conn req, setup, setup comp, sec (with no ciphering but "
+           "   only integrity), err ind (15,45)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         # The below CR needs to be resolved
+         <tapa.flag id="ccpu00125207"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure RRC
+      <tapa.rrc.init />
+   
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+   </tapa.cfg>
+
+   <tapa.test>
+
+      #Test 1: unsuccessful cell configuration
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="33" cellId="2" 
+         cellCfgBitMask="9" numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7"/>
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="9" errorCause="2" />
+      </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+      #Test 2:
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="4" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="4" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="4" cellId="1" 
+          addRbIdStr="1,0" pdcpId="1" />
+      </tapa.send>
+
+      #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="4" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="4" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="4" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="4" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="4"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="4"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="4"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="4"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="4" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send RRC Connection Setup Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="4" spId="0"
+                         suId="0" ueId="4" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection Setup Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="4" cellId="1" />
+     </tapa.expect>
+
+      #Send RRC conn reconfiguration to RRC
+     <tapa.send>
+      <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+       msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+       cellId="1" ueId="4" pdcpId="1" numAddRb="1" addRbIdStr="3,0"
+       addLcIdStr="3" addBitMskStr="7" rbCfgType="1" logChType="3" 
+       valChk="0"/>
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="15" errorCause="21" />
+      </tapa.expect>
+
+      #Test 3:
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1,0" pdcpId="1" />
+      </tapa.send>
+
+      #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send Security Mode Command with security configuration
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="4"
+          integrityAlgo="1" msgCategory="1" msgType="6" cellId="1" ueId="2"
+          cipheringAlgo="1" transId="64" rrc_transId="2" pdcpId="1" />
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="15" errorCause="0" />
+      </tapa.expect>
+
+
+     #Send RRC Connection Setup Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="4" spId="0"
+                         suId="0" ueId="2" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection Setup Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="2" cellId="1" />
+     </tapa.expect>
+
+
+      #Test 4:
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="3" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="3" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="3" cellId="1" 
+          addRbIdStr="1,0" pdcpId="1" />
+      </tapa.send>
+
+      #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="3" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="3" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="3" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="3" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="3"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="3"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="3"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="3"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="3" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send RRC Connection Setup Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="4" spId="0"
+                         suId="0" ueId="3" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection Setup Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="3" cellId="1" />
+     </tapa.expect>
+
+     #send cfgreq with Hdr->ueId=0, and dont send the NHU_EXP_CFG_UE_CFG
+     <tapa.send>
+        # addBitMskStr = 1(UL), 2(DL) and 4(PDCP)
+        # rbCfgType = 1(ADD), 2(MODIFY) and 4(RLS)
+        <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+         rbCfgType="1"  numAddRb="1" transId="1" 
+         rbId="1" cellId="1" ueId = "3" addRbIdStr="1,0"  
+         pdcpId="1" addBitMskStr="5"/>
+     </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="15" errorCause="21" />
+      </tapa.expect>
+
+      # Test 5:
+     #Send Security Mode Command with security configuration
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="4"
+          integrityAlgo="1" msgCategory="1" msgType="6" cellId="1" ueId="3"
+          cipheringAlgo="0" transId="64" rrc_transId="2" pdcpId="1" />
+      </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect>
+         <tapa.nhu.errind errorType="15" errorCause="34" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="2" cellId="1" />
+      <tapa.rrc.conrls ueId="3" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.43
+#
+#       Desc:    Verification of RB configuration failure when RRC user
+#                sends modify RB request before receiving the confirm for RB addition
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.43">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Verification of RB configuration failure when RRC user
+            sends modify RB request before receiving the confirm for RB addition"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1,0" pdcpId="1"  valChk="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP)
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         # Send RB modification request before getting confirm
+         # from lower layers. 
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="2"  numModRb="1" transId="1"
+          rbId="1" cellId="1" ueId = "2" modRbIdStr="4,1"  pdcpId="1"
+          modBitMskStr="5" />
+      </tapa.send>
+
+      #Expect configuration RRC Connection Setup at RLC request at PHY MAC, RLC
+       and PDCP. Also expect error indication 
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.ckw.cfgreq  use="1"  />
+         <tapa.dummy.cpj.cfgreq  use="1"  />
+         <tapa.nhu.errind />
+      </tapa.expset>
+
+     <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    5.44
+#
+#       Desc:    Successful creation of a cell with cfgTmr zero
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.44">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the successful creation of a cell.
+			  Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. Expect config request at CKW and CRG from 
+			  RRC. After successful configuration of CKW and CRG, expect Cell config 
+			  confirm from RRC, at RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+   </tapa.cfg>
+
+   <tapa.test>
+
+      #Gen Cfg for LTE-RRC
+      <tapa.send >
+         <tapa.lnh.cfg.gen numUSaps="1" numLSaps="5" 
+         minTransLstLen="2" minMuiLstLen="2" tmrVal="0" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # Send Protocol Config Request from LM to RRC
+      <tapa.send>
+         <tapa.lnh.cfg.prot maxConn = "25"/>
+      </tapa.send>
+
+      # Expect Protocol Configuration Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+       # Send Upper Sap configuration request from LM to RRC (NX)
+        <tapa.send>
+          <tapa.lnh.cfg.usap Ent="216" procId="900"/>
+        </tapa.send>
+
+        # Expect Upper SAP Config confirm from RRC to  LM
+        <tapa.expect>
+            <tapa.lnh.cfg.cfm spId="0"/>
+        </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC (KWU)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="3" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+     <tapa.delay delay="1"/>
+
+      # Expect Lower SAP Config confirm from RRC to LM (KWU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP (KWU)
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" spId="0"  suId="0" elem="3"/>
+      </tapa.send>
+
+      # RRC will send bind request to KWU
+      <tapa.expset>
+         <tapa.dummy.kwu.bndreq/>
+      </tapa.expset>
+
+      # KWU will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.kwu.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+      # Send Lower Sap configuration request from LM to RRC (CKW)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="4" suId="0" spId="0" Ent="213" procId="900"/>
+      </tapa.send>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CKW)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP(CKW)
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="4"/>
+      </tapa.send>
+
+      # RRC will send bind request to (CKW)
+      <tapa.expset>
+         <tapa.dummy.ckw.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      # CKW will send bind confirm to RRC
+      <tapa.send>
+        <tapa.dummy.ckw.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+      #CRG
+      # Send Lower Sap configuration request from LM to RRC (CRG)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="5" suId="0" spId="0" Ent="212" procId="900"/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CRG)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP (CRG)
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="5"/>
+      </tapa.send>
+
+     <tapa.delay delay="1"/>
+
+      # RRC will send bind request to CRG
+      <tapa.expset>
+         <tapa.dummy.crg.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>
+
+      # KWU will send bind confirm to RRC (CRG)
+      <tapa.send>
+        <tapa.dummy.crg.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+     #CPJ
+      # Send Lower Sap configuration request from LM to RRC (CPJ)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="6" suId="0" spId="0" Ent="214" procId="900"/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+
+      # Expect Lower SAP Config confirm from RRC to LM (CPJ)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+      # LM will send control request to bind and enable LSAP (CPJ)
+      <tapa.send>
+        #tapa.lnh.cntrl.lsap action="ABND_ENA"
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="6"/>
+      </tapa.send>
+
+      # RRC will send bind request to CPJ
+      <tapa.expset>
+         <tapa.dummy.cpj.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>
+
+      # CPJ will send bind confirm to RRC (CPJ)
+      <tapa.send>
+        <tapa.dummy.cpj.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+     #PJU
+     # Send Lower Sap configuration request from LM to RRC (PJU)
+      <tapa.send>
+         <tapa.lnh.cfg.lsap elem="7" suId="0" spId="0"/>
+      </tapa.send>
+
+     # Expect Lower SAP Config confirm from RRC to LM (PJU)
+      <tapa.expect>
+         <tapa.lnh.cfg.cfm/>
+      </tapa.expect>
+
+     # LM will send control request to bind and enable LSAP (PJU)
+      <tapa.send>
+         <tapa.lnh.cntrl.lsap action="21" suId="0" spId="0" elem="7"/>
+      </tapa.send>
+
+     # RRC will send bind request to PJU
+      <tapa.expset>
+         <tapa.dummy.pju.bndreq/>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expset>
+
+      <tapa.delay delay="1"/>
+
+      # PDCP will send bind confirm to RRC (PJU)
+      <tapa.send>
+        <tapa.dummy.pju.bndcfm suId ="0" status="1"/>
+      </tapa.send>
+
+      # NHU will send bind request to RRC
+      <tapa.send>
+         <tapa.nhu.bndreq/>
+      </tapa.send>
+
+      # RRC will send bind confirm to NHU
+      <tapa.expect>
+         <tapa.nhu.bndcfm status="1"/>
+      </tapa.expect>
+
+     # Send control request to enable unsolicited alarms
+      <tapa.send >
+         <tapa.lnh.cntrl.usta action="1" subAction="3"/>
+      </tapa.send>
+
+      # Expect control Confirm from RRC to LM
+      <tapa.expect>
+         <tapa.lnh.cntrlcfm/>
+      </tapa.expect>
+
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Config confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      #Send Config confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="4"/>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+       #RRC sends Cell config cfm to RRC user
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status='1'/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    5.45
+#
+#       Desc:    Verification of logical channel to transport channel mapping
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.45">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the logical channel to transport channel mapping for a cell."
+			  "Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. RRC sends error indication to RRC user
+           due to logical channel to transport channel mapping failure."
+           "This test case test following mapping failures:
+               - Invalid LogCh to Trch mapping in cell cfg for DL RB. 
+               - Invalid LogCh to Trch mapping in cell cfg for UL RB. 
+               - Duplicate CCCH->UL_SCH mapping in cell cfg. 
+               - Duplicate CCCH->DL_SCH mapping in cell cfg.
+               - Duplicate BCCH->BCH mapping in cell cfg.
+               - Duplicate PCCH->PCH mapping in cell cfg.
+               - Duplicate BCCH->DL_SCH mapping in cell cfg.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # **  Invalid LogCh to Trch mapping in cell cfg for DL RB. **
+
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" inValidDlLogChTrChMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      # ** Invalid LogCh to Trch mapping in cell cfg for UL RB.  **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" inValidUlLogChTrChMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      # **  Duplicate CCCH->UL_SCH mapping in cell cfg.  **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" dupCcchUlSchMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      # **  Duplicate CCCH->DL_SCH mapping in cell cfg. **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" dupCcchDlSchMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      #  **  Duplicate BCCH->BCH mapping in cell cfg. **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" dupBcchBchMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      # ** Duplicate PCCH->PCH mapping in cell cfg. **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" dupPcchPchMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+      # **  Duplicate BCCH->DL_SCH mapping in cell cfg. **
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" dupBcchDlSchMap="TRUE"/>
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="5"/>
+
+       #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.46
+#
+#       Desc:    Unsuccessful creation of a cell
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.46">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the successful creation of a cell.
+			  Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. Expect config request at CKW and CRG from 
+			  RRC. After successful configuration of CKW and CRG, expect Cell config 
+			  confirm from RRC, at RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      #Send Config confirm to RRC from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" cellId="1"/>
+      </tapa.send>
+      #Send Config confirm to RRC from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.delay delay="4"/>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="1"
+                  failCfm="1"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    5.47
+#
+#       Desc:    Unsuccessful creation of a cell
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.47">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.321,36.331" section="5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "To test the successful creation of a cell.
+			  Configure a new cell, Send Cell Setup 
+			  configuration request from NHU. Expect config request at CKW and CRG from 
+			  RRC. After successful configuration of CKW and CRG, expect Cell config 
+			  confirm from RRC, at RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send Cell config Setup Request
+      <tapa.rrc.delsap.ckw/>
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="1" transId="33" cellId="1" 
+         cellCfgBitMask="9"
+        numTxAntennas="1" numCellRb="6" rbCfgType="1"
+        spId="1" dlRlcMode="1" ulRlcMode="1"  logChCfgpres="7" />
+      </tapa.send>
+
+      #Insert delay delay of few ms
+      <tapa.delay delay="10"/>
+
+      #Expect config Request at RLC and MAC
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.nhu.errind/>
+#         <tapa.dummy.ckw.cfgreq use="1"/>
+      </tapa.expset>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+		<tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.48
+#
+#       Desc:    Successful PDCP configuration with NULL Integrity Protection Algo
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    nhac_tc5.xml
+#
+#
+<tapa.testcase id="5.48">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section=""/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+			  "RRC user will use explicit configuration with NULL Integration
+           Protection Algo to set the configurable PDCP parameters. RRC will
+           send a configuration request with these 
+			  parameters. RRC should receive configuration confirm from PDCP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      <tapa.flag id="LTERRC_REL9"/> 
+      <tapa.flag id="NHU_VER1"/> 
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <tapa.send>
+         # addBitMskStr = 1(UL), 2(DL) and 4(PDCP) 
+         # rbCfgType = 1(ADD), 2(MODIFY) and 3(RLS)
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="1"
+          rbCfgType="1"  numAddRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" addRbIdStr="4,1"  pdcpId="1" 
+          addBitMskStr="5" integrityAlgo="0" cipheringAlgo="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1" />
+         <tapa.dummy.ckw.cfgreq use="1" />
+         <tapa.dummy.cpj.cfgreq use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+     </tapa.send> 
+
+     #Send configuration confirm from RLC 
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm status="1"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+		<tapa.rrc.deinit/>
+	</tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     nhac_tc5.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     rp               1. LTE RRC Initial Release.
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#*********************************************************************91*/

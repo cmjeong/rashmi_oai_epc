@@ -1,0 +1,192 @@
+#
+#
+#       Test:    tapa.rrm.attach
+#
+#       Desc:    RRM Attach/Dettach
+#
+#       Notes:   None
+#
+#       Module:  RRM
+#
+#       File:    rmac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rrm.attachDettach">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         #"RRM Attach & Dettach Steps"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+     #Send UE Admit req to RRM
+      <tapa.send >
+         <tapa.rmu.ueadmitreq cellId="1" tCrnti="61" transId="11" connEstCause="RMU_EST_CAUSE_MO_DATA"/>
+      </tapa.send>
+
+     #Expect UEAdmitRsp from from RRM
+      <tapa.expect>
+        <tapa.rmu.ueadmitrsp cellId="1" tCrnti="61" transId="11"  
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="11" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND"
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="79"  RiConfigIndex="0"
+            SimulAckNackCqi="1" srResourceIndex="0" srConfigIndex="35"/>
+      </tapa.expect>
+
+     #Send UE Reconfig  (ICS) req to RRM (UE # 1)
+
+      <tapa.send >
+         <tapa.rmu.initconextsetupreq transId="11" tCrnti="61" cellId="1"
+            recfgBitmap="3" erabAction="RMU_ADD_ERAB" ambrPresent="1" erabId="1"
+            ueCategory="5" grpIndicator="0" erabPriority="4" erabPreemptCap="1"
+            erabPreemptVul="1" erabQci="5" erabCount="3"/>
+      </tapa.send>
+
+     #Expect UE Reconfig Rsp from from RRM
+
+      <tapa.expect>
+         <tapa.rmu.uerecfgrsp transId="11" tCrnti="61" cellId="1" recfgBitmap="3" 
+            bRadioResDedBitMap="2" bPhyCfgDedResBitMap="10"  
+            bMacMainCfgBitMap="0" CqiFormatIndex="RMU_PCQI_FMT_WIDEBAND" 
+            PucchReportMode="RMU_CQI_MODE10" CqiResourceIndex="0"
+            CqiConfigIndex="79"  RiConfigIndex="162" 
+            SimulAckNackCqi="1" erabId="1" erabCount="3" />
+      </tapa.expect>
+
+     <tapa.delay delay="20"/>
+
+      #Send UE Release  req to RRM
+      <tapa.send >
+         <tapa.rmu.uerelreq cellId="1" tCrnti="61" transId="11" />
+      </tapa.send>
+
+      #Expect UERelRsp from from RRM
+      <tapa.expect>
+         <tapa.rmu.uerelrsp cellId="1" tCrnti="61" transId="11"/>
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.rrm.shutdown
+#
+#       Desc:    RRM Shutdown
+#
+#       Notes:   None
+#
+#       Module:  RRM
+#
+#       File:    rmac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rrm.shutdown">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         #"RRM Shutdown Steps"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+       # Send Protocol Config Request from SM to RRM (Delete Cell # 1)
+       <tapa.send>
+            <tapa.lrm.cellcfgreq cellId="1" action="3" />
+       </tapa.send>
+       
+       # Expect Protocol Configuration Confirm from RRM to LM
+       <tapa.expect>
+            <tapa.lrm.cellcfgCfm/>
+       </tapa.expect>
+       
+       <tapa.send >
+            <tapa.lrm.enbCtrlReq  coupling="2" choice="2"/>
+       </tapa.send>
+       
+       <tapa.expect>
+            <tapa.lrm.enbCtrlCfm/>
+       </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Test:    tapa.rrm.shutdownMultiCell
+#
+#       Desc:    RRM Shutdown for Cell1 and 2
+#
+#       Notes:   None
+#
+#       Module:  RRM
+#
+#       File:    rmac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rrm.shutdownMultiCell">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         #"RRM Shutdown Steps Cell 1 and 2 "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+       # Send Protocol Config Request from SM to RRM (Delete Cell # 2)
+       <tapa.send>
+            <tapa.lrm.cellcfgreq cellId="2" action="3" />
+       </tapa.send>
+       
+       # Expect Protocol Configuration Confirm from RRM to LM
+       <tapa.expect>
+            <tapa.lrm.cellcfgCfm/>
+       </tapa.expect>
+
+       # Send Protocol Config Request from SM to RRM (Delete Cell # 1)
+       <tapa.send>
+            <tapa.lrm.cellcfgreq cellId="1" action="3" />
+       </tapa.send>
+       
+       # Expect Protocol Configuration Confirm from RRM to LM
+       <tapa.expect>
+            <tapa.lrm.cellcfgCfm/>
+       </tapa.expect>
+
+       <tapa.send >
+            <tapa.lrm.enbCtrlReq  coupling="2" choice="2"/>
+       </tapa.send>
+       
+       <tapa.expect>
+            <tapa.lrm.enbCtrlCfm/>
+       </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>

@@ -1,0 +1,4624 @@
+
+#       Test:    17.1
+#
+#       Desc:    Test that packets sent in sequence are delivered
+#                in sequence without storing.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Test that packets received in order are relayed in order to the
+         application"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" reOrderPres="TRUE"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" tunnelType="EG_FWD_DATA_TUNN" remTeid="1"
+	rmtAddr="127.0.0.1"  teid="2"  expSeqNmb ="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+      <tapa.expect guardTmr="100000" >
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+           />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+           />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+   <!--
+     <tapa.expect guardTmr="100000">
+     -->
+
+
+     <tapa.expect guardTmr="100000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+           />
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.2
+#
+#       Desc:   Send a packet out of order. Send the expected packet before
+#               timer expiry.The packets should be delivered in order before
+#               timer expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a packet out of order. Send the expected packet before
+      timer expiry.The packets should be delivered in order."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+      #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:3"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    17.3
+#
+#       Desc:    Test the re-order timer expiry. Dont send the expected sequence
+#                number and wait for the timer to expire. Send the subsequent
+#                packets out of order. The subseuent packets should be delivered
+#                in order after timer expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Test the re-order timer expiry. Dont send the expected sequence number and wait
+      for the timer to expire. Send the subsequentpackets out of order. The subseuent
+      packets should be delivered in order after timer expiry"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+         <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+     #Expect UDatInd tunnel 2
+     <tapa.expect>
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:4:5:6"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.4
+#
+#       Desc:    Test that after timer expiry all the packets till the next
+#                from the packet which started the timer are delivered. The
+#                packets in sequence after the triggering packet should be
+#                delivered. The remaining packets should be delivered after
+#                the next timer expiry.
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Test that after timer expiry all the packets till the next
+      from the packet which started the timer are delivered. The
+      packets in sequence after the triggering packet should be
+      delivered. The remaining packets should be delivered after
+      the next timer expiry."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="10" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="11" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="14" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:4:6:7:8"/>
+      </tapa.expect>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="10:11:13:14"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="18" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="17" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="16:17:18"/>
+      </tapa.expect>
+
+   <tapa.delay delay="20"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.5
+#
+#       Desc:    Test that after timer expiry all the packets till the next
+#                from the packet which started the timer are delivered. The
+#                packets sent after timer expiry should be delivered in
+#                sequence.
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Test that after timer expiry all the packets till the next
+      from the packet which started the timer are delivered. The
+      packets sent after timer expiry should be delivered in
+      sequence."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->   
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:4:6:7:8"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="10" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="11" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="14" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="10:11"/>
+      </tapa.expect>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="13:14"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.6
+#
+#       Desc:    when the window starts in the middle of the buffer
+#                all packets arriving within the window size should be
+#                accomodated at the beginning of the buffer and delivered
+#                on subsequent timer expiry.At any point of time, packets
+#                outside the window should be dropped.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "When the window starts in the middle of the buffer
+      all packets arriving within the window size should be
+      accomodated at the beginning of the buffer and delivered
+      on subsequent timer expiry. At any point of time, packets
+      outside the window should be dropped"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+    -->  
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="16" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="20" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="19" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="18" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="21" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="22" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="23" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="34" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="35" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #This packet is outside the window and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="18:19:20:21:22:23"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="36" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="37" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="38" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="40" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="41" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+       # This packet is outside the window and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="54" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="42" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="34:35:36:37:38:39:40:41:42"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.7
+#
+#       Desc:    When the window starts in the middle of the buffer
+#                all packets arriving within the window size should be
+#                accomodated at the beginning of the buffer and delivered
+#                on subsequent timer expiry.At any point of time, packets
+#                outside the window should be dropped.[This test case is
+#                same as 17.6 but around sequence number boundary.]
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "When the window starts in the middle of the buffer
+      all packets arriving within the window size should be
+      accomodated at the beginning of the buffer and delivered
+      on subsequent timer expiry.At any point of time, packets
+      outside the window should be dropped."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0" remTeid="1" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="65528" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65528" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65528" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65533" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65532" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65531" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65530" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65535" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      #This packet is outseide the windiw and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="65530:65531:65532:65533"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="10" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="11" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="12" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="14" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="15" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE"
+           seqNumLst="65535:2:3:4:5:6:7:8:9:10:11:12:13:14:15"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.8
+#
+#       Desc:    After re-ordering has started, if the expected
+#                sequence number arrives, the buffer should be
+#                flushed till the packetin sequence till the packet
+#                which triggered re-ordering along with packets in
+#                sequence after that. The rest of the packets will
+#                be delivered on the respective timer expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+
+      "After re-ordering has started, if the expected
+      sequence number arrives, the buffer should be
+      flushed till the packet which triggered re-ordering
+      along with packets in sequence after that. The rest
+      of the packets will be delivered on the respective
+      timer expiry."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+    -->  
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="16" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"  />
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="20" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="19" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="18" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="21" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="22" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="23" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="34" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="35" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #Send the expected sequence number to flush the packets
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="17" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      #This packet is outseide the windiw and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="17:18:19:20:21:22:23"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="36" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="37" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="38" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="40" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="41" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+       # This packet is outside the window and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="56" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="42" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="34:35:36:37:38:39:40:41:42"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.9
+#
+#       Desc:   Test that all packets outside window should
+#               be dropped.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+
+      "Test that all packets outside window should
+      be dropped."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="16" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="20" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="19" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #This packet is outside the windiw and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="34" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="35" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="19:20"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="36" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="37" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+       # This packet is outside the window and should be dropped.
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="54" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="34:35:36:37"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.10
+#
+#       Desc:    After re-ordering has started, if the expected
+#                sequence number arrives, the buffer should be
+#                flushed till the packets in sequence till the packet
+#                which triggered re-ordering along with packets in
+#                sequence after that. The rest of the packets will
+#                be delivered on the respective timer expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+
+      "After re-ordering has started, if the expected
+      sequence number arrives, the buffer should be
+      flushed till the packet which triggered re-ordering
+      along with packets in sequence after that. The rest
+      of the packets will be delivered on the respective
+      timer expiry."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="16" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="20" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <!--
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="19" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      -->
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="18" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="21" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="22" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="23" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="34" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #Send the expected sequence number to flush the packets
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="17" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="35" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="37" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #This packet is outseide the windiw and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="17:18"/>
+      </tapa.expect>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="20:21:22:23:34:35"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="38" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="39" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="40" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="41" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+       # This packet is outside the window and should be dropped.
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="42" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="37:38:39:40:41:42"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+      <tapa.send >
+         <tapa.leg.cntrl.shutdown /> 
+      </tapa.send>
+<!--
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="55"/>
+      </tapa.expect>
+-->
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+   <!--
+   <tapa.hi.deinit/>
+-->
+
+
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#Test Cases for Re-ordering Algorithm Type 2
+
+#       Test:    17.11
+#
+#       Desc:    Test that packets sent in sequence are delivered
+#                in sequence without storing.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Test that packets received in order are relayed in order to the
+         application"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0" reOrderPres="TRUE"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1"
+	rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2" teid="2"  expSeqNmb ="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+   <!--
+     <tapa.expect guardTmr="100000">
+     -->
+     <tapa.expect guardTmr="100000" >
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="100000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+     <tapa.expect guardTmr="100000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--  
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    17.12
+#
+#       Desc:   Send a packet out of order. Send the expected packet before
+#               timer expiry.The packets should  not be delivered till timer
+#               expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a packet out of order. Send the expected packet before
+      timer expiry.The packets should be delivered after timer expiry ."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--   
+      <tapa.hi.init/>
+   -->   
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="2152" remTeid="2"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" tunnelType="EG_FWD_DATA_TUNN"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_1"  teid="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152" remTeid="1"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" tunnelType="EG_FWD_DATA_TUNN"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:3"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!-- 
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.13
+#
+#       Desc:   Send a packet out of order. All the packets sent after that
+#               should be delivered after timer expiry.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a packet out of order. All the packets sent after that
+      should be delivered after timer expiry."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:3:4:5:6:8:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    17.14
+#
+#       Desc:   Send a packet out of order. All the packets sent after that
+#               should be delivered after timer expiry.[Same as testcase 17.13
+#               but for sequence number boundary(65535).]
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a packet out of order. All the packets sent after that
+      should be delivered after timer expiry."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="65530" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65530" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65530" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65533" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65535" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="0" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="65533:65535:0:2:3:5:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    17.15
+#
+#       Desc:   Packets outside the window should be dropped.
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Packets outside the window should be dropped."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #Packet outside the window should be dropped.
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="4:5:8:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.16
+#
+#       Desc:   Packets outside the window should be dropped[With sequence
+#               number boundary].
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Packets outside the window should be dropped."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="65533" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65534" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65535" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #Packet outside the window should be dropped.
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+     #Expect UDatInd tunnel 2
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="65534:65535:5:8:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.17
+#
+#       Desc:   Packet less than expected sequence number should be dropped.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Packet with less than the expected sequence number should be dropped."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="65533" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65530" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65533" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+     #Expect UDatInd tunnel 2
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="65533"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.18
+#
+#       Desc:    Testing simultaneous re-ordering for two tunnels.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Testing simultaneous re-ordering for 2 tunnels."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+     #Expect UDatInd tunnel 2
+     <tapa.expset guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+            />
+
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:5:6"/>
+
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:5:6"/>
+
+
+      </tapa.expset>
+<!--
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+     #Expect UDatInd tunnel 3
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:5:6"/>
+      </tapa.expect>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="3:5:6"/>
+      </tapa.expect>
+-->
+
+   <tapa.delay delay="50"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!-- 
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.19
+#
+#       Desc:    Testing simultaneous re-ordering for two tunnels
+#                with different algorithms.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Testing simultaneous re-ordering for two tunnels
+      with different algorithms."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" reordAlgo="EG_REORDER_TYPE_2" expSeqNmb="65533" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65535" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65534" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="65533" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+     #Expect UDatInd tunnel 2
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:3:5:6"/>
+      </tapa.expect>
+
+     #Expect UDatInd tunnel 3
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="65533:65534:65535:1"/>
+      </tapa.expect>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="8:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#       Test:    17.20
+#
+#       Desc:   Duplicate packets should be dropped.
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Duplicate should be dropped."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--   
+      <tapa.hi.init/>
+   -->   
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #Packet outside the window should be dropped.
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+#Duplicate Packet, should be dropped
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="4:5:8:9"/>
+      </tapa.expect>
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!-- 
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    17.21
+#
+#       Desc:   When window full, flush the packets.
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "When window full, flush the packets."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+    -->  
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="2152" remTeid="2" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="10000" remTeid="3" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1" reordAlgo="EG_REORDER_TYPE_2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+#Duplicate Packet, should be dropped
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="3" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="10" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="11" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="12" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="14" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="15" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="16" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="17" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="18" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="19" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="20" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="21" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="22" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="3"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE"
+             seqNumLst="3:4:5:6:7:8:9:10:11:12:13:14:15:16:17:18:19:20:21:22"/>
+      </tapa.expect>
+
+   <tapa.delay delay="50"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    17.22
+#
+#       Desc:   Packets sent out of order on a non-reordering tunnel should be
+#               received out of order as sent.
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Packets sent out of order on a non-reordering tunnel should be
+      received out of order as sent."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="9" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="30" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="4" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+            />
+      </tapa.expect>
+
+
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+#       Test:    17.23
+#
+#       Desc:  Send a non GPDU message on a tunnel with re-ordering enabled.
+#              
+#              
+#
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc17.xml
+#
+<tapa.testcase id="17.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a non GPDU message on a tunnel with re-ordering enabled."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+      
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1"
+         action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2" reOrderPres="FALSE" intfType="EGT_INT_X2_DL_ENB_GTP_U" />
+
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" reOrderPres="TRUE"
+	 expSeqNmb="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.expect>
+      
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send End Marker on tunnel 2
+      
+      <tapa.send>
+           <tapa.egt.egudatreq suId="0" spId="0" pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.1"
+           msgType="EGT_GTPU_MSG_END_MARKER"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  suId="0" spId="0" pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="5"  udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remteid="0" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.1"
+           msgType="EGT_GTPU_MSG_END_MARKER"
+           lclTeid="2"/>
+      </tapa.expect>
+     
+   <tapa.delay delay="30"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+

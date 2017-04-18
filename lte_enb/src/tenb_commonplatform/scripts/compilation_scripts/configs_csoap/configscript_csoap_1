@@ -1,0 +1,62 @@
+#!/bin/sh
+
+#Compilation script for building libsoap-1.1.0
+CROSS_COMPILER=$1
+if [ "$1" = "arm-none-linux-gnueabi" ] || [ "$1" = "gcc" ] || [ "$1" = "mipsel-unknown-linux-gnu" ] ;
+then
+echo "************************************************"
+echo "Compiler Selected : $CROSS_COMPILER"
+echo "************************************************"
+#######################################################################################
+if [ "$1" = "gcc" ] ;
+then
+make clean SUBDIRS="nanohttp libcsoap"
+
+./configure --prefix=`pwd`/../../libs/bin/csoap/generic/i686-linux \
+            --with-xml-prefix=`pwd`/../../libs/bin/libxml2-2.7.2/generic/i686-linux\
+            SSLDIR=`pwd`/../openssl-0.9.8/openssl-0.9.8rl/\
+            --with-ssl --enable-static
+
+make SUBDIRS="nanohttp libcsoap"
+
+make install SUBDIRS="nanohttp libcsoap"
+########################################################################################
+elif [ "$1" = "mipsel-unknown-linux-gnu" ] ;
+then
+make clean SUBDIRS="nanohttp libcsoap"
+./configure --build=i686-pc-linux \
+            --host=$CROSS_COMPILER \
+            --with-endianness=little \
+            --enable-shared=no \
+            --prefix=`pwd`/../../libs/bin/csoap/hbs2-4/$CROSS_COMPILER \
+            --with-xml-prefix=`pwd`/../../libs/bin/libxml2-2.7.2/hbs2-4/$CROSS_COMPILER \
+            --with-ssl-prefix=`pwd`/../openssl-0.9.8/openssl-0.9.8rm/include/openssl/$CROSS_COMPILER\
+            --with-ssl --enable-static\
+            SSLDIR=`pwd`/../openssl-0.9.8/openssl-0.9.8rm/\
+            CC=$CROSS_COMPILER-gcc \
+            AR=$CROSS_COMPILER-ar 
+##################################################################################################
+
+elif [ "$1" = "arm-none-linux-gnueabi" ];
+then
+make clean SUBDIRS="nanohttp libcsoap"
+./configure --build=i686-pc-linux \
+            --host=$CROSS_COMPILER \
+            --with-endianness=little \
+            --enable-shared=no \
+            --prefix=`pwd`/../../libs/bin/csoap/hbs2-4/$CROSS_COMPILER \
+            --with-xml-prefix=`pwd`/../../libs/bin/libxml2-2.7.2/hbs2-4/$CROSS_COMPILER \
+            --with-ssl-prefix=`pwd`/../openssl-0.9.8/openssl-0.9.8r/include/openssl/$CROSS_COMPILER\
+            --with-ssl --enable-static\
+            SSLDIR=`pwd`/../openssl-0.9.8/openssl-0.9.8r/\
+            CC=$CROSS_COMPILER-gcc \
+            AR=$CROSS_COMPILER-ar
+fi
+else
+echo "***************************************************************"
+echo "Invalid compiler option please chose compiler option from below"
+echo " mipsel-unknown-linux-gnu"
+echo " arm-none-linux-gnueabi"
+echo " gcc"
+echo "***************************************************************"
+fi

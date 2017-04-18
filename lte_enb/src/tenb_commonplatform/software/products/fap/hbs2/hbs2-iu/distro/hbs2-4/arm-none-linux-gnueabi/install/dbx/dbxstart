@@ -1,0 +1,483 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 29282 $
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+FLASH_DIR_FPGA=$FLASH_DIR_ACTIVE_BANK/fpga
+FLASH_DIR_LIB=$FLASH_DIR_ACTIVE_BANK/lib
+FLASH_DIR_LOCAL_CFG=$FLASH_DIR_ACTIVE_BANK/config
+FLASH_DIR_COMMON_CFG=$FLASH_DIR/config
+FLASH_DIR_ETC=$FLASH_DIR_ACTIVE_BANK/etc
+FLASH_DIR_MODS=$FLASH_DIR_ACTIVE_BANK/lib/modules/`uname -r | sed "s/-svn[0-9]\\+[MmSs]\\?//"`
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+
+# If there's an update pending run the script to actually do it!
+if [ -e $FLASH_DIR_APPS/installUpdate ] ; then
+	chmod +x $FLASH_DIR_APPS/installUpdate
+	$FLASH_DIR_APPS/installUpdate
+	OK=$?
+	rm -f $FLASH_DIR_APPS/installUpdate
+	if [ "$OK" = "0" ] ; then
+		echo "Update suceeded - rebooting with new kernel and apps!"
+	else
+		echo "Update failed - sticking with old kernel and apps!"
+	fi
+	sync
+	reboot
+	sleep 120
+fi
+
+# Set approximate date to start with.  This is a workaround since NTP time comes along late.
+# This is required to validate certificate of the config file.
+
+INITIAL_DATE_TIME="061417432012"
+
+if [ "$INITIAL_DATE_TIME" = "" ]; then
+  echo "WARNING!  Build process has not correctly set the initial date/time, defaulting it"
+  INITIAL_DATE_TIME="043012002010"
+fi
+echo "Setting initial date/time to $INITIAL_DATE_TIME"
+date -s "$INITIAL_DATE_TIME"
+
+# Run script to perform any first boot installation actions,
+# typically modifications to configuration files or stuff which
+# absolutely has to happen before a new software load will run
+# regardless of whether it's arrived through the "official"
+# update process or some other mechanism...
+if [ -f $FLASH_DIR_APPS/first-boot-script ]; then
+   chmod +x $FLASH_DIR_APPS/first-boot-script
+   $FLASH_DIR_APPS/first-boot-script
+   mv -f $FLASH_DIR_APPS/first-boot-script first-boot-script.done
+fi
+
+# work-around to avoid large change in system time breaking ipsec tunnel on ntp sync
+if [ -e "$FLASH_DIR_APPS/initial-ntp-time" ] ; then
+  . $FLASH_DIR_APPS/initial-ntp-time
+fi
+
+# Copy any modules from the app load onto the system image
+#  Note: We ignore the SVN version of the uname here since it may change
+#         without significance
+if [ -d "$FLASH_DIR_MODS" ] ; then
+  echo "Copying kernel modules for `uname -r`"
+  cp -rf $FLASH_DIR_MODS/* /lib/modules/`uname -r`/
+
+  # Add entires to allow modprobe to find new modules
+  find /lib/modules/`uname -r`/ -name *.ko | awk '{printf "%s:\n" $1}' >> /lib/modules/`uname -r`/modules.dep
+
+  # Add colon for the final entry in the list
+  echo ":" >> /lib/modules/`uname -r`/modules.dep
+fi
+
+# Ensure libraries are executable and in the library PATH
+chmod a+x $FLASH_DIR_LIB/*.so > /dev/null
+export LD_LIBRARY_PATH=$FLASH_DIR_LIB
+
+# Load any required loadable modules
+modprobe -q devfpgairq
+modprobe -q devfpgareg
+modprobe -q devfpgasport
+modprobe -q devfpgaecspi
+modprobe -q devafespi
+modprobe -q i2c-core
+modprobe -q i2c-bfin-twi
+modprobe -q i2c-dev
+modprobe -q simple-gpio
+
+# Load the tpm reset line control module
+modprobe tpm_reset_ctrl
+
+# Create any required nodes incase hotplug is missing
+mdev -s
+
+# Disable realtime process limit if available
+[ -f /proc/sys/kernel/sched_rt_runtime_us ] && echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+[ -f /proc/sys/kernel/sched_compat_yield ] && echo 1 > /proc/sys/kernel/sched_compat_yield
+
+# Configure the loopback device
+ifconfig lo 127.0.0.1
+
+# Get some key variables from the MIB
+SERIALNUM=`$FLASH_DIR_APPS/mib-firkler -q LONG_SERIAL_NUMBER`
+HWTYPE=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_TYPE`
+HWREV=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_REVISION`
+HWMOD=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_MOD_STATE`
+
+# Add "cli" to services recognised by inetd
+grep -q cli /etc/services
+if [ "$?" = "1" ] ; then
+  echo "cli     54321/tcp" >> /etc/services
+fi
+
+# Configure cli service for inetd
+grep -q "cli -c" /etc/inetd.conf
+if [ "$?" = "1" ] ; then
+  echo "cli     stream tcp nowait root /mnt/dbx/cli -c" >> /etc/inetd.conf
+fi
+
+# Add "ate" to services recognised by inetd
+grep -q ate /etc/services
+if [ "$?" = "1" ] ; then
+  echo "ate     25001/tcp" >> /etc/services
+fi
+
+# Configure ate service for inetd
+grep -q "cli -a" /etc/inetd.conf
+if [ "$?" = "1" ] ; then
+  echo "ate     stream tcp nowait root /mnt/dbx/cli -a" >> /etc/inetd.conf
+fi
+
+# Add "atedev" to services recognised by inetd
+grep -q "atedev" /etc/services
+if [ "$?" = "1" ] ; then
+  echo "atedev  25002/tcp" >> /etc/services
+fi
+
+# Configure ate service for inetd
+grep -q "cli -a -d" /etc/inetd.conf
+if [ "$?" = "1" ] ; then
+  echo "atedev  stream tcp nowait root /mnt/dbx/cli -a -d" >> /etc/inetd.conf
+fi
+
+# Start inetd to allow development access if not already running
+ps | grep -v grep | grep -q inetd
+if [ "$?" = "1" ] ; then
+  inetd &
+fi
+
+# Ensure apps can be executed
+chmod +x $FLASH_DIR_APPS/*
+
+# Make directory for NV log files.
+# Matches the path in Application::GetNvLogDirectory().
+if [ ! -d $FLASH_DIR/log ] ; then
+	mkdir -p $FLASH_DIR/log
+fi
+
+# Make directory for temporary files e.g. s/w downloads.
+# Matches the path in Application::GetNvTmpDirectory().
+if [ ! -d $FLASH_DIR/tmp ] ; then
+	mkdir -p $FLASH_DIR/tmp
+fi
+
+# Create trace directory if needed
+#  Make /dbx writable on V4 since the rootfs is read-only by default
+[ "$HWTYPE" = "5" ] || mount -t tmpfs tmpfs /dbx
+mkdir -p $TRACE_DIR
+
+
+# Configure IP stack
+
+# Lower TCP max segment size to avoid fragmentation when using extra headers
+#  e.g. IPsec over PPPoE
+if [ -w /proc/sys/net/ipnet/tcp/max_mss ] ; then
+  echo 1380 > /proc/sys/net/ipnet/tcp/max_mss
+fi
+
+# Update IKE configuration files if they do not exist
+if [ ! -s $FLASH_DIR_LOCAL_CFG/ike.sysvar ]; then
+   echo "IKE sys config not found. Setting it to defaults."
+   cp $FLASH_DIR_LOCAL_CFG/ike-defaults.sysvar $FLASH_DIR_LOCAL_CFG/ike.sysvar
+fi
+
+
+#######################
+# Move IP config to MIB
+# \/ \/ \/ \/ \/ \/ \/
+SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=1
+SOME_ETH0_CONFIG_FILES_FOUND=0
+SOME_ETH0_CONFIG_FILES_MISSING=0
+
+# Move eth0_mac_address contents into MIB
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_mac_address ];
+then
+    SOME_ETH0_CONFIG_FILES_FOUND=1
+    eth0_mac_address=`cat $FLASH_DIR_COMMON_CFG/eth0_mac_address | tr -d '\n\r\t '`
+    $FLASH_DIR_APPS/mib-firkler -f UNIT_MAC_ADDRESS $eth0_mac_address
+    if [ $? = 0 ];
+    then
+        echo "Committed MAC address to MIB OK."
+    else
+        echo "Commit MAC address to MIB failed!"
+        SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=0
+    fi
+else
+    SOME_ETH0_CONFIG_FILES_MISSING=1
+fi
+
+# Move eth0_ip_address contents into MIB
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_ip_address ];
+then
+    SOME_ETH0_CONFIG_FILES_FOUND=1
+    eth0_ip_address=`cat $FLASH_DIR_COMMON_CFG/eth0_ip_address | tr -d '\n\r\t '`
+    $FLASH_DIR_APPS/mib-firkler STATIC_IP_CONFIG_IP_ADDRESS $eth0_ip_address
+    if [ $? = 0 ];
+    then
+        echo "Committed static ip address to MIB OK."
+    else
+        echo "Commit static ip address to MIB failed!"
+        SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=0
+    fi
+else
+    SOME_ETH0_CONFIG_FILES_MISSING=1
+fi
+
+# Move eth0_net_mask contents into MIB
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_net_mask ];
+then
+    SOME_ETH0_CONFIG_FILES_FOUND=1
+    eth0_net_mask=`cat $FLASH_DIR_COMMON_CFG/eth0_net_mask | tr -d '\n\r\t '`
+    $FLASH_DIR_APPS/mib-firkler STATIC_IP_CONFIG_NET_MASK $eth0_net_mask
+    if [ $? = 0 ];
+    then
+        echo "Committed static netmask to MIB OK."
+    else
+        echo "Commit static netmask to MIB failed!"
+        SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=0
+    fi
+else
+    SOME_ETH0_CONFIG_FILES_MISSING=1
+fi
+
+# Move eth0_gateway contents into MIB
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_gateway ];
+then
+    SOME_ETH0_CONFIG_FILES_FOUND=1
+    eth0_gateway=`cat $FLASH_DIR_COMMON_CFG/eth0_gateway | tr -d '\n\r\t '`
+    $FLASH_DIR_APPS/mib-firkler STATIC_IP_CONFIG_GATEWAY $eth0_gateway
+    if [ $? = 0 ];
+    then
+        echo "Committed static gateway ip address to MIB OK."
+    else
+        echo "Commit static gateway to MIB failed!"
+        SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=0
+    fi
+else
+    SOME_ETH0_CONFIG_FILES_MISSING=1
+fi
+
+# If all the eth0_* files were found, we're maintaining the previous DHCP state.
+if [ $SOME_ETH0_CONFIG_FILES_MISSING -eq 0 ] ;
+then
+    echo "Importing into MIB the unit's DHCP status."
+    if [ -f $FLASH_DIR_COMMON_CFG/eth0_dhcp_enable ];
+    then
+        $FLASH_DIR_APPS/mib-firkler DHCP 1
+        if [ $? = 0 ];
+        then
+            echo "Committed DHCP(enabled) to MIB OK ."
+        else
+            echo "Commit DHCP(enabled) to MIB failed!"
+            SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES=0
+        fi
+    else
+        $FLASH_DIR_APPS/mib-firkler DHCP 0
+        if [ $? = 0 ];
+        then
+            echo "Committed DHCP(disabled) to MIB OK."
+        else
+            echo "Commit DHCP(disabled) to MIB failed!"
+        fi
+    fi
+fi
+
+# Unless a failure detected, deprecate eth0_* files
+if [ $SAFE_TO_DEPRECATE_ALL_ETH0_CONFIG_FILES -eq 1 ] && [ $SOME_ETH0_CONFIG_FILES_FOUND -eq 1 ] ;
+then
+    echo "Eth0 configuration files deprecated, settings retained in MIB"
+    mkdir -p $FLASH_DIR_COMMON_CFG/.deprecated_eth0_files
+    mv -f $FLASH_DIR_COMMON_CFG/eth0_* $FLASH_DIR_COMMON_CFG/.deprecated_eth0_files/
+fi
+# /\ /\ /\ /\ /\ /\
+####################
+
+### Configure extended IP features
+
+if [ -x $FLASH_DIR_APPS/configure_backhaul.sh ] && [ -x $FLASH_DIR_APPS/firewall.sh ]; then
+    MTU=`$FLASH_DIR_APPS/mib-firkler -q MTU`
+    DNS_SERVER_ADDRESS_1=`$FLASH_DIR_APPS/mib-firkler -q DNS_SERVER_ADDRESS_1`
+    DNS_SERVER_ADDRESS_2=`$FLASH_DIR_APPS/mib-firkler -q DNS_SERVER_ADDRESS_2`
+    DNS_SERVER_ADDRESS_3=`$FLASH_DIR_APPS/mib-firkler -q DNS_SERVER_ADDRESS_3`
+    IP_FIREWALL_ENABLE=`$FLASH_DIR_APPS/mib-firkler -q IP_FIREWALL_ENABLE`
+
+    if [ "" != "${MTU}" ]; then
+        echo Configuring MTU "${MTU}"
+        /sbin/ifconfig eth0 mtu "${MTU}"
+    fi
+
+    echo Configuring DNS
+    echo -n "" >/etc/resolv.conf
+    if [ "0.0.0.0" != "${DNS_SERVER_ADDRESS_1}" ]; then echo "nameserver ${DNS_SERVER_ADDRESS_1}" >>/etc/resolv.conf; fi
+    if [ "0.0.0.0" != "${DNS_SERVER_ADDRESS_2}" ]; then echo "nameserver ${DNS_SERVER_ADDRESS_2}" >>/etc/resolv.conf; fi
+    if [ "0.0.0.0" != "${DNS_SERVER_ADDRESS_3}" ]; then echo "nameserver ${DNS_SERVER_ADDRESS_3}" >>/etc/resolv.conf; fi
+
+    $FLASH_DIR_APPS/configure_backhaul.sh
+
+    echo Configuring IP firewall
+    $FLASH_DIR_APPS/firewall.sh initialise
+
+    if [ "0" == "${IP_FIREWALL_ENABLE}" ]; then
+        $FLASH_DIR_APPS/firewall.sh disable
+    fi
+fi
+
+####################
+# ETH0 configuration
+# \/ \/ \/ \/ \/ \/
+static_ip_config_ip_address=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_IP_ADDRESS`
+static_ip_config_netmask=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_NET_MASK`
+static_ip_config_gateway=`$FLASH_DIR_APPS/mib-firkler -q STATIC_IP_CONFIG_GATEWAY`
+
+# MAC Address
+# Two stage test-before-assign to overcome busybox shell bug
+unit_mac_address="01:23:34:67:89:ab"
+$FLASH_DIR_APPS/mib-firkler -q UNIT_MAC_ADDRESS > /dev/null
+if [ $? -eq 0 ]; then
+    unit_mac_address=`$FLASH_DIR_APPS/mib-firkler -q UNIT_MAC_ADDRESS`
+    ifconfig eth0 hw ether $unit_mac_address
+elif [ "$HWTYPE" = 5 ]; then
+    echo "Reading MAC address from u-boot environment."
+    /mnt/dbx/fap-flash u-bootenvread ethaddr | tr -d '\n\r\t '
+    if [ $? -eq 0 ];
+    then
+        unit_mac_address=`/mnt/dbx/fap-flash u-bootenvread ethaddr | tr -d '\n\r\t '`
+        ifconfig eth0 hw ether $unit_mac_address
+    else
+        echo "MAC address not found!"
+    fi
+fi
+
+# Two stage test-before-assign to overcome busybox shell bug
+dhcp_status=1
+$FLASH_DIR_APPS/mib-firkler -q DHCP > /dev/null
+if [ $? -eq 0 ];
+then
+    dhcp_status=`$FLASH_DIR_APPS/mib-firkler -q DHCP`
+else
+    echo "Failed to detemine if DHCP disabled, fallback to DHCP"
+fi
+
+if [ $dhcp_status -eq 0 ];
+then
+    # DHCP disabled; verify static ip config
+    $FLASH_DIR_APPS/validate-ip-configuration ${static_ip_config_ip_address} ${static_ip_config_netmask} ${static_ip_config_gateway} > /dev/null
+    if [ $? -ne 0 ];
+    then
+        echo "Static IP config inconsistent, fallback to DHCP"
+        $FLASH_DIR_APPS/mib-firkler -q DHCP 1
+        dhcp_status=1
+    fi
+fi
+
+if [ $dhcp_status -eq 1 ];
+then
+    echo "eth0: Pending DHCP configuration"
+    if [ "$HWTYPE" != 5 ] ; then
+      dhcpcd -RYN
+      while [ "$?" != "0" ] ; do
+        # Failed to get an IP address; retry, but with debug to the syslog (-d)
+        echo "eth0: Retrying DHCP configuration"
+        sleep 1
+        dhcpcd -dRYN
+      done
+    else
+      dhcpcd -p &
+      acquired=""
+      while [ "" = "${acquired}" ];
+      do
+        sleep 2
+        acquired=`ifconfig | sed -n '/^eth0/{n;p;}' | sed -n 's/^.*\(inet addr:[0-9\.]*.*\)/\1/p'`
+      done
+      echo "eth0: configured by DHCP as ${acquired}"
+    fi
+else
+    sleep 5
+    ifconfig eth0 down
+    ifconfig eth0 $static_ip_config_ip_address netmask $static_ip_config_netmask
+    ifconfig eth0 up
+    route add default gw $static_ip_config_gateway eth0
+    echo "eth0: mac=$unit_mac_address ip=$static_ip_config_ip_address mask=$static_ip_config_netmask"
+
+fi
+# /\ /\ /\ /\ /\ /\
+####################
+
+# Set window title
+if [ -f $FLASH_DIR_ETC/last-make-download.txt ] ; then
+    LASTD="Last distro download: `cat $FLASH_DIR_ETC/last-make-download.txt | sed 's/^.*at //'`"
+else
+    LASTD=
+fi
+echo '\033]0;HBS2' $LASTD'\007'
+echo "$LASTD"
+
+
+# Print info about the board
+echo "fap: serialnum=$SERIALNUM hw=$HWTYPE/$HWREV/$HWMOD"
+
+# Copy SNMP config file.
+if [ -e $FLASH_DIR_LOCAL_CFG/3waysnmp.conf ]; then
+	mkdir -p /root/.snmp
+	cp $FLASH_DIR_LOCAL_CFG/3waysnmp.conf /root/.snmp
+fi
+# Need to set HOME environment var so SNMP libs can find /root/.snmp/3waysnmp.conf
+export HOME=/root
+export PATH=$PATH:${RUNTIME_DIR}
+
+cd $RUNTIME_DIR
+
+if [ -e /mnt/config/attempt_alt_start ]; then
+  # Try to get an alternative dbxstart from TFTP server.
+  tftp -g -r dbxstart_alt 192.168.0.254
+fi
+
+if [ -s dbxstart_alt ]; then
+  umount $FLASH_DIR
+  echo "Running dbxstart_alt"
+  chmod a+x dbxstart_alt
+  ./dbxstart_alt
+else
+  echo "No dbxstart_alt"
+
+  # Check for 2008R1 Kernel
+  uname -r | grep -q "2008R1"
+  if [ $? != "1" ] ; then
+
+    # Load the FPGA register and IRQ interface drivers
+    modprobe devfpgareg
+    modprobe devfpgairq
+
+    # Call mdev manually to get /dev nodes without the need for hotplug
+    mdev -s
+
+  fi
+
+  $FLASH_DIR_APPS/radiocal-check
+
+  echo "Linking common script/apps."
+  ln -s $FLASH_DIR_APPS/tftp-trace-files $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/ftp-trace-files $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/create-trace-tarball $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/the-proto-prof $TRACE_DIR
+  chmod +x $FLASH_DIR_APPS/tftp-trace-files $FLASH_DIR_APPS/the-proto-prof
+
+
+  cp $FLASH_DIR_APPS/get-proc-addr $RUNTIME_DIR
+  chmod +x $RUNTIME_DIR/get-proc-addr
+
+  echo "Copying build nas-* config files."
+  cp $FLASH_DIR_LOCAL_CFG/nas-* $RUNTIME_DIR
+
+  echo "Starting apps."
+  cd $RUNTIME_DIR
+  $FLASH_DIR_APPS/start-apps
+fi
+
+# Following is to avoid that Ctrl+C wouldn't work
+EXCMD='exit'
+exec $EXCMD
+

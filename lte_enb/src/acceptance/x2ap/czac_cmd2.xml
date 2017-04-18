@@ -1,0 +1,443 @@
+# cz001.101 : CR Fixes.
+#/********************************************************************20**
+#
+#     Name:    X2AP
+#
+#     Type:    XML Command File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    czac_cmd2.xml
+#
+#     Sid:
+#
+#     Prg:     sy
+#
+#*********************************************************************21*/
+#
+#       Test:    tapa.cz.x2.init
+#
+#       Desc:    Init Global Procedure X2 Setup 
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd2.xml
+#
+#
+<tapa.command id="tapa.cz.x2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init X2 Interface between two eNodeBs"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+ <tapa.directive alarm="FALSE" />
+      
+      # Send an S1 SETUP REQUEST message from eNB1 to eNB2
+      <tapa.send>
+         <tapa.czt.gpreq eventType="CZT_MSG_X2_SETUP" procId="CZAC_LCZ_ENB1_PRC" peerId="2" spId="0"/>
+      </tapa.send>
+      <!--
+     <tapa.expset>
+        <tapa.czt.staind peerId="1" staType="CZT_STA_TYPE_ASSOC"
+           procId="CZAC_LCZ_ENB2_PRC" 
+                    status="CZT_STATUS_ASSOC_UP"
+                    reason="CZT_REASON_RCVD_COMM_UP"/>
+        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"
+           procId="CZAC_LCZ_ENB1_PRC" 
+                    status="CZT_STATUS_ASSOC_UP"
+                    reason="CZT_REASON_RCVD_COMM_UP"/>
+              </tapa.expset>
+              -->
+
+     <tapa.delay delay="20" />
+
+     #Expect this X2 Setup at target eNodeB
+     <tapa.expect>
+        <tapa.czt.gpind procId="CZAC_LCZ_ENB2_PRC" peerId="1"
+           eventType="CZT_MSG_X2_SETUP" />
+     </tapa.expect>
+     
+       <tapa.send>
+         <tapa.czt.gprsp eventType="CZT_MSG_X2_SETUP_RSP"
+            procId="CZAC_LCZ_ENB2_PRC" peerId="1" spId="0"/>
+      </tapa.send>
+      
+     <tapa.expect>
+        <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2"
+           eventType="CZT_MSG_X2_SETUP_RSP" />
+     </tapa.expect>
+
+      <!--    
+      <tapa.cz.sct.delay delay="2"/>
+      # Send an X2 Setup from source eNodeB
+      <tapa.send>
+         <tapa.czt.gpreq  procId="CZT_PROC_ENB1" peerId="1" eventType="CZT_MSG_X2_SETUP"  eNBId="1"/>
+      </tapa.send>
+
+      # Expect this X2 Setup at target eNodeB
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB2" peerId="1" eventType="CZT_MSG_X2_SETUP" eNBId="1"/>
+      </tapa.expect>
+
+      # Send X2 Setup Response from target eNodeB
+      <tapa.send>
+         <tapa.czt.gprsp procId="CZT_PROC_ENB2" peerId="1" eventType="CZT_MSG_X2_SETUP_RSP" eNBId="2"/>
+      </tapa.send>
+
+      # Expect this X2 Setup Response at source eNodeB
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="1" eventType="CZT_MSG_X2_SETUP_RSP" eNBId="2"/>
+      </tapa.expect>
+      -->
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#       Test:    tapa.cz.dummy.enb1.x2.init
+#
+#       Desc:    Init X2 Setup for dummy eNodeB1
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd2.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb1.x2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init X2 Setup on Dummy eNodeB1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      
+      #First establish the association with eNodeB1. 
+      
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_LCZ_ENB1_PRC" peerProcId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                             />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                          suAssocId="0" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP" eNBId="1"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="0" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" eNBId="2"/>
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  eNBId="2" />
+      </tapa.expect>     
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#       Test:    tapa.cz.dummy.enb2.x2.init
+#
+#       Desc:    Init X2 Setup for dummy eNodeB2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd2.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb2.x2.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init X2 Setup"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      
+      #First establish the association with eNodeB2. 
+    
+      # Send a new Association Indication to eNodeB2
+      <tapa.send>
+         <tapa.sct.assocind procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                            suEndpId="0" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE" />
+      </tapa.send>
+
+      # Receive back the Association Response from eNodeB2
+      <tapa.expect>
+         <tapa.sct.assocrsp procId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                           spEndpId="0" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.expect>
+
+      # Send Status Indication to eNB2 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                          suAssocId="1" 
+                          spAssocId="1" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      # Expect Status Indication ASSOC UP with user at eNodeB2 
+      <tapa.expset>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LCZ_EVENT_LI_COMM_UP"
+                          cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                          type   = "LCZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"
+                          procId="300"               />
+                                   
+#         <tapa.czt.staind procId="CZAC_LCZ_ENB2_PRC" peerId="1" suId="0" 
+#                          staType="CZT_STA_TYPE_ASSOC" 
+#                          status="CZT_STATUS_ASSOC_UP"
+#                          reason="CZT_REASON_RCVD_COMM_UP"  />
+      </tapa.expset>         
+
+      # Second start the X2 Interface setup
+      # Now send the first X2 Setup message to eNodeB2
+      <tapa.send>
+         <tapa.sct.datind  procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_X2_SETUP"  eNBId="1" />
+      </tapa.expect>     
+
+
+     # Send back the successful X2 Setup Response from user at eNodeB2 
+      <tapa.send>
+         <tapa.czt.gprsp procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_X2_SETUP_RSP" eNBId="2" />
+      </tapa.send>     
+
+
+      # Receive back the X2 Setup Response from eNodeB2
+      <tapa.expect>
+        <tapa.sct.datreq  procId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.expect>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#       Test:    tapa.cz.dummy.enb2.assoc.init
+#
+#       Desc:    Init X2 Setup for dummy eNodeB2
+#
+#       Notes:   None
+#
+#       Module:  None
+#
+#       File:    czac_cmd2.xml
+#
+#
+<tapa.command id="tapa.cz.dummy.enb2.assoc.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Init the association only"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+      
+      #First establish the association with eNodeB2. 
+    
+      # Send a new Association Indication to eNodeB2
+      <tapa.send>
+         <tapa.sct.assocind procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                            suEndpId="0" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE" />
+      </tapa.send>
+
+      # Receive back the Association Response from eNodeB2
+      <tapa.expect>
+         <tapa.sct.assocrsp procId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                           spEndpId="0" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.expect>
+
+      # Send Status Indication to eNB2 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                          suAssocId="1" 
+                          spAssocId="1" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      # Expect Status Indication ASSOC UP with user at eNodeB2 
+      <tapa.expset>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                          event = "LCZ_EVENT_LI_COMM_UP"
+                          cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                          type   = "LCZ_USTA_DGNVAL_PEER"
+                          typeId =  "1"
+                          procId="300"               />
+                                   
+#         <tapa.czt.staind procId="CZAC_LCZ_ENB2_PRC" peerId="1" suId="0" 
+#                          staType="CZT_STA_TYPE_ASSOC" 
+#                          status="CZT_STATUS_ASSOC_UP"
+#                          reason="CZT_REASON_RCVD_COMM_UP"  />
+      </tapa.expset>         
+<!--
+      # Second start the X2 Interface setup
+      # Now send the first X2 Setup message to eNodeB2
+      <tapa.send>
+         <tapa.sct.datind  procId="CZAC_LCZ_ENB2_PRC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_X2_SETUP"  eNBId="1" />
+      </tapa.expect>     
+
+
+     # Send back the successful X2 Setup Response from user at eNodeB2 
+      <tapa.send>
+         <tapa.czt.gprsp procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_X2_SETUP_RSP" eNBId="2" />
+      </tapa.send>     
+
+
+      # Receive back the X2 Setup Response from eNodeB2
+      <tapa.expect>
+        <tapa.sct.datreq  procId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.expect>
+-->
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+
+#/********************************************************************30**
+#
+#         End of file: czac_cmd2.xml
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     sy   1. X2AP Initial Release.
+#           cz001.101   mm               1. CR Fixes, Memory Leak fixes.
+#$SID$         ---     pt   1. LTE-X2AP 3.1 release.
+#*********************************************************************91*/

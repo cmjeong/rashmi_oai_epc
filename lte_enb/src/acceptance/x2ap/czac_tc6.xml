@@ -1,0 +1,5032 @@
+#
+#/********************************************************************20**
+#
+#     Name:    X2AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for BMP with Dummy SCTP
+#
+#     File:    czac_tc6.xml
+#
+#     Sid:     fileName
+#
+#     Prg:    
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:aj:czac_tc6.xml
+
+
+
+
+#
+#
+#       Test:    6.1
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_FAIL"  />
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.2
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Error Indication for the X2AP SetUp Request"
+         " with  Incorrect Peer ID"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="3" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>
+
+      # TODO ATUL Change the errType
+      <tapa.expect>
+         <tapa.czt.errind  procId="CZT_PROC_ENB1" peerId="3" 
+                           eventType="CZT_MSG_X2_SETUP" 
+                           errType="CZT_ERRTYPE_INV_PARAM" 
+                           errCause="CZT_ERRCAUSE_INV_PEERID"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.3
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Error Indication for the X2AP Reset Request"
+         " if SetUp is not Done"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_RESET"  />
+      </tapa.send>
+
+      # TODO ATUL Change the errType and cause
+      <tapa.expect>
+         <tapa.czt.errind  procId="CZT_PROC_ENB1" peerId="2" 
+                           eventType="CZT_MSG_RESET" 
+                           errType="CZT_ERRTYPE_INTERNAL" 
+                           errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+
+      # Do shutdown
+      <tapa.delay delay="1"/>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1"/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.4
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Response for the incoming Reset Request by "
+         "the user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.cz.dummy.enb2.x2.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+     
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZAC_ENB2_PROC" peerId="1" eventType="CZT_MSG_RESET"   />
+      </tapa.expect>     
+
+
+     # Send back the successful X2 Setup Response from user at eNodeB2 
+      <tapa.send>
+         <tapa.czt.gprsp procId="CZAC_ENB2_PROC" peerId="1"
+            eventType="CZT_MSG_RESET_RSP"  />
+      </tapa.send>     
+
+
+      # Receive back the X2 Setup Response from eNodeB2
+      <tapa.expect>
+        <tapa.sct.datreq  procId="CZAC_ENB2_PROC" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          eventType="CZT_MSG_RESET_RSP" />
+      </tapa.expect>
+        
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    6.5
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Error Indication Message sent for the Message"
+         "Received in invalid state"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.cz.dummy.enb2.x2.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET_RSP" />
+      </tapa.send>
+     
+
+      # Receive back the X2 Setup Response from eNodeB2
+      <tapa.expect>
+        <tapa.sct.datreq  procId="CZAC_ENB2_PROC" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          causeType="CAUSE_PROTOCOL"
+                          causeVal="3"
+                          eventType="CZT_MSG_ERR_IND" />
+      </tapa.expect>
+        
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    6.6
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Incoming Error Indication sent for the SetUp Response"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.cz.dummy.enb2.x2.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_ERR_IND" />
+      </tapa.send>
+     
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         
+     #Expect this ERROR INDICATION from ENB1 for the CONFIG UPD ACK
+        <tapa.czt.gperrind procId="CZAC_LCZ_ENB2_PRC" peerId="1"
+           eventType="CZT_MSG_ERR_IND" />
+      </tapa.expect>     
+
+        
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.7
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the sending Error Indication for incoming SetUp Response"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.cz.dummy.enb1.x2.init/>
+
+       <tapa.send>
+           <tapa.czt.gperrreq procId="CZAC_LCZ_ENB1_PRC" peerId="2"
+           eventType="CZT_MSG_ERR_IND" />
+
+               </tapa.send>
+     
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         <tapa.sct.datreq  procId="CZAC_ENB1_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                            spId="0"
+                           strmId="1"
+                           eventType="CZT_MSG_ERR_IND" />
+         
+      </tapa.expect>     
+
+        
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    6.8
+#
+#       Desc:    "Verify the successful  completion X2AP Reset Request"
+#                " with  Dummy Environment"
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful  completion X2AP Reset Request"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Bring up X2 Interface 
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_RESET"  />
+      </tapa.send>     
+
+           
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="1" 
+                          eventType="CZT_MSG_RESET" />
+                                                                
+     </tapa.expect>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_RESET_RSP"   />
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#        Test:    6.9
+#
+#       Desc:    "Verify the successful Association at ENB1 in a Dummy environment "
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful Association at ENB1 in a Dummy environment "
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_INV_PAR_VAL" result="1" procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+      
+      <tapa.expect>
+         # Receive the confirm for the sta ind request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+            event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+            cause = "LCM_CAUSE_INV_PAR_VAL"
+            type   =  "LCZ_USTA_DGNVAL_SAPID"
+            typeId =  "0"                     />
+      </tapa.expect>
+ 
+     
+      <tapa.directive alarm="FALSE" />
+
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_INV_PAR_VAL" result="1"
+            procId="CZAC_ENB1_PROC" suId="2" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+     
+      <tapa.send>
+         <tapa.sct.endpclosecfm cause="SCT_CAUSE_INV_PAR_VAL" result="1"
+            procId="CZAC_ENB1_PROC" suId="300" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.sct.endpclosecfm cause="SCT_CAUSE_INV_PAR_VAL" result="2"
+            procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #Deinitialize eNB1 with dummy SCTP
+     <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+       <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#        Test:    6.10
+#
+#       Desc:    "Verify the successful Association at ENB1 in a Dummy environment "
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful Association at ENB1 in a Dummy environment "
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_ENDP_OPEN" result="1" procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+      <tapa.expect>
+         # Receive the confirm for the sta ind request.
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+            event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+            cause = "LCZ_CAUSE_ENDP_OPEN"
+            type   =  "LCZ_USTA_DGNVAL_SAPID"
+            typeId =  "0"                     />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #Deinitialize eNB1 with dummy SCTP
+     <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+       <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#        Test:    6.11
+#
+#       Desc:    "Verify the successful Association at ENB1 in a Dummy environment "
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful Association at ENB1 in a Dummy environment "
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_EXCEED_CONF_VAL" result="1" procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd  category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_EXCEED_CONF_VAL"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+                    </tapa.expect>
+      # Expect EndpOpen Req to dummy SCTP
+      
+                       </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #Deinitialize eNB1 with dummy SCTP
+<tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+       <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#        Test:    6.12
+#
+#       Desc:    "Verify the successful Association at ENB1 in a Dummy environment "
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful Association at ENB1 in a Dummy environment "
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_OUTRES" result="1" procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_OUTRES"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+                    </tapa.expect>
+
+                       </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+         # Receive the confirm for the sct sap request.
+       <tapa.expset>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#        Test:    6.13
+#
+#       Desc:    "verify if we rcview Bnd Cfm from sct two times it should send
+#       alaram to LM also sent invalid suId in Sct Bnd Cfm"
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "verify if we rcview Bnd Cfm from sct two times it should send
+         #       alaram to LM also sent invalid suId in Sct Bnd Cfm"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+     
+
+
+       # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/> 
+      </tapa.send>
+
+
+
+      # Expect EndpOpen Req to dummy SCTP
+      <tapa.expset>
+         <tapa.sct.endpopenreq procId="CZAC_ENB1_PROC" spId="0" suEndpId="1"/> 
+         <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCM_EVENT_BND_OK"
+                          cause = "LCM_CAUSE_UNKNOWN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+
+      </tapa.expset>
+  
+      
+           # Send EndpOpen Cfm at eNB 
+      <tapa.send>
+         <tapa.sct.endpopencfm cause="SCT_CAUSE_ENDP_OPEN" result="1" procId="CZAC_ENB1_PROC" suId="0" suEndpId="1" spEndpId="0" /> 
+      </tapa.send>
+       <tapa.expect>
+         # Receive the confirm for the sta ind request.
+             <tapa.lcz.staInd category="LCM_CATEGORY_INTERFACE"
+                          event = "LCZ_EVENT_LI_ENDP_OPEN_CFM"
+                          cause = "LCZ_CAUSE_ENDP_OPEN"
+                          type   =  "LCZ_USTA_DGNVAL_SAPID"
+                          typeId =  "0"                     />
+                    </tapa.expect>
+
+
+      
+      <tapa.directive alarm="FALSE" />
+
+       <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="1"/>       </tapa.send>
+     
+
+
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="100" result="1"/> 
+      </tapa.send>
+      # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="2" result="1"/> 
+      </tapa.send>
+
+                       </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #   #Deinitialize eNB1 with dummy SCTP
+       <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+         # Receive the confirm for the sct sap request.
+       <tapa.expset>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+
+Deinitialize eNB1 with dummy SCTP
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#        Test:    6.14
+#
+#       Desc:    "verify if we rcview Bnd Cfm with result=SCT_NOK send
+#       alaram to LM"
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+<tapa.testcase id="6.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "verify if we rcview Bnd Cfm with result=SCT_NOK send
+         alaram to LM"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.cz.dummyenb1.init/>
+   -->
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.gen />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an protocol configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.prot procId="CZAC_ENB1_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the protocol configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an czt sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.usap />
+      </tapa.send>
+
+      # Receive the confirm for the czt sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an sct sap configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.lsap provType="CZAC_SCTP_DM"/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send an peer configuration request
+      <tapa.send>
+         <tapa.lcz.cfg.peer peerProcId="CZAC_ENB2_PROC"/>
+      </tapa.send>
+
+      # Receive the confirm for the peer configuration request.
+      <tapa.expect>
+         <tapa.lcz.cfgcfm />
+      </tapa.expect>
+
+      # Send a control request to enable alarms
+      <tapa.send>
+         <tapa.lcz.cntrl.usta />
+      </tapa.send>
+
+      # Receive the confirm for the alarms.
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm />
+      </tapa.expect>
+      # Send an sct sap configuration request.
+      <tapa.send>
+         <tapa.lcz.cntrl.lSap />
+      </tapa.send>
+
+      <tapa.expset>
+         # Receive the confirm for the sct sap request.
+         <tapa.lcz.cntrlcfm/>
+         # Receive the bind request and confirm for the sct sap request.
+         <tapa.sct.bndreq spId="0"/> 
+      </tapa.expset>
+     
+
+      <tapa.directive alarm="FALSE" />
+
+       # Send bind cfm.
+      <tapa.send>
+         <tapa.sct.bndcfm procId="CZAC_ENB1_PROC" spId="0" suId="0" result="2"/> 
+      </tapa.send>
+
+     </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      #Deinitialize eNB1 with dummy SCTP
+   #Deinitialize eNB1 with dummy SCTP
+       <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+         # Receive the confirm for the sct sap request.
+       <tapa.expset>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expset>
+
+
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.15
+#
+#       Desc:    Verify the decode failure results in X2 setup failure at
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Send a malformed X2 setup request from eNB1 to eNB2."
+         "Expect an X2 setup failure back from eNB2 to eNB1."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+       <tapa.cz.dummy.enb2.assoc.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" peerId="2" 
+                           suId="0" 
+                           suAssocId="0" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP"
+                           corruptPdu="TRUE" />
+      </tapa.send>
+     
+      # Expect a X2 Setup failure response at eNodeB1 
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB2_PROC" peerId="1" 
+                         eventType="CZT_MSG_X2_SETUP_FAIL"
+                         spId="0"
+                         suAssocId="0"
+                         assocIdx="1"
+                         causeType="CAUSE_PROTOCOL"
+                         causeVal="6"
+                         />
+      </tapa.expect>     
+
+      <tapa.expect>
+         <tapa.czt.errind  procId="CZT_PROC_ENB2" peerId="1" 
+                           eventType="CZT_MSG_X2_SETUP_FAIL" 
+                           errType="CZT_ERRTYPE_DEC_FAILED" 
+                           errCause="CZT_ERRCAUSE_SYNTAX_ERR"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    6.16
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. Setup Failure is received for a Request
+#                that was never sent.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.17
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. eNB received a Setup after a Reset
+#                before Reset is complete.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+ 
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    6.18
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Response for the incoming Reset Request by "
+         "the user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.cz.dummy.enb2.x2.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+     
+      # Expect a new X2 Setup with user at eNodeB2 
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZAC_ENB2_PROC" peerId="1" eventType="CZT_MSG_RESET"   />
+      </tapa.expect>     
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" suId="0" 
+                           suAssocId="1" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB2_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    6.19
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#                Diable SSAP. Setup sent in CONNECTING state fails.
+#                Expect error indication message at the peer.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      #Send another Setup request
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+
+      # Expect X2 Setup as retransmission
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      <tapa.send>
+         <tapa.czt.ubndreq procId="CZAC_LCZ_ENB1_PRC" spId="0" suId="0"/>
+      </tapa.send>
+      # Now Disable Ssap and receive Setup
+     <tapa.delay delay="2" />
+      #Send another Setup request
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.lcz.staInd peerId="2" event="LCZ_EVENT_UI_MSG_PEER"                                  
+            procId="CZAC_LCZ_ENB1_PRC"
+            cause="LCZ_CAUSE_NOT_BIND"
+            category="LCM_CATEGORY_INTERFACE"/>
+      # Receive back the X2 Setup Response from eNodeB2
+        <tapa.sct.datreq  procId="CZT_PROC_ENB1" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          causeType="CAUSE_MISC"
+                          causeVal="2"
+                          eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.expset>
+       
+
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.20
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. Setup Ack is received for a Request
+#                that was never sent.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    6.21
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#                Diable SSAP. Reset sent in CONNECTING state fails.
+#                Expect error indication message at the peer.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_RESET"  />
+      </tapa.expect>   
+      
+      #Send another Setup request
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+
+
+      # Expect X2 Setup as retransmission
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_RESET"  />
+      </tapa.expect>   
+      
+      <tapa.send>
+         <tapa.czt.ubndreq procId="CZAC_LCZ_ENB1_PRC" spId="0" suId="0"/>
+      </tapa.send>
+     <tapa.delay delay="2" />
+      # Now Disable Ssap and receive Setup
+      #Send another Setup request
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.lcz.staInd peerId="2" event="LCZ_EVENT_UI_MSG_PEER"
+            procId="CZAC_LCZ_ENB1_PRC"
+            cause="LCZ_CAUSE_NOT_BIND"
+            category="LCM_CATEGORY_INTERFACE"/>
+      # Receive back the X2 Setup Response from eNodeB2
+        <tapa.sct.datreq  procId="CZT_ENB1_PROC" spId="0" 
+                          spAssocId="1" 
+                          assocIdx="1" 
+                          causeType="CAUSE_MISC"
+                          causeVal="2"
+                          eventType="CZT_MSG_ERR_IND" />
+      </tapa.expset>
+        
+
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.22
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. Reset Response is received for a Request
+#                that was never sent.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_RESET_RSP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.23
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. EnodeB Config Upd 
+#                Request received in CONNECTING state
+#                X2AP responds with EnodeB Config Upd Failure.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpind procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.expect>   
+      
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_CFG_UPD_REQ" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    6.24
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. Setup Ack received
+#                in CONNECTED state for a Request that was not sent.
+#                X2AP responds with Error Indication Message.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.25
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP. Setup Failure received
+#                in CONNECTED state for a Request that was not sent.
+#                X2AP responds with Error Indication Message.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_ERR_IND"/>
+      </tapa.expect>   
+      <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#       Test:    6.26
+#
+#       Desc:    "Verify the successful Association at ENB1 in a Dummy
+#       environment send the Hbeat Cfm ,Flc Ind and SatCfm from Dummy(code coverage) "
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc1.xml
+#
+#
+
+<tapa.testcase id="6.26">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the successful Association at ENB1 in a Dummy environment 
+          send the Hbeat Cfm and SatCfm from Dummy(code coverage)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+       # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                             />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="0" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP" />
+       <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+                                                                 
+     </tapa.expset>
+     
+ <tapa.directive alarm="FALSE" />
+     <tapa.send>
+         <tapa.sct.flcind  procId="CZAC_ENB1_PROC"  peerId="2" 
+             status="CZT_STATUS_ASSOC_UP" />  
+       </tapa.send>
+
+      <tapa.expect>
+        <tapa.czt.staind  procId="CZAC_ENB1_PROC" staType="CZT_STA_TYPE_FLC"  
+              status="CZT_STATUS_ASSOC_UP"  peerId="2" reason="CZT_STATUS_ASSOC_UP"/>
+        </tapa.expect>
+
+      <tapa.send>
+         <tapa.sct.stacfm peerId="2" procId="CZAC_ENB1_PROC" 
+             status="CZT_STATUS_ASSOC_UP" />  
+       </tapa.send>
+    
+       <tapa.send>
+         <tapa.sct.hbeatcfm peerId="2" procId="CZAC_ENB1_PROC" 
+             status="CZT_STATUS_ASSOC_UP" />  
+       </tapa.send>
+      # FLC invalid su Id
+      <tapa.send>
+         <tapa.sct.flcind  procId="CZAC_ENB1_PROC"
+             status="CZT_STATUS_ASSOC_UP" suId="100"/>  
+       </tapa.send>
+  
+      # FLC with suId not configured 
+       <tapa.send>
+         <tapa.sct.flcind  procId="CZAC_ENB1_PROC" 
+             status="CZT_STATUS_ASSOC_UP" suId="2"/>  
+       </tapa.send>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB1_PROC" 
+             status="CZT_STATUS_ASSOC_UP" suId="200"/>  
+       </tapa.send>
+      
+       <tapa.send>
+         <tapa.sct.staind  procId="CZAC_ENB1_PROC" 
+             status="CZT_STATUS_ASSOC_UP" suId="2"/>  
+       </tapa.send>
+       
+
+       #Hit all the lower apis of cz with invalid procId
+      <tapa.send>
+         <tapa.sct.bndcfm  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.sct.endpopencfm  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+
+
+      <tapa.send>
+         <tapa.sct.endpclosecfm  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+            
+      <tapa.send>
+         <tapa.sct.termind  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+
+
+      <tapa.send>
+         <tapa.sct.termcfm  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+      
+      
+      <tapa.send>
+         <tapa.sct.datind  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.sct.staind  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.sct.flcind  procId="CMPFTHA_STATE_ACTIVE"  />  
+       </tapa.send>
+       
+
+      <tapa.send>
+         <tapa.sct.setpricfm  procId="CMPFTHA_STATE_ACTIVE"  />  
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+           
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="CZAC_ENB_PROC" spId="0" assocIdx="0"  assocIdType="2"/> 
+      </tapa.expect>
+  
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.27
+#
+#       Desc:    sen Assoc cfm with invalid suId for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+
+<tapa.testcase id="6.27">
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+ <tapa.directive alarm="FALSE" />
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+    
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="20" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="20" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+   # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="2" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      <tapa.send>
+        
+         <tapa.sct.assocind  procId="CZT_PROC_ENB1" suId="2" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+     
+
+      <tapa.send>
+         <tapa.sct.termind  procId="CZT_PROC_ENB1" suId="2" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+     
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   #Deinitialize eNB1 with d
+      <tapa.send>
+         <tapa.lcz.cntrl.shutdown/>
+      </tapa.send>
+
+      # Expect Term Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.termreq procId="CZAC_ENB_PROC" spId="0" assocIdx="0"  assocIdType="1"
+            suAssocId="2"/> 
+      </tapa.expect>
+  
+      # Expect EndpClose Req to dummy SCTP
+      <tapa.expect>
+         <tapa.sct.endpclosereq procId="CZAC_ENB_PROC" spId="0" suEndpId="0" endpIdType="2"/> 
+      </tapa.expect>
+  
+      # Do shutdown
+      <tapa.expect>
+         <tapa.lcz.cntrlcfm/>
+      </tapa.expect>
+
+ummy SCTP
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.28
+#
+#       Desc:   "Verify flow indication that are received from SCTP through X2AP" 
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify flow indication that are received from SCTP through X2AP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_FAIL"  />
+      </tapa.expect>   
+
+      <tapa.directive alarm="FALSE" />
+       <tapa.send>
+         <tapa.sct.flcind  procId="CZAC_ENB1_PROC"  peerId="2" 
+             status="SCT_FLC_START" />  
+       </tapa.send>
+
+      <tapa.expect>
+        <tapa.czt.staind  procId="CZAC_ENB1_PROC" staType="CZT_STA_TYPE_FLC"  
+              status="CZT_STATUS_FLC_START"  peerId="2"/>
+        </tapa.expect>
+
+       <tapa.send>
+         <tapa.sct.flcind  procId="CZAC_ENB1_PROC"  peerId="2" 
+             status="SCT_FLC_STOP" />  
+       </tapa.send>
+
+      <tapa.expect>
+        <tapa.czt.staind  procId="CZAC_ENB1_PROC" staType="CZT_STA_TYPE_FLC"  
+              status="CZT_STATUS_FLC_STOP"  peerId="2"/>
+        </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.29
+#
+#       Desc:    "Usage of SCT_ASSOC_IND_INIT in Association formation."
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Usage of SCT_ASSOC_IND_INIT in Association formation."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_INIT"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_INIT"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_FAIL"  />
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.30
+#
+#       Desc:    Verify the decode failure results in X2 setup failure at
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Send a malformed X2 setup request from eNB1 to eNB2."
+         "Expect an X2 setup failure back from eNB2 to eNB1."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+       <tapa.cz.dummy.enb2.assoc.init/>
+
+       <tapa.send>
+         <tapa.sct.datind  procId="CZAC_ENB2_PROC" peerId="2" 
+                           suId="0" 
+                           suAssocId="0" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP"
+                           corruptPdu="TRUE" />
+      </tapa.send>
+     
+      # Expect a X2 Setup failure response at eNodeB1 
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB2_PROC" peerId="1" 
+                         eventType="CZT_MSG_X2_SETUP_FAIL"
+                         spId="0"
+                         suAssocId="0"
+                         assocIdx="1"
+                         causeType="CAUSE_PROTOCOL"
+                         causeVal="6"
+                         />
+      </tapa.expect>     
+
+      <tapa.expect>
+         <tapa.czt.errind  procId="CZT_PROC_ENB2" peerId="1" 
+                           eventType="CZT_MSG_X2_SETUP_FAIL" 
+                           errType="CZT_ERRTYPE_DEC_FAILED" 
+                           errCause="CZT_ERRCAUSE_SYNTAX_ERR"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+     # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb2.deinit />  
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    6.31
+#
+#       Desc:    Verify the decode failure results in X2 setup failure at
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.31">
+
+   # Document subsection
+   <tapa.doc>
+   <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the Error Indication for the X2AP Reset Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+# Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+       </tapa.send>
+
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+       </tapa.expset>
+
+    # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_RESET"  />
+
+      </tapa.send>
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_RESET"/>
+       </tapa.expect>
+     <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_ERR_IND" 
+                           trigMsgType="CZT_MSG_ERR_IND"/>
+     </tapa.send>
+     <tapa.expect>
+         <tapa.czt.gperrind eventType="CZT_MSG_ERR_IND" peerId="2" />
+      </tapa.expect>
+                     
+     #Send once again X2 setup req
+     <tapa.send>
+        <tapa.czt.gpreq procid="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP" />
+     </tapa.send>
+
+    #Directly expecting dat req. 
+     <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+
+                    </tapa.expect>
+     # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_RSP" />
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_RSP"  />
+      </tapa.expect>   
+
+     </tapa.test>
+
+  # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    6.32
+#
+#       Desc:    Verify the decode failure when recieved corrupted private message.
+#                This test case was added as part of ticket ccpu00136364, where crash 
+#                was happening while decoding. The message specified is from customer 
+#                wireshark log.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.32">
+
+   # Document subsection
+   <tapa.doc>
+   <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify that crash is not happening while decoding"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Bring up X2 Interface 
+      <tapa.cz.dummy.enb1.x2.init/> 
+   
+       #send the corrupted private message   
+       <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_PRIV_MSG"  rawBuffer="TRUE" 
+                               flatBuffer="000b401200000100ff400b0815f086000006f0100140\0"/>
+      </tapa.send> 
+      
+      #expect error indication at the peer and local error indication at the application
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC"  
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                        trigMsgType="CZT_MSG_PRIV_MSG"
+                        spAssocId="2" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="6" />
+           
+        #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_PRIV_MSG"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+     
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    6.33
+#
+#       Desc:    Verify the decode failure when recieved corrupted X2 Setup response message.
+#                This test case was added as part of ticket ccpu00136364, where crash 
+#                was happening while decoding.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc />
+      <tapa.module />
+
+      <tapa.desc>
+         "Verify that crash is not happening while decoding"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_LCZ_ENB1_PRC" peerProcId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                             />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                          suAssocId="0" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP" eNBId="1"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+      
+       <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1" rawBuffer="TRUE" eventType="CZT_MSG_X2_SETUP_RSP"
+                               flatBuffer="20060070000003001500090021f354400000033000140052004800330021f35400000330001021f354045334400ce45500010029000120003700064000165010c000030021f354000001500015400ce40021f354000001f0001f400d480021f354000003900039400c1c001800060021f3548000\0"/>
+      </tapa.send> 
+      
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC"  
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                        trigMsgType="X2AP_PDU_INITIATINGMSG"
+                        spAssocId="2" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="6" />
+           
+        #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_X2_SETUP_RSP"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+     
+   <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    6.34
+#
+#       Desc:    Verify the decode failure when recieved corrupted X2 Setup request message.
+#                This test case was added as part of ticket ccpu00136364, where crash 
+#                was happening while decoding.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc />
+      <tapa.module />
+
+      <tapa.desc>
+         "Verify that crash is not happening while decoding"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_X2_SETUP" />
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_LCZ_ENB1_PRC" peerProcId="CZAC_LCZ_ENB2_PRC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                             />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_LCZ_ENB1_PRC" suId="0" 
+                          suAssocId="0" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP" eNBId="1"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+      
+       <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1" rawBuffer="TRUE" eventType="CZT_MSG_X2_SETUP"
+                               flatBuffer="00060056000003001500090022f00240000000a0001400380048000a0022f002000000a0001022f00204526c400c1c5500010029000120003700064000165010c000010022f002000001400014400c1c001800060022f0028000\0"/>
+      </tapa.send> 
+      
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC"  
+                        eventType="CZT_MSG_X2_SETUP_FAIL" spId="0"
+                        trigMsgType="X2AP_PDU_INITIATINGMSG"
+                        spAssocId="2" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="6" />
+           
+        #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_X2_SETUP_FAIL"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+     
+   <tapa.delay delay="5" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    6.35
+#
+#       Desc:    Verify the decode failure when recieved corrupted HO message.
+#                This test case was added as part of ticket ccpu00136364, where crash 
+#                was happening while decoding. The message specified is from customer 
+#                wireshark log.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc6.xml
+#
+#
+<tapa.testcase id="6.35">
+
+   # Document subsection
+   <tapa.doc>
+   <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify that crash is not happening while decoding"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Bring up X2 Interface 
+      <tapa.cz.dummy.enb1.x2.init/> 
+   
+       #send the corrupted private message   
+       <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_REQ"  rawBuffer="TRUE" 
+                               flatBuffer="000008147000ffff00aff020100000540020000ff0b00080922f00200000800001000e\0"/>
+      </tapa.send> 
+      
+      #expect error indication at the peer and local error indication at the application
+      <tapa.expset>
+       <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC"  
+                        eventType="CZT_MSG_ERR_IND" spId="0"
+                        trigMsgType="CZT_MSG_HO_REQ"
+                        spAssocId="2" 
+                        assocIdx="0"
+                        causeType="CAUSE_PROTOCOL"
+                        causeVal="6" />
+           
+        #Expect error indication at user about this
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+            errCause="CZT_ERRCAUSE_SYNTAX_ERR"
+            eventType="CZT_MSG_HO_REQ"
+            errType="CZT_ERRTYPE_DEC_FAILED" />
+      </tapa.expset>
+     
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:    fileName
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$        ---      aj     1. X2AP Initial Release.
+#$SID$        ---      pt     1. LTE-X2AP 3.1 release.
+#*********************************************************************91*/

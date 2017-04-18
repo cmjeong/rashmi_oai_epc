@@ -1,0 +1,1240 @@
+#
+#/********************************************************************20**
+#
+#
+#       Test:    10.1
+#
+#       Desc:    
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Successful RLF indication procedure."
+         "Verifying the Release 11 IE's cztRRCConnSetupIndicator "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+          <tapa.flag id="CZAC_INTSCTP" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.hi.init/>
+      <tapa.sb.init/>
+      <tapa.cz.enb1.init/>
+      <tapa.cz.enb2.init/>
+      <tapa.cz.x2.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.czt.bmpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_REQ" oldUEX2APId="1" 
+            MDTallowed="0"
+            CSGmembership="1"
+            MDTActvn="1"
+            MDTchoice="1"
+            rptTrigrMDT="1"
+            thrshldChoice="0"
+            thrshldRsrp="15" rptInterval="12" 
+            rptAmount="6" traceDepth="5"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.bmpind procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_HO_REQ" />
+      </tapa.expect>
+   
+      <tapa.send>
+     <tapa.czt.bmprsp procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_HO_ACK" oldUEX2APId="1" newUEX2APId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.bmpcfm  procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_ACK" />
+      </tapa.expect>
+
+      <tapa.send>
+     <tapa.czt.bmpreq procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_UE_CXT_RELEASE" oldUEX2APId="1" newUEX2APId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.bmpind  procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_UE_CXT_RELEASE" />
+      </tapa.expect>
+
+      # Send an Mobility Change Request Message from eNB1 to ENB2
+      <tapa.send>
+         <tapa.czt.gpreq eventType="CZT_MSG_RLF_INDICATION" procId="CZAC_LCZ_ENB2_PRC" peerId="1" spId="0"
+            setupIndicator="0"/>
+      </tapa.send>
+
+     #Expect this Mobility Change Request Message at target eNodeB
+     <tapa.expect>
+        <tapa.czt.gpind procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_RLF_INDICATION" />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+       <tapa.cz.enb2.deinit/>
+       <tapa.cz.enb1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.2
+#
+#       Desc:    Successful Load indication message.
+#                eNB1 ------>> Load indication message  ------>> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Send Load indication message from eNB1 to eNB2.
+         "Verifying the Release 11 IE's cztABSInform,cztInvokeInd
+         for higher range"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="CZAC_INTSCTP" />  
+          <!-- <tapa.flag id="DM" />  -->
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!-- <tapa.cz.dummyenb1.init />  -->
+      <tapa.hi.init/>
+      <tapa.sb.init/>
+      <tapa.cz.enb1.init/>
+      <tapa.cz.enb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.x2.init/>
+
+      # send load indication message
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_LOAD_IND" 
+            ABSInformchoice="0" noOfAntennaPorts="2" InvokeInd="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.gpind procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_LOAD_IND" />
+      </tapa.expect>
+   
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <!-- <tapa.cz.dummy.enb1.deinit />  -->
+      <tapa.cz.enb2.deinit/>
+      <tapa.cz.enb1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    10.3
+#
+#       Desc:    Successful Load indication message.
+#                eNB1 ------>> Load indication message  ------>> eNB2
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Send Load indication message from eNB1 to eNB2.
+         "Verifying the Release 11 IE's cztABSInform,cztInvokeInd
+         for lower range"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="CZAC_INTSCTP" />  
+          <!-- <tapa.flag id="DM" />  -->
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!-- <tapa.cz.dummyenb1.init />  -->
+      <tapa.hi.init/>
+      <tapa.sb.init/>
+      <tapa.cz.enb1.init/>
+      <tapa.cz.enb2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.x2.init/>
+
+      # send load indication message
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_LOAD_IND" 
+            ABSInformchoice="0" noOfAntennaPorts="0" InvokeInd="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+       <tapa.czt.gpind procId="CZAC_LCZ_ENB2_PRC" peerId="1" eventType="CZT_MSG_LOAD_IND" />
+      </tapa.expect>
+   
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <!-- <tapa.cz.dummy.enb1.deinit />  -->
+      <tapa.cz.enb2.deinit/>
+      <tapa.cz.enb1.deinit/>
+      <tapa.sb.deinit/>
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    10.4
+#
+#       Desc:    Resource status update received in after failure response.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts failure  ------>> eNB1
+#                eNB2 --->> Rsrc sts upd  ------>> eNB1
+#                eNB1 X2AP ------>> X2AP Error indication  ------>> eNB2
+#                eNB1 X2AP ------>> Local Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status update sent in invalid state.
+         "Verifying the Release 11 IE's cztCompleteFailCauseInform_Lst,
+         cztABS_Status,cztPartialSuccessIndicator
+         for higher range"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+       <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ" 
+                         eNb1MeasId="1" regReqType="CZAC_START"
+                         PartialSuccessIndicator="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ"
+                          eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.expect>
+   
+      # send resource status response from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_FAIL" 
+                          MeasFailCausechoice="0"  causeType="CAUSE_MISC"
+                          causeRadioNw="28"     causeVal="2"
+                          eNb1MeasId="1" eNb2MeasId="2"
+                          x2apRel="11"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_FAIL"
+                                                                 causeType="CAUSE_MISC"
+                                                                 causeVal="2"
+                         eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.expect>
+   
+      # send resource status update from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          eNb1MeasId="1" eNb2MeasId="2" dL_ABS_status="100" ABS_statuschoice="0"
+                          x2apRel="11"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                          causeType="0" 
+                          causeVal="19" />
+   #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+   
+      <tapa.expect>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          errType="CZT_ERRTYPE_INV_PARAM" 
+                          errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#       Test:    10.5
+#
+#       Desc:    Resource status update received in after failure response.
+#                eNB1 --->> Rsrc sts req with "CZAC_START" regn rqst. --->> eNB2
+#                eNB2 --->> Rsrc sts failure  ------>> eNB1
+#                eNB2 --->> Rsrc sts upd  ------>> eNB1
+#                eNB1 X2AP ------>> X2AP Error indication  ------>> eNB2
+#                eNB1 X2AP ------>> Local Error indication  ------>> eNB1
+#               
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         Resource status update sent in invalid state.
+         "Verifying the Release 11 IE's cztCompleteFailCauseInform_Lst,
+         cztABS_Status,cztPartialSuccessIndicator
+         for lower range"
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+       <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # send resource status request from eNB1 with "CZAC_START" 
+      # registration request
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_REQ" 
+                         eNb1MeasId="1" regReqType="CZAC_START"
+                         PartialSuccessIndicator="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_REQ"
+                          eNb1MeasId="1" regReqType="CZAC_START"/>
+      </tapa.expect>
+   
+      # send resource status response from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_FAIL" 
+                          MeasFailCausechoice="0"  causeType="CAUSE_MISC"
+                          causeRadioNw="0"     causeVal="2"
+                          eNb1MeasId="1" eNb2MeasId="2"
+                          x2apRel="11"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                         eventType="CZT_MSG_RSRC_ST_FAIL"
+                                                                 causeType="CAUSE_MISC"
+                                                                 causeVal="2"
+                         eNb1MeasId="1" eNb2MeasId="2"/>
+      </tapa.expect>
+   
+      # send resource status update from eNB2
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          suId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          eNb1MeasId="1" eNb2MeasId="2" dL_ABS_status="0" ABS_statuschoice="0"
+                          x2apRel="11"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          spId="0"
+                          suAssocId="0" 
+                          assocIdx="0"
+                          streamId="1"  
+                          eventType="CZT_MSG_ERR_IND" 
+                          causeType="0" 
+                          causeVal="19" />
+   #CztCauseRadioNwunknown_eNB_Measurement_IDEnum
+      </tapa.expect>
+   
+      <tapa.expect>
+         <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                          eventType="CZT_MSG_RSRC_ST_UPD" 
+                          errType="CZT_ERRTYPE_INV_PARAM" 
+                          errCause="CZT_ERRCAUSE_INV_ENB1_MEAS_ID"/>
+      </tapa.expect>
+   
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # x2ap cleanup operations
+      <tapa.cz.dummy.enb1.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    10.6
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+         "Verifying the Release 11 IE's cztCSG_Id,cztTAC
+         for higher range"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  
+            pci="503" earfcn="65535" /> <!-- ccpu00137613 -->
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                           x2apRel="11"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"
+                          x2apRel="11"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" 
+                           x2apRel="11"/>
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_FAIL"  />
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.7
+#
+#       Desc:    Verify the successful configuration of X2AP in
+#                ENB2 for Dummy SCTP.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="x2ap"/>
+
+      <tapa.desc>
+         "Verify the unsuccessful response of X2AP SetUp"
+         " with  Dummy Environment"
+         "Verifying the Release 11 IE's cztCSG_Id,cztTAC
+         for lower range"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.cz.dummyenb1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send the first X2 Setup from user at eNodeB1
+      <tapa.send>
+         <tapa.czt.gpreq procId="CZAC_ENB1_PROC" peerId="2" eventType="CZT_MSG_X2_SETUP"  
+            pci="0" earfcn="0"/>
+      </tapa.send>     
+
+      # Expect a new Association Request from eNodeB1
+      <tapa.expect>
+         <tapa.sct.assocreq procId="CZAC_ENB1_PROC" peerProcId="CZAC_ENB2_PROC" spId="0" 
+                            suEndpId="0" 
+                            spEndpId="0" 
+                            suAssocId="2" 
+                            assocIdx="0" type="SCT_ASSOC_IND_COOKIE"
+                            />
+      </tapa.expect>
+
+      # Send back the Association confirm to eNodeB1
+      <tapa.send>
+         <tapa.sct.assoccfm procId="CZAC_ENB1_PROC" suId="0" 
+                           suEndpId="0" 
+                           spEndpId="0" 
+                           suAssocId="2" 
+                           spAssocId="2" 
+                           assocIdx="0" type="SCT_ASSOC_IND_COOKIE"/>
+      </tapa.send>
+
+      # Send Status Indication to eNodeB1 that ASSOC UP 
+      <tapa.send>
+         <tapa.sct.staind procId="CZAC_ENB1_PROC" suId="0" 
+                          suAssocId="2" 
+                          spAssocId="2" 
+                          status="SCT_STATUS_COMM_UP"/> 
+      </tapa.send>
+      
+      <tapa.delay delay="5" />
+      
+      #Second start the X2 interface setup  
+      #Now receive the first X2 Setup from eNodeB1
+      <tapa.expset>
+         <tapa.sct.datreq procId="CZAC_ENB1_PROC" spId="0" 
+                          spAssocId="2" 
+                          assocIdx="0" 
+                          eventType="CZT_MSG_X2_SETUP"/>
+#        <tapa.czt.staind peerId="2" staType="CZT_STA_TYPE_ASSOC"  
+#              status="CZT_STATUS_ASSOC_UP" reason="CZT_REASON_RCVD_COMM_UP"/>
+
+         <tapa.lcz.staInd category="LCM_CATEGORY_PROTOCOL"
+                       event = "LCZ_EVENT_LI_COMM_UP"
+                       cause = "LCZ_CAUSE_SCT_NOT_APPL"
+                       type   =  "LCZ_USTA_DGNVAL_PEER"
+                       typeId =  "2"      
+                       procId="300" />
+                                                         
+     </tapa.expset>
+
+
+      # Respond back with X2 Setup Response to eNodeB1
+      <tapa.send>
+         <tapa.sct.datind  procId="CZT_PROC_ENB1" suId="0" 
+                           suAssocId="2" 
+                           assocIdx="0" 
+                           strmId="1"
+                           eventType="CZT_MSG_X2_SETUP_FAIL" 
+                           x2apRel="11"/>
+      </tapa.send>
+
+      # Expect X2 Setup Response with user at eNodeB1
+      <tapa.expect>
+         <tapa.czt.gpcfm procId="CZT_PROC_ENB1" peerId="2" 
+         eventType="CZT_MSG_X2_SETUP_FAIL"  />
+      </tapa.expect>   
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    10.8
+#
+#       Desc:    Verify that two Handover Request Acknowledge received at source
+#                eNodeB with same New UE X2AP ID value is detected by X2AP stack
+#                at source eNodeB. X2AP at source eNodeB shall inform the
+#                Application through a special errro indication primitive about the
+#                Handover Request Ack with duplicate New UE X2AP ID value.
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc />
+      <tapa.module />
+
+#
+#   S eNodeB-----Handover Request(Old UE X2AP ID = "X")--------------->T eNodeB
+#   S eNodeB-----Handover Request Ack(New UE X2AP ID = "Y")-------------T eNodeB
+#   S eNodeB-----Handover Request Ack(New UE X2AP ID = "Y")-------------T eNodeB
+#   S eNodeB-----Error Indication------------------------------------->T eNodeB
+#
+# Send two HO Request Ack using dummy target eNodeB application with New UE X2AP ID = "Y".
+# Expect first HO Request Ack at source application
+# Expect error at source application w.r.t 2nd HO Request Ack, using appropriate 
+# error id value. 
+
+      <tapa.desc>
+      Verify that two Handover Request Acknowledge received at source
+      eNodeB with same New UE X2AP ID value is detected by X2AP stack
+      at source eNodeB. X2AP at source eNodeB shall inform the
+      Application through a special errro indication primitive about the
+      Handover Request Ack with Invalid State cause value.
+      "Verifying the Release 11 IE's cztCSGMembershipStatus,
+      cztManagementBasedMDTallowed,cztMDT_Config
+      for higher range"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Bring up X2 Interface 
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # Start the actual handover now 
+      # Send HO Request to eNB2
+      <tapa.send>
+       <tapa.czt.bmpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_REQ" oldUEX2APId="1"
+            MDTallowed="0"
+            CSGmembership="1"
+            MDTActvn="1"
+            MDTchoice="1"
+            rptTrigrMDT="1"
+            thrshldChoice="0"
+            thrshldRsrp="97" rptInterval="12" 
+            rptAmount="7" traceDepth="5"/>
+      </tapa.send>
+
+      #Expect an HO Request from eNB1.
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0"
+                               spAssocId="2" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_REQ" oldUEX2APId="1" />
+      </tapa.expect>
+
+     
+      #Send an HO Request ACK back to eNB1 
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_ACK" oldUEX2APId="1" newUEX2APId="2"
+                               x2apRel="11"/>
+      </tapa.send>
+
+      #Expect the HO Request Ack at eNB1
+      <tapa.expect>
+       <tapa.czt.bmpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_ACK" />
+      </tapa.expect>
+
+     #Send another HO Request ACK back to eNB1 
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_ACK" oldUEX2APId="1" newUEX2APId="2"
+                               x2apRel="11"/>
+      </tapa.send>
+
+
+      #Stack at eNB1 should send Error Indication back to peer, as well
+      # inform the the application. Spec says it to be ignored only when no UE
+      # context is found 
+      #Expect the X2AP Error Indication back from eNB1 for the second HO Request ACK we sent
+      <tapa.expect> 
+      <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0"
+                               spAssocId="2" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_ERR_IND" 
+                               trigMsgType="CZT_MSG_HO_ACK"
+                               oldUEX2APId="1" newUEX2APId="2"
+                               causeType="CAUSE_PROTOCOL"
+                               causeVal="3" />
+                               #CztCauseProtmessage_not_compatible_with_receiver_stateEnum"
+      </tapa.expect>
+
+      #Expect error indication at user about this, that another HO request ack
+       arrived when in invalid state
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        eventType="CZT_MSG_HO_ACK"
+                        errType="CZT_ERRTYPE_FROM_PEER" 
+                        errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    10.9
+#
+#       Desc:    Verify that two Handover Request Acknowledge received at source
+#                eNodeB with same New UE X2AP ID value is detected by X2AP stack
+#                at source eNodeB. X2AP at source eNodeB shall inform the
+#                Application through a special errro indication primitive about the
+#                Handover Request Ack with duplicate New UE X2AP ID value.
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    czac_tc10.xml
+#
+#
+<tapa.testcase id="10.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc />
+      <tapa.module />
+
+#
+#   S eNodeB-----Handover Request(Old UE X2AP ID = "X")--------------->T eNodeB
+#   S eNodeB-----Handover Request Ack(New UE X2AP ID = "Y")-------------T eNodeB
+#   S eNodeB-----Handover Request Ack(New UE X2AP ID = "Y")-------------T eNodeB
+#   S eNodeB-----Error Indication------------------------------------->T eNodeB
+#
+# Send two HO Request Ack using dummy target eNodeB application with New UE X2AP ID = "Y".
+# Expect first HO Request Ack at source application
+# Expect error at source application w.r.t 2nd HO Request Ack, using appropriate 
+# error id value. 
+
+      <tapa.desc>
+      Verify that two Handover Request Acknowledge received at source
+      eNodeB with same New UE X2AP ID value is detected by X2AP stack
+      at source eNodeB. X2AP at source eNodeB shall inform the
+      Application through a special errro indication primitive about the
+      Handover Request Ack with Invalid State cause value.
+      "Verifying the Release 11 IE's cztCSGMembershipStatus,
+      cztManagementBasedMDTallowed,cztMDT_Config
+      for lower range"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="DM" />  
+      </tapa.ifdef>
+       <tapa.ifndef/>
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+
+   # Configuration subsection
+   <tapa.cfg>
+       #Initialize eNB1 with dummy SCTP
+       <tapa.cz.dummyenb1.init />  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Bring up X2 Interface 
+      <tapa.cz.dummy.enb1.x2.init/>
+
+      # Start the actual handover now 
+      # Send HO Request to eNB2
+      <tapa.send>
+       <tapa.czt.bmpreq procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_REQ" oldUEX2APId="1"
+            MDTallowed="0"
+            CSGmembership="0"
+            MDTActvn="0"
+            MDTchoice="0"
+            rptTrigrMDT="0"
+            thrshldChoice="0"
+            thrshldRsrp="0" rptInterval="0" 
+            rptAmount="0" traceDepth="0"/>
+      </tapa.send>
+
+      #Expect an HO Request from eNB1.
+      <tapa.expect>
+         <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0"
+                               spAssocId="2" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_REQ" oldUEX2APId="1" />
+      </tapa.expect>
+
+     
+      #Send an HO Request ACK back to eNB1 
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_ACK" oldUEX2APId="1" newUEX2APId="2"
+                               x2apRel="11"/>
+      </tapa.send>
+
+      #Expect the HO Request Ack at eNB1
+      <tapa.expect>
+       <tapa.czt.bmpcfm procId="CZAC_LCZ_ENB1_PRC" peerId="2" eventType="CZT_MSG_HO_ACK" />
+      </tapa.expect>
+
+     #Send another HO Request ACK back to eNB1 
+      <tapa.send>
+         <tapa.sct.datind procId="CZAC_LCZ_ENB1_PRC" suId="0"
+                               suAssocId="0" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_HO_ACK" oldUEX2APId="1" newUEX2APId="2"
+                               x2apRel="11"/>
+      </tapa.send>
+
+
+      #Stack at eNB1 should send Error Indication back to peer, as well
+      # inform the the application. Spec says it to be ignored only when no UE
+      # context is found 
+      #Expect the X2AP Error Indication back from eNB1 for the second HO Request ACK we sent
+      <tapa.expect> 
+      <tapa.sct.datreq procId="CZAC_LCZ_ENB1_PRC" spId="0"
+                               spAssocId="2" 
+                               assocIdx="0"
+                               streamId="1"
+                               eventType="CZT_MSG_ERR_IND" 
+                               trigMsgType="CZT_MSG_HO_ACK"
+                               oldUEX2APId="1" newUEX2APId="2"
+                               causeType="CAUSE_PROTOCOL"
+                               causeVal="3" />
+                               #CztCauseProtmessage_not_compatible_with_receiver_stateEnum"
+      </tapa.expect>
+
+      #Expect error indication at user about this, that another HO request ack
+       arrived when in invalid state
+      <tapa.expect>
+       <tapa.czt.errind procId="CZAC_LCZ_ENB1_PRC" peerId="2" 
+                        eventType="CZT_MSG_HO_ACK"
+                        errType="CZT_ERRTYPE_FROM_PEER" 
+                        errCause="CZT_ERRCAUSE_INV_STATE"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+       #Deinitialize eNB1 with dummy SCTP
+       <tapa.cz.dummy.enb1.deinit />  
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     czac_tc10.xml@@/main/1 - Wed Jul 15 16:21:06 2009
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---      ad                   1. X2AP Initial Release.
+#$SID$         ---      pt                   1. LTE-X2AP 3.1 release.
+#*********************************************************************91*/

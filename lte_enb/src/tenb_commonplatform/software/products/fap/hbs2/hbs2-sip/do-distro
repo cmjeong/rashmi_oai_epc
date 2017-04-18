@@ -1,0 +1,131 @@
+#!/bin/bash
+
+#
+# hbs2-sip
+#
+
+#
+# Lists of files for use by scripts that build tftpall and stop-apps scripts.
+# Common ones are handled automatically.
+#
+FAP_APPS=
+APP_FILES="oam mib-firkler watchdogd rrc rrm nas-core nas-smsc nas-hlr nas-ggsn l2 l1 cs-user-plane post-office oam-rem tunnel sw-update clogd "
+
+#
+# Do the stuff common for HBS2s.
+#
+TOP=../../../..
+. $TOP/products/fap/hbs2/etc/do-distro-fap-hbs2
+
+echo "--- hbs2-sip specific ---"
+
+#
+# Copy apps.
+#
+echo "Copying apps."
+FAP_APPS=$FAP_APPS" $TOP/apps/fap/management/oam/obj/$PRODUCT/$HARDWARE/$BUILD/oam \
+            $TOP/apps/fap/management/update/obj/$PRODUCT/$HARDWARE/$BUILD/sw-update \
+            $TOP/apps/fap/rrc/obj/$PRODUCT/$HARDWARE/$BUILD/rrc \
+            $TOP/apps/fap/rrm/obj/$PRODUCT/$HARDWARE/$BUILD/rrm \
+            $TOP/apps/fap/nas-core/obj/$PRODUCT/$HARDWARE/$BUILD/nas-core \
+            $TOP/apps/fap/nas-smsc/obj/$PRODUCT/$HARDWARE/$BUILD/nas-smsc \
+            $TOP/apps/fap/nas-hlr/obj/$PRODUCT/$HARDWARE/$BUILD/nas-hlr \
+            $TOP/apps/fap/nas-ggsn/obj/$PRODUCT/$HARDWARE/$BUILD/nas-ggsn \
+            $TOP/apps/fap/clogd/obj/$PRODUCT/$HARDWARE/$BUILD/clogd \
+            $TOP/apps/fap/l1/obj/$PRODUCT/$HARDWARE/$BUILD/l1 \
+            $TOP/apps/fap/l2/obj/$PRODUCT/$HARDWARE/$BUILD/l2 \
+            $TOP/apps/fap/media/cs-user-plane/obj/$PRODUCT/$HARDWARE/$BUILD/cs-user-plane \
+            $TOP/apps/fap/management/oam-rem/obj/$PRODUCT/$HARDWARE/$BUILD/oam-rem \
+            $TOP/apps/fap/management/mib-firkler/obj/$PRODUCT/$HARDWARE/$BUILD/mib-firkler \
+            $TOP/apps/fap/watchdogd/obj/$PRODUCT/$HARDWARE/$BUILD/watchdogd \
+            $TOP/apps/fap/post-kernel-boot-actions/obj/$HARDWARE/$BUILD/post-kernel-boot-actions \
+            $TOP/apps/utilities/validate-ip-configuration/obj/$PRODUCT/$HARDWARE/$BUILD/validate-ip-configuration \
+            $TOP/apps/utilities/logtail/obj/$HARDWARE/$BUILD/logtail \
+            $TOP/apps/test/nas-ggsn-ip-tunnel-v2/obj/$PRODUCT/$HARDWARE/$BUILD/tunnel \
+            $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/configure_backhaul.sh \
+            $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/firewall.sh"
+
+if [ "$HARDWARE" != "hbs2-4" ] ; then
+  FAP_APPS+=$TOP/apps/utilities/l1-test
+fi
+
+cp $CP_OPTIONS $FAP_APPS $OUTPUT_DIR_APPS
+
+#
+# Copy common installation scripts.
+# See also FAP_INSTALL_PACKAGE_CONTENTS, to be included in a release package the file in question
+# needs to be in _both_ lists!
+#
+echo "Copying common installation scripts."
+FAP_COMMON_INSTALL_SCRIPTS=
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/hbs2-sip/etc/scripts/PostDownloadScript "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/hbs2-sip/etc/scripts/PreInstallScript "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/$HARDWARE/installUpdate "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/StopAppsForUpdate "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/hbs2-sip/etc/scripts/PostInstallScript "
+cp $CP_OPTIONS $FAP_COMMON_INSTALL_SCRIPTS $OUTPUT_DIR
+
+#
+# Optionally copy .gdb's
+#
+. $TOP/products/fap/hbs2/etc/copy-gdbs
+
+#
+# Create the sys-root for debugging on 2-4
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-sys-root
+fi
+
+#
+# Strip applications and libraries for V4
+# 
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-strip
+fi
+
+#
+# Copy config files in addition to those in common do-distro scripts.
+#
+echo "Copying config files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/nas-iu-configuration \
+               $TOP/products/fap/etc/config/nas-ue-ip-configuration \
+               $TOP/products/fap/etc/config/nas-smsc-configuration \
+               $OUTPUT_DIR_LOCAL_CFG
+
+#
+# TAR it up for easy install on HBS2. 
+# Note that the outer .tar package is actually a gzipped tar but must retain the
+# .tar file extension because the NSN FGW software has the extension hard coded
+# into it at the moment so changing it results in much wailing and gnashing of teeth.
+#
+# Inner tarball.
+echo "Creating inner tarball."
+(cd $OUTPUT_DIR && tar -cf $DISTRO_INNER_FILE_NAME config install/config install/dbx install/kernel install/etc install/fpga install/lib)
+
+echo "Creating outer tarball."
+
+#
+# List of ingredients to include in upgrade packages for all releases. UpdateInfo.txt
+# and inner tarball ($DISTRO_INNER_FILE_NAME) are mandatory, all others are optional -
+# comment to exclude, uncomment to include.
+#
+# See also FAP_COMMON_INSTALL_SCRIPTS, to be included in a release package the file
+# in question needs to be in _both_ lists!
+#
+echo "Setting list of components to be included in update packages for all releases"
+FAP_INSTALL_PACKAGE_CONTENTS=" UpdateInfo.txt $DISTRO_INNER_FILE_NAME"
+FAP_INSTALL_PACKAGE_CONTENTS=$FAP_INSTALL_PACKAGE_CONTENTS" PostDownloadScript"
+FAP_INSTALL_PACKAGE_CONTENTS=$FAP_INSTALL_PACKAGE_CONTENTS" PreInstallScript"
+FAP_INSTALL_PACKAGE_CONTENTS=$FAP_INSTALL_PACKAGE_CONTENTS" PostInstallScript"
+echo $FAP_INSTALL_PACKAGE_CONTENTS          
+
+DISTRO_OUTER_FILE_NAME=${DISTRO_FILE_NAME_STEM}.tar
+cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/$HARDWARE/UpdateInfo.txt $OUTPUT_DIR
+(cd $OUTPUT_DIR && md5sum $FAP_INSTALL_PACKAGE_CONTENTS  > $DISTRO_FILE_NAME_STEM.md5)
+(cd $OUTPUT_DIR && tar -czf ${DISTRO_OUTER_FILE_NAME} ${FAP_INSTALL_PACKAGE_CONTENTS} ${DISTRO_FILE_NAME_STEM}.md5)
+
+
+echo "--- done hbs2-sip specific ---"
+
+# END OF SCRIPT

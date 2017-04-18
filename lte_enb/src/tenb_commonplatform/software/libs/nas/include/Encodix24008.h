@@ -1,0 +1,48 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// 3 Way Networks Source File
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+// Encodix24008.h
+//
+// Include this header, NOT the Encodix headers directly.  For Encodix
+// structures, typedefs, enums etc.
+//
+// Copyright � 3 Way Networks, Ltd.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __Encodix24008_h_
+#define __Encodix24008_h_
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Forward Declarations
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __SUPRESS_24008_TYPES__
+
+///////////////////////////////////////////////////////////////////////////////
+// Includes
+///////////////////////////////////////////////////////////////////////////////
+//CODE_CLEANUP
+#if 0
+#include "ed_c_recog.h"
+
+// So, as the Encodix library doesn't have the RR message decoders, we 
+// need to manually do the PAGE_RESPONSE decode.  Put the structure in
+// here so all users of the L3 library pick up the definition, and use
+// the same naming style as Encodix for consistency in the implementation
+// code.
+typedef struct _c_PAGE_RESPONSE_UP
+{
+	u8 cypheringKeySequenceNumber;
+	c_MobileStationClassmark2 ueClassMark2;
+	c_MobileId subscriberIdentity;
+}c_PAGE_RESPONSE_UP;
+#endif /*0*/
+#endif
+
+#endif
+

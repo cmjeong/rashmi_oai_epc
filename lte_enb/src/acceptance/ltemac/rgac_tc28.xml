@@ -1,0 +1,5009 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE-MAC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases For DSFR test with RR scheduler 
+#
+#     File:    rgac_tc28.xml
+#
+#     Sid:     rgac_tc28.xml@@/main/1 - Tues Mar 26 3:43:03 2013
+#
+#     Prg:     vmahanka
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=5:hn:rgac_tc28.xml
+#
+#
+#       Test:    28.1
+#
+#       Desc:    validate LoadInfo rntp values
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "validate LoadInfo rntp values" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2"
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   
+         />
+      </tapa.expect>
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+      <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+      <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="0" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+ 	  </tapa.send> 
+
+     <tapa.send>
+        <tapa.tfu.tti.ind numTti="1"/>
+     </tapa.send>
+
+     <tapa.expset>
+        # Expect success in cfg cfm
+        <tapa.rgr.cfgCfm instId="5"/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.2
+#
+#       Desc:    validate LoadInfo rntp values
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+
+      #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="200"/>
+      </tapa.send>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      #Send BO for UE3
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+	        #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="2"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="1" use="2" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="3" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="1"/>
+            <tapa.tfu.hq.recp.req ueId="2"/>
+		</tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+			<tapa.tfu.hq ueId="0" isAck="TRUE"/>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+            rgrFeatureAbs="2"
+
+            isSfrEnabled="0" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+      </tapa.send> 
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.3
+#
+#       Desc:    Verify RNTP values after getting loadInfo request
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify RNTP values after getting loadInfo request" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="0" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.4
+#
+#       Desc:    Verify RNTP values after getting loadInfo request
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="5" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="40"/>
+      </tapa.send>
+
+  	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="150"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE0
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 # Send DDatReq for UE02
+		 <tapa.rgu.ddatreq ueId="2" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="2"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="2" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="2"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.5
+#
+#       Desc:    Verify RNTP values after getting loadInfo request
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="5" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="40"/>
+      </tapa.send>
+	  
+   	  #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+
+  	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="150"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+<!--
+	  <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      
+	  <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      -->
+      <tapa.expset>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" bw="100"/>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expset>
+
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 <tapa.rgu.ddatreq ueId="2" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="2"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="1" use="2" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="3" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="1"/>
+			<tapa.tfu.hq.recp.req ueId="2"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="1" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.6
+#
+#       Desc:    validate LoadInfo rntp values
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "validate LoadInfo rntp values" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="500"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" valdtTrue="0" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.7
+#
+#       Desc:    validate LoadInfo rntp values for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "validate LoadInfo rntp values" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+<tapa.repeat.start repeatCount="20"/>
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+<tapa.repeat.end/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.8
+#
+#       Desc:    validate LoadInfo rntp values for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+<tapa.repeat.start repeatCount="20"/>
+      #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="200"/>
+      </tapa.send>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      #Send BO for UE3
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+	        #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="2"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="1" use="2" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="3" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="1"/>
+            <tapa.tfu.hq.recp.req ueId="2"/>
+		</tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+			<tapa.tfu.hq ueId="0" isAck="TRUE"/>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+<tapa.repeat.end />	  
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.9
+#
+#       Desc:    Verify RNTP values after getting loadInfo request for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify RNTP values after getting loadInfo request for multi TTIs" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+<tapa.repeat.start repeatCount="20"/>	 
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="0" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+<tapa.repeat.end />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.10
+#
+#       Desc:    Verify RNTP values after getting loadInfo request for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+<tapa.repeat.start repeatCount="20"/>	  
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="5" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="40"/>
+      </tapa.send>
+
+  	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE0
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 # Send DDatReq for UE02
+		 <tapa.rgu.ddatreq ueId="2" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="2"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="2" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="2"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+<tapa.repeat.end/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.11
+#
+#       Desc:    Verify RNTP values after getting loadInfo request for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify RNTP values after getting loadInfo request for multi TTIs" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+	  
+<tapa.repeat.start repeatCount="20" />
+      #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="5" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="40"/>
+      </tapa.send>
+	  
+   	  #Send BO for UE1
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+
+  	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+<!--
+	  <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      
+	  <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+      -->
+      <tapa.expset>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" bw="100"/>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expset>
+
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 <tapa.rgu.ddatreq ueId="2" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="2"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="1" use="2" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="3" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="1"/>
+			<tapa.tfu.hq.recp.req ueId="2"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="1" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+<tapa.repeat.end />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.12
+#
+#       Desc:    validate LoadInfo rntp values for multi TTIs
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "validate LoadInfo rntp values for multi TTIs" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+<tapa.repeat.start repeatCount="20" />	  
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="500"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" valdtTrue="0" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+<tapa.repeat.end />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#
+#       Test:    28.13
+#
+#       Desc:    Verify RNTP values after getting loadInfo request
+#
+#       Notes:   None
+#              
+#       Module:  "RR SCH"
+#
+#       File:    rgac_tc28.xml
+#
+#
+<tapa.testcase id="28.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify DSFR RNTP Info" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="RG_PHASE2_SCHED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit.mwcDemo/>
+	  
+	  #Sending RGR CELL Configuration
+      #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #rgrFeatureAbs = 1 for ABS
+	  #rgrFeatureAbs = 2 for SFR
+	  #rgrFeatureAbs = 4 for DSFR
+	  #rgrFeatureAbs = 8 for RE
+	  
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" numCmnLc="5"
+         cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+         rgrFeatureAbs="2" 
+		 
+		 isAbsEnabled="0" absPatternType="2" dlSchdType="2" ulSchdType="2"
+         
+         absPattern1="1:1:1:1:1:1:1:1:1:1"
+         absPattern2="1:1:1:1:1:1:1:1:1:1"
+         absPattern3="1:1:1:1:1:1:1:1:1:1"
+         absPattern4="1:1:1:1:1:1:1:1:1:1"
+		 
+		 isSfrEnabled="1" cellEdgeStartRb="20" cellEdgeEndRb="99" cellCenterPower="0" cellEdgePower="3" />
+
+      </tapa.send>
+	  
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" valdtTrue="1"
+		
+    	 CEPoolStartRb="20"   
+         CEPoolEndRb="99"   
+         CEPoolBw="80"   
+         CEPoolBwAlloced="0"   
+         CEPoolType2Start="20"   
+         CEPoolType2End="5"   
+         CEPoolType0End="24"   
+         
+         CCPool1StartRb="0"   
+         CCPool1EndRb="19"   
+         CCPool1Bw="20"   
+         CCPool1BwAlloced="0"   
+         CCPool1Type2Start="0"   
+         CCPool1Type2End="0"   
+         CCPool1Type0End="4"   
+
+         CCPool2StartRb="0"   
+         CCPool2EndRb="0"   
+         CCPool2Bw="0"   
+         CCPool2BwAlloced="0"   
+         CCPool2Type2Start="0"   
+         CCPool2Type2End="0"   
+         CCPool2Type0End="0"   />
+      </tapa.expect>		 
+
+      
+	  # UE Creation
+      <tapa.rg.3UeRrInit.mwcDemo/>
+
+      # Send UE config request
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="0" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="1" instId="5" isUeCellEdge="1"/>
+      </tapa.send>
+      <tapa.send>
+        <tapa.rgr.cfgreq.cfg.ue ueId="2" instId="5" isUeCellEdge="0"/>
+      </tapa.send>
+
+      # Send TTI to apply the config
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expset>
+         <tapa.rgr.cfgCfm ueId="0" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="1" instId="5"/>
+         <tapa.rgr.cfgCfm ueId="2" instId="5"/>
+      </tapa.expset>
+	  
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #UE1 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      #UE2 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="1" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="1" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+      
+      #UE3 Configuration
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch ueId="2" lcId="4" lcgId="0" dir="3" lcType="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="2" lcId="4" dir="1" lcType="4" instId="5" />
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+	  #Sending RGR CELL Configuration
+	  #cmnLcInfo = "lcId:lcType:dir:dlTrchType:ulTrchType:...."
+	  #recfgType = RGR_CELL_LTEA_FEATURE_RECFG(8192)
+	  <tapa.send>
+			 <tapa.rgr.cfgreq.recfg.cell instId="5" numCmnLc="5" recfgType="8192"
+			 cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:5:5:1:1:3:0" maxDlUeNewTxPerTti="4" maxUePerDlSf="4"
+			 rgrFeatureAbs="4"
+		 
+			 isDsfrEnabled="1" numNeighCell="1" rntiPeriodicity="10" nghCellEdgeStartRb="0" nghCellEdgeEndRb="19"/>
+
+ 	  </tapa.send>
+	
+	  # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="1" lcId="4" bo="200"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="1" numLchTb1="1" lchTb1Data="4" valdtTrue="1" cellEdgeStartRb="20"
+          cellEdgeEndRb="99" bw="100"/>
+      </tapa.expect>
+	  
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send>
+         # Send DDatReq for UE1
+         <tapa.rgu.ddatreq ueId="1" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="1" saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="1" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="1"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="1" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+
+
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+      <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+
+	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+	  <tapa.send>
+         <tapa.rgr.loadInfReq cellId="3" nghPHighStartRb="5" nghPHighEndRb="19"/>
+      </tapa.send>
+
+	  #Send BO for UE0
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="4" bo="40"/>
+      </tapa.send>
+
+  	  #Send BO for UE2
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp ueId="2" lcId="4" bo="500"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="0" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind ueId="2" numLchTb1="1" lchTb1Data="4" bw="100"/>
+      </tapa.expect>
+
+
+      #lchTb1Data="lcId:bo:numPdu"
+	  <tapa.send> 
+         # Send DDatReq for UE0
+         <tapa.rgu.ddatreq ueId="0" numLchTb1="1" lchTb1Data="4,0,1"/>
+		 # Send DDatReq for UE02
+		 <tapa.rgu.ddatreq ueId="2" numLchTb1="1" lchTb1Data="4,0,1"/>
+      </tapa.send>
+	  
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         <tapa.tfu.cntrl.req> 
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"/>
+			<tapa.tfu.pdcch.cntrl.req ueId="2" saveTo="2"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req>
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+			<tapa.tfu.pdsch.dat.req ueId="2" use="2" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>         
+      
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.tfu.recp.req spId="1">
+            <tapa.tfu.hq.recp.req ueId="0"/>
+			<tapa.tfu.hq.recp.req ueId="2"/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+	  
+
+      <tapa.send>
+      # Send a 3 TTIs to Send the HARQ ACK Indication
+        <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      
+	  <tapa.send>
+        <tapa.tfu.hq.ind>
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+			<tapa.tfu.hq ueId="2" isAck="TRUE"/>
+        </tapa.tfu.hq.ind>
+      </tapa.send>
+	  
+      #Expecting LoadInfo Indication from Scheduler
+      #after 10 sec (10000 ticks) 
+	  <tapa.send>
+        <tapa.tfu.tti.ind numTti="9991"/>
+      </tapa.send>
+	  
+ 	  #Expecting LoadInfo Indication from Scheduler
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.loadInfInd instId="5" bw="100"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+#/********************************************************************30**
+#
+#         End of file:     rgac_tc15.xml@@/main/1 - Thu Mar 26 01:11:03 2009
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+# 
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1      ---     sm   1. Initial Release.
+#$SID$         ---     sm   1. Initial Release.
+#             rg004.201 rnt  1. Modified for SI Enhancement
+#$SID$        ---     gvj  1. LTE MAC 3.1 Release
+#*********************************************************************91*/

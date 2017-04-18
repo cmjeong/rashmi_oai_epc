@@ -1,0 +1,172 @@
+#!/bin/bash
+
+#
+# hbs2-iu
+#
+
+#
+# Lists of files for use by scripts that build tftpall and stop-apps scripts.
+# Common ones are handled automatically.
+#
+FAP_APPS=
+APP_FILES="watchdogd oam mib-firkler rrc rrm iu l2 l1 cs-user-plane ps-user-plane ntp-client post-office pc-rem-cl rem-test-app rem-app oam-rem tr069 tenpin service-api sw-update clogd "
+if [ "$HARDWARE" = "hbs2-4" ]; then
+  APP_FILES=$APP_FILES" gps "
+fi
+
+FPGA_FILES="rem_hbs2_main_rx.bit rem_hbs2_main_tx.bit"
+
+#
+# Do the stuff common for HBS2s.
+#
+TOP=../../../..
+. $TOP/products/fap/hbs2/etc/do-distro-fap-hbs2
+
+echo "--- hbs2-iu specific ---"
+
+#
+# Copy apps.
+#
+echo "Copying apps."
+FAP_APPS=$FAP_APPS" $TOP/apps/fap/management/update/obj/$PRODUCT/$HARDWARE/$BUILD/sw-update \
+            $TOP/apps/fap/rrm/obj/$PRODUCT/$HARDWARE/$BUILD/rrm \
+            $TOP/apps/fap/ntp-client/Ver2/obj/$PRODUCT/$HARDWARE/$BUILD/ntp-client \
+            $TOP/apps/fap/management/tr069-v2/obj/$PRODUCT/$HARDWARE/$BUILD/tr069-v2 \
+            $TOP/apps/fap/management/mib-firkler/obj/$PRODUCT/$HARDWARE/$BUILD/mib-firkler \
+            $TOP/apps/fap/tenpin/obj/$PRODUCT/$HARDWARE/$BUILD/tenpin \
+            $TOP/apps/fap/ike-tunnel-ind/obj/$PRODUCT/$HARDWARE/$BUILD/ike-tunnel-ind \
+            $TOP/apps/fap/watchdogd/obj/$PRODUCT/$HARDWARE/$BUILD/watchdogd \
+            $TOP/apps/fap/management/oam/obj/$PRODUCT/$HARDWARE/$BUILD/oam "
+
+if [ "$HARDWARE" = "hbs2-4" ]; then
+  FAP_APPS=$FAP_APPS" $TOP/apps/fap/gps/obj/$PRODUCT/$HARDWARE/$BUILD/gps"
+fi
+
+cp $CP_OPTIONS $FAP_APPS $OUTPUT_DIR_APPS
+
+if [ "$HARDWARE" = "hbs2-3-5" ]; then
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/configure_interpeak.sh $OUTPUT_DIR_APPS/configure_backhaul.sh
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/firewall_interpeak.sh $OUTPUT_DIR_APPS/firewall.sh
+else
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/configure_strongswan.sh $OUTPUT_DIR_APPS/configure_backhaul.sh
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/firewall_strongswan.sh $OUTPUT_DIR_APPS/firewall.sh
+fi
+
+if [ "$HARDWARE" = "hbs2-3-5" ] ; then
+  cp $CP_OPTIONS $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ike \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ipsecctrl \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/keyadm \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/qc \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/qos \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ping \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ipf \
+               $OUTPUT_DIR_APPS
+fi
+
+#
+# Optionally copy .gdb's
+#
+. $TOP/products/fap/hbs2/etc/copy-gdbs
+
+#
+# Create the sys-root for debugging on 2-4
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-sys-root
+fi
+
+#
+# Strip applications and libraries for V4
+# 
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-strip
+fi
+
+#
+# Copy config files in addition to those in common do-distro scripts.
+#
+echo "Copying config files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/nas-iu-configuration \
+               $TOP/products/fap/etc/config/nas-ue-ip-configuration \
+               $TOP/products/fap/etc/config/ike-defaults.cfg \
+               $TOP/products/fap/etc/config/ike-defaults.sysvar \
+               $OUTPUT_DIR_LOCAL_CFG
+
+#
+# Copy common installation scripts.
+# See also FAP_INSTALL_PACKAGE_CONTENTS, to be included in a release package the file in question
+# needs to be in _both_ lists!
+#
+echo "Copying common installation scripts."
+FAP_COMMON_INSTALL_SCRIPTS=
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/hbs2-iu/etc/scripts/PostDownloadScript "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/hbs2-iu/etc/scripts/PreInstallScript "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/$HARDWARE/installUpdate "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/StopAppsForUpdate "
+cp $CP_OPTIONS $FAP_COMMON_INSTALL_SCRIPTS $OUTPUT_DIR
+
+if [ "$HARDWARE" = "hbs2-3-5" ] ; then
+  cp $CP_OPTIONS $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ike \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ipsecctrl \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/keyadm \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/qc \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/qos \
+               $TOP/libs/bin/ipnet/$HARDWARE/$BUILD/lib/ping \
+               $OUTPUT_DIR_APPS
+fi
+
+#
+# TAR it up for easy install on HBS2.
+# Note that the outer .tar package is actually a gzipped tar but must retain the
+# .tar file extension because the NSN FGW software has the extension hard coded
+# into it at the moment so changing it results in much wailing and gnashing of teeth.
+#
+# Inner tarball.
+echo "Creating inner tarball."
+echo " -> ${DISTRO_INNER_FILE_NAME}"
+(cd $OUTPUT_DIR && tar -cf $DISTRO_INNER_FILE_NAME config install/config install/dbx install/kernel install/etc install/fpga install/lib)
+
+# Outer tarball.
+echo "Creating outer tarballs."
+
+# List of ingredients to include in upgrade packages for all releases. UpdateInfo.txt
+# and inner tarball ($DISTRO_INNER_FILE_NAME) are mandatory, all others are optional.
+#
+# See also FAP_COMMON_INSTALL_SCRIPTS, to be included in a release package the file
+# in question needs to be in _both_ lists!
+FAP_INSTALL_PACKAGE_CONTENTS="UpdateInfo.txt $DISTRO_INNER_FILE_NAME PostDownloadScript PreInstallScript PostInstallScript installUpdate"
+
+cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/$HARDWARE/UpdateInfo.txt $OUTPUT_DIR
+
+# File naming must match the <DeviceId> element in TR-069 transactions.  See Tr069TransactionSession.cpp
+# OUI=0005B9, ProductClass=Radisys-hbs2-iu
+# and
+
+function create_tarball {
+  RELEASE=$1
+  DISTRO_NAME=$2
+  DISTRO_VERSION=${RELEASE}.v${SVNVERSION}
+  DISTRO_OUTER_FILE_NAME=${DISTRO_NAME}_${DISTRO_VERSION}.tar
+  SIGNED_DISTRO_FILE_NAME=${DISTRO_NAME}_${DISTRO_VERSION}.signed
+  echo " -> ${DISTRO_OUTER_FILE_NAME}"
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/$RELEASE/PostInstallScript $OUTPUT_DIR/PostInstallScript
+  (cd $OUTPUT_DIR && md5sum $FAP_INSTALL_PACKAGE_CONTENTS  > $DISTRO_FILE_NAME_STEM.md5)
+  (cd $OUTPUT_DIR && tar -czf $DISTRO_OUTER_FILE_NAME $FAP_INSTALL_PACKAGE_CONTENTS $DISTRO_FILE_NAME_STEM.md5)
+  if [ $SIGN_CERT_FILE ] && [ $SIGN_KEY_FILE ] ; then
+    echo " -> ${SIGNED_DISTRO_FILE_NAME}"
+    ${TOP}/products/fap/etc/sign-distro $OUTPUT_DIR/$DISTRO_OUTER_FILE_NAME $OUTPUT_DIR/$SIGNED_DISTRO_FILE_NAME ${SIGN_CERT_FILE} ${SIGN_KEY_FILE}
+  fi
+}
+
+if [ "$HARDWARE" = "hbs2-3-5" ] ; then
+  create_tarball R2-0 "0005B9_FAP_3.5"
+  create_tarball R2-1 "0005B9_FAP_3.5"
+elif [ "$HARDWARE" = "hbs2-4" ] ; then
+  create_tarball R2-0 "0005B9_FAP_4.0"
+  create_tarball R2-1 "0005B9_FAP_4.0"
+fi
+
+echo "--- done hbs2-iu specific ---"
+
+
+# END OF SCRIPT

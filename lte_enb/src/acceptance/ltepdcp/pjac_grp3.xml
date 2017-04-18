@@ -1,0 +1,1429 @@
+#
+#/********************************************************************20**
+#
+#     Name:    PDCP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    pjac_grp3.xml
+#
+#     Sid:     $SID$
+#
+#     Prg:     Group 2 Test Cases  
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:1:Group 3 Test Cases :pjac_grp3.xml
+
+
+#
+#
+#       Test:    3.1
+#
+#       Desc:    UE ID Change Request for Invalid Ue (TC_CFG_GRP2_6)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.1"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "PDCP Layer Control Interface - UE ID Change Request(TC_CFG_GRP2_6)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. UE ID change reuest for Invalid UE (which does not exist)."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>      
+         <tapa.cpj.ueidchgreq transId="1" ueId="1" cellId="1" newUeId="2" newCellId="1"
+         />
+      </tapa.send>
+  
+      #Expect a confirm for the delete request
+      <tapa.expect>
+         <tapa.cpj.ueidchgcfm status="2" inst="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    3.2
+#
+#       Desc:    Different Configurations with success and failure types
+#       (TC_CFG_GRP2_3)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.2"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "PDCP Layer Control Interface - All types of configuration(TC_CFG_GRP2_3)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1, numEnt=1  3-UM(DL)successful configuration with discard timer.
+          2. Send a config request for the same RB ID - Expect a failure saying RB exists.
+          3. Send a reconfig request for the RB - Expect a successful Cfm.
+          4. Send a reconfig request for the invalid RB - Expect a failure.
+          5. Send a delete request for the RB - Expect a successful confirm. 
+          6. Send a delete request for the same RB - Expect a failure(Reason: RB does not exist.
+          7. Send a re-establishment request for the deleted RB - Expect a failure confirm ( Reason : RB does not exist).
+          8. Send a delete UE for existing UE - Expect a successful cfm.
+          9. Send a delete UE for a non existing UE - Expect a failure ( Reason: UE does not exists). "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Step 1. Configure rbId=1
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="1"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="0"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="0"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+      #Step 2. Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Step 3. Send a config request with Add for a existing RB rbID=1
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="1"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="0"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="0"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+      #Step 4. Expect a negative confirm saying RB exist
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="2"
+            reason="16"
+            inst="1"
+         />
+      </tapa.expect>
+      
+      #Step 5. Send a Re-config request for RB ID 1 
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="2"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="1"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="1"
+            maxCid="15"
+            profile="5"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+      #Step 6. Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+     
+      #Step 7. Send a reconfig for non-existing RB
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="4"
+            cfgType="2"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="1"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="1"
+            maxCid="15"
+            profile="5"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+      #Step 8. Expect a negative confirm saying unknown PDCP ID
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="4"
+            status="2"
+            reason="6"
+            inst="1"
+         />
+      </tapa.expect>
+     
+      #Step 9. Send a Delete for RB ID 1 
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            cfgType="3"
+         />
+      </tapa.send>
+      #Step 10. Expect a config confirm for the deleted entity
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+      #Step 11. Send a Delete again for RB ID 1           
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            cfgType="3"
+         />
+      </tapa.send>
+      #Step 12. Expect a config confirm saying RB ID is invalid
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="2"
+            reason="6"
+            inst="1"
+         />
+      </tapa.expect>
+    
+      #Step 13. Send a re-establishment for RB ID 1 (which does not exist)
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="4"
+         />
+      </tapa.send>
+      #Step 14. Expect a config confirm saying RB ID is invalid
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="2"
+            reason="6"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Step 17. Delay
+      <tapa.delay delay="5"/>
+
+      #Step 15. Send a Delete UE Request for UE ID - 1 
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+         />
+      </tapa.send>
+      #Step 16. Expect a config confirm 
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+     
+      #Step 17. Delay
+      <tapa.delay delay="5"/>
+
+      #Step 18. Send a Delete UE Request for UE ID - 1 (which does not exist)
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+         />
+      </tapa.send>
+      #Step 19. Expect a config confirm 
+      #kw004.201 Now Application expect status CPJ_CFG_CFM_NOK
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="2"
+            reason="7"
+            inst="1"
+         />
+      </tapa.expect>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.3
+#
+#       Desc:    Count Req for existing and non-existing UEs (TC_CFG_GRP2_7)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.3"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "PDCP Layer Control Interface - Count Request (TC_CFG_GRP2_7)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1, numEnt= 1 AM(DRB)successful configuration with discard timer - Expect a cfm for the request. 
+          2. Send a Count Request for the UE and expect a confirm with dl and ul count as 0.
+          3. Send a delete RB request and expect cfm.
+          4. Send the count request for the UE which has no UEs.Expect a negative confirm with numRbs=0
+          5. Delete the UE.Expect a positive cfm.
+          6. Send the count request for the non-existing UE and get a cfm with UE_UNKNOWN.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      
+      #Send a configuration request for DRB - RB ID 1 
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="1"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="0"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="0"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Send a Count request for UE ID - 1
+      <tapa.send>
+         <tapa.cpj.countreq ueId="1" cellId="1" transId="1" inst="1"
+         />
+      </tapa.send>
+      #kw006.201, fix for ccpu00120654 
+      #Expect a Count Confirm for UE ID - 1
+      <tapa.expect>
+         <tapa.cpj.countcfm ueId="1" cellId="1" numRb="1"
+            rbId="1"
+            dir="3"
+            status="1"
+            reason="0"
+            transId="1"
+            ulcount="0"
+            dlcount="0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Send a Delete for RB ID 1
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            cfgType="3"
+            inst="1"
+         />
+      </tapa.send>
+      #Expect a config confirm for the deleted entity
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Send a Count request for UE ID - 1
+      <tapa.send>
+         <tapa.cpj.countreq ueId="1" cellId="1" transId="2" inst="1"
+         />
+      </tapa.send>
+      #kw006.201, fix for ccpu00120654 
+      #Expect a  negative Count Confirm for UE ID 1 - NUMRB = 0
+      <tapa.expect>
+         <tapa.cpj.countcfm ueId="1" cellId="1" numRb="0"
+            rbId="1"
+            dir="3"
+            status="2"
+            reason="21"
+            transId="2"
+            inst="1"
+         />
+      </tapa.expect>
+      
+      #Send a Delete UE Request for UE ID - 1
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            cfgType="5"
+            inst="1"
+         />
+      </tapa.send>
+      #Expect a config confirm
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            rbType="1"
+            status="1"
+            reason="0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Send a Count request for UE ID - 1 (which does not exist)
+      <tapa.send>
+         <tapa.cpj.countreq ueId="1" cellId="1" transId="3" inst="1"
+         />
+      </tapa.send>
+      #kw006.201, fix for ccpu00120654 
+      #Expect a  negative Count Confirm for UE ID 1 - Saying UE not existing
+      <tapa.expect>
+         <tapa.cpj.countcfm ueId="1" cellId="1" numRb="0"
+            rbId="1"
+            dir="3"
+            status="2"
+            reason="7"
+            transId="3"
+            inst="1"
+         />
+      </tapa.expect>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    3.4
+#
+#       Desc:    Verify the range/invalid configuration of RBs (TC_CFG_GRP2_4)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.4"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "Verify the range/invalid configuration of RBs (TC_CFG_GRP2_4)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "
+         1. Add RBID with out of range (more than hashdef MAX_RB).
+         2. Invalid RB Type UM mode with SRB type.
+         3. Invalid cfg Type.
+         4. Invalid direction
+         "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.directive successTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+     
+      #Configure 6 RBs in a UE
+      # SRB1: rbId=1 - Success
+      # SRB2: rbId=2, rbType=2 - Failure
+      # DRB1: rbId=3, rbType=0, mode=2 - Failure
+      # DRB2: rbId=4, cfgType=8 - Failure
+      # DRB3: rbId=5 - Success
+      # DRB4: rbId=35 - Failure
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:35"
+            cfgType="1:1:1:8:1:1"
+            rbType="0:2:0:1:1:1"
+            discReqd="1:1:0:0:0:0"
+            cfmReqd="1:1:0:0:0:1"
+            discardTmr="100:-1:0:0:200:100"
+
+            dir="3:3:2:1:1:3"
+            mode="3:3:2:2:2:3"
+    
+            umSnSize="0:0:5:0:0"
+            statusRepReqd="0:0:0:0:0:1"
+            pdcpSNSize="5:5:7:7:7:12"
+    
+            hdrCompUsed="0:0:1:1:1:1"
+            maxCid="15:15:15:15:15"
+            profile="0:0:0:0:4:8"
+    
+            bitFlag="0:0:0:0:0:0"
+            isHoPres="0:0:0:0:0:0"
+            dlCount="0:0:0:0:0:0"
+            ulCount="0:0:0:0:0:0"
+            numBits="0:0:0:0:0:0"
+            ulBitMap="0:0:0:0:0:0"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:35"
+            rbType="0:2:0:1:1:1"
+            status="1:2:2:2:1:2"
+            reason="0:0:0:14:0:0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      <tapa.delue1 />
+         
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.5
+#
+#       Desc:    Verifying the SecCfg for non-existing UE(TC_CFG_GRP2_5)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.5"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "Verifying the SecCfg for non-existing UE (TC_CFG_GRP2_5)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1, numEnt=6 (1-AM(SRB1), 2-AM(SRB2), 3-UM(DL), 4-UM(UL), 5-UM(BOTH), 6-AM(DRB)) successful configuration with discard timer for 6.
+          2. Config Request for RLC for the 6 entities in step 1.
+          3. Security Config Request for non-existing UE - Failure configuration
+          4. Delete RLC entities.
+          5. Delete PDCP entities.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            cfgType="1:1:1:1:1:1"
+            rbType="0:0:1:1:1:1"
+            discReqd="1:1:0:0:0:0"
+            cfmReqd="1:1:0:0:0:1"
+            discardTmr="100:-1:0:0:200:100"
+
+            dir="3:3:2:1:3:3"
+            mode="3:3:2:2:2:3"
+    
+            umSnSize="0:0:5:0:0"
+            statusRepReqd="0:0:0:0:0:1"
+            pdcpSNSize="5:5:7:7:7:12"
+    
+            hdrCompUsed="0:0:1:1:1:1"
+            maxCid="15:15:15:15:15"
+            profile="0:0:0:0:24:8"
+    
+            bitFlag="0:0:0:0:0:0"
+            isHoPres="0:0:0:0:0:0"
+            dlCount="0:0:0:0:0:0"
+            ulCount="0:0:0:0:0:0"
+            numBits="0:0:0:0:0:0"
+            ulBitMap="0:0:0:0:0:0"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="1:1:1:1:1:1"
+            reason="0:0:0:0:0:0"
+            inst="1"
+         />
+      </tapa.expect>
+
+      #Send a Security Config Req for the UE
+      <tapa.send>
+      <tapa.cpj.seccfgreq ueId="10" cellId="1" transId="1"
+         selSecAct="TRUE"
+         intalgoType="1"
+         intkey="12345678123456781234567812345678"
+         ciphalgoType="1"
+         ctrlplnkey="12345678123456781234567812345678"
+         usrplnkey="12345678123456781234567812345678"
+         inst="1"
+      />
+      </tapa.send>
+      #Expect a security config confirm for the UE
+      <tapa.expect>
+      <tapa.cpj.seccfgcfm ueId="10" cellId="1" transId="1"
+         status="2"
+         reason="7"
+         inst="1"
+      />
+      </tapa.expect>
+    
+      #Delete all the PDCP RBs in the ue
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="2" cellId="1" numEnt="6"
+            cfgType="3:3:3:3:3:3"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            inst="1"
+         />
+      </tapa.send>
+      #Expect a confirm for the delete request
+      <tapa.expect>
+         <tapa.cpj.cfgcfm numEnt="6" ueId="1" cellId="1"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="2:2:2:2:2:2"
+            reason="7:7:7:7:7:7"
+            inst="1"
+         />   
+   </tapa.expect>  
+
+   <tapa.delue1 /> 
+  
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.6
+#
+#       Desc:    Verify re-establishment procedure for non-existing UE and RB (TC_CFG_GRP2_8)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.6"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "Verify re-establishment procedure for non-existing UE and RB (TC_CFG_GRP2_8)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "
+          1. Re-establishment Request for non-existing UE - Failure Return.
+          2. Configuration Request, cfgType with Re-establishment Request for non-existing RB.
+          3. ueId=1, cellId=1, numEnt=6 (1-AM(SRB1), 2-AM(SRB2), 3-UM(DL), 4-UM(UL), 5-UM(BOTH),
+             6-AM(DRB)) successful configuration with discard timer for 6.
+          4. Config Request for RLC for the 6 entities in step 1.
+          5. Configuration Request, cfgType with Re-establishment Request for non-existing RB.
+          6. Delete RLC entities.
+          7. Delete PDCP entities.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Re-Est Request for non-configured UE.
+      <tapa.send>
+         <tapa.cpj.reestreq ueId="1" cellId="1" rbId="1" rbType="0"
+            intkey="12345678123456781234567812345678"
+            ctrlplnkey="12345678123456781234567812345678"
+            usrplnkey="12345678123456781234567812345678"
+            />
+      </tapa.send>
+
+      #Expect Re_Est Confirm Failure.
+      <tapa.expect>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" rbId="1" rbType="0" transId="1"
+            status="2"
+            reason="7"
+            />
+      </tapa.expect>
+
+      #Send Config Request with re-est for non-configured UE.
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="4"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="0"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="0"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+
+      #Expect Config Confirm with Failure.
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="2"
+            reason="7"
+         />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            cfgType="1:1:1:1:1:1"
+            rbType="0:0:1:1:1:1"
+            discReqd="1:1:0:0:0:0"
+            cfmReqd="1:1:0:0:0:1"
+            discardTmr="100:-1:0:0:200:100"
+
+            dir="3:3:2:1:3:3"
+            mode="3:3:2:2:2:3"
+    
+            umSnSize="0:0:5:0:0"
+            statusRepReqd="0:0:0:0:0:1"
+            pdcpSNSize="5:5:7:7:7:12"
+    
+            hdrCompUsed="0:0:1:1:1:1"
+            maxCid="15:15:15:15:15"
+            profile="0:0:0:0:24:8"
+    
+            bitFlag="0:0:0:0:0:0"
+            isHoPres="0:0:0:0:0:0"
+            dlCount="0:0:0:0:0:0"
+            ulCount="0:0:0:0:0:0"
+            numBits="0:0:0:0:0:0"
+            ulBitMap="0:0:0:0:0:0"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="1:1:1:1:1:1"
+            reason="0:0:0:0:0:0"
+         />
+      </tapa.expect>
+
+      #Send a Security Config Req for the UE
+      <tapa.send>
+      <tapa.cpj.seccfgreq ueId="1" cellId="1" transId="1"
+         selSecAct="TRUE"
+         intalgoType="1"
+         intkey=""
+         ciphalgoType="1"
+         ctrlplnkey=""
+         usrplnkey=""
+      />
+      </tapa.send>
+      #Expect a security config confirm for the UE
+      <tapa.expect>
+      <tapa.cpj.seccfgcfm ueId="1" cellId="1" transId="1"
+         status="1"
+         reason="0"
+      />
+      </tapa.expect>
+    
+      #Send Config Request with re-est for non-configured RB.
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="10"
+            cfgType="4"
+            rbType="1"
+            discReqd="0"
+            cfmReqd="0"
+            discardTmr="0"
+
+            dir="3"
+            mode="3"
+    
+            statusRepReqd="1"
+            pdcpSNSize="0"
+    
+            hdrCompUsed="0"
+            maxCid="0"
+            profile="0"
+    
+            bitFlag="0"
+            isHoPres="0"
+            dlCount="0"
+            ulCount="0"
+            numBits="0"
+            ulBitMap="0"
+         />
+      </tapa.send>
+
+      #Expect Config Confirm with Failure.
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="2"
+            reason="17"
+         />
+      </tapa.expect>
+
+      #Delete all the PDCP RBs in the ue
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="2" cellId="1" numEnt="6"
+            cfgType="3:3:3:3:3:3"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+         />
+      </tapa.send>
+      #Expect a confirm for the delete request
+      <tapa.expect>
+         <tapa.cpj.cfgcfm numEnt="6" ueId="1" cellId="1"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="2:2:2:2:2:2"
+            reason="7:7:7:7:7:7"
+         />
+   </tapa.expect>
+
+   <tapa.delue1/>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.7
+#
+#       Desc:    Verify SDU status request procedure for non-existing UE and RB (TC_CFG_GRP2_9)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.7"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "Verify SDU status request procedure for non-existing UE and RB (TC_CFG_GRP2_9)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "
+          1. SDU status Request for non-existing UE - Failure Return.
+          2. ueId=1, cellId=1, numEnt=6 (1-AM(SRB1), 2-AM(SRB2), 3-UM(DL), 4-UM(UL), 5-UM(BOTH),
+             6-AM(DRB)) successful configuration with discard timer for 6.
+          3. Config Request for RLC for the 6 entities in step 1.
+          4. SDU status Request for non-existing UE within ueId=2.
+          6. Delete RLC entities.
+          7. Delete PDCP entities.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send Re-Est Request for non-configured UE.
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1"
+            />
+      </tapa.send>
+
+      #Expect Re_Est Confirm Failure.
+      <tapa.expect>
+         <tapa.cpj.sdustacfm ueId="1" cellId="1"
+            status="2"
+            reason="7"
+            />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            cfgType="1:1:1:1:1:1"
+            rbType="0:0:1:1:1:1"
+            discReqd="1:1:0:0:0:0"
+            cfmReqd="1:1:0:0:0:1"
+            discardTmr="100:-1:0:0:200:100"
+
+            dir="3:3:3:3:3:3"
+            mode="3:3:2:2:2:3"
+    
+            umSnSize="0:0:5:0:0"
+            statusRepReqd="0:0:0:0:0:1"
+            pdcpSNSize="5:5:7:7:7:12"
+    
+            hdrCompUsed="0:0:1:1:1:1"
+            maxCid="15:15:15:15:15"
+            profile="0:0:0:0:24:8"
+    
+            bitFlag="0:0:0:0:0:0"
+            isHoPres="0:0:0:0:0:0"
+            dlCount="0:0:0:0:0:0"
+            ulCount="0:0:0:0:0:0"
+            numBits="0:0:0:0:0:0"
+            ulBitMap="0:0:0:0:0:0"
+         />
+      </tapa.send>
+      #Expect a config confirm for all of the above configured entities
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="6"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="1:1:1:1:1:1"
+            reason="0:0:0:0:0:0"
+         />
+      </tapa.expect>
+
+      #Send a Security Config Req for the UE
+      <tapa.send>
+      <tapa.cpj.seccfgreq ueId="1" cellId="1" transId="1"
+         selSecAct="TRUE"
+         intalgoType="1"
+         intkey=""
+         ciphalgoType="1"
+         ctrlplnkey=""
+         usrplnkey=""
+      />
+      </tapa.send>
+      #Expect a security config confirm for the UE
+      <tapa.expect>
+      <tapa.cpj.seccfgcfm ueId="1" cellId="1" transId="1"
+         status="1"
+         reason="0"
+      />
+      </tapa.expect>
+    
+      #Delete all the PDCP RBs in the ue
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="6"
+            cfgType="3:3:3:3:3:3"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+         />
+      </tapa.send>
+      #Expect a confirm for the delete request
+      <tapa.expect>
+         <tapa.cpj.cfgcfm numEnt="6" ueId="1" cellId="1"
+            rbId="1:2:3:4:5:6"
+            rbType="0:0:1:1:1:1"
+            status="1:1:1:1:1:1"
+            reason="0:0:0:0:0:0"
+         />
+      </tapa.expect>
+
+      #Send Re-Est Request for non-configured UE.
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="2" cellId="1"
+            />
+      </tapa.send>
+
+      #Expect Re_Est Confirm Failure.
+      <tapa.expect>
+         <tapa.cpj.sdustacfm ueId="2" cellId="1" transId="2"
+            status="2"
+            reason="7"
+            />
+      </tapa.expect>
+
+      <tapa.delue1 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.8
+#
+#       Desc:    UE ID Change Request for Valid Ue (TC_CFG_GRP2_6)
+#
+#       Notes:   None
+#              
+#       Module:  CPJ - PDCP CFG
+#
+#       File:    pjac_grp3.xml
+#
+#
+<tapa.testcase id="3.8"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="cpjcfg"/>
+
+      <tapa.desc>
+         "PDCP Layer Control Interface - UE ID Change Request(TC_CFG_GRP2_6)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. UE ID change reuest for Valid UE ."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+      <tapa.pj.init/>
+      #Configure the SRB1 at RLC and PDCP Layer 
+      <tapa.srb1cfg />
+      <tapa.delay delay="2"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>      
+         <tapa.cpj.ueidchgreq transId="1" ueId="1" cellId="1" newUeId="3"
+newCellId="1"
+         />
+      </tapa.send>
+  
+      #Expect a confirm for the delete request
+      <tapa.expect>
+         <tapa.cpj.ueidchgcfm status="1" transId="-1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="3" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+         />
+      </tapa.send>
+      <tapa.delay delay="2"/> 
+      #Expect a config confirm 
+      <tapa.expect>
+         <tapa.cpj.cfgcfm ueId="3" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+         />
+      </tapa.expect>
+
+      <tapa.delue2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file: pjac_grp3.xml@@/main/TeNB_Main_BR/1 - Wed Oct  9 19:53:14 2013
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     vb                   1. LTE PDCP Release 2.1.
+#*********************************************************************91*/

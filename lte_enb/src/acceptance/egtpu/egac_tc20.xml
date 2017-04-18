@@ -1,0 +1,556 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc20.xml
+#
+#     Sid:   
+#
+#     Prg:     kc
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:ad:egac_tc20.xml
+
+#
+#       Test:    20.1
+#
+#       Desc:   Verify the successful configuration of GTP-C and GTP-U
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: None
+#
+#       File:   egac_tc20.xml
+#
+<tapa.testcase id="20.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.CandU"/>
+
+      <tapa.desc>
+         "Verify the successful configuration of GTP-C and GTP-U"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id= "EGTP_U" />
+         <tapa.flag id= "EGTP_C" />
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.eg.egtpc.egtpu.init/>
+      
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtpc.egtpu.deinit/>
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    20.2
+#
+#       Desc:   Verify the successful tunnel creation and message exchange 
+                for GTP-C and GTP-U (G-PDU)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: None
+#
+#       File:   egac_tc20.xml
+#
+<tapa.testcase id="20.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.CandU"/>
+
+      <tapa.desc>
+         "Verify the successful tunnel creation and message exchange
+         for GTP-C and GTP-U (G-PDU)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id= "EGTP_U" />
+         <tapa.flag id= "EGTP_C" />
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+      #Configure layer as GTP-C and GTP-U
+      <tapa.eg.egtpc.egtpu.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send CS Req from MME and get CS Rsp from SGW
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="100" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="100" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      #Send G-PDU from tunnel 1 to tunnel 2
+      <tapa.send>
+         <tapa.egt.egudatreq procId="100" suId="3" spId="3" pduNmbPres="TRUE" npduNmb="5"
+            seqNoPres="TRUE" seqNo="12000" udpextPres="TRUE" udpPortNmb="1000"
+            pdcpextPres="TRUE" pdcpPortNmb="5000" remTeid="20000" msgType="EGT_GTPU_MSG_GPDU"
+            lclTeid="10000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" lclPort="10000"/>
+      </tapa.send>
+
+      #Receive G-PDU on tunnel 2
+      <tapa.expect >
+         <tapa.egt.egudatind  procId="100" suId="3" spId="3" pduNmbPres="TRUE" npduNmb="5"
+            seqNoPres="TRUE" seqNo="12000" udpextPres="TRUE" udpPortNmb="1000"
+            pdcpextPres="TRUE" pdcpPortNmb="5000" msgType="EGT_GTPU_MSG_GPDU"
+            lclTeid="20000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtpc.egtpu.deinit/>
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    20.3
+#
+#       Desc:   Verify the successful tunnel creation and message exchange 
+                for GTP-C and GTP-U
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: None
+#
+#       File:   egac_tc20.xml
+#
+<tapa.testcase id="20.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.CandU"/>
+
+      <tapa.desc>
+         "Verify the successful tunnel creation and message exchange
+         for GTP-C and GTP-U(Non G-PDU)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id= "EGTP_U" />
+         <tapa.flag id= "EGTP_C" />
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+      #Configure layer as GTP-C and GTP-U
+      <tapa.eg.egtpc.egtpu.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send CS Req from MME and get CS Rsp from SGW
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="100" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="100" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      #Send G-PDU from tunnel 1 to tunnel 2
+      <tapa.send>
+         <tapa.egt.egudatreq procId="100" suId="3" spId="3" pduNmbPres="TRUE" npduNmb="5"
+            seqNoPres="TRUE" seqNo="12000" udpextPres="TRUE" udpPortNmb="1000"
+            pdcpextPres="TRUE" pdcpPortNmb="5000" remTeid="0" msgType="EGT_GTPU_MSG_ERROR_IND"
+            lclTeid="10000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" lclPort="10000"/>
+      </tapa.send>
+
+      #Receive G-PDU on tunnel 2
+      <tapa.expect >
+         <tapa.egt.egudatind  procId="100" suId="3" spId="3" pduNmbPres="TRUE" npduNmb="5"
+            seqNoPres="TRUE" seqNo="12000" udpextPres="TRUE" udpPortNmb="1000"
+            pdcpextPres="TRUE" pdcpPortNmb="5000" msgType="EGT_GTPU_MSG_ERROR_IND"
+            lclTeid="0" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtpc.egtpu.deinit/>
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    20.4
+#
+#       Desc:   Verify the successful configuration for GTP-C and GTP-U
+                Verify the load distribution in GTP_U
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: None
+#
+#       File:   egac_tc20.xml
+#
+<tapa.testcase id="20.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.CandU"/>
+
+      <tapa.desc>
+         "Verify the successful configuration for GTP-C and GTP-U
+         Verify the load distribution in GTP_U"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id= "EGTP_U" />
+         <tapa.flag id= "EGTP_U_MULTI_THREADED" />
+         <tapa.flag id= "EGTP_C" />
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+      #Configure layer as GTP-C and GTP-U
+      <tapa.eg.egtpc.egtpu.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      #Send CS Req from MME and get CS Rsp from SGW
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="100" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="100" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+
+      #Verify the load distribution in GTP-U with
+       With 3 threads configured
+       With 6 tunnels configured
+       With 3 tunnels are receiving data
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="3" spId="3" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE"
+	teid="30000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb ="1" procId="100"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="3" teid="30000" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.1" procId="100"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="3" spId="3" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE"
+	teid="40000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb ="1" procId="100"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="3" teid="40000" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.1" procId="100"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="3" spId="3" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE"
+	teid="50000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb ="1" procId="100"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="3" teid="50000" procId="100"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="3" spId="3" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE"
+	teid="60000" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" expSeqNmb ="1" procId="300"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="3" teid="60000" procId="300"/>
+      </tapa.expect>
+      # Send data request on tunnel 1
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" spId ="3"
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="10000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="10000" procId="300"/>
+      </tapa.send>
+
+     #Expect UDatInd on tunnel 1
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0" 
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="10000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="10000" procId="300" suId="3" spId="3"/>
+      </tapa.expect>
+
+     
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" spId ="3"
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="20000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="20000" procId="300"/>
+      </tapa.send>
+      
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="20000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="20000" procId="300" suId="3" spId="3"/>
+      </tapa.expect>
+
+      # Send data request on tunnel 3
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" spId ="3"
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="30000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="30000" procId="300"/>
+      </tapa.send>	
+
+     
+     #Expect UDatInd tunnel 3
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0" 
+	   seqNoPres="TRUE" seqNo="1" udpextPres="0" udpPortNmb="0"
+	   pdcpextPres="0" pdcpPortNmb="0" remTeid="30000" msgType="EGT_GTPU_MSG_GPDU"
+	   lclTeid="30000" procId="300" suId="3" spId="3"/>
+      </tapa.expect>
+
+      #Send Thread statistics request
+      <tapa.send>
+         <tapa.leg.sts.req stsType="STEGTHRD" procId="300"/>
+      </tapa.send>
+
+      # Expect statistics Confirm
+      <tapa.expect>
+         <tapa.leg.stscfm status="LCM_PRIM_OK" reason="LCM_REASON_NOT_APPL" procId="300"/>
+      </tapa.expect>
+    
+      <tapa.delay delay="20" />
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtpc.egtpu.deinit/>
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+
+
+

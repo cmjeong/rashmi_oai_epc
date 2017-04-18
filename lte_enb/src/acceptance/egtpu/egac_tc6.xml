@@ -1,0 +1,4149 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc1.xml
+#
+#     Sid:   
+#
+#     Prg:  pchebolu
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:ad:egac_tc7.xml
+
+#
+#       Test:    6.1
+#
+#       Desc:   Verify the success sending of CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"  
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    6.2
+#
+#       Desc:   Send CBR after CSR with Teid=1
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send CBR after CSR with Teid=1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S11_MME_GTP_C"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1" FTeidIntfType="EGT_INT_S11_S4_SGW_GTP_C"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE"
+               spId="1" procId="200" transId="1"  lclPort="3123" rmtPort="2124" t3TmrVal="10"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teid="1" teidValue="1" seqNoPres="TRUE" seqNo="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MB_RSP" intfType="EGT_GTP_INT_S11" 
+               spId="1" procId="300" transId="1" seqNo="1" seqNoPres="TRUE" teid="1" teidValue="1" />
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MB_RSP" transId="1" suId="1"
+                 procId="200" teid="1" teidValue="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.3
+#
+#       Desc:   Send ECHO after CSR with Teid=1
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send CBR after CSR with Teid=1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   
+   #Test Steps subsection
+   <tapa.test>
+                                                                                                                                                                        
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" procId="200" transId="1" addInterfaceType="10"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+                                                                                                                                                                        
+                                                                                                                                                                        
+        # Receive Create Session Request at SGW
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ"  teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+                                                                                                                                                                        
+        # Send Create Session Response at SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11"  addInterfaceType="11" teid="1" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+                                                                                                                                                                        
+        # Receive Create Session Response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+                                                                                                                                                                        
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>                                                                                                                                                    
+                                                                                                                                                                        
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+                                                                                                                                                                        
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+                                                                                                                                                                        
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+                                                                                                                                                                        
+                                                                                                                                                                        
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" intfType="EGT_GTP_INT_UNKNWN" teid="0"
+                spId="1" procId="200" lclPort="3123" rmtPort="3124" t3TmrVal="10" mandIePres="FALSE"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidValue="0"/>
+        </tapa.send>
+                                                                                                                                                                        
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" transId="0" teid="0" suId="1" procId="200"/>
+      </tapa.expect>
+                                                                                                                                                                        
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.4
+#
+#       Desc:   Send Lcl Del after the CSR/CSRSP
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Lcl Del after the CSR/CSRSP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    6.5
+#
+#       Desc:   Send 2nd CSR but without crt=TRUE
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.5">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.6
+#
+#       Desc:   Send DL Data Notification and expect ACK
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.6">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send DL Data Notification and expect ACK"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN" intfType="EGT_GTP_INT_S11"
+               spId="1" procId="300" transId="1" lclPort="3124"
+               rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+        <tapa.egt.sigind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN_ACK" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="200" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN_ACK" transId="1" teid="1" suId="2" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.7
+#
+#       Desc:   MB CMD and expect for the FAIL IND
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.7">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "MB CMD and expect for the FAIL IND"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="200" transId="1" lclPort="3123" seqNoPres="TRUE" seqNo="8388609" 
+          rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBFAIL_IND" intfType="EGT_GTP_INT_S11" teid="1" seqNoPres="TRUE" seqNo="8388609" 
+               spId="1" procId="300" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100">
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_MBFAIL_IND" transId="1" teid="1" suId="2" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.8
+#
+#       Desc:   Send DL Data Notification and expect FAIL IND
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.8">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send DL Data Notification and expect FAILURE IND"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN" intfType="EGT_GTP_INT_S11"
+               spId="1" procId="300" transId="1" lclPort="3124"
+               rmtPort="2123" t3TmrVal="1000" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+        <tapa.egt.sigind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DD_NOTFN_FAIL_IND" intfType="EGT_GTP_INT_S11" teid="1" addInterfaceType="10"
+               spId="1" procId="200" t3TmrVal="1000" lclPort="3123" rmtPort="2124" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100">
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_DD_NOTFN_FAIL_IND" transId="1" teid="1" suId="2" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.9
+#
+#       Desc:   Send Lcl Del after the CSR
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.9">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Lcl Del after the CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.10
+#
+#       Desc:   Verify the success sending of CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.10">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.sgw1.pgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+               spId="1" procId="300" transId="1" addInterfaceType="6"  FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"
+               lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="100" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S5_S8" teid="1" 
+               spId="1" procId="100" addInterfaceType="7" teidValue="1" transId="1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.11
+#
+#       Desc:   BR CMD and expect for the FAIL IND
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.11">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "BR CMD and expect for the FAIL IND"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+      <tapa.delay delay="1"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_BR_CMND" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="200" transId="1" lclPort="3123" seqNoPres="TRUE" seqNo="8388609" 
+          rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_BR_FAIL_IND" intfType="EGT_GTP_INT_S11" teid="1"  seqNoPres="TRUE" seqNo="8388609"
+               spId="1" procId="200" lclPort="3123" rmtPort="2124" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_BR_FAIL_IND" transId="1" teid="1" suId="2" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.12
+#
+#       Desc:   DEL CMD and expect for the FAIL IND
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.12">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "DEL CMD and expect for the FAIL IND"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DB_CMND" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="200" transId="1" lclPort="3123" seqNoPres="TRUE" seqNo="8388609"
+          rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DB_FAIL_IN" intfType="EGT_GTP_INT_S11" teid="1"  seqNoPres="TRUE" seqNo="8388609"
+               lclPort="3123" rmtPort="2124" spId="1" procId="200" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_DB_FAIL_IN" transId="1" teid="1" suId="2" procId="300"/>
+      </tapa.expect>
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.13
+#
+#       Desc:   Send Lcl Del after the Command msg
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.13">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Lcl Del after the Command msg"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+   
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="200" transId="1" lclPort="3123" seqNoPres="TRUE" seqNo="8388609"
+          rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.14
+#
+#       Desc:   Verify the success sending of CSR.using loop testing
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.14">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR looptesting"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+   <tapa.repeat.start repeatCount="1"/>
+      <tapa.delay delay="5"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="100" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.delay delay="10"/>
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+      <tapa.delay delay="5"/>
+
+
+  <tapa.repeat.end/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.15
+#
+#       Desc:   Send the CSR, then ShutDown the layer, then start and Send CSR
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.15">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR looptesting"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.delay delay="5"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.delay delay="5"/>
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+      <tapa.delay delay="5"/>
+
+   <tapa.egtp.deinit/>
+      <tapa.delay delay="5"/>
+      <tapa.eg.mme1.sgw1.init/>
+
+   <tapa.delay delay="5"/>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.delay delay="5"/>
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+      <tapa.delay delay="5"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.16
+#
+#       Desc:   Incoming TRC IND check for end case
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.16">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         " Incoming TRC IND check for end case"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc action="AENA" trcMask="2" trcLen="50" procId="200"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc action="AENA" lSapId="1" trcMask="2" trcLen="50" procId="300"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="100" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expset>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+         <tapa.leg.trcInd eventType="2" procId="300"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expset>
+         <tapa.leg.trcInd eventType="2" procId="200"/>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expset>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.16
+#
+#       Desc:   Incoming TRC IND check for end case
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.17">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         " Outgoing TRC IND check for end case"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc action="AENA" trcMask="1" trcLen="50" procId="200"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc lSapId="1"  action="AENA" trcMask="1" trcLen="50" procId="300"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expset>
+         <tapa.leg.trcInd eventType="1" procId="200"/>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expset>
+         <tapa.leg.trcInd eventType="1" procId="300"/>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expset>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.18
+#
+#       Desc:   TRC IND  len =-1 check for end case
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.18">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         " Incoming TRC IND check for end case"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc action="AENA" trcMask="2" trcLen="0" procId="200"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Send enable trace Control Request
+      <tapa.send>
+         <tapa.leg.cntrl.lsapTrc lSapId="1"  action="AENA" trcMask="2" trcLen="0" procId="300"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expset>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expset>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expset>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    6.19
+#
+#       Desc:   Verify the success sending of CSR in response with the Emb Cause
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.19">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1" 
+               />
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+ 
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE"
+               spId="1" procId="300" transId="1"  lclPort="3124" rmtPort="2123" t3TmrVal="10"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teid="1" teidValue="1" seqNoPres="TRUE" seqNo="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CB_RSP" intfType="EGT_GTP_INT_S11" 
+               spId="1" procId="200" transId="1" seqNoPres="TRUE" seqNo="1" teid="1" teidValue="1" 
+                      causePresent="TRUE" embdCausePresent = "TRUE"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CB_RSP" transId="1" suId="2"
+                 procId="300" teid="1" teidValue="1"/>
+      </tapa.expect>
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.20
+#
+#       Desc:   Verify the success sending of CSR with paaIePdnType=2
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.20">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR paaIePdnType=2"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10" paaIePdnType="2"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+  
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.1
+#
+#       Desc:   Verify the success sending of CSR. with LWLC
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.21">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.init.lwlc/>
+      <tapa.eg.sgw1mme1.init.lwlc/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    6.22
+#
+#       Desc:   Send Lcl Del after the CSR/CSRSP in LWLC
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.22">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Lcl Del after the CSR/CSRSP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.init.lwlc/>
+      <tapa.eg.sgw1mme1.init.lwlc/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#       Test:    6.23
+#
+#       Desc:  Verify that EGTP successfully handle status Request for Path which
+#              exist in LWLC.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.23">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         " Verify that EGTP successfully handle status Request for Path which"
+         " exist"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+      <tapa.eg.mme1.init.lwlc/>
+      <tapa.eg.sgw1mme1.init.lwlc/>
+ 
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send general status request
+      <tapa.send>
+          <tapa.egt.stareq procId="200" eventType="EGT_STATYPE_PATH" transId="1" 
+                 spId="1" lclPort="3123" lcladdr="127.0.0.1"/>
+      </tapa.send>
+      
+      # Expect Status Confirm
+      <tapa.expect>
+         <tapa.egt.stacfm procId="200" suId="1"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.24
+#
+#       Desc:   Verify the success sending of CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.24">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10" addIPv4Pres="FALSE"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.25
+#
+#       Desc:   Verify the success sending of CSR paa=ipv4
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.25">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of CSR"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10" paaIePdnType="1"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+<!--
+       <tapa.expect>
+         <tapa.egt.errind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+-->
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    6.26
+#
+#       Desc:   Verify the success sending of Update User Plane Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.26">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Update User Plane Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MB_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MB_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.27
+#
+#       Desc:   Verify the success sending of Forward Relocation Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.27">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Forward Relocation Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+         <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.sgsn1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_FR_REQ" intfType="EGT_GTP_INT_S3" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="14"
+               lclPort="3123" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+					imsiPresent="TRUE" FTeidPresent="TRUE" FTeidIntfType="EGT_INT_S3_MME_GTP_C"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_FR_RSP" intfType="EGT_GTP_INT_S3" teid="1" 
+               spId="1" procId="300" addInterfaceType="14" teidValue="1" transId="1" FTeidIntfType="EGT_INT_S3_SGSN_GTP_C"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_FR_RSP" transId="1" teid="1" suId="1" procId="200"/>
+       </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_FR_COMP_NOTFN" intfType="EGT_GTP_INT_S3" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="14" teId="1" teidValue="1" seqNoPres="TRUE" seqNo="1"
+               lclPort="3123" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_FR_COMP_ACK" intfType="EGT_GTP_INT_S3" teid="1" 
+               spId="1" procId="300" addInterfaceType="14" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_FR_COMP_ACK" transId="1" teid="1" suId="1" procId="200"/>
+       </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DTCH_NOTFN" intfType="EGT_GTP_INT_S3" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="14" teId="1" teidValue="1" seqNoPres="TRUE" seqNo="1"
+               lclPort="3123" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_DTCH_ACK" intfType="EGT_GTP_INT_S3" teid="1" 
+               spId="1" procId="300" addInterfaceType="14" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_DTCH_ACK" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.28
+#
+#       Desc:   Verify the success sending of Context Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.28">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Context Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+         <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.mme2.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_FR_REQ" intfType="EGT_GTP_INT_S10" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="12"
+               lclPort="3127" rmtPort="2127" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S10_MME_GTP_C"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_FR_RSP" intfType="EGT_GTP_INT_S10" teid="1" 
+               spId="1" procId="300" addInterfaceType="12" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_FR_RSP" transId="1" teid="1" suId="1" procId="200"/>
+       </tapa.expect>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CNTXT_REQ" intfType="EGT_GTP_INT_S10" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="12" teidValue="1" teid="1"
+               lclPort="3127" rmtPort="2127" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" ipAddrIeType="97"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CNTXT_RSP" intfType="EGT_GTP_INT_S10" teid="1" 
+               spId="1" procId="300" addInterfaceType="12" teidValue="1" transId="1"
+    lcladdr="127.0.0.1" rmtaddr="127.0.0.1" ipAddrIeType="97"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CNTXT_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CNTXT_ACK" intfType="EGT_GTP_INT_S10" teid="1" 
+               spId="1" procId="200" addInterfaceType="12" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CNTXT_ACK" transId="1" teid="1" suId="1" procId="300"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.29
+#
+#       Desc:   Verify the success sending of Suspend Notification.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.29">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Suspend Notification"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_SSPND_NOTFN" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_SSPND_ACK" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_SSPND_ACK" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.30
+#
+#       Desc:   Verify the success sending of Resume Notification.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.30">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Resume Notification"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_RSME_NOTFN" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_RSME_ACK" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_RSME_ACK" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.31
+#
+#       Desc:   Verify the success sending of Create Forward Tunnel Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.31">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Create Forward Tunnel Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CF_TUNN_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CF_TUNN_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CF_TUNN_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.32
+#
+#       Desc:   Verify the success sending of Create Session Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.32">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Create Session Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.sgw1.sgsn1.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S4" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="17"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S4_SGSN_GTP_C"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S4" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" transId="1" teidValue="1" FTeidIntfType="EGT_INT_S4_SGSN_GTP_C"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_REQ" intfType="EGT_GTP_INT_S4" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10" teid="1" teidValue="1"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MB_RSP" intfType="EGT_GTP_INT_S4" teid="1" 
+               spId="1" procId="300" addInterfaceType="11" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MB_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+      # De-Init EGTP
+      <tapa.egtp.deinit/>
+
+      # De-Init TUCL
+      <tapa.hi.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    6.33
+#
+#       Desc:   Verify the success sending of Identification Request
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="6.33">
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of Identification Request
+      </tapa.desc>
+
+      <tapa.longdesc/>
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+         <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifdef>
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure TUCL
+      <tapa.hi.init/>
+      <tapa.eg.sgsn4.sgsn5.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_FR_REQ" intfType="EGT_GTP_INT_S16" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="18"
+               lclPort="3128" rmtPort="2126" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S16_SGSN_GTP_C"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_FR_RSP" intfType="EGT_GTP_INT_S16" teid="1" 
+               spId="1" procId="300" addInterfaceType="18" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_FR_RSP" transId="1" teid="1" suId="1" procId="200"/>
+       </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ID_REQ" intfType="EGT_GTP_INT_S16" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="18" teidValue="1" teid="1"
+               lclPort="3128" rmtPort="2126" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="1" procId="300" transId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ID_RSP" intfType="EGT_GTP_INT_S16" teid="1" 
+               spId="1" procId="300" addInterfaceType="18" teidValue="1" transId="1"/>
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_ID_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+      # De-Init EGTP
+      <tapa.egtp.deinit/>
+
+      # De-Init TUCL
+      <tapa.hi.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+#
+#       Test:    6.34
+#
+#       Desc:   Verify the MBMS Session Start request  and response on SM interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc6.xml
+#
+<tapa.testcase id="6.34">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of MBMS Session Start Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme10.mbmsgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_REQ" intfType="EGT_GTP_INT_SM" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="26" FTeidIntfType="EGT_INT_SM_MBMSGW_GTP_C"
+               lclPort="3129" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" intfType="EGT_GTP_INT_SM" teid="1" 
+               spId="1" procId="300" addInterfaceType="24" teidValue="1" transId="1" FTeidIntfType="EGT_INT_SM_MME_GTP_C"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+#
+#       Test:    6.35
+#
+#       Desc:   Verify the MBMS Session request  and response on SN interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc6.xml
+#
+<tapa.testcase id="6.35">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the success sending of MBMS Session Start Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.sgsn10.mbmsgw2.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_REQ" intfType="EGT_GTP_INT_SN" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="27" FTeidIntfType="EGT_INT_SN_MBMSGW_GTP_C"
+               lclPort="3129" rmtPort="2126" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" intfType="EGT_GTP_INT_SN" teid="1" 
+               spId="1" procId="300" addInterfaceType="25" teidValue="1" transId="1" FTeidIntfType="EGT_INT_SN_SGSN_GTP_C"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    6.36
+#
+#       Desc:   Send Update MBMS Session Request after 
+#                Start Session on Sm interfacewith Teid=1
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc6.xml
+#
+<tapa.testcase id="6.36">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Update MBMS Session  Request after Session Start with Teid=1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme10.mbmsgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+	  <tapa.send>
+          <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_REQ" intfType="EGT_GTP_INT_SM" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="26" FTeidIntfType="EGT_INT_SM_MBMSGW_GTP_C"
+               lclPort="3129" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" intfType="EGT_GTP_INT_SM" teid="1" 
+               spId="1" procId="300" addInterfaceType="24" teidValue="1" transId="1" FTeidIntfType="EGT_INT_SM_MME_GTP_C"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_REQ" intfType="EGT_GTP_INT_SM" crtFlag="FALSE"
+               spId="1" procId="200" transId="1"  lclPort="3129" rmtPort="2123" t3TmrVal="10"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teid="1" teidValue="1" seqNoPres="TRUE" seqNo="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_RSP" intfType="EGT_GTP_INT_SM" 
+               spId="1" procId="300" transId="1" seqNo="1" seqNoPres="TRUE" teid="1" teidValue="1" />
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_RSP" transId="1" suId="1"
+                 procId="200" teid="1" teidValue="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+#
+#       Test:    6.37
+#
+#       Desc:   Send Update MBMS Session Request after 
+#                Start Session on Sn interfacewith Teid=1
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc6.xml
+#
+<tapa.testcase id="6.37">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Send Update Session Req after Start Session with Teid=1"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.sgsn10.mbmsgw2.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+	  <tapa.send>
+          <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_REQ" intfType="EGT_GTP_INT_SN" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="27" FTeidIntfType="EGT_INT_SN_MBMSGW_GTP_C"
+               lclPort="3129" rmtPort="2126" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+       <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" intfType="EGT_GTP_INT_SN" teid="1" 
+               spId="1" procId="300" addInterfaceType="25" teidValue="1" transId="1" FTeidIntfType="EGT_INT_SN_SGSN_GTP_C"/>
+      </tapa.send>
+       
+       <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_REQ" intfType="EGT_GTP_INT_SN" crtFlag="FALSE"
+               spId="1" procId="200" transId="1"  lclPort="3129" rmtPort="2126" t3TmrVal="10"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teid="1" teidValue="1" seqNoPres="TRUE" seqNo="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_RSP" intfType="EGT_GTP_INT_SN" 
+               spId="1" procId="300" transId="1" seqNo="1" seqNoPres="TRUE" teid="1" teidValue="1" />
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_UPD_RSP" transId="1" suId="1"
+                 procId="200" teid="1" teidValue="1"/>
+      </tapa.expect>
+   
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+#
+#       Test:    6.38
+#
+#       Desc:   Verify the MBMS Session Delete request and response on SM interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc6.xml
+#
+<tapa.testcase id="6.38">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the sending of MBMS Session Start and Stop Request"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme10.mbmsgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+	<tapa.send>
+	<tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_REQ" intfType="EGT_GTP_INT_SM" crtFlag="TRUE" 
+	spId="1" procId="200" transId="1" addInterfaceType="26" FTeidIntfType="EGT_INT_SM_MBMSGW_GTP_C"
+	lclPort="3129" rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+	</tapa.send>
+
+	<tapa.expect>
+	<tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+	</tapa.expect>
+
+	<tapa.send>
+	<tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" intfType="EGT_GTP_INT_SM" teid="1" 
+	spId="1" procId="300" addInterfaceType="24" teidValue="1" transId="1" FTeidIntfType="EGT_INT_SM_MME_GTP_C"/>
+	</tapa.send>
+
+	<tapa.expect>
+	<tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_START_RSP" transId="1" teid="1" suId="1" procId="200"/>
+	</tapa.expect>
+
+	<tapa.send>
+	<tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_STOP_REQ" intfType="EGT_GTP_INT_SM" teid="1"
+	spId="1" procId="200" lclPort="3129" rmtPort="2123" t3TmrVal="10" seqNo="1"
+	lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+	</tapa.send>
+
+# at MME this should not create a new tunnel since it is sent to existing TEID
+	<tapa.expect>
+	<tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_STOP_REQ" teid="1" suId="2" procId="300"/>
+	</tapa.expect>
+
+# Send response from MME 
+	<tapa.send>
+	<tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_STOP_RSP" teid="1" seqNo="1" intfType="EGT_GTP_INT_SM" spId="1" procId="300" teidValue="1"/>
+	</tapa.send>
+
+# receive response at MME
+	<tapa.expect>
+	<tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MBMS_SESS_STOP_REQ" teid="1" suId="1" procId="200"/>
+	</tapa.expect>
+
+#delete tunnel 1 at MBMSGW
+	<tapa.send>
+	<tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+	</tapa.send>
+
+	<tapa.expect>
+	<tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+	</tapa.expect>
+
+# Delete Tunnel at MME
+	<tapa.send>
+	<tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+	</tapa.send>
+
+	<tapa.expect>
+	<tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+	</tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+
+#/********************************************************************30**
+#
+#         End of file:     
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     ad           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Test cases updated
+#*********************************************************************91*/
+

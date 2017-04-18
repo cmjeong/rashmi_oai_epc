@@ -1,0 +1,353 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Listen on a command line specified port for UDP trace logging originating
+// in the HBS2.
+//
+// Copyright Radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef __WIN32__
+    #include <winsock.h>
+#else
+    #include <sys/socket.h>
+    #include <arpa/inet.h>
+#endif
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>    /* exit */
+#include <unistd.h>    /* close */
+#include <errno.h>
+#include <pthread.h>
+
+#ifdef __WIN32__
+    #define bzero(a, b) memset(a, 0x0, b)
+#endif
+
+typedef struct structPortDetails
+{
+    const char * appName;
+    unsigned short receivePort;
+} PortDetails;
+
+#define MAX_NAMES 13
+
+const PortDetails appPortDetails[] = { { "nas-core", 9001 },
+                                       { "nas-hlr",  9002 },
+                                       { "rrc",     9003 },
+                                       { "iu",      9004 },
+                                       { "cs-user-plane", 9005 },
+                                       { "ps-user-plane", 9006 },
+                                       { "nas-smsc",      9007 },
+                                       { "sip-relay",     9008 },
+                                       { "l1l2",          9009 },
+                                       { "tr069",         9010 },
+                                       { "tenpin",        9011 },
+                                       { "rrm",           9012 },
+                                       { "oam",           9016 }
+                             };
+
+///////////////////////////////////////////////////////////////////////////////
+// Forward Declarations
+///////////////////////////////////////////////////////////////////////////////
+
+//int log_all_ports (int argc, char *argv[]);
+//int log_single_port (int argc, char *argv[]);
+//void print_usage_banner();
+
+//////////////////////////////////////////////////////////////////////////////
+// Class: MeasurementControl
+//
+///////////////////////////////////////////////////////////////////////////////
+class UDP_Log
+{
+public:
+    UDP_Log(unsigned short receivePort, char * filename);
+    ~UDP_Log();
+    void Execute();
+private:
+    unsigned short m_receivePort;
+    bool m_beQuiet;
+    char m_filename[1024];
+    unsigned int m_packets;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// UDP_Log
+///////////////////////////////////////////////////////////////////////////////
+UDP_Log::UDP_Log(unsigned short receivePort, char * filename) :
+        m_receivePort(receivePort),
+        m_packets(0)
+{
+    if(filename)
+    {
+        m_beQuiet = true; // no output to stdio
+        bzero(m_filename, sizeof(m_filename));
+        strcpy(m_filename, filename);
+    }
+    else
+    {
+        m_beQuiet = false; // Output to stdio.
+    }
+}
+
+UDP_Log::~UDP_Log()
+{
+    delete m_filename;
+}
+
+void UDP_Log::Execute()
+{
+    FILE *logFile = NULL;
+    char logMe[4096];
+
+    int theSocket = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (theSocket < 0)
+    {
+        TRACE_PRINTF("Error opening socket\n");
+        return;
+    }
+
+    struct sockaddr_in sockAddr;
+    bzero (&sockAddr, sizeof (sockAddr));
+    sockAddr.sin_family         = AF_INET;
+    sockAddr.sin_addr.s_addr    = INADDR_ANY;
+    sockAddr.sin_port           = htons(m_receivePort);
+    if (bind (theSocket, (struct sockaddr *) &sockAddr, sizeof (sockAddr)) < 0)
+    {
+        TRACE_PRINTF("Error failed to bind port to %d (%d)\n", m_receivePort, errno);
+        close (theSocket);
+        return;
+    }
+
+    if(m_filename)
+    {
+        // Create the file...
+        if ((logFile = fopen (m_filename, "wt")) != NULL)
+        {
+            TRACE_PRINTF("fap-trace-logger:Local Logging File: %s for port %d\n", m_filename, m_receivePort);
+            fprintf (logFile, "fap-trace-logger:Local Logging File: %s for port %d\n", m_filename, m_receivePort);
+            fflush (logFile);
+        }//end if
+    }
+    else
+    {
+        TRACE_PRINTF("Running Fap-Trace-Logger in text output mode\r\n");
+    }
+
+
+    while (1)
+    {
+        bzero (logMe, sizeof (logMe));
+        recvfrom (theSocket, logMe, 4096, 0, NULL, 0);
+        if (!m_beQuiet) TRACE_PRINTF_CONSOLE("%s", logMe);
+
+        if (logFile != NULL)
+        {
+            fprintf (logFile, "%s", logMe);
+            fflush (logFile);
+        }
+        m_packets++;
+        if((m_packets % 500) == 0)
+        {
+            TRACE_PRINTF("fap-trace-logger: logged %d packets in file %s\n", m_packets, m_filename);
+        }
+    }//end while
+
+    if (logFile != NULL)
+        fclose (logFile);
+
+    close (theSocket);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void * newUDPloggingThread(void * pPortDetails)
+{
+    char logFileName [1024];
+    bzero (logFileName, sizeof (logFileName));
+
+    PortDetails * portDetails = (PortDetails *) pPortDetails;
+
+    snprintf (logFileName, sizeof (logFileName), "%s.0.txt", portDetails->appName);
+
+    UDP_Log udpLog(portDetails->receivePort, logFileName); // beQuiet = true.
+    udpLog.Execute();
+
+    return NULL; // Is this correct?
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void print_usage_banner()
+{
+    TRACE_PRINTF_CONSOLE("Usage#1: fap-trace-logger --allports\n\n");
+    TRACE_PRINTF_CONSOLE("         Logs all FAP udp ports to <appname>.o.txt files of the current directory\n");
+    TRACE_PRINTF_CONSOLE("         <CTRL + C> exits, then you can immediately 'loggen' to get full decoded logfiles\n\n");
+    TRACE_PRINTF_CONSOLE("Usage#2: fap-trace-logger <receive-port> <output-dir> [--quiet]\n\n");
+    TRACE_PRINTF_CONSOLE("         Logs the specific FAP udp port to a file\n\n");
+    TRACE_PRINTF_CONSOLE("         - The receive-port is Mandatory\n");
+    TRACE_PRINTF_CONSOLE("         - The output-dir is Optional: If not present, no local file will be generated.\n");
+    TRACE_PRINTF_CONSOLE("         - The switch --quiet is Optional but will be ignored if no output-dir specified:\n");
+    TRACE_PRINTF_CONSOLE("           If present, no stdout will be generated.\n\n");
+    TRACE_PRINTF_CONSOLE("-----------------------------------------------------------------------------------------\n");
+    TRACE_PRINTF_CONSOLE("Version : 18-Dec-2009\n");
+    TRACE_PRINTF_CONSOLE("-----------------------------------------------------------------------------------------\n\n");
+}
+
+void print_header_banner()
+{
+    TRACE_PRINTF_CONSOLE("\nfap-trace-logger - enhanced!\n");
+    TRACE_PRINTF_CONSOLE("-----------------------------------------------------------------------------------------\n\n");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int log_all_ports ()
+{
+    // no point in checking arguments - these are not currently used
+    // (may be in the future though).
+	
+    // Log RRC
+    pthread_t pThread[MAX_NAMES];
+
+    int iCount;
+    for (iCount = 0; iCount < MAX_NAMES; iCount++)
+    {
+        int rc = pthread_create(&pThread[iCount], NULL, newUDPloggingThread, (void *)&appPortDetails[iCount]);
+        if(rc)
+        {
+            TRACE_PRINTF("ERROR; return code from pthread_create() is %d\n", rc);
+            exit(-1);
+        }
+    }
+    while(1); // eternal loop.
+
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// original single port logging code.
+///////////////////////////////////////////////////////////////////////////////
+
+int log_single_port (int argc, char *argv[])
+{
+    if (argc < 2)
+    {
+        print_usage_banner();
+    }
+
+    // first param *must* be the port
+    unsigned short receivePort = atoi (argv[1]);
+
+    // second param may be a dir name
+    bool beQuiet = false;
+    char logMe [4096], logFileName [1024], localDirectory [1024];
+    bzero (logFileName, sizeof (logFileName));
+    bzero (localDirectory, sizeof (localDirectory));
+
+    if (argc >= 3)
+    {
+        strncpy (localDirectory, argv[2], sizeof (localDirectory));
+    }
+
+    // third param may be --quiet
+    if (argc >= 4)
+    {
+        if (strcmp(argv[3], "--quiet") == 0)
+        {
+            beQuiet = true;
+        }
+    }
+    
+    int theSocket = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (theSocket < 0)
+    {
+        TRACE_PRINTF("Error opening socket\n");
+        return 0;
+    }
+
+    struct sockaddr_in sockAddr;
+    bzero (&sockAddr, sizeof (sockAddr));
+    sockAddr.sin_family         = AF_INET;
+    sockAddr.sin_addr.s_addr    = INADDR_ANY;
+    sockAddr.sin_port           = htons(receivePort);
+    if (bind (theSocket, (struct sockaddr *) &sockAddr, sizeof (sockAddr)) < 0)
+    {
+        TRACE_PRINTF("Error failed to bind port to %s (%d)\n", argv[1], errno);
+        close (theSocket);
+        return 0;
+    }
+
+    FILE *logFile = NULL;
+    while (1)
+    {
+        bzero (logMe, sizeof (logMe));
+        recvfrom (theSocket, logMe, 4096, 0, NULL, 0);
+        if (!beQuiet) TRACE_PRINTF_CONSOLE ("%s", logMe);
+
+        if (logFile != NULL)
+        {
+            fprintf (logFile, "%s", logMe);
+            fflush (logFile);
+        }
+
+        if (strstr (logMe, "Logging to") != NULL)
+        {
+            if (strlen (localDirectory) > 0)
+            {
+                const char *startOfName = strrchr (logMe, '/');
+                snprintf (logFileName, sizeof (logFileName), "%s%s", localDirectory, startOfName);
+                logFileName[strlen(logFileName) - 1] = '\0';
+
+                if ((logFile = fopen (logFileName, "wt")) != NULL)
+                {
+                    TRACE_PRINTF_CONSOLE ("\n\
+**************************************************\n\
+* Local Logging File: %s\n\
+**************************************************\n", logFileName);
+                }//end if
+            }//end if
+        }//end if
+    }//end while
+
+    if (logFile != NULL)
+        fclose (logFile);
+
+    close (theSocket);
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Main
+///////////////////////////////////////////////////////////////////////////////
+
+int main (int argc, char *argv[])
+{
+    print_header_banner();
+    // First check for --allports switch.
+    if (argc > 1)
+    {
+        // See if we have the --allports switch.
+        if (strcmp(argv[1], "--allports") == 0)
+        {
+            return log_all_ports();
+        }
+        else
+        {
+            // Let's pass to single port logger.
+            return log_single_port(argc, argv);
+        }
+    }
+
+    // we should at least have one argument, which we do not is we get
+    // here, so output correct command format to the user and exit.
+    print_usage_banner();
+    return 0;
+}

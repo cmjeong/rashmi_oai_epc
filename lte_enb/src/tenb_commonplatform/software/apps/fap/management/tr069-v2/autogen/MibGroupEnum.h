@@ -1,0 +1,36 @@
+/*
+ * AUTOMATICALLY GENERATED CODE:
+ * DO NOT EDIT !
+ */
+
+
+#ifndef __fap_management_tr069_v2_autogen_MibGroupEnumh__
+#define __fap_management_tr069_v2_autogen_MibGroupEnumh__
+
+
+
+#include <system/EnumToString.h>
+
+namespace tr069
+{
+
+ENUM_START(ExtDataModelAttrGroupId)
+{
+    ENUM_ELEMENT_VAL(GROUP_ID_FIRST,0)
+    ENUM_ELEMENT(GROUP_ID_BOOLEAN)
+    ENUM_ELEMENT(GROUP_ID_ENUM)
+    ENUM_ELEMENT(GROUP_ID_LIST)
+    ENUM_ELEMENT(GROUP_ID_MULTIPLE_INSTANCE_MIB_OBJECT)
+    ENUM_ELEMENT(GROUP_ID_ENABLE)
+    ENUM_ELEMENT(GROUP_ID_KEY)
+    ENUM_ELEMENT(GROUP_ID_REM_SCAN_ON_BOOT)
+    ENUM_ELEMENT(GROUP_ID_REM_SCAN_PERIODICALLY)
+    ENUM_ELEMENT(NUM_GROUP_IDS)
+    ENUM_ELEMENT(GROUP_ID_INVALID)
+}
+ENUM_END(ExtDataModelAttrGroupId)
+
+}
+
+#endif
+
