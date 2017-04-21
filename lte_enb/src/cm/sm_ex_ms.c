@@ -2575,11 +2575,11 @@ Buffer *mBuf;               /* message buffer */
          smWrActvTsk(post, mBuf);
          break;
 #endif /* WR */
-#ifdef TIP_L2_L3_SPLIT
+
       case ENTEU:
          smEuActvTsk(post, mBuf);
          break;
-#endif
+
 #ifdef YS
       case ENTTF:
       case ENTYS:
