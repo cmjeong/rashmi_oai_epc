@@ -1,0 +1,4292 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE-MAC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases For Power and Group Power Control
+#
+#     File:    rgac_tc10.xml
+#
+#     Sid:     rgac_tc10.xml@@/main/1 - Thu Mar 26 01:11:03 2009
+#
+#     Prg:     apany
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:hn:rgac_tc1.xml
+
+
+#
+#
+#       Test:    10.1
+#
+#       Desc:    "Verify that cell config fails when number of group power
+#                 RNTIs exceed the allowed values."
+#
+#       Notes:   None
+#
+#       Module:  Power
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.1">>>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36321.830" section=""/>
+      <tapa.module id="power"/>
+
+      <tapa.desc>
+         "Verify that cell config fails when number of group power
+          RNTIs exceed the allowed values."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that cell config fails when number of group power
+          RNTIs exceed the allowed values."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      <tapa.rg.dbgDeInitAll/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      #Send Bind Request for CRG SAP
+      <tapa.send>
+         <tapa.crg.bndreq/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.crg.bndcfm/>
+      </tapa.expect>
+
+      <!--
+      #Send Bind Request for RGR SAP
+      <tapa.send>
+         <tapa.lrg.schcntrlreq instId="5" suId="0" spId="0" action="ABND" elmntType="STRGRSAP" />
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5"/>
+      </tapa.expect>
+      -->
+
+      #Send Bind Request for RGR SAP
+      <tapa.send>
+         <tapa.rgr.bndreq instId="5"/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgr.bndcfm/>
+      </tapa.expect>
+
+
+      #Send Bind Request for RGR SAP
+      <tapa.send>
+         <tapa.rgu.bndreq/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgu.bndcfm/>
+      </tapa.expect>
+
+
+      #<tapa.rg.dbgInitAll/>
+      #Expect NOK_DONE Control Confirm from LTE MAC
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+
+      #<tapa.rg.dbgDeInitAll/>
+      #Send Dummy TFU Bind Confirm
+      <tapa.send>
+         <tapa.tfu.bndcfm suId="0"/>
+      </tapa.send>
+
+      #Expect positive Control Confirm from LTE MAC
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.schcntrlreq instId="5" suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL" instId="5"/>
+      </tapa.expect>
+
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.sch.bndreq instId="5" spId="1"/>
+      </tapa.expect>
+
+      #<tapa.rg.dbgDeInitAll/>
+      #Send Dummy TFU Bind Confirm
+      <tapa.send>
+         <tapa.tfu.sch.bndcfm suId="0" instId="5" spId="1"/>
+      </tapa.send>
+
+
+      #Expect positive Control Confirm from LTE MAC
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5"/>
+      </tapa.expect>
+
+      #Send CRG Cell Configuration
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.cell dlTotalBw="100" ulTotalBw="50"/>
+      </tapa.send>
+
+
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      #<tapa.rg.dbgDeInitAll/>
+
+      #Send Common Logical Channel Configuration BCCH->BCH
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch crnti="1234" lcId="1" dir="1" lcType="1" dlTrchType="1"/>
+      </tapa.send>
+
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Common Logical Channel Configuration BCCH->DLSCH
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch crnti="1234" lcId="2" dir="1" lcType="1"
+            dlTrchType="3"/>
+      </tapa.send>
+
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Common Logical Channel Configuration PCCH
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch  crnti="1234" lcId="3" dir="1" lcType="2"/>
+      </tapa.send>
+
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Common Logical Channel Configuration CCCH
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch  crnti="1234" lcId="4" dir="3" lcType="3"
+            dlTrchType="3" ulTrchType="5"/>
+      </tapa.send>
+
+      #Expect positive Configuration Confirm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            pucchFmt3RntiSize="150"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            pucchFmt3aRntiSize="101"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            puschFmt3RntiSize="111"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            puschFmt3aRntiSize="200"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            pucchFmt3RntiSize="51" pucchFmt3aRntiSize="50"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+      #Sending RGR CELL Configuration
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.cell instId="5" dlTotalBw="100" ulTotalBw="50"  numCmnLc="5"
+            cmnLcInfo="1:1:1:1:0:2:1:1:3:0:3:2:1:0:0:4:3:3:3:3:5:1:1:3:0"
+            puschFmt3RntiSize="49" puschFmt3aRntiSize="52"/>
+      </tapa.send>
+
+      # Expect failure in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5" status="15"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.2
+#
+#       Desc:   "Verify that UE config fails when group power config is not
+#                valid"
+#
+#       Notes:   None
+#
+#       Module:  "PFS"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.rg.UeInit ueId="0" isAccumulated="TRUE"
+         pucchTpcRntiPres="TRUE" rgrStatus="15"/>
+
+      <tapa.rg.UeInit ueId="1" isAccumulated="TRUE"
+         puschTpcRntiPres="TRUE" rgrStatus="15"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.3
+#
+#       Desc:   "Verify that UE config fails when group power config is not
+#                valid"
+#
+#       Notes:   None
+#
+#       Module:  "PFS"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/>
+
+      # Pass index 16 for 2-bit format type
+      <tapa.rg.UeInit ueId="0" isAccumulated="TRUE"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100"
+         uePucchPwrIdx="16" rgrStatus="15" instId="0"/>
+
+      # Pass index 16 for 2-bit format type
+      <tapa.rg.UeInit ueId="1" isAccumulated="TRUE"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300"
+         uePuschPwrIdx="16" rgrStatus="15" instId="0"/>
+
+
+      # Pass index 32 for 1-bit format type
+      <tapa.rg.UeInit ueId="2" isAccumulated="TRUE"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="200"
+         uePucchPwrIdx="32" rgrStatus="15" instId="0"/>
+
+      # Pass index 32 for 1-bit format type
+      <tapa.rg.UeInit ueId="3" isAccumulated="TRUE"
+         puschTpcRntiPres="TRUE" puschtpcRnti="400"
+         uePuschPwrIdx="32" rgrStatus="15" instId="0"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.4
+#
+#       Desc:   "Verify that UE config fails when group power config is not
+#                valid"
+#
+#       Notes:   None
+#
+#       Module:  "PFS"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that UE config fails when group power config is not
+          valid"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/>
+
+      # First map a UE to indices for both PUCCH and PUSCH RNTIs
+      <tapa.rg.UeInit ueId="0" isAccumulated="TRUE"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="1"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"
+         instId="0"/>
+
+      # Now check that other UEs mapped to the same indices
+      # of same RNTIs does not work.
+      <tapa.rg.UeInit ueId="1" isAccumulated="TRUE"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="1"
+         rgrStatus="15" instId="0"/>
+      <tapa.rg.UeInit ueId="2" isAccumulated="TRUE"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"
+         rgrStatus="15" instId="0"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    10.5
+#
+#       Desc:    "Verify that RB allocation for UE is constrained by power
+#                 headroom."
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that RB allocation for UE is constrained by power
+          headroom."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that RB allocation for UE is constrained by power
+          headroom."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit pMax="23"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" ueBr="3000" ueCatEnum="CM_LTE_UE_CAT_4"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0"
+               addShortBsr="TRUE" lcgId="1" bsr="27"
+               addPhr="TRUE" phr="26"
+               lcId="3"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Normally, allocation would have been completed in
+      # one subframe. But the constraint due to power
+      # headroom causes allocation to spill into next
+      # subframe.
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="2" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="3" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="4" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+ 
+#
+#
+#       Test:    10.6
+#
+#       Desc:    "Verify that RB allocation for UE is constrained by power
+#                 headroom."
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that RB allocation for UE is constrained by power
+          headroom."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that RB allocation for UE is constrained by power
+          headroom."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" isDeltaMCSEnabled="TRUE" trgCqi="14"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="8"
+               addPhr="TRUE" phr="12"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="3"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="2" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="2" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="20"
+               addPhr="TRUE" phr="12"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+ 
+#
+#
+#       Test:    10.7
+#
+#       Desc:    "Verify that RB allocation for UE is not constrained
+#                 in the absence of power headroom."
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that RB allocation for UE is not constrained
+          in the absence of power headroom."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that RB allocation for UE is not constrained
+          in the absence of power headroom."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" ueCatEnum="CM_LTE_UE_CAT_4"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0"
+               addShortBsr="TRUE" lcgId="1" bsr="25"
+               lcId="3"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # In the last TC, due to limited headroom,
+      # allocations were contrained. Hence they spilled
+      # into multiple subframes.
+      # In this TC, everything being identical (except
+      # the absence of PHR report), allocations are
+      # made in the same subframe.
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+ 
+#
+#
+#       Test:    10.8
+#
+#       Desc:    "Verify correctness of accumulated TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="12"
+         ueBr="10000" ueCatEnum="CM_LTE_UE_CAT_5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="7"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" isAccumulated="TRUE" tpcPositive="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="37"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" isAccumulated="TRUE" tpcPositive="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" isAccumulated="TRUE" tpcPositive="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+ 
+#
+#
+#       Test:    10.9
+#
+#       Desc:    "Verify correctness of accumulated TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="3" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="6"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" isAccumulated="TRUE" tpcPositive="FALSE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+ 
+#
+#
+#       Test:    10.10
+#
+#       Desc:    "Verify correctness of accumulated TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of accumulated TPC command."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="5" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="5"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE" vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+ 
+#
+#
+#       Test:    10.11
+#
+#       Desc:    "Verify correctness of absolute TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of absolute TPC command"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of absolute TPC command"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="FALSE" trgCqi="9" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="5"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"
+               addPhr="TRUE" phr="30" />
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.12
+#
+#       Desc:    "Verify correctness of absolute TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of absolute TPC command"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of absolute TPC command"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="FALSE" trgCqi="6" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="5"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="2"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.13
+#
+#       Desc:    "Verify correctness of absolute TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of absolute TPC command"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of absolute TPC command"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="FALSE" trgCqi="6" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="7"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.14
+#
+#       Desc:    "Verify correctness of absolute TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of absolute TPC command"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of absolute TPC command"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="FALSE" trgCqi="3" ueBr="10000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="7"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect dci format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs: (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.phich.cntrl.req ueId="0" isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat use="3" ueId="0" lcId="3"
+               addShortBsr="TRUE" lcgId="1" bsr="55"/>
+         </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.rgu.ddatind ueId="0" lchTb1Data="3"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="0"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.15
+#
+#       Desc:    "Verify that UE PUSCH power state is reset when UE is
+#                 reconfigured with certain params"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify that UE PUSCH power state is reset when UE is
+          reconfigured with certain params"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify that UE PUSCH power state is reset when UE is
+          reconfigured with certain params"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="15" ueBr="10000"
+         ueCatEnum="CM_LTE_UE_CAT_5"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="4"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Reconfigure UE
+      <tapa.send>
+         <tapa.rgr.cfgreq.recfg.ue ueId="0" UeReCfgType="64"
+            isAccumulated="FALSE" instId="5"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.expect> 
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # When UE is scheduled, TPC cmd of 0 dB goes out
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="1"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.16
+#
+#       Desc:    "Verify PUSCH group power control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUSCH group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify PUSCH group power control"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="12"
+         ueBr="10000" ueCatEnum="CM_LTE_UE_CAT_5"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="1"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="8"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2" tpcCmds="3"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3. Also choose some other indices and verify
+      # that these correspond to 0 dB TPC. 
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2:0:1:3:4:10"
+               tpcCmds="3:1:1:1:1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+
+      # No more commands now
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.17
+#
+#       Desc:    "Verify PUSCH group power control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUSCH group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify PUSCH group power control"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit ueId="0" isAccumulated="TRUE" trgCqi="14"
+         puschTpcRntiPres="TRUE" puschtpcRnti="402" uePuschPwrIdx="0"/>
+      <tapa.rg.UeInit ueId="1" isAccumulated="TRUE" trgCqi="5"
+         puschTpcRntiPres="TRUE" puschtpcRnti="402" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="6"/>
+            <tapa.tfu.ulcqi ueId="1" isWideBand="TRUE" wideCqi="7"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2" tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+     # Expecting yet another DCI to match the power CQI 
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      #ccpu00117270-ADD-trgCqi interanally gets set to '11'  
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      # Note that trgCqi internally was set to '9' for UE 0 due to
+      # UE's capability. So no more power commands are sent for it.
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+       # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="402" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      # Note that trgCqi internally was set to '9' for UE 0 due to
+      # UE's capability. So no more power commands are sent for it.
+<!--
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+-->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.18
+#
+#       Desc:    "Verify PUSCH group power control with non-group power
+#                 control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUSCH group power control with non-group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Configure UE for PUSCH group power control using format 3 (2 bit cmd
+         mode). Report CQI different from target CQI.
+         Verify that usual power control will kick in when SR is reported,
+         that group power control will not happen while usual allocation goes
+         out.
+         Also verify that the usual allocation causes the UE to not be
+         scheduled for group power control."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="12"
+         ueBr="10000" ueCatEnum="CM_LTE_UE_CAT_5"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="1"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.ulcqi.ind>
+            <tapa.tfu.ulcqi ueId="0" isWideBand="TRUE" wideCqi="8"/>
+         </tapa.tfu.ulcqi.ind>
+      </tapa.send>
+
+      # Send SR Indication
+      <tapa.send>
+         <tapa.tfu.sr.ind>
+            <tapa.tfu.sr ueId="0"/>
+         </tapa.tfu.sr.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 0 (only - no format 3)
+      <tapa.expset>
+        <tapa.tfu.cntrl.req expCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" isUlGrant="TRUE" isUlPdcchLst="TRUE"
+              vldtGrant="TRUE" vldtTx="TRUE"
+              vldtTpc="TRUE" tpcCmd="3"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Now group power control kicks in
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2:0:1:3:4:10"
+               tpcCmds="3:1:1:1:1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+ # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE" isUlPdcchLst="TRUE"
+               vldtGrant="TRUE" tpcRnti="300" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+
+      # No more commands now
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.pusch.recp.req ueId="0" use="1" vldtDatRecp="TRUE"
+               saveTo="3"/>
+         </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.19
+#
+#       Desc:    "Verify correctness of PUCCH TPC command"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify correctness of PUCCH TPC command"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify correctness of PUCCH TPC command"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UEs Creation
+      <tapa.rg.UeInit/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCs
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="0" lcId="1"
+            lcType="5" dir="3"/>
+      </tapa.send>
+      <tapa.send>
+         #give dlQci as 5 to have priority 0
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="1" dir="1"
+            lcType="5" instId="5" dlQci="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      # Send PUCCH delta indication.CfgdpucchDeltaPwr = -127 + pucchDeltaPwr
+      <tapa.send>
+         <tapa.tfu.pucchdelta.ind>
+            <tapa.tfu.pucchdelta ueId="0" pucchDeltaPwr="131"/>
+         </tapa.tfu.pucchdelta.ind>
+      </tapa.send>
+
+      <tapa.send>
+         # Send BO for the DTCH on RGU. 
+         <tapa.rgu.dstarsp ueId="0" lcId="1" bo="1400"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect staInd from MAC to RLC for both DCCH and DTCH
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" vldtTpc="TRUE"
+               tpcCmd="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+      </tapa.expset>
+      
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" vldtTpc="TRUE"
+               tpcCmd="2"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" vldtTpc="TRUE"
+               tpcCmd="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1" vldtTpc="TRUE"
+               tpcCmd="1"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+         #<tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+         #<tapa.tfu.recp.req numRntis="1">
+         #   <tapa.tfu.pusch.recp.req ueId="0" vldtDatRecp="TRUE"
+         #      saveTo="3"/>
+         #</tapa.tfu.recp.req>   
+      </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.20
+#
+#       Desc:    "Verify PUCCH group power control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUCCH group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify PUCCH group power control"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="12"
+         ueBr="10000" ueCatEnum="CM_LTE_UE_CAT_5"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="2"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send PUCCH delta indication. CfgdpucchDeltaPwr = -127 + pucchDeltaPwr 
+      <tapa.send>
+         <tapa.tfu.pucchdelta.ind>
+            <tapa.tfu.pucchdelta ueId="0" pucchDeltaPwr="134"/>
+         </tapa.tfu.pucchdelta.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      # Expect DCI format 3
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE"
+               vldtGrant="TRUE" tpcRnti="100" tpcIndices="2" tpcCmds="3"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3. Also choose some other indices and verify
+      # that these correspond to 0 dB TPC. 
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE"
+               vldtGrant="TRUE" tpcRnti="100" tpcIndices="2:0:1:3:4:10"
+               tpcCmds="3:1:1:1:1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE"
+               vldtGrant="TRUE" tpcRnti="100" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      # No more commands now
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.21
+#
+#       Desc:    "Verify PUCCH group power control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUCCH group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Configure two UEs for PUCCH group power control using format 3A (1
+         bit cmd mode). Report a large pucch delta for first UE. Report pucch
+         delta close to zero for second UE.
+         Verify that this causes group power control to be scheduled with
+         correct TPC command. Further, verify that for second UE, power
+         commands are sent such that on the whole there is no delta applied on
+         the second UE (sequence should be [-1,+1] or [+1, -1])."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit ueId="0" isAccumulated="TRUE" trgCqi="14"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="202" uePucchPwrIdx="0"
+         puschTpcRntiPres="TRUE" puschtpcRnti="402" uePuschPwrIdx="0"/>
+      <tapa.rg.UeInit ueId="1" isAccumulated="TRUE" trgCqi="5"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="202" uePucchPwrIdx="2"
+         puschTpcRntiPres="TRUE" puschtpcRnti="402" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCG 1 at MAC (not scheduler) for UE 0
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="1" lcId="3"
+            lcType="4" dir="2"/>
+      </tapa.send>
+
+      # Configure LCG 1 for UE 0 (RGR)
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg ueId="0" lcgId="1" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      #CfgdpucchDeltaPwr = -127 + pucchDeltaPwr
+      <tapa.send>
+         <tapa.tfu.pucchdelta.ind>
+            <tapa.tfu.pucchdelta ueId="0" pucchDeltaPwr="134"/>
+            <tapa.tfu.pucchdelta ueId="1" pucchDeltaPwr="125"/>
+         </tapa.tfu.pucchdelta.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      # Expect DCI format 3A
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2" tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2"
+               tpcCmds="1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2"
+               tpcCmds="1:0"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3A.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3a="TRUE"
+               vldtGrant="TRUE" tpcRnti="202" tpcIndices="0:2"
+               tpcCmds="1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+<!--
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+-->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.22
+#
+#       Desc:    "Verify PUCCH group power control with non-group power
+#                 control"
+#
+#       Notes:   None
+#              
+#       Module:  "Power"
+#
+#       File:    rgac_tc10.xml
+#
+#
+<tapa.testcase id="10.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Verify PUCCH group power control with non-group power control"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Verify PUCCH group power control with non-group power control"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit
+         pucchFmt3StartRnti="100" pucchFmt3RntiSize="4"
+         pucchFmt3aStartRnti="200" pucchFmt3aRntiSize="4"
+         puschFmt3StartRnti="300" puschFmt3RntiSize="4"
+         puschFmt3aStartRnti="400" puschFmt3aRntiSize="4"/>
+
+      # UEs Creation
+      <tapa.rg.UeInit isAccumulated="TRUE" trgCqi="12"
+         ueBr="10000" ueCatEnum="CM_LTE_UE_CAT_5"
+         pucchTpcRntiPres="TRUE" pucchtpcRnti="100" uePucchPwrIdx="2"
+         puschTpcRntiPres="TRUE" puschtpcRnti="300" uePuschPwrIdx="2"/>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure LCs
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcgId="0" lcId="1"
+            lcType="5" dir="3"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="1" dir="1"
+            lcType="5" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect the confirms
+      <tapa.expset>
+         <tapa.crg.cfgcfm/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      #CfgdpucchDeltaPwr = -127 + pucchDeltaPwr
+      <tapa.send>
+         <tapa.tfu.pucchdelta.ind>
+            <tapa.tfu.pucchdelta ueId="0" pucchDeltaPwr="134"/>
+         </tapa.tfu.pucchdelta.ind>
+      </tapa.send>
+
+      # Send BO (small, enough for one TTI) for the DTCH on RGU. 
+      <tapa.send>
+         <tapa.rgu.dstarsp ueId="0" lcId="1" bo="50"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect staInd from MAC to RLC for both DCCH and DTCH
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 1A (only - no format 3)
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req ueId="0" saveTo="1"
+               vldtGrant="TRUE" vldtTx="TRUE"
+               vldtTpc="TRUE" tpcCmd="3"/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req ueId="0" use="1" validate="TRUE"/>
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Now group power control kicks in
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE"
+               vldtGrant="TRUE" tpcRnti="100" tpcIndices="2:0:1:3:4:10"
+               tpcCmds="3:1:1:1:1:1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 3 - this one would have the final reduced
+      # command.
+      <tapa.expset>
+         <tapa.tfu.cntrl.req expCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req isFormat3="TRUE"
+               vldtGrant="TRUE" tpcRnti="100" tpcIndices="2" tpcCmds="2"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # No more commands now
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expset>
+        <tapa.tfu.recp.req numRntis="1" spId="1">
+           <tapa.tfu.hq.recp.req ueId="0"/>
+        </tapa.tfu.recp.req>   
+      </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#/********************************************************************30**
+#
+#         End of file:     rgac_tc10.xml@@/main/1 - Thu Mar 26 01:11:03 2009
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+# 
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1      ---     sm   1. Initial Release.
+#$SID$         ---     sm   1. Initial Release.
+#$SID$        ---     gvj  1. LTE MAC 3.1 Release
+#$SID$        rg001.301   nudupi 1.Changes for ccpu00117270 and ccpu00118788
+#$SID$        rg002.301  av     ccpu00118453 changes
+#$SID$        ---    rt    1. LTE MAC 4.1 Release
+#*********************************************************************91*/

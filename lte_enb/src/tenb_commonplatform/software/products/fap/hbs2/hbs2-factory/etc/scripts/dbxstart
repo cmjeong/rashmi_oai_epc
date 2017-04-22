@@ -1,0 +1,323 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 10563 $
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+FLASH_DIR_FPGA=$FLASH_DIR_ACTIVE_BANK/fpga
+FLASH_DIR_LOCAL_CFG=$FLASH_DIR_ACTIVE_BANK/config
+FLASH_DIR_COMMON_CFG=$FLASH_DIR/config
+FLASH_DIR_ETC=$FLASH_DIR_ACTIVE_BANK/etc
+FLASH_DIR_MODS=$FLASH_DIR_ACTIVE_BANK/lib/modules/`uname -r | sed "s/-svn[0-9]\\+[MmSs]\\?//"`
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+
+# set approximate date to start with, this is a 
+# workaround since NTP time comes along late.
+# this is required to validate certificate of
+# the config file. 
+#    MMDDhhmmYYYY
+# NOTE: update this date for every Release.
+date 061009002009;
+
+# Run script to perform any first boot installation actions,
+# typically modifications to configuration files or stuff which
+# absolutely has to happen before a new software load will run 
+# regardless of whether it's arrived through the "official"
+# update process or some other mechanism...  
+if [ -f $FLASH_DIR_APPS/first-boot-script ]; then
+   $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/first-boot-script
+   mv -f $FLASH_DIR_APPS/first-boot-script first-boot-script.done
+fi
+
+
+# Copy any modules from the app load onto the system image
+#  Note: We ignore the SVN version of the uname here since it may change
+#         without significance
+if [ -d "$FLASH_DIR_MODS" ] ; then
+  echo "Copying kernel modules for `uname -r`"
+  cp -rf $FLASH_DIR_MODS/* /lib/modules/`uname -r`/
+
+  # Add entires to allow modprobe to find new modules
+  find /lib/modules/`uname -r`/ -name *.ko | awk '{printf "%s:\n" $1}' >> /lib/modules/`uname -r`/modules.dep
+
+  # Add colon for the final entry in the list
+  echo ":" >> /lib/modules/`uname -r`/modules.dep
+fi
+
+# Create any required nodes
+[ -c /dev/fpgairq0 ] || mknod /dev/fpgairq0 c 116 0
+[ -c /dev/fpgareg0 ] || mknod /dev/fpgareg0 c 99 0
+mdev -s
+
+# Load any required loadable modules
+modprobe -q devfpgairq
+modprobe -q devfpgareg
+modprobe -q devfpgasport
+modprobe -q i2c-core
+modprobe -q i2c-bfin-twi
+modprobe -q i2c-dev
+modprobe -q simple-gpio
+
+# Configure the loopback device
+ifconfig lo 127.0.0.1
+
+# Start inetd to allow development access if not already running
+ps | grep -v grep | grep -q inetd
+if [ "$?" = "1" ] ; then
+  inetd &
+fi
+
+# Ensure apps can be executed
+chmod +x $FLASH_DIR_APPS/*
+
+# Make directory for NV log files.
+# Matches the path in Application::GetNvLogDirectory().
+mkdir -p /mnt/log
+
+# Make directory for temporary files e.g. s/w downloads.
+# Matches the path in Application::GetNvTmpDirectory().
+mkdir -p /mnt/tmp
+
+# Create trace directory if needed
+mkdir -p $TRACE_DIR
+
+# Configure IP stack
+
+# Create directory for interpeak lock file
+mkdir -p /etc/interpeak
+
+# Lower TCP max segment size to avoid fragmentation when using extra headers, e.g. IPsec over PPPoE
+echo 1380 > /proc/sys/net/ipnet/tcp/max_mss
+#echo 7 > /proc/sys/net/ipnet/log_level
+
+# Update IKE configuration files if they do not exist
+if [ ! -s $FLASH_DIR_LOCAL_CFG/ike.sysvar ]; then
+   echo "IKE sys config not found. Setting it to defaults."
+   cp $FLASH_DIR_LOCAL_CFG/ike-defaults.sysvar $FLASH_DIR_LOCAL_CFG/ike.sysvar
+fi
+
+NET_CONFIG_VALID="TRUE"
+# Get eth0 MAC address
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_mac_address ]; then
+  MAC_ADDRESS=`cat $FLASH_DIR_COMMON_CFG/eth0_mac_address | tr -d '\n\r\t '`
+else
+  echo "Reading MAC address from u-boot environment."
+  MAC_ADDRESS=`/mnt/dbx/fap-flash u-bootenvread ethaddr | tr -d '\n\r\t '`  
+  if [ $? != 0 ] ; then
+     NET_CONFIG_VALID="FALSE"
+ 	 echo "MAC address not found - using hard-coded default! "
+ 	 MAC_ADDRESS=00:1a:8e:00:00:01
+  fi
+fi
+
+# Configure eth0 MAC address
+ifconfig eth0 hw ether $MAC_ADDRESS
+
+# check whether to use PPPoE
+if [ `$FLASH_DIR_APPS/mib-firkler -q PPPOE_ENABLED` -eq 1 ]; then
+
+  # when the link comes up inherit the DNS settings from PPPoE
+  echo '#!/bin/sh' > /etc/ppp/ip-up
+  echo 'logger "ip-up: Copying /etc/ppp/resolv.conf to /etc/resolv.conf"' >> /etc/ppp/ip-up
+  echo 'cp /etc/ppp/resolv.conf /etc/resolv.conf' >> /etc/ppp/ip-up
+  chmod a+x /etc/ppp/ip-up
+
+  # setup username and password
+  user=`$FLASH_DIR_APPS/mib-firkler -q PPPOE_USER`
+  password=`$FLASH_DIR_APPS/mib-firkler -q PPPOE_PASSWORD`
+  echo "\"$user\" * \"$password\"" > /etc/ppp/pap-secrets
+  echo "\"$user\" * \"$password\"" > /etc/ppp/chap-secrets
+
+  logger "PPPoE mode, user=$user"
+
+  # make sure the ppp and pppoe related kernel modules are loaded
+  modprobe ppp_async
+
+  # check that the /dev/ppp device file exists, create it if it doesnt
+  if [ ! -e /dev/ppp ]; then
+    logger "Creating /dev/ppp"
+    mknod /dev/ppp c 108 0
+  fi
+
+  # ensure eth0 is up
+  ifconfig eth0 up
+
+  # try to connect, wait until connected or timeout
+  # if the PPPoE connection succeds, then change the
+  # ike default configuration to use the ppp0 interface
+  logger "Initiating PPPoE connection"
+  adsl-start
+  if [ $? -eq 0 ]; then
+    rexp='s/^\([ \t]*listen [ \t]*\)eth0[ \t]*;$/\1ppp0;/'
+    sed "$rexp" < /mnt/bank-active.config/ike-defaults.cfg > /tmp/pppoe-ike-defaults.cfg
+    logger "Created /tmp/pppoe-ike-defaults.cfg"
+  fi
+
+  # give time to IPCP to negotiate Ip addresses
+  # a better solution would be to wait for ip-up
+  sleep 6
+
+  # if we timeout, fallback to dhcp
+  if [ $? != 0 ]; then
+    logger "PPPoE timeout, fallback to DHCP"
+    dhcpcd &
+    sleep 6
+  fi
+
+# Check whether to use DHCP
+elif [ -f $FLASH_DIR_COMMON_CFG/eth0_dhcp_enable ]; then
+
+  DHCPHOST=`cat $FLASH_DIR_COMMON_CFG/eth0_dhcp_enable | tr -d '\n\r\t '`
+
+  if [ -z $DHCPHOST ]; then
+    echo "eth0: Pending DHCP configuration"
+    dhcpcd &
+  else
+    echo "eth0: Pending DHCP configuration (this host=$DHCPHOST)"
+    dhcpcd -h $DHCPHOST &
+  fi
+
+  # Give DHCP a chance to obtain an IP address before continuing
+  sleep 6
+
+  # Set window title
+  if [ -f $FLASH_DIR_ETC/last-make-download.txt ] ; then
+    LASTD="Last distro download: `cat $FLASH_DIR_ETC/last-make-download.txt | sed 's/^.*at //'`"
+  else
+    LASTD=
+  fi
+  echo '\033]0;HBS2' $LASTD'\007'
+  echo "$LASTD"
+  
+else
+
+   # Read static configuration files that exist
+  if [ -f $FLASH_DIR_COMMON_CFG/eth0_ip_address  ] ; then
+    IP_ADDRESS=`cat $FLASH_DIR_COMMON_CFG/eth0_ip_address | tr -d '\n\r\t '`
+  else
+    echo "Reading IP address from u-boot environment."
+    IP_ADDRESS=`/mnt/dbx/fap-flash u-bootenvread ipaddr | tr -d '\n\r\t '`
+    if [ $? != 0 ] ; then
+       NET_CONFIG_VALID="FALSE"
+ 	   echo "IP address not found!"
+    fi
+  fi
+  
+  if [ -f $FLASH_DIR_COMMON_CFG/eth0_net_mask ] ; then
+    NET_MASK=`cat $FLASH_DIR_COMMON_CFG/eth0_net_mask | tr -d '\n\r\t '`
+  else
+    echo "Reading net mask from u-boot environment."
+    NET_MASK=`/mnt/dbx/fap-flash u-bootenvread netmask | tr -d '\n\r\t '`  
+    if [ $? != 0 ] ; then
+       NET_CONFIG_VALID="FALSE"
+ 	   echo "Net mask not found!"
+    fi
+  fi
+  
+  if [ -f $FLASH_DIR_COMMON_CFG/eth0_gateway ] ; then
+    GATEWAY=`cat $FLASH_DIR_COMMON_CFG/eth0_gateway | tr -d '\n\r\t '`
+  else
+    echo "Reading default gateway from u-boot environment."
+    GATEWAY=`/mnt/dbx/fap-flash u-bootenvread gatewayip | tr -d '\n\r\t '`  
+     if [ $? != 0 ] ; then
+       NET_CONFIG_VALID="FALSE"
+ 	   echo "Default gateway not found!"
+     fi
+  fi
+  
+  sleep 5
+  
+  # Setup any missing parameter to defaults
+  [ -n "$IP_ADDRESS" ] || IP_ADDRESS=192.168.0.210
+  [ -n "$NET_MASK" ]   || NET_MASK=255.255.255.0
+  [ -n "$GATEWAY" ]    || GATEWAY=192.168.0.1
+
+  # Double check if some of the config files are missing and warn
+  if [ NET_CONFIG_VALID == "FALSE" ] ; then
+    echo "eth0: One or more config files are missing and values could not be read from u-boot environment;"
+    echo "      some configuration is from defaults"
+  fi
+  
+  # Set config
+  ifconfig eth0 down
+  ifconfig eth0 $IP_ADDRESS netmask $NET_MASK
+  ifconfig eth0 up
+  route add default gw $GATEWAY eth0
+  echo "eth0: mac=$MAC_ADDRESS ip=$IP_ADDRESS mask=$NET_MASK"
+
+  # Set window title and print eth0 information
+  if [ -f $FLASH_DIR_ETC/last-make-download.txt ] ; then
+    LASTD="Last distro download: `cat $FLASH_DIR_ETC/last-make-download.txt | sed 's/^.*at //'`"
+  else
+    LASTD=
+  fi
+  echo '\033]0;HBS2: '$IP_ADDRESS $LASTD'\007'
+  echo "$LASTD"
+fi
+
+
+# Extract and print info about the board
+SERIALNUM=`$FLASH_DIR_APPS/mib-firkler -q LONG_SERIAL_NUMBER`
+HWTYPE=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_TYPE`
+HWREV=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_REVISION`
+HWMOD=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_MOD_STATE`
+
+echo "fap: serialnum=$SERIALNUM hw=$HWTYPE/$HWREV/$HWMOD"
+
+# Copy SNMP config file.
+mkdir -p /root/.snmp
+cp $FLASH_DIR_LOCAL_CFG/3waysnmp.conf /root/.snmp
+
+# Need to set HOME environment var so SNMP libs can find /root/.snmp/3waysnmp.conf
+export HOME=/root
+export PATH=$PATH:${RUNTIME_DIR}
+
+# Try to get an alternative dbxstart from TFTP server.
+cd $RUNTIME_DIR
+tftp -g -r dbxstart_alt 192.168.0.254
+if [ -s dbxstart_alt ]; then
+  umount $FLASH_DIR
+  echo "Running dbxstart_alt"
+  chmod a+x dbxstart_alt
+  ./dbxstart_alt
+else
+  echo "No dbxstart_alt"
+
+  # Check for 2008R1 Kernel
+  uname -r | grep -q "2008R1"
+  if [ $? != "1" ] ; then
+
+    # Load the FPGA register and IRQ interface drivers
+    modprobe devfpgareg
+    modprobe devfpgairq
+
+    # Call mdev manually to get /dev nodes without the need for hotplug
+    mdev -s
+
+  fi
+
+  $FLASH_DIR_APPS/radiocal-check
+
+  echo "Linking common script/apps."
+  ln -s $FLASH_DIR_APPS/tftp-trace-files $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/ftp-trace-files $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/create-trace-tarball $TRACE_DIR
+  ln -s $FLASH_DIR_APPS/the-proto-prof $TRACE_DIR
+  chmod +x $FLASH_DIR_APPS/tftp-trace-files $FLASH_DIR_APPS/the-proto-prof
+
+
+  cp $FLASH_DIR_APPS/get-proc-addr $RUNTIME_DIR
+  chmod +x $RUNTIME_DIR/get-proc-addr
+
+  echo "Copying common nas-* config files."
+  cp $FLASH_DIR_COMMON_CFG/nas-* $RUNTIME_DIR
+  echo "Copying build specific nas-* config files."
+  cp $FLASH_DIR_LOCAL_CFG/nas-* $RUNTIME_DIR
+
+  echo "Starting apps."
+  cd $RUNTIME_DIR
+  $FLASH_DIR_APPS/start-apps
+fi

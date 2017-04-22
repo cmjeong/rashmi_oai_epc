@@ -1,0 +1,41 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// ValidatorAcbFactorMOData.h 
+//
+//  Access Barrring Factor validator.
+//
+// Copyright Radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __ValidatorAcbFactorMOData_h_
+#define __ValidatorAcbFactorMOData_h_
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "ValidatorString.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Functions / Classes
+///////////////////////////////////////////////////////////////////////////////
+
+class ValidatorAcbFactorMOData : public ValidatorString
+{
+public:
+    ValidatorAcbFactorMOData() {};
+    virtual ~ValidatorAcbFactorMOData() {};
+
+    virtual bool ValidateString(MibDN fapLteDn, const std::string& value, u32 minLength, u32 maxLength, ValidationFailureDescriptor& failureDescriptor);
+
+private:
+    u32 acBarringAC11;
+    u32 acBarringAC12;
+    u32 acBarringAC13;
+    u32 acBarringAC14;
+    u32 acBarringAC15;
+};
+
+#endif
+

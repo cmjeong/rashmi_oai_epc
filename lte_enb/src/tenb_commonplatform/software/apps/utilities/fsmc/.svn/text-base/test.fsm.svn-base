@@ -1,0 +1,111 @@
+# This is my comment
+
+fsm Test;
+basename test;
+namespace testing;
+
+# Type
+type "void*";
+
+# Events
+event Alpha;
+event Beta;
+event Gamma type "void*";
+event Delta;
+
+superstate Active;
+state Inactive;
+state Starting;
+state Running;
+state Stopping;
+exit_point GoInactive;
+
+
+guard_condition GammaMessageCorrupt;
+guard_condition GammaMessageValidButInconsistant;
+guard_condition Precondition2;
+guard_condition Precondition3;
+
+fault TRANSPORT_ERROR;
+fault NO_RESOURCE;
+fault BAD_PARAM;
+fault FAILURE;
+fault FAILED;
+
+action Ignore;
+action SendGammaNack;
+action SendGammaAck;
+
+initial_state Inactive;
+
+
+
+state Inactive
+{
+    entry;
+    exit;
+
+    event Alpha
+    {
+        state Starting;
+    }
+
+    event Beta;
+
+    event Gamma
+    {
+        if GammaMessageCorrupt action Ignore;
+        elif GammaMessageValidButInconsistant action SendGammaNack state Inactive;
+        else action SendGammaAck state Starting;
+    }
+
+    defer Delta;
+}
+
+
+
+superstate Active
+{
+    entry;
+
+	exit_point GoInactive 
+	{
+	    if Precondition2 action SendGammaAck >> Inactive;
+	    else >> Inactive;
+	}
+
+	defer Alpha;
+
+    event Beta;
+    event Gamma;
+	event Delta;
+}
+
+state Starting
+{
+	superstate Active;
+    entry;
+
+    event Beta state Running;
+}
+
+state Running
+{
+	superstate Active;
+
+    event Gamma
+    {
+        if GammaMessageCorrupt action Ignore;
+        else action SendGammaAck state Stopping;
+    }
+
+}
+
+state Stopping
+{
+	superstate Active;
+
+    event Delta state GoInactive;
+}
+
+

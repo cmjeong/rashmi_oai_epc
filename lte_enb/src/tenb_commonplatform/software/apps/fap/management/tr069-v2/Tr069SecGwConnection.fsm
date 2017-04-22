@@ -1,0 +1,187 @@
+# This FSM models the Connection to a TR069 Server
+
+fsm SecGwConnection;
+basename Tr069SecGwConnection;
+namespace tr069;
+type_header "Tr069ServerConnectionFsmTypes.h";
+
+# Options
+#option auto_start off;
+
+# Types
+type "void *";
+type "shared_ptr<SecGwModifyReq>";
+type "shared_ptr<IkeTunnelConnectInd>";
+
+
+#########
+## Events
+#########
+#
+# CS / FGW Server Selection
+event StateGuardTimerExpiry;
+event SecGwModify type "shared_ptr<SecGwModifyReq>";
+type "shared_ptr<TransportReq>";
+type "shared_ptr<LockedInd>";
+
+# Secure Connection Control
+event IkeTunnelCreateCnf;
+event IkeTunnelDeleteCnf;
+event IkeTunnelDisconnectionInd;
+event IkeTunnelConnectionInd type "shared_ptr<IkeTunnelConnectInd>";
+event StateGuardTimerExpiry type "void *";
+event CwmpLockedInd type "shared_ptr<LockedInd>";
+event TransportReq type "shared_ptr<TransportReq>";
+
+
+# States, Superstates and Junctions
+junction CheckConfig;
+junction Disconnected;
+superstate ConnectionProcedure;
+    exit_point ConnectionProcedure_Abort;
+	state CreatingIkeTunnel;
+	state ConnectingIkeTunnel;
+superstate DisconnectionProcedure;
+	state DeletingIkeTunnel;
+superstate Connected;
+	state CwmpEnable;
+	state CwmpDisable;
+state Terminate;
+
+# Guard Conditions
+guard_condition QueryFapRebootInProgress;
+guard_condition QueryTunnelIdIsAsExpected;
+guard_condition QueryTunnelIdKnown;
+guard_condition QueryMinimumNecessaryConfiguration;
+guard_condition QuerySelectNextServer;
+guard_condition QueryReconnectServer;
+guard_condition QueryIpSecIsEnabled;
+
+# Actions
+action PerformInitialisation;
+action SendCreateTunnelReq;
+action StoreTunnelId;
+action HandleTunnelEstablishment;
+action SaveSecGwModify;
+action ShutdownTranactionSessions;
+action RaiseIpsecTunnelFailureAlarm;
+action SystemReboot;
+action SendTransportCnf;
+action SendTransportRej;
+
+# Initial State
+initial_state CheckConfig;
+
+junction CheckConfig
+{
+	if QueryMinimumNecessaryConfiguration action PerformInitialisation >> ConnectionProcedure;
+	else >> Terminate;
+}
+
+junction Disconnected
+{
+	entry;
+
+    if QueryFapRebootInProgress >> Terminate;
+	elif QueryReconnectServer >> ConnectionProcedure;
+	elif QuerySelectNextServer >> ConnectionProcedure;
+	else >> Disconnected;
+}
+
+superstate ConnectionProcedure
+{
+	entry;
+	exit;
+
+	initial_state CreatingIkeTunnel;
+
+	event StateGuardTimerExpiry >> ConnectionProcedure_Abort;
+	event SecGwModify action SaveSecGwModify >> ConnectionProcedure_Abort;
+
+	exit_point ConnectionProcedure_Abort
+	{
+		if QueryTunnelIdKnown >> DisconnectionProcedure;
+		else >> Disconnected;
+	}
+
+	defer TransportReq;
+}
+
+state CreatingIkeTunnel
+{
+	superstate ConnectionProcedure;
+	entry; # SendCreateTunnelReq
+
+        event IkeTunnelCreateCnf
+	{
+	    if QueryIpSecIsEnabled action StoreTunnelId >> ConnectingIkeTunnel;
+	    else action HandleTunnelEstablishment state Connected;
+	}
+}
+
+state ConnectingIkeTunnel
+{
+	superstate ConnectionProcedure;
+	entry; # SendConnectTunnelReq
+
+	event IkeTunnelConnectionInd 
+	{
+		if QueryTunnelIdIsAsExpected action HandleTunnelEstablishment state Connected;
+		else ;
+	}
+
+	event IkeTunnelDisconnectionInd >> DisconnectionProcedure;
+}
+
+superstate DisconnectionProcedure
+{
+	initial_state DeletingIkeTunnel;
+
+	event TransportReq action SendTransportRej;
+}
+
+state DeletingIkeTunnel
+{
+	superstate DisconnectionProcedure;
+	entry; # SendDeleteTunnelReq
+
+	event IkeTunnelDeleteCnf >> Disconnected;
+	event SecGwModify action SaveSecGwModify;
+
+}
+
+superstate Connected
+{
+	# Create/Delete the underlying HMS fsm.
+	entry;
+	exit;
+
+	initial_state CwmpEnable;
+}
+
+state CwmpEnable
+{
+	superstate Connected;
+
+	event SecGwModify action SaveSecGwModify >> CwmpDisable;
+	event IkeTunnelDisconnectionInd action RaiseIpsecTunnelFailureAlarm >> CwmpDisable;
+	event TransportReq action SendTransportCnf;
+}
+
+state CwmpDisable
+{
+	superstate Connected;
+
+	entry;
+	
+	event CwmpLockedInd >> DisconnectionProcedure;
+}
+
+state Terminate
+{
+	entry;
+	exit;
+
+	event StateGuardTimerExpiry action SystemReboot;
+	event TransportReq action SendTransportRej;
+}

@@ -1,0 +1,3840 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc1.xml
+#
+#     Sid:   
+#
+#     Prg:  mm
+#
+#*********************************************************************21*/
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#
+#       Test:    9.1
+#
+#       Desc:   Test a basic scenario of creating a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Test a basic scenario of creating a tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+<!--
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="2" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+-->
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.2
+#
+#       Desc:   Send a unrelated response to CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                Send a unrelated response to CSR.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1" />
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_RSP"
+                 pass="FALSE" seqNo="0" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.3
+#
+#       Desc:   Send a unrelated response to CSR and wait for request time out
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                Send a unrelated response to CSR and wait for request time out
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ"
+                 intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                 t3TmrVal="1" lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_RSP"
+                pass="FALSE" seqNo="0" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # Message is discarded and no indication is received
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind  suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.4
+#
+#       Desc:  Check if the TEIDs are generated properly. Reach the 
+#               exhaustion.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               Check if the TEIDs are generated properly. Reach the 
+                exhaustion.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # ----- Create Tunnel 1
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 2
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="2"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="2" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="2"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 3
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="3"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="5" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="3" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="3"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 4
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="4"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="5" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="4" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="4"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 5
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="5"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="5" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="5" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="5"/>
+        </tapa.expect>
+
+
+     # ----- Create Tunnel 6
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="6"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="5" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="6" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="6"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 7
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="7"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="7" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="7"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 8
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="8"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="8" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="8"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 9
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="9"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="5" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="9" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="9"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 10 
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="10"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="10" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="10"/>
+     </tapa.expect>
+
+     # ----- Create Tunnel 11 -- Exhausted
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="11"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+     <tapa.expect waittmr="10000">
+     <tapa.egt.errind suId="1"/>
+     </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    9.5
+#
+#       Desc:   The MME sends a CSR. Receives response on different TEID.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.5">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+                The MME sends a CSR. Receives response on different TEID.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response with different TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP"
+                 pass="FALSE" seqNo="0" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+      # Expect 3 retransmission
+      #<tapa.expect waittmr="10000">
+      #   <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      #</tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.6
+#
+#       Desc:  Check if the TEIDs are generated properly. delete teids
+#               inbetween. Check if it is reused.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.6">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+                Check if the TEIDs are generated properly. delete teids
+                inbetween. Check if it is reused.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # ----- Create Tunnel 1
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+      #--------------Delete Tunnel 1
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1"  intfType="EGT_GTP_INT_S11" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect waittmr="10000">
+         <tapa.egt.lcldelcfm teid="1" suId="1" />
+        </tapa.expect>
+
+     # ----- Create Tunnel 2
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="2"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="2" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="2"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 3 - TEID 1 is reused
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="3"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+     # ----- Create Tunnel 4 - TEID 3, from new array 
+     # Send Create Session Request from MME
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="4"
+                 t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="3" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="3"/>
+        </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    9.7
+#
+#       Desc:   The MME sends a CSR. Receives response on different seq No..
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.7">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                The MME sends a CSR. Receives response on different seq No..
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response with different TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP"
+                 pass="FALSE" seqNo="1" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.8
+#
+#       Desc:   The MME sends a CSR. Receives response on different seqNo No.
+#                and TEID.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.8">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                The MME sends a CSR. Receives response on different seq No.
+                and TEID.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response with different TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP"
+                 pass="FALSE" seqNo="10" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.9
+#
+#       Desc:   The MME receives a Update bearer request without creating a tunnel.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.9">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+                The MME receives a Update bearer request without creating a tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+     # Create new Update Bearer Request with new TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="10" teidValue="2" 
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2123" rmtPort="3124" />
+        </tapa.send>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.10
+#
+#       Desc:   The MME receives a Modify bearer response without sending
+#                a Update Bearer Request.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.10">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                The MME receives a modify bearer response without sending
+                 a Update Bearer Request.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+    <tapa.delay delay="5" />
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_RSP" addInterfaceType="10"
+                 pass="FALSE" seqNo="2" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="2123" />
+        </tapa.send>
+
+      <tapa.delay delay="10"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.11
+#
+#       Desc:   Retransmission timer expiry for CSR
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.11">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                Retransmission timer expiry for CSR
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="1" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+
+      # Receive error indication after the failure
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.12
+#
+#       Desc:   MME receives a CSR. The incoming CSR is rejected, since it is
+#                not valid for an MME to received CSR.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.12">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                MME receives a CSR. The incoming CSR is rejected, since it is
+                 not valid for an MME to received CSR.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="1" teidValue="0" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="2123" />
+        </tapa.send>
+
+
+      # Receive error indication after the failure
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.13
+#
+#       Desc:   The MME receives a Update bearer request on non-default port.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.13">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+             The MME receives a Update bearer request on non-default port.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_UB_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="2" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" />
+        </tapa.send>
+
+      # receive error indication
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.14
+#
+#       Desc:   The MME receives response on default port
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.14">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives response on default port
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="2124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="1000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_RSP"
+                 pass="FALSE" seqNo="2" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="2123" />
+        </tapa.send>
+   
+    <tapa.delay delay="10" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.15
+#
+#       Desc:   The MME receives response on some other port than the 
+                port from which it has sent the request
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.15">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives response on some other port than the
+               port from which it has sent the request
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+    <tapa.delay delay="10" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_REQ" 
+               intfType="EGT_GTP_INT_S11" spId="1" transId="1"
+                t3TmrVal="1" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teid="1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_RSP"
+                 pass="FALSE" seqNo="2" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="2123" />
+        </tapa.send>
+
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      # NO error indication
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.16
+#
+#       Desc:   The MME receives request on non default port
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.16">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives request on non default port
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="10" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+     # Create new response with from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_REQ"
+                 pass="FALSE" seqNo="2" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" />
+        </tapa.send>
+   
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    9.17
+#
+#       Desc:   The MME tries to send request from default port
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.17">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME tries to send request from default port
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta />
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+      <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="2" transId="1"
+                t3TmrVal="1" lclPort="2123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.egt.errind suId="2" />
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LCM_EVENT_UI_INV_EVT"
+                          cause = "LCM_CAUSE_INV_PAR_VAL" type = "LEG_PAR_USAP" />
+      </tapa.expect>
+
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+      <tapa.send>
+         <tapa.leg.cntrl.usta action="ADISIMM" />
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.18
+#
+#       Desc:   The MME receives a Update bearer request as a response to
+                Modify bearer command on a non existing tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="9.18">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives a Update bearer request as a response to
+               Modify bearer command on a non existing tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="10" 
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" 
+                seqNoPres="TRUE" seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="2123"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_UB_REQ"
+                 pass="FALSE" seqNoPres="TRUE" seqNo="8388609" teidValue="2" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" />
+        </tapa.send>
+  
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.19
+#
+#       Desc:   The MME receives a Update bearer request as a response to
+                Modify bearer command with different sequence number.
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="9.19">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+                The MME receives a Update bearer request as a response to
+                Modify bearer command with different sequence number.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="10" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" 
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_UB_REQ"
+                 pass="FALSE" seqNo="8388610" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" />
+        </tapa.send>
+  
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.20
+#
+#       Desc:   The MME receives a wrong response (Create session request)
+                as a response to Modify bearer command
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="9.20">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives a wrong response (Create session request)
+               as a response to Modify bearer command
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="10" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" 
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_REQ"
+                 pass="FALSE" seqNo="8388609" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" />
+        </tapa.send>
+  
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.21
+#
+#       Desc:   The MME receives response for Create Session Request
+                with wrong version
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.21">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives response for Create Session Request
+               with wrong version
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1" version="3"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq suId="0" suConId="1" save="FALSE"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.22
+#
+#       Desc:   The MME receives response for Create Session Request
+                with missing one of the mandatory IE
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.22">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               The MME receives response for Create Session Request
+               with missing one of the mandatory IE
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1" causePresent="FALSE"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+   
+      <tapa.delay delay="10" />   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.23
+#
+#       Desc:   The MME receives response for Create Session Request
+                with buffer length less than the minimum message 
+                header length(8) 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.23">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               The MME receives response for Create Session Request
+               with buffer length less than the minimum message 
+               header length(8)
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ"
+                 intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                 t3TmrVal="1" lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP"
+                pass="FALSE" seqNo="0" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="1" invalMsgLen="TRUE" invalLen="4"/>
+        </tapa.send>
+
+     # Message is discarded and no indication is received
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.24
+#
+#       Desc:   The MME receives response for Create Session Request
+                with buffer length less than the minimum message length(12) 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.24">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               The MME receives response for Create Session Request
+               with buffer length less than the minimum message length(12)
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ"
+                 intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                 t3TmrVal="1" lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="100">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_RSP"
+                pass="FALSE" seqNo="0" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="1" invalMsgLen="TRUE" invalLen="10"/>
+        </tapa.send>
+
+     # Message is discarded and no indication is received
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.25
+#
+#       Desc:   The MME initally receives a wrong response for Create 
+                Session Request with the matching sequence number and teid.
+                After some time it receives the correct response.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.25">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                The MME initally receives a wrong response for Create
+                Session Request with the matching sequence number and teid.
+                After some time it receives the correct response.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+       # Send Create Session Request from MME
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+               intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                t3TmrVal="5000" lclPort="3123" rmtPort="3124" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+       </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     <tapa.delay delay="50" />
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.26
+#
+#       Desc:   The SGW receives a second create session request before
+#                sending a response to the first one. The second message
+#                is dropped.
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.26">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               The SGW receives a second create session request before
+                sending a response to the first one. The second message
+                is dropped.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+     <tapa.eg.mme1.sgw1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+     # Create new Create Session Request with new TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="10" suId="1" 
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2124" rmtPort="3123" procId="300"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.sigind suId="2" procId="300" teid="1" />
+      </tapa.expect>
+
+     # Create new Update Bearer Request with new TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="10" teidValue="1" suId="1"
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2124" rmtPort="3123" procId="300"/>
+        </tapa.send>
+
+      #Message is discarded and no indication is received
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="2" procId="300" spId="1" />
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.egt.sigrsp spId="1" egtpMsgType="EGT_GTPC_MSG_CS_RSP" addInterfaceType="11"
+                 pass="FALSE" seqNo="10" teid="1" teidValue="1" suId="1"
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2124" rmtPort="3123" procId="300"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" spId="0" procId="300" suConId="1"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.27
+#
+#       Desc:   Send a undefined message type (message type defined as future usage) 
+                (here 110 is used) as response to CSR and wait for request time out
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.27">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Send a undefined message type (message type defined as future usage)
+               (here 110 is used) as response to CSR and wait for request time out
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ"
+                 intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" transId="1"
+                 t3TmrVal="1" lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="1"/>
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_RSP"
+                pass="FALSE" seqNo="0" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="1" unDefMsgType="TRUE"/>
+        </tapa.send>
+
+     # Message is discarded and no indication is received
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1" />
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1" />
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1" />
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.28
+#
+#       Desc:   Send a undefined message type (message type defined as future usage) 
+                (here 110 is used) as response to Modify Bearer Command 
+                and wait for request time out
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="9.28">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               Send a undefined message type (message type defined as future usage)
+               (here 110 is used) as response to Modify Bearer Command
+               and wait for request time out
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1" />
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" 
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_UB_REQ"
+                 pass="FALSE" seqNo="8388609" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="3123" unDefMsgType="TRUE"/>
+        </tapa.send>
+  
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.29
+#
+#       Desc:   Send two different commands with the same sequence number
+                simultaneously 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="9.29">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               Send two different commands with the same sequence number
+               simultaneously
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" 
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="1"/>
+      </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_BR_CMND" 
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1" 
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+      # Expect 3 retransmission of request 
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="1" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.30
+#
+#       Desc:   Send a unsupported message from the entity (EGT_GTPC_MSG_DWN_DATA_NOTFN)
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.30">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+               Send a unsupported message from the entity (EGT_GTPC_MSG_DWN_DATA_NOTFN)
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+     # Create new Create Session Request with new TEID from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_REQ" addInterfaceType="10"
+                 pass="FALSE" seqNo="10" suId="1" 
+                intfType="EGT_GTP_INT_S11" suConId="0"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2124" rmtPort="3123" procId="300"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.sigind suId="2" procId="300" teid="1" />
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.egt.sigrsp spId="1" egtpMsgType="EGT_GTPC_MSG_CS_RSP" addInterfaceType="11"
+                 pass="FALSE" seqNo="10" teid="1" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="0" suId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="2124" rmtPort="3123" procId="300"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" spId="0" procId="300" suConId="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.egt.sigreq spId="1" egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN" addInterfaceType="11"
+                 pass="FALSE" seqNo="8388609" teid="1" teidValue="1"
+                intfType="EGT_GTP_INT_S11" suConId="0" suId="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                lclPort="3124" rmtPort="2123" procId="300"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_DWN_DATA_NOTFN" transId="1" teid="1" suId="2" procId="300" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    9.31
+#
+#       Desc:   Echo request received on non default port
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="9.31">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+            Echo request received on non default port
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1" 
+                transId="1" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0"  suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_ECHO_REQ" pass="FALSE"
+                 seqNo="10" intfType="EGT_GTP_INT_UNKNWN" teidPres="FALSE" suConId="1"/>
+        </tapa.send>
+
+      <tapa.expect waittmr="10000">
+      <tapa.egt.errind suId="2" />
+      </tapa.expect>
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#       Test:     9.32
+#
+#       Desc:     Send  Modify bearer command from MME,expect error indication to user
+#                 on expiry of maximum number of retransmission
+#
+#       Ref:      None
+#
+#       Notes:    None
+#
+#       Module:   TPT Module
+#
+#       File:     egac_tc1.xml
+#
+<tapa.testcase id="9.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+                "send  Modify bearer command from MME,expect error indication to user 
+		on expiry of maximum number of retransmission"               
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+ # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ"
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE" spId="1"
+                transId="10" t3TmrVal="10"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+    <tapa.delay delay="5" />
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CS_RSP" pass="FALSE"
+                 seqNo="0" teidValue="1" intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+     # The user receives confirmation with correct TEID
+     <tapa.expect waittmr="10000">
+        <tapa.egt.sigcfm msgType="EGT_GTPC_MSG_CS_RSP" seqNo="0" suId="1" teid="1"/>
+        </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND"
+                seqNo="8388609" intfType="EGT_GTP_INT_S11" spId="1"
+                transId="1" t3TmrVal="1" teid="1"
+                lclPort="3123" rmtPort="3124"
+                 lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+      # Expect 3 retransmission of request
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="0"/>
+      </tapa.expect>
+      #expect error indication to the user
+      <tapa.expect waittmr="10000">
+         <tapa.egt.errind suId="1" egtpMsgType="EGT_GTPC_MSG_MB_CMND" errCause="EGT_ERR_MAX_RETRY_EXHAUSTED" 
+            errType="EGT_ERR_REQ_FAIL"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+   # De-Init EGTP
+      <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#/********************************************************************30**
+#
+#         End of file:     
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     mm           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Testcases updated
+#    eg013.201  ---     shpandey     1. Added testcase for max. retry exhaust error scenario
+#*********************************************************************91*/

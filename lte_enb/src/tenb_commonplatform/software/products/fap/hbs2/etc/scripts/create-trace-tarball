@@ -1,0 +1,107 @@
+#
+# $LastChangedRevision$
+#
+
+if [ -z "$1" ]; then
+  echo "Usage: ./create-trace-tarball <filename>"
+  echo "  where .tar.gz will be appended to <filename>"
+  exit
+fi
+
+# Set up variables for work dir, system trace dir etc.
+TRACE_DIR=/dbx/trace
+WORK_DIR=$TRACE_DIR
+PLATFORM_SUMMARY=$WORK_DIR/platform_summary.txt
+FILENAME=${1}.tar
+
+# Create/clear work dir if neccessary
+if [ ! $TRACE_DIR = $WORK_DIR ] ; then
+	if [ ! -d $WORK_DIR ]; then
+		mkdir -p $WORK_DIR
+	else
+		rm -rf $WORK_DIR/*
+	fi
+fi
+
+# Grab platform summary
+/mnt/dbx/platform-summary ${PLATFORM_SUMMARY}
+
+# Grab information from the operating environment, for state and profiling
+
+# Kernel version.
+if [ -f /etc/version ] ; then
+	cp /etc/version $WORK_DIR/env_version.txt
+elif [ -f /proc/version ] ; then
+	cp /proc/version $WORK_DIR/env_version.txt
+fi
+
+# Network config.
+if [ -f /proc/net/ipnet_sysvar ] ; then
+	cp /proc/net/ipnet_sysvar $WORK_DIR/env_ipnet_sysvar.txt 
+fi
+
+# Kernel messages
+cp /var/log/messages $WORK_DIR/env_messages.txt
+
+# Disk/memory usage
+df > $WORK_DIR/env_df.txt
+ps > $WORK_DIR/env_ps.txt
+cat /proc/meminfo > $WORK_DIR/env_meminfo.txt
+
+# MIB files
+cp /mnt/config/mib-*.nv $WORK_DIR 2>/dev/null
+
+# Get bitfile information
+chmod a+x /mnt/bank-active/fpga/bitreport
+/mnt/bank-active/fpga/bitreport > $WORK_DIR/env_bitfiles.txt
+
+# take a copy of alarm and kpi data
+cp /mnt/log/*-0 $WORK_DIR 2>/dev/null
+cp /mnt/log/*-1 $WORK_DIR 2>/dev/null
+cp /mnt/log/*.log $WORK_DIR 2>/dev/null
+
+# take a copy of the config plan files
+ConfigFiles=`ls /mnt/tmp/*.xml 2>/dev/null`
+for configFile in $ConfigFiles; do
+  cp $configFile $WORK_DIR
+done
+
+# take a copy of any rem scan results
+ScanFiles=`ls /tmp/*.xml  2>/dev/null`
+for scanFile in $ScanFiles; do
+  cp $scanFile $WORK_DIR
+done
+
+# The following are required for profiling, but because of their size
+# and time to collect the data, leave these commented out until required.
+#cat /proc/maps | grep "x[ps] " > $WORK_DIR/env_maps.txt
+#cat /proc/kallsyms | grep " [Tt] " > $WORK_DIR/env_kallsyms.txt
+
+# If we're not using the system trace dir as the working dir then copy
+# in trace files. 
+if [ ! $TRACE_DIR = $WORK_DIR ] ; then
+	cp $TRACE_DIR/*.txt $WORK_DIR 2>/dev/null
+	cp $TRACE_DIR/.previous.*.txt $WORK_DIR 2>/dev/null
+fi
+
+# Trace file archive from last run.
+cp /mnt/log/previous.tar.gz $WORK_DIR 2>/dev/null
+
+# tar & zip the collected files.
+FILES=`cd $WORK_DIR; ls 2>/dev/null; ls .previous* 2>/dev/null`
+tar -cO -C $WORK_DIR $FILES | gzip > ${FILENAME}.gz
+
+# Now remove all the stuff we copied from other dirs to the working dir.
+if [ $TRACE_DIR = $WORK_DIR ] ; then
+	rm -f ${PLATFORM_SUMMARY}
+	rm -f ${WORK_DIR}/env_*
+	rm -f ${WORK_DIR}/*-0
+	rm -f ${WORK_DIR}/*-1
+	rm -f ${WORK_DIR}/*.log
+	rm -f ${WORK_DIR}/*.xml
+	rm -f ${WORK_DIR}/*.nv
+	rm -f ${WORK_DIR}/previous.tar.gz
+else
+	rm -f $WORK_DIR/*
+	rm -f $WORK_DIR/.*
+fi

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.Radisys.com/umts-fap/mib">
+
+  <xs:complexType name="managedObjectType">
+    <xs:sequence>
+      <xs:element name="childObjects" type="childObjectsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="attributes" type="attributesType" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:Name" use="required"></xs:attribute>
+    <xs:attribute name="parent" type="xs:Name" use="optional"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="mibType">
+    <xs:sequence>
+      <xs:element name="attributeDefs" type="attributeDefsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="managedObjects" type="managedObjectsType" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="managedObjectsType">
+    <xs:sequence>
+      <xs:element name="managedObject" type="managedObjectType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="childObjectsType">
+    <xs:sequence>
+      <xs:element name="childObject" type="childObjectType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="attributesType">
+    <xs:sequence>
+      <xs:element name="attribute" type="attributeType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="attributeDefsType">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="attributeDef" type="attributeDefType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+        <xs:element name="attributeEnumDef" type="attributeEnumDefType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="childObjectType">
+    <xs:attribute name="name" type="xs:Name" use="required"></xs:attribute>
+    <xs:attribute name="minInstances" type="xs:integer" use="optional"/>
+    <xs:attribute name="maxInstances" type="xs:integer" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="attributeType">
+    <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+    <xs:attribute name="accessClass" type="accessClassType" use="optional"></xs:attribute>
+    <xs:attribute name="storageClass" type="storageClassType" use="optional"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="attributeDefType">
+    <xs:sequence>
+      <xs:element name="description" maxOccurs="1" minOccurs="0" type="xs:string"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:Name" use="required"></xs:attribute>
+    <xs:attribute name="type" use="required" type="attributeBaseType"></xs:attribute>
+    <xs:attribute name="default" type="xs:string"></xs:attribute>
+    <xs:attribute name="min" type="alphanumericType"></xs:attribute>
+    <xs:attribute name="max" type="alphanumericType"></xs:attribute>
+    <xs:attribute name="minValue" type="alphanumericType"></xs:attribute>
+    <xs:attribute name="maxValue" type="alphanumericType"></xs:attribute>
+    <xs:attribute name="validator" type="xs:string"></xs:attribute>
+    <xs:attribute name="minInstances" type="xs:integer" use="optional"/>
+    <xs:attribute name="maxInstances" type="xs:integer" use="optional"/>
+    <xs:attribute name="accessClass" type="accessClassType" use="optional"/>
+    <xs:attribute name="storageClass" type="storageClassType" use="optional"/>
+    <xs:attribute name="moc" type="xs:boolean"/>
+    <xs:attribute name="schema" type="xs:integer"/>
+  </xs:complexType>
+
+  <xs:simpleType name="alphanumericType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[-+]?(0x[A-Fa-f0-9]+|\d+)"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="attributeEnumDefType">
+    <xs:sequence>
+      <xs:element name="description" maxOccurs="1" minOccurs="0" type="xs:string"></xs:element>
+      <xs:element name="enumValDef" maxOccurs="unbounded" minOccurs="1" type="xs:string"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:Name" use="required"></xs:attribute>
+    <xs:attribute name="type" use="required" type="attributeBaseType"></xs:attribute>
+    <xs:attribute name="default" type="xs:int"></xs:attribute>
+    <xs:attribute name="validator" type="xs:string"></xs:attribute>
+    <xs:attribute name="accessClass" type="accessClassType" use="optional"></xs:attribute>
+    <xs:attribute name="storageClass" type="storageClassType" use="optional"></xs:attribute>
+  </xs:complexType>
+
+  <xs:simpleType name="attributeBaseType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="S32"></xs:enumeration>
+      <xs:enumeration value="S32ARRAY"></xs:enumeration>
+      <xs:enumeration value="U32"></xs:enumeration>
+      <xs:enumeration value="U32ARRAY"></xs:enumeration>
+      <xs:enumeration value="STRING"></xs:enumeration>
+      <xs:enumeration value="STRINGARRAY"/>
+      <xs:enumeration value="ENUM"></xs:enumeration>
+      <xs:enumeration value="ENUMARRAY"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="accessClassType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="READ_WRITE"></xs:enumeration>
+      <xs:enumeration value="READ_ONLY"></xs:enumeration>
+      <xs:enumeration value="WRITE_ONCE"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="storageClassType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="VOLATILE"></xs:enumeration>
+      <xs:enumeration value="NON_VOLATILE"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

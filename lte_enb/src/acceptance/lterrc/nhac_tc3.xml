@@ -1,0 +1,2346 @@
+#*********************************************************************17*/
+#
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+#/********************************************************************20**
+#
+#     Name:    RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc3.xml
+#
+#     Sid:     
+#
+#     Prg:     rer 
+#
+#*********************************************************************21*/
+
+###########################################
+#NOTE:Paging Test Cases
+###########################################
+#
+#
+#       Test:    3.1
+#
+#       Desc:    Successful paging for a UE in Idle Mode  
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Configuration"
+           "Send paging message for a UE, with UE-ID=1, which is in Idle mode,
+            from RRC User. RRC should Encode this message and send it to RLC
+            for transmission to UE."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect data request from RRC to RLC on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" sfn="10" 
+                          subFrmNo="2" ueId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.2
+#
+#       Desc:    Successful paging for a UE in Connected Mode  
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest connecton Setup"
+           "Send paging message for a UE, with UE-ID=1, which is in connected 
+            mode from RRC User. RRC should encode this message and send it to 
+            RLC for transmission to UE"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Bring up the cell and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Establish a rrc connection for the UE 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+    
+      # Security Activation for UE in connected mode
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect data request from RRC to RLC on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" lcType="2" sfn="10" 
+                          subFrmNo="2" ueId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.deinit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.3
+#
+#       Desc:    Successful paging for a UE in Idle Mode and further
+#                test that rrc connection is established as per the
+#                trigger from UE. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Config"
+           "Send paging message for a UE, with UE-ID=1, which is in idle mode 
+            from RRC User. RRC should process this message and send it to UE. 
+            UE will respond with connection request message. RRC should 
+            process connecton request, and Successfully conection 
+            should be established with UE"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Bring up the cell and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect paging message in data request from RRC to RLC 
+      # on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" sfn="10" 
+                          subFrmNo="2" ueId="1"/>
+      </tapa.expect>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    3.4
+#
+#       Desc:    Successful paging for multiple UEs in Idle Mode  
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Config"
+           "Verify that paging can be done for multiple UEs in idle mode within
+            the same message. Verify that paging message is successfully encoded 
+            and sent to the respective UEs"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Send Paging message to RRC with multiple UEs. RRC will send the 
+      # message to RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="5" domainIdent="0" cellId="1" ueIdType="0" stateOfUe="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect data request from RRC to RLC on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" sfn="10" 
+                          subFrmNo="2" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+  
+#
+#
+#       Test:    3.5
+#
+#       Desc:    Un-successful paging for a UE in Idle Mode
+#                due to incorrect tbsSize.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Configuration"
+           "Send paging message for a UE, with UE-ID=1, which is in Idle mode,
+            from RRC User. RRC encodes this paging message but will not send to 
+            RLC as the tbsSize received from RRC user is smaller than the encoded
+            length."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="NHU_VER2"/>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Send Paging message to RRC. RRC will not send the message to 
+      # RLC as the tbsSize passed is 0, which is lesser than the
+      # length of the paging message after encoding.
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="3"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" tbsSize="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Check whether error indication is received
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.6
+#       Desc:    Unsuccessful UE Capability Information tranfer procedure
+#                when UE is in RRC_IDLE state
+#       Module:  CCM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.6">
+   <tapa.attribute scenarioType="FAILURE"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.3.5"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Unsuccessful UE Capability Information tranfer procedure
+       when UE is in RRC_IDLE state
+
+         This test case will check that if RRC-USER requests for UE Capability
+         Enquiry messages when UE is in RRC_IDLE state then RRC-USER will recieve
+         error indication. RRC-USER will send UE capability information before
+         establishing RRC Connection. RRC should send error idnication to RRC-USER.
+
+         Steps:
+         ------
+         1. RRC-USER sends UE Capability Enquiry to RRC
+         2. RRC sends errro indication to RC user.
+         3. Check that RRC-USER receives error indication.
+            (Error couse: "UE Context not available")
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+     # Expect Error indication at RRC user, Indicating
+     # Error type = Invalide header and Cause = UE Not configured
+     <tapa.expect>
+        <tapa.nhu.errind errorType = "9" errorCause="3"/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.7
+#       Desc:    Unsuccessful decoding of UE E-UTRA UE Capability container due to
+#                improper RAT type
+#       Module:  CCM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.7">
+   <tapa.attribute scenarioType="FAILURE"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.3.5"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Unsuccessful decoding of UE E-UTRA UE Capability container due to
+       improper RAT type
+
+         In this case RRC-USER will request decoding of UE Radio Capability
+         Information for RAT other than E-UTRA and UTRA. Since RRC does not support
+         decoding of UE Capability Container for the RATs other than E-UTRA and
+         UTRA, it will send error indication to RRC-USER.
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded UE Capability container of
+            other RATS (other than E-UTRA and UTRA).
+         2. RRC sends error indication to RRC-USER.
+         3. Check whether RRC-USER receives error indication for this
+            (Error couse: "Unsupported RAT" Error Type: "Validation failure")
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for invalide RAT/Message type
+      <tapa.send>
+         <tapa.nhu.decodereq fillInvalid="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.errind errorType = "8" errorCause="40"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.8
+#       Desc:    Successful UE Capability Information transfer procedure after
+#                Security is activated
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.8">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+         Successful UE Capability Information transfer procedure after
+         Security is activated.
+
+         In this test case RRC-USER will establish the connection and activate
+         the security at both the ends (eNB and UE) before starting UE
+         capability information transfer procedure. This is done as this
+         procedure can be started only after UE is in RRC_CONNECTED state. After
+         security is activated RRC-USER will send the UE Capability Enquiry
+         request to RRC. RRC will encode the message and sends to PDCP for
+         further transmission to UE. UE will send UE Capability Information
+         message to eNB. RRC receives this messages and decodes it before sending
+         it to RRC-USER.
+
+         Steps:
+         -----
+         1. Establish RRC Connection (Bring UE in RRC_CONNECTED State)
+         2. Activate Security Mode
+         3. RRC-USER sends UE Capability Enquiry to RRC
+         4. RRC sends data request to PDCP for UE Capability Enquiry
+         5. RRC receives data indication from PDCP for UE capability Information
+         6. RRC sends this response to RRC-USER as data indication.
+         7. Check whether RRC-USER receives data indication for this response
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="1"  />
+      </tapa.expect>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.9
+#       Desc:    Successful UE Capability Information transfer before Security is
+#                activated
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.9">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and A.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful UE Capability Information transfer before Security is
+       activated
+
+         In this test case RRC-USER will establish the connection but does not
+         activate the security before starting UE capability information transfer
+         procedure. This is done as this procedure can be started only after UE is
+         in RRC_CONNECTED state. More over according to sectionA.6 of 36.331, this
+         procedure can be initiated before security is activated. RRC-USER will
+         send the UE Capability Enquiry request to RRC. RRC will encode the
+         message and sends it to PDCP for further transmission to UE. UE will send
+         UE Capability Information message to eNB. RRC receives this messages and
+         decodes it before sending it to RRC-USER. Request and response messages
+         in this case are unprotected.
+
+         Steps:
+         -----
+         1. Establish RRC Connection (Bring UE in RRC_CONNECTED State)
+         2. RRC-USER sends UE Capability Enquiry to RRC
+         3. RRC sends data request to PDCP for UE Capability Enquiry
+         4. RRC receives data indication from PDCP for UE capability Information
+         5. RRC sends this response to RRC-USER as data indication.
+         6. Check whether RRC-USER receives data indication for this response
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="1"  />
+      </tapa.expect>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.10
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.10">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+        <tapa.dummy.pju.staind pdcpInstId="1" suId="0"
+                               ueId="1" cellId="1" cause="1"
+                               ueCap="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.staind ueId="1"  />
+      </tapa.expect>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+##################################################################################
+#       Test:    3.11
+#       Desc:    Successful decoding of UE UTRA Inter Rat Handover Message
+#                  without UE Capablity Container in it
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.11">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE UTRA Radio Capability container
+
+         In this case RRC-USER will request decoding of UE Radio Capability
+         Information that it would have received from UE Capability Information
+         Transfer procedure as UE Radio capability container for the RAT type
+         UTRA. RRC will decode this container using ASN.1 library and sends
+         decoded container (in the ASN.1 format) back to RRC-USER. No other lower
+         layers are involved here.
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded UTRA UE Radio Capability
+            container.
+         2. RRC decodes the UTRA UE Radio Capability container
+         3. RRC sends decoded UTRA UE Radio Capability container to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="10"/>
+      </tapa.send>
+
+      # Expect Succesful Decoded Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.decodecfm decMsgType="10"/>
+      </tapa.expect>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+##################################################################################
+#       Test:    3.12
+#       Desc:    Successful operation of UE Capability Info transfer procedure
+#                and decoding of E-UTRA UE capability container received from UE
+#                through UE Capability Info transfer procedure and Lower layer
+#                configuration initiated by RRC-USER as a result of this.
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.12">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful operation of UE Capability Info transfer procedure
+       and decoding of E-UTRA UE capability container received from UE
+       through UE Capability Info transfer procedure and Lower layer
+       configuration initiated by RRC-USER as a result of this.
+
+         In this test case RRC-USER will establish the connection and activate
+         the security at both the ends (eNB and UE) before starting UE
+         capability information transfer procedure. This is done as this
+         procedure can be started only after UE is in RRC_CONNECTED state. After
+         security is activated RRC-USER will send the UE Capability Enquiry
+         request to RRC. RRC will encode the message and sends to PDCP for
+         further transmission to UE. UE will send UE Capability Information
+         message to eNB. RRC receives this messages and decodes it before sending
+         it to RRC-USER. RRC-USER will request decoding of UE Radio Capability
+         Information that it would have received from UE Capability Information
+         Transfer procedure as UE Radio capability container for the RAT type
+         UTRA. RRC will decode this container using ASN.1 library and sends
+         decoded container (in the ASN.1 format) back to RRC-USER.
+         RRC-USER sends configuration request to lower layers
+
+         Steps:
+         -----
+         1. Establish RRC Connection (Bring UE in RRC_CONNECTED State)
+         2. Activate Security Mode
+         3. RRC-USER sends UE Capability Enquiry to RRC
+         4. RRC sends data request to PDCP for UE Capability Enquiry
+         5. RRC receives data indication from PDCP for UE capability Information
+         6. RRC sends this response to RRC-USER as data indication.
+         7. Check whether RRC-USER receives data indication for this response
+         8. RRC user sends configuration request to RRC
+         9. RRC sends configuration request to lower layers
+         10. Check that lower layer recieve configurationr request
+         11. RRC recieves configuration confirm from lower layers
+         12. RRC sends configuration configrm (positive) to RRC-USER
+         13. Check that RRC-USER receives config confirm
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="1"  />
+      </tapa.expect>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="12"/>
+      </tapa.send>
+
+      # Expect Succesful Decoded Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.decodecfm decMsgType="12"/>
+      </tapa.expect>
+      # Send Reconfiguration request
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+          msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+          cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+          addLcIdStr="3,4,5" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+          trChCfgDed="0" macSchedCfg="0"  valChk="0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+
+      # Expect Lower Layer configurations and ReCfg Cfm at RRC User
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1" />
+      </tapa.expset>
+
+      # Send Config confirm from RLC
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+      </tapa.send>
+
+      # Send Config confirm from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+      </tapa.send>
+
+      # Send Config confirm from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+      </tapa.send>
+
+      # Send Config confirm from MAC
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+      </tapa.send>
+
+      # Send Config confirm from MAC
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Expect config Confirm at RRC user
+      <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="1" />
+
+      # Send Conn Recfg Complete
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.datind        ueId="1" cellId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+   <tapa.cfg>
+      <tapa.rrc.init />
+   </tapa.cfg>
+   <tapa.test>
+   </tapa.test>
+   <tapa.clean>
+   </tapa.clean>
+   <tapa.shutdown>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+##################################################################################
+#       Test:    3.13
+#       Desc:    Successful decoding of UE UTRA Handover Msg With Radio
+#                 Capability container
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.13">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE UTRA Radio Capability container
+
+         In this case RRC-USER will request decoding of UE Radio Capability
+         Information that it would have received from UE Capability Information
+         Transfer procedure as UE Radio capability container for the RAT type
+         UTRA. RRC will decode this container using ASN.1 library and sends
+         decoded container (in the ASN.1 format) back to RRC-USER. No other lower
+         layers are involved here.
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded UTRA UE Radio Capability
+            container.
+         2. RRC decodes the UTRA UE Radio Capability container
+         3. RRC sends decoded UTRA UE Radio Capability container to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="10" ueCapPresent="1"/>
+      </tapa.send>
+
+      # Expect Succesful Decoded Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.decodecfm decMsgType="10"/>
+      </tapa.expect>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.14
+#       Desc:    Unsuccessful UE Capability Information tranfer procedure
+#                failure scenario due to SRB1 not configured.
+#       Module:  CCM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.14">
+   <tapa.attribute scenarioType="FAILURE"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.3.5"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+           "This test case tests the UE Capability Information tranfer procedure"
+           "failure scenario."
+
+           "Pretest includes RRC layer initialization and Cell Configuration."
+
+           "It involves sending of RRC Connection Request message to RRC from"
+           "PDCP. RRC on getting this message sends the message to RRC user."
+
+           "RRC user sends RRC Connection Setup message to RRC. RRC sends this"
+           "message to PDCP for transmission to UE."
+
+           "Before receiving RRC Connection Setup Complete message, RRC user"
+           "sends the UE Capability Enquiry message to RRC."
+
+           "RRC on receiving the message checks whether UE context exists for"
+           "for this UE and SRB1 is established. RRC finds the UE context"
+           "but since SRB1 is not established, RRC user issues error indication."
+           "RRC gives error indication to RRC user with error type 'invalid header'"
+           "and error cause as 'UE not configured'."
+
+           Steps:
+           "1. RRC user sends UE Capability Enquiry message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to SRB1 validation failure, RRC issues error indication to RRC
+               user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1" pdcpId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect RRC Connection Setup at RLC. Configuration request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+ 
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="2" spId="0" msgCategory="20" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+     #Expect Error indication at RRC user because UE Capability Enquiry 
+     #is sent before SRB1 establishment
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.15
+#       Desc:    Successful decoding of HO Command message
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.15">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE E-UTRA Radio Capability Container
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded E-UTRA UE Radio Capability
+            container.
+         2. RRC decodes the E-UTRA HO Command message
+         3. RRC sends decoded E-UTRA UE HO Command message  to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="8"/>
+      </tapa.send>
+
+      # Expect Succesful Decoded Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.decodecfm decMsgType="8"/>
+      </tapa.expect>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.16
+#       Desc:    Successful decoding of UE E-UTRA Capability Info Message
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.16">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE E-UTRA Radio Capability Container
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded E-UTRA UE Radio Capability
+            container.
+         2. RRC decodes the E-UTRA UE Capability info message
+         3. RRC sends decoded E-UTRA UE Capability info message to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="10"/>
+      </tapa.send>
+
+      # Expect Succesful Decoded Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.decodecfm decMsgType="10"/>
+      </tapa.expect>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+##################################################################################
+#       Test:    3.17
+#       Desc:    Unsuccessful decoding of UE E-UTRA Capability Info - NULL SDu
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.17">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE E-UTRA Radio Capability Container
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded E-UTRA UE Radio Capability
+            container.
+         2. RRC decodes the E-UTRA UE Capability info message
+         3. RRC sends decoded E-UTRA UE Capability info message to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="10" nullSdu="1"/>
+      </tapa.send>
+      <tapa.timeout/>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.18
+#       Desc:    Unsuccessful decoding of UE E-UTRA Capability Info -
+#                 DecodeCfm send failed
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.18">
+   <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3 and 6.3.6"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Successful decoding of UE E-UTRA Radio Capability Container
+
+         Steps:
+         -----
+         1. RRC-USER sends decode request for encoded E-UTRA UE Radio Capability
+            container.
+         2. RRC decodes the E-UTRA UE Capability info message
+         3. RRC sends decoded E-UTRA UE Capability info message to RRC-USER
+            through request confirm
+         4. Check whether RRC-USER receives properly decoded UE Radio Capability
+           Container.
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send Decode Request for E-UTRA UE Cap Container
+      <tapa.send>
+         <tapa.nhu.decodereq msgType="10" cfmFail = "1"/>
+      </tapa.send>
+      <tapa.timeout/>
+   </tapa.test>
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.19
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated - due to failure in sending 
+#                UE Capbaility Info  Dat Ind to User
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.19">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+         Successful UE Capability Information transfer procedure after
+         Security is activated.
+
+         In this test case RRC-USER will establish the connection and activate
+         the security at both the ends (eNB and UE) before starting UE
+         capability information transfer procedure. This is done as this
+         procedure can be started only after UE is in RRC_CONNECTED state. After
+         security is activated RRC-USER will send the UE Capability Enquiry
+         request to RRC. RRC will encode the message and sends to PDCP for
+         further transmission to UE. UE will send UE Capability Information
+         message to eNB. RRC receives this messages and decodes it before sending
+         it to RRC-USER.
+
+         Steps:
+         -----
+         1. Establish RRC Connection (Bring UE in RRC_CONNECTED State)
+         2. Activate Security Mode
+         3. RRC-USER sends UE Capability Enquiry to RRC
+         4. RRC sends data request to PDCP for UE Capability Enquiry
+         5. RRC receives data indication from PDCP for UE capability Information
+         6. RRC sends this response to RRC-USER as data indication.
+         7. Check whether RRC-USER receives data indication for this response
+
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" failInd="1" />
+      </tapa.send>
+
+      <tapa.timeout/>
+
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    3.20
+#
+#       Desc:    Verification of encode failure due to missing mandatory field
+#                for following messages:
+#                  Paging
+#                  UE Capability Enquiry
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.20">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Configuration"
+           "Send paging message for a UE, with UE-ID=1, which is in Idle mode,
+            from RRC User. RRC fails to encode this message due to tmsi not present
+            and returns error indication to RRC user."
+           "Also this test case involves the sending of UE Capability Enquiry with
+            missing mandatory field to RRC. RRC fails to encode the message and sends 
+            error indication to RRC user."
+
+         Steps:
+         ------
+         1. RRC-USER sends Paging and UE Capability Enquiry to RRC
+         2. RRC sends errro indication to RC user as encode fails.
+         3. Check that RRC-USER receives error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure cell1 and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0"  stateOfUe="1"
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" tmsiPres="FALSE" />
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+      # Expect error indication from RRC to RRC user on NHU interface
+      <tapa.expect>
+         <tapa.nhu.errind errorCause="0" errorType="7"/>
+      </tapa.expect>
+
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" rrcTransIdPres="0"/>
+      </tapa.send>
+
+     # Expect Error indication at RRC user, Indicating
+     # encode fail
+     <tapa.expect>
+         <tapa.nhu.errind errorCause="0" errorType="7" />
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.21
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated - Null Buffer passed from pju dat ind
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.21">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+      Unsuccessful UE Capability Information transfer procedure after
+      Security is activated - Null Buffer passed from pju dat ind
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" nullmBuf = "1"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.22
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated - Null pdcpId passed from pju dat ind
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.22">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+       Unsuccessful UE Capability Information transfer procedure after
+       Security is activated - Null pdcpId passed from pju dat ind
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="1" cellId="1" nullPdcpId = "1" cleanup="1"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.23
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated - Null pdcpId passed from pju dat CFM
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.23">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+          Unsuccessful UE Capability Information transfer procedure after
+          Security is activated - Null pdcpId passed from pju dat CFM
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" 
+               nullPdcpId = "1" cleanup="1"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+##################################################################################
+#       Test:    3.24
+#       Desc:    Unsuccessful UE Capability Information transfer procedure after
+#                Security is activated - Null Sdu passed from pju dat CFM
+#       Module:  CPM
+#       File:    nhac_tc3.xml
+##################################################################################
+<tapa.testcase id="3.24">
+  <tapa.attribute scenarioType="NORMAL"/>
+   <tapa.doc>
+      <tapa.rfc id="36.331" section="5.6.3"/>
+      <tapa.module id="lterrc"/>
+      <tapa.desc>
+         Unsuccessful UE Capability Information transfer procedure after
+         Security is activated - Null Sdu passed from pju dat CFM
+      </tapa.desc>
+      <tapa.longdesc/>
+   </tapa.doc>
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+      <tapa.ifndef>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init/>
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # RRC Conection Setup
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+      # initial Sec Activation
+	   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send UE Capability Enquiry Request from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq ueId="1" spId="0" msgCategory="1" msgType = "7" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0"
+            bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="1" cellId="1" 
+                     nullSdu= "1"/>
+      </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    3.25
+#
+#       Desc:    Successful paging for a UE in Idle Mode and then  rrc connection
+#                is established as per the trigger from UE. Now send a paging
+#                message to notify the CMAS indication  
+#
+#       Notes:   None
+#              
+#       Module:  rrc.pag
+#
+#       File:    nhac_tc3.xml
+#
+#
+<tapa.testcase id="3.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Pretest Cell Config"
+           "Send paging message for a UE, with UE-ID=1, which is in idle mode 
+            from RRC User. RRC should process this message and send it to UE. 
+            UE will respond with connection request message. RRC should 
+            process connecton request, and Successfully conection 
+            should be established with UE. Activate the initial security and send 
+            a paging message to notify the CMAS indication"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+      # Bring up the cell and common resources
+      <tapa.rrc.cellcfg cellId="1"/>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" isCMASIndEnabled="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect paging message in data request from RRC to RLC 
+      # on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" sfn="10" 
+                          subFrmNo="2" ueId="1"/>
+      </tapa.expect>
+
+      # Establish a rrc connection for the UE
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      
+      # Security Activation for UE in connected mode
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      # Send Paging message to RRC. RRC will send the message to 
+      # RLC on KWU interface
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="1" domainIdent="0" cellId="1" ueId="1" isCMASIndEnabled="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      # Expect data request from RRC to RLC on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" lcType="2" sfn="10" 
+                          subFrmNo="2" ueId="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     nhac_tc3.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     rcs              1. LTE RRC Initial Release.
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#*********************************************************************91*/
+
+

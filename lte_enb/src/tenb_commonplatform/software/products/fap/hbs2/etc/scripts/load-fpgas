@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 29102 $
+#
+FLASH_DIR=/mnt
+FLASH_DIR_FPGA=$FLASH_DIR/bank-active/fpga
+
+#
+# FPGA type table
+#
+# Type Revision ModState AltVersionName FPGAs
+#  5                      3.5           3x Spartan 3E 1600
+#  6                      4.0es         1x Spartan 6 LX150
+#  7                      4.0ewis       1x Spartan 6 LX150
+#  8                      4.0ewis       1x Spartan 6 LX150
+#
+HARDWARE_TYPE=`/mnt/dbx/mib-firkler -q HARDWARE_TYPE`
+
+# Ensure the bitfile peeler is executable
+cd $FLASH_DIR_FPGA
+chmod +x bitpeel
+
+# Load FPGA programming module
+#  Then call mdev manually to get /dev nodes without the need for hotplug
+modprobe devfpgaprog
+rm -f /dev/fpgaprog0
+mdev -s
+
+if [ "$HARDWARE_TYPE" = "6" ] || [ "$HARDWARE_TYPE" = "7" ] || [ "$HARDWARE_TYPE" = "8" ] ; then
+
+  # 4.0 Hardware
+  #  Wistron on Goudmeister board?
+  if [ "$HARDWARE_TYPE" = "6" ] ; then
+    FPGA_IMAGE_ROOT=v4es
+  else
+    FPGA_IMAGE_ROOT=v4ewis
+  fi
+
+  # Specific image or Node-B?
+  if [ -n "$1" ] ; then
+      FPGA_IMAGE_ROOT=${FPGA_IMAGE_ROOT}-${1}
+  else
+      FPGA_IMAGE_ROOT=${FPGA_IMAGE_ROOT}-node-b
+  fi
+
+  echo "FPGA:    $FPGA_IMAGE_ROOT" 1>&2
+
+  if [ -r "${FPGA_IMAGE_ROOT}.bgz" ] ; then
+    gunzip -c ${FPGA_IMAGE_ROOT}.bgz | ./bitpeel - > /dev/fpgaprog0
+  elif [ -r "${FPGA_IMAGE_ROOT}.bit" ] ; then
+    ./bitpeel ${FPGA_IMAGE_ROOT}.bit > /dev/fpgaprog0
+  else
+    echo "${FPGA_IMAGE_ROOT}.bgz/.bit is missing"
+  fi
+
+else
+
+  # 3.5 Hardware
+  chmod +x bitstitch
+
+  # Check if a specific image set should be loaded
+  if [ -n "$1" ] ; then
+      FPGA_IMAGE_ROOT=${1}_hbs2_type5_main
+  else
+      FPGA_IMAGE_ROOT=fpga_hbs2_type5_main
+  fi
+
+  echo "TYPE5 (3.5) FPGAs: $FPGA_IMAGE_ROOT"
+
+  # Create programming sequence and program
+  ./bitstitch $FPGA_IMAGE_ROOT > /dev/fpgaprog0
+fi
+
+# Remove the module and device for safety
+rmmod devfpgaprog
+mdev -s
+
+# END OF SCRIPT

@@ -1,0 +1,123 @@
+#!/bin/sh
+
+
+# format is Qos-startup $FAP_IP $FAP_CIR $EIR
+ 
+if [ $# -lt 3 ]; then
+    echo usage: QoS-startup FAP_IP_ADDR FAP_CIR EIR  
+    exit 1
+fi
+
+#echo Configuration of QoS
+SRCADDR=$1
+FAPBW=$2  #`expr $2 / 8`
+EIR=$3
+
+CNTP=80
+CRANAP=80
+CPSSTR=80
+COAM=80
+CPSINT=80
+CCS=80
+if [ $FAPBW -gt 512 ]; then
+	CCS=`expr $FAPBW - $CNTP - $CRANAP - $COAM - $CPSSTR - $CPSINT`
+fi
+
+echo CS rate is $CCS
+
+
+if [ -f /tmp/QoSenabled ]; then
+	echo "Deleting previous configuration"
+	tc qdisc del dev eth0 root
+else	
+	touch /tmp/QoSenabled
+fi	
+
+
+echo "Queue Structure configuration"
+tc qdisc add dev eth0 root handle 1: htb default 16
+
+tc class add dev eth0 parent 1: classid 1:1 htb rate ${FAPBW}kbit
+
+echo "NTP class"
+tc class add dev eth0 parent 1:1 classid 1:11 htb rate ${CNTP}kbit prio 1
+tc qdisc add dev eth0 parent 1:11 handle 21: dsmark indices 16 set_tc_index
+
+
+echo "RANAP class"
+tc class add dev eth0 parent 1:1 classid 1:12 htb rate ${CRANAP}kbit prio 2
+tc qdisc add dev eth0 parent 1:12 handle 22: dsmark indices 16 set_tc_index
+
+
+echo "CS class"
+tc class add dev eth0 parent 1:1 classid 1:13 htb rate ${CCS}kbit ceil ${EIR}kbit prio 3
+tc qdisc add dev eth0 parent 1:13 handle 23: dsmark indices 16 set_tc_index
+
+
+echo "PS Str class"
+tc class add dev eth0 parent 1:1 classid 1:14 htb rate ${CPSSTR}kbit ceil ${EIR}kbit prio 4
+tc qdisc add dev eth0 parent 1:14 handle 24: dsmark indices 16 set_tc_index
+
+
+echo "OAM class"
+tc class add dev eth0 parent 1:1 classid 1:15 htb rate ${COAM}kbit ceil ${EIR}kbit prio 5
+tc qdisc add dev eth0 parent 1:15 handle 25: dsmark indices 16 set_tc_index
+
+
+echo "PS interactive class"
+tc class add dev eth0 parent 1:1 classid 1:16 htb rate ${CPSINT}kbit ceil ${EIR}kbit prio 6
+tc qdisc add dev eth0 parent 1:16 handle 26: dsmark indices 16 set_tc_index
+
+
+# Filters
+tc filter add dev eth0 parent 1: protocol ip u32 \
+  match ip src $SRCADDR flowid 1:1  
+
+echo "NTP filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0x04 0xff flowid 1:11 
+tc filter add dev eth0 parent 21: protocol ip u32 \
+  match ip tos 0x04 0xff flowid 21:1
+
+echo "RANAP filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0xb8 0xff flowid 1:12 
+tc filter add dev eth0 parent 22: protocol ip u32 \
+  match ip tos 0xb8 0xff flowid 22:1
+
+echo "CS filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0x0C 0xff flowid 1:13 
+tc filter add dev eth0 parent 23: protocol ip u32 \
+  match ip tos 0x0C 0xff flowid 23:1
+
+echo "PS STR filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0x10 0xff flowid 1:14 
+tc filter add dev eth0 parent 24: protocol ip u32 \
+  match ip tos 0x10 0xff flowid 24:1
+
+echo "OAM filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0x14 0xff flowid 1:15 
+tc filter add dev eth0 parent 25: protocol ip u32 \
+  match ip tos 0x14 0xff flowid 25:1
+
+echo "PS INT filters"
+tc filter add dev eth0 parent 1:1 protocol ip u32 \
+  match ip tos 0x18 0xff flowid 1:16 
+tc filter add dev eth0 parent 26: protocol ip u32 \
+  match ip tos 0x18 0xff flowid 26:1
+
+
+echo "DSCP Tagging"
+## Default: PS interactive and OAM are BE, while everything else is EF
+tc class change dev eth0 classid 21:1 dsmark mask 0x01 value 0xb8
+tc class change dev eth0 classid 22:1 dsmark mask 0x02 value 0xb8
+tc class change dev eth0 classid 23:1 dsmark mask 0x03 value 0xb8
+tc class change dev eth0 classid 24:1 dsmark mask 0x04 value 0xb8
+tc class change dev eth0 classid 25:1 dsmark mask 0x05 value 0x00
+tc class change dev eth0 classid 26:1 dsmark mask 0x06 value 0x00
+
+echo ::: QoS configured :::
+

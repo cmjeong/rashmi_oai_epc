@@ -1,0 +1,665 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTEMAC
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    rgac_cmd1.xml
+#
+#     Sid:     $SID$
+#
+#     Prg:     Group Commands  
+#
+#*********************************************************************21*/
+
+#
+#
+#       Command: tapa.rg.rach
+#       
+#       Desc:    Commands to LTEMAC to perform RACH
+#       
+#       Notes:   None
+#              
+#       Module:  MAC
+#
+#       File:    rgac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rg.rach">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Commands to LTEMAC to perform RACH
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "This command will finish complete RA process"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/>
+         # Send RaReqInd for one rapId 
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.tfu.rareq.ind numRaRnti="1" suId="0">
+            <tapa.tfu.rareq raRnti="10" numRapId="1" rapIds="1" timingAdvs="3"
+               tpcs="1" cqiPres="TRUE" cqis="4"/>
+         </tapa.tfu.rareq.ind>
+      </tapa.send>
+
+      # Ue starts expecting raResp after 3 subframes within the raResp window.
+      # In this TC, it shall expect raResp in the first subframe after 3 Ttis.
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+      
+      # Expect RaResp for the rapId sent in RaReq
+      <tapa.expset>
+        <tapa.tfu.dat.req datReqs="1">
+           <tapa.tfu.rarsp.req raRnti="10"/>
+        </tapa.tfu.dat.req>
+        <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+           <tapa.tfu.pdcch.cntrl.req/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="6"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1" spId="1" >
+            <tapa.tfu.msg3.recp.req/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+   
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="3"/>
+   </tapa.send>
+
+   #Send CRC for Msg3
+   <tapa.send>
+      <tapa.tfu.crc.ind>
+         <tapa.tfu.crc isFailure="FALSE"/>
+      </tapa.tfu.crc.ind>
+   </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+
+   # Expect HARQ ACK in PHICH For MSG3
+   <tapa.expect>
+      <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+         <tapa.tfu.phich.cntrl.req isAck="TRUE"/>
+      </tapa.tfu.cntrl.req>
+   </tapa.expect>
+
+   # Send Message3 after receiving Message3 reception req.
+   # rg004.201 Fixed the CCCH sdu size 
+   <tapa.send>
+       <tapa.tfu.dat.ind datInds="1">
+          <tapa.tfu.dat isCcchSdu="TRUE" sduSize="6" />
+       </tapa.tfu.dat.ind>      
+   </tapa.send>   
+   
+
+   # Expect Message3 datReq on CCCH at RGU.
+   <tapa.expect>
+      <tapa.rgu.cdatind lcId="4"/>
+   </tapa.expect>
+   
+    # Send BO for Msg4 on RGU. 
+    <tapa.send>
+       <tapa.rgu.cstarsp lcId="4" lcType="3" bo="10"/>
+    </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/> 
+   </tapa.send>
+
+   # Expect CStatInd For MSG4
+   <tapa.expset>
+      <tapa.rgu.cstaind lcId="4"/>
+   </tapa.expset>
+
+   # Send Msg4 on RGU. 
+   <tapa.send>
+      <tapa.rgu.cdatreq lcId="4" lcType="3" />
+   </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+
+   # Expect Msg4 from MAC to PHY.
+   <tapa.expset>
+     <tapa.tfu.dat.req datReqs="1">
+        <tapa.tfu.pdsch.dat.req use="1" validate="FALSE"/>
+     </tapa.tfu.dat.req>   
+     <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+        <tapa.tfu.pdcch.cntrl.req saveTo="1"/>
+     </tapa.tfu.cntrl.req>
+   </tapa.expset>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="4"/>
+   </tapa.send>
+  
+   # Recv Hq Recp Req for Msg4. 
+   <tapa.expect>
+     <tapa.tfu.recp.req numRntis="1" spId="1">
+        <tapa.tfu.hq.recp.req/>
+     </tapa.tfu.recp.req>   
+   </tapa.expect>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="3" />
+   </tapa.send>
+
+   # Send ACK as feedback for Msg4. 
+   <tapa.send>
+     <tapa.tfu.hq.ind hqInds="1">
+        <tapa.tfu.hq />
+     </tapa.tfu.hq.ind>   
+  </tapa.send>
+   
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.rg.rachtdd1
+#       
+#       Desc:    Commands to LTEMAC to perform RACH for tdd configuration 1
+#       
+#       Notes:   None
+#              
+#       Module:  MAC
+#
+#       File:    rgac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rg.rachtdd1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Commands to LTEMAC to perform RACH
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "This command will finish complete RA process"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+         # Send RaReqInd for one rapId in the first special frame 
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+         # Send it in the 6th frequency index 
+      <tapa.send>
+         <tapa.tfu.rareq.ind numRaRntis="1">
+            <tapa.tfu.rareq raRnti="52" numRapId="1" rapIds="5" cqiPres="TRUE" cqis="4"/>
+         </tapa.tfu.rareq.ind>
+      </tapa.send>
+
+      # Ue starts expecting raResp after 3 subframes within the raResp window.
+      # In this TC, it shall expect raResp in the first DL subframe after 3 Ttis.
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="5"/>
+      </tapa.send>
+      
+      # Expect RaResp for the rapId sent in RaReq
+      <tapa.expset>
+        <tapa.tfu.dat.req datReqs="1">
+           <tapa.tfu.rarsp.req raRnti="52"/>
+        </tapa.tfu.dat.req>
+        <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+           <tapa.tfu.pdcch.cntrl.req/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="8"/>
+      </tapa.send>
+
+      # message 3 reception request afetr Ra Rsp
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1" spId="1">
+            <tapa.tfu.msg3.recp.req/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+   #Send CRC for Msg3
+   <tapa.send>
+      <tapa.tfu.crc.ind>
+         <tapa.tfu.crc isFailure="FALSE"/>
+      </tapa.tfu.crc.ind>
+   </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+   
+   # Expect HARQ ACK in PHICH For MSG3
+   <tapa.expect>
+      <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+         <tapa.tfu.phich.cntrl.req isAck="TRUE"/>
+      </tapa.tfu.cntrl.req>
+   </tapa.expect>
+   
+      # Send Message3 after receiving Message3 reception req.
+      <tapa.send>
+       <tapa.tfu.dat.ind datInds="1">
+          <tapa.tfu.dat  isCcchSdu="TRUE" sduSize="6" />
+       </tapa.tfu.dat.ind>      
+      </tapa.send>   
+      
+      # Expect Message3 datReq on CCCH at RGU.
+      <tapa.expect>
+         <tapa.rgu.cdatind lcId="4" instId="0"/>
+      </tapa.expect>
+   
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+
+    # Send BO for Msg4 on RGU.
+    <tapa.send>
+       <tapa.rgu.cstarsp lcId="4" lcType="3" bo="10" instId="0" />
+    </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+
+   # Expect CStatInd For MSG4
+   <tapa.expset>
+      <tapa.rgu.cstaind lcId="4" instId="0"/>
+   </tapa.expset>
+
+   # Send Msg4 on RGU.
+   <tapa.send>
+      <tapa.rgu.cdatreq lcId="4" lcType="3" instId="0" />
+   </tapa.send>
+
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="1"/>
+   </tapa.send>
+
+   # Expect Msg4 from MAC to PHY.
+   <tapa.expset>
+     <tapa.tfu.dat.req datReqs="1">
+        <tapa.tfu.pdsch.dat.req use="1" validate="FALSE"/>
+     </tapa.tfu.dat.req>
+     <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+        <tapa.tfu.pdcch.cntrl.req saveTo="1"/>
+     </tapa.tfu.cntrl.req>
+   </tapa.expset>
+   
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="7"/>
+   </tapa.send>
+
+   # Recv Hq Recp Req for Msg4.
+   <tapa.expect>
+     <tapa.tfu.recp.req numRntis="1" spId="1">
+        <tapa.tfu.hq.recp.req vldtNp="FALSE"/>
+     </tapa.tfu.recp.req>
+   </tapa.expect>
+   
+   <tapa.send>
+      <tapa.tfu.tti.ind numTti="3" />
+   </tapa.send>
+
+   # Send ACK as feedback for Msg4.
+   <tapa.send>
+     <tapa.tfu.hq.ind hqInds="1">
+        <tapa.tfu.hq isAck="TRUE"/>
+     </tapa.tfu.hq.ind>
+  </tapa.send>
+ 
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.rg.rachtdd2
+#       
+#       Desc:    Commands to LTEMAC to perform RACH for tdd configuration 2
+#       
+#       Notes:   None
+#              
+#       Module:  MAC
+#
+#       File:    rgac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rg.rachtdd2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Commands to LTEMAC to perform RACH
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "This command will finish complete RA process"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/>
+
+      # UE entry and config begin
+
+      # Send RaReqInd for one rapId in the first special frame 
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      # Send it in the 6th frequency index 
+      <tapa.send>
+         <tapa.tfu.rareq.ind numRaRntis="1">
+            <tapa.tfu.rareq raRnti="52" numRapId="1" rapIds="5" cqiPres="TRUE" cqis="4"/>
+         </tapa.tfu.rareq.ind>
+      </tapa.send>
+
+      # Ue starts expecting raResp after 3 subframes within the raResp window.
+      # In this TC, it shall expect raResp in the first DL subframe after 3 Ttis.
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect RaResp for the rapId sent in RaReq
+      <tapa.expset>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.rarsp.req raRnti="52"/>
+         </tapa.tfu.dat.req>
+         <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="9"/>
+      </tapa.send>
+
+      # message 3 reception request afetr Ra Rsp
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1" spId="1">
+            <tapa.tfu.msg3.recp.req/>
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="5"/>
+      </tapa.send>
+
+      #Send CRC for Msg3
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH For MSG3
+      <tapa.expect>
+         <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+            <tapa.tfu.phich.cntrl.req isAck="TRUE"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send Message3 after receiving Message3 reception req.
+      <tapa.send>
+         <tapa.tfu.dat.ind datInds="1">
+            <tapa.tfu.dat  isCcchSdu="TRUE" sduSize="6" />
+         </tapa.tfu.dat.ind>      
+      </tapa.send>   
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2"/>
+      </tapa.send>
+
+      # Expect Message3 datReq on CCCH at RGU.
+      <tapa.expect>
+         <tapa.rgu.cdatind lcId="4"  instId="0"/>
+      </tapa.expect>
+
+      # Send BO for Msg4 on RGU.
+      <tapa.send>
+         <tapa.rgu.cstarsp lcId="4" lcType="3" bo="10" instId="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect CStatInd For MSG4
+      <tapa.expset>
+         <tapa.rgu.cstaind lcId="4" instId="0"/>
+      </tapa.expset>
+
+      # Send Msg4 on RGU.
+      <tapa.send>
+         <tapa.rgu.cdatreq lcId="4" lcType="3" instId="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect Msg4 from MAC to PHY.
+      <tapa.expset>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req use="1" validate="FALSE"/>
+         </tapa.tfu.dat.req>
+         <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+            <tapa.tfu.pdcch.cntrl.req saveTo="1"/>
+         </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Recv Hq Recp Req for Msg4.
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1" spId="1">
+            <tapa.tfu.hq.recp.req />
+         </tapa.tfu.recp.req>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3" />
+      </tapa.send>
+
+      # Send ACK as feedback for Msg4.
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1">
+            <tapa.tfu.hq isAckLst="TRUE:FALSE:FALSE:FALSE"/>
+         </tapa.tfu.hq.ind>
+      </tapa.send>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.rg.UeInitTdd1
+#       
+#       Desc:    Commands to LTEMAC to perform UE Config in TDD Mode 1
+#       
+#       Notes:   None
+#              
+#       Module:  MAC
+#
+#       File:    rgac_cmd1.xml
+#
+#
+<tapa.command id="tapa.rg.UeInitTdd1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Commands to LTEMAC to perform UE Config in TDD Config1"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "This command will finish complete UE Config For Config Mode 1"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Do RACH init
+      <tapa.rg.rachtdd1/>
+
+      # Send UE config request
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.ue instId="0" />
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expect>
+         <tapa.crg.cfgcfm instId="0" />
+      </tapa.expect>
+
+      # Send UE config request
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.ue instId="5" />
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+  
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="6" />
+      </tapa.send>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.rg.UeInitTdd2
+#
+#       Desc:    Commands to LTEMAC to Initialize UE for UL/DL config 2
+#       
+#       Notes:   None
+#              
+#       Module:  MAC
+#
+#       File:    rgac_cmd.xml
+#
+#
+<tapa.command id="tapa.rg.UeInitTdd2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Commands to LTEMAC to Initialize UE for TDD UL/DL Config 2
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "This command will finish complete RA process and does the UE
+         Configuration"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+      #Do the RACH for Config 2
+      <tapa.rg.rachtdd2 />
+
+      # Send UE config request
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.ue  instId="0"/>
+      </tapa.send>
+
+      # Expect success in cfg cfm
+      <tapa.expect>
+         <tapa.crg.cfgcfm  instId="0"/>
+      </tapa.expect>
+
+      # Send UE config request
+      <tapa.send>
+      <tapa.rgr.cfgreq.cfg.ue />
+      </tapa.send>
+      # Expect success in cfg cfm
+      <tapa.expect>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="6" />
+      </tapa.send>
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+#/********************************************************************30**
+#
+#         End of file:
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+# 
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     ns   1. Initial Release.
+#             ---     sm   1. Fixed CCCU SDU size
+#$SID$        ---     gvj  1. LTE MAC 3.1 Release
+#*********************************************************************91*/
+#

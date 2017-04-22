@@ -1,0 +1,170 @@
+Phased Releases
+===============
+
+Phase 1 (dev leading up to 1.1):
+
+  DONE  
+  
+Phase 2 (first 1.1 release):
+
+  DONE
+    
+Phase 3: 33 man-days
+
+  - See details below.
+
+  - Adds some key MIB functionality:  
+    - [1905] Delete/unset attribute, both MIB API and mib-firkler, in-RAM and NV.
+    - [1906] Add validation messaging API.
+    /- Allow override of attribute volatility in object definition.
+    
+  - Various tidy ups and improvements in existing MIB code to make it easier
+    to work with and more maintainable.
+  
+Phase 4: 14 man-days
+
+  - See details below.
+
+  - Adds dynamic MO support e.g. to allow neighbour cells as separate managed objects.
+
+  - Further low priority fixes and tidy ups.
+
+  - MIB-related enhancements:  
+    - Autogenerate SNMP .MIB?  Separate .xml to specify mapping?
+    - Autogenerate TR069 mappings?
+
+Phase 3 Details
+===============
+
+In Mantis:
+
+
+- MIB definition:
+  X- Move more attribs to volatile.
+    - Add hbs2-iu-dev product?  Depends if we all have tr069/ipsec access.
+  X- Add target block error rate attribs?
+  Jon - 3 days
+  
+- XML processing:
+  - [1907] Make having common MIB XML more usable by merging files rather than including.
+    - Then can have separate factory and iu MIBs with e.g. MAC address and factory object stuff R/O in iu MIB.
+  /- Allow override of storageClass (in particular) per MO.
+  - [1908] Make forward declarations and #includes of validators unique even if spec'd multiple times in XML.
+  - [1909] Support hex in MIB XML min/max/default values.
+  Dan - 5 days
+
+- MIB functionality:
+  - [1763] Change subscriptions to indicate if values are all "initial" values.  Hmmm not as easy as first thought so may not do.
+  /- Work out what to do about local cache when setting MIB attribs.  What if validation fails?  Matt + I discussed
+    providing separate validate and set APIs and set will assert if validation fails.  Or could have a SetUnvalidatedMibAttrs()
+    that will mark local cache values as unvalidated until response is received.
+    - Further chat, agreed that being able to set local cache immediately is a "good thing" so separate validate and
+      set procedures is the way forward.  Set will assert on validation failures.
+  /- How to check and get default values?  Add getMibAttributeU32|S32|StringDefaultValue() ?  Or return MibAttributeValue object?
+  /- Existing MIB sends alarm on out-of-range.  Do we do this or leave it to client code?  I think leave it to client code...
+  - [1911] Add DN to get attributes.  
+  Jon - 5 days
+
+- [1912] General MIB code tidy ups:
+  - Could add functions to MibAttribute and MibAttributeValue base classes to deal with getting/setting/validating concrete types so
+    we can work through base class refs/ptrs more often and avoid nasty cast-downs?
+    -> Have now done some of this.
+  - Look at using MibAttributeValue(XXX) as member of MibAttribute to avoid having 2 very similar class hierarchies.
+  - Add GetValueAsString() and/or << operator to MibAttributeValue so don't have to switch on type to get string for NV and elsewhere.
+  - Consider using templates (urgh) for MibAttribute class for the different basic types.
+  - Drop NewMibFacade.cpp
+  - Flag warning/alarm/assert on supplying attribs to InitialiseMO() that aren't allowed.
+  - Sort out DN properly in set attributes.  Incl. have oam-snmp use correct DN for factory attribs.
+  - Rationalise client API e.g. MibAttributeValue* + MibParam*
+  - Migrate clients to new API (add object addressing etc)?
+  Jon and Dan - 10 days total
+
+- Related functionality:
+  /- Fix CliCmdMibParamDefaults.
+    - No longer required as we have HTML output.
+  - [1913] Consider replacement for oamMib_getParamStatus().
+  - [1913] Add CLI command to show:
+     - Deltas from defaults
+     - MIB schema version
+     - Whether attrib is explicitly set in NV
+  Jon - 5 days
+
+- Test/Utils/Investigations:
+  - [1916] Unit test create object, get/set attributes.
+  - [1917] Investigate why mib-firkler can be slow.  Seems to be related to amount of stuff in .nv file(s).
+  /- Update dump-enum-ids.
+  Dan - 5 days
+
+- New stuff, not on plan
+  - [1914] Add MAC address validator.
+  - [1914] Check validation of attribs on wrong object.
+  - [1914] Improve nvcheck step:
+    - Check both home-fap and standalone-fap in all builds.
+    - Allow certain changes like widening of valid range.
+
+Done:
+
+
+Phase 4 Details
+===============
+
+- XML processing:
+  - [1907] Warn if attribute declared in attributeDefs but not used on an object (XML validation, part of schema?).
+  Dan - 1 day
+
+- [1914] MIB functionality:
+  - Dynamic MO support including API to subscribe for changes to children.
+  - Move neighbour cells and other config to dynamic MOs.
+  - Add multiple attribute instances and migrate client side.
+  - Migrate single FAP object to multiple.
+  - Add sanity check on the 2 maps in MibSubscriptionManager?
+  - Expose "nv file error" from IniFormatNvStore so mib and mib-firkler can report errors.
+  - Flesh out ValidatorSerialNumber.
+  - Deal with multiple instances of attributes (XML schema + MO code, NV interface already supports it).
+  - Make upgrades after v1 force read-only on factory NV store?
+  Jon and Dan - 10 days total
+
+X- Fix oamLcd module.
+  - Defer until we need it.
+  Jon - 1 day
+  
+- [1915] Make process: 
+  - "make run" in libs/mib-core/unittest doesn't rebuild autogen'd files or mib library (make now works ok).  
+  - Suspect "make clean" in libs/mib-core/unittest won't clean everything (should ideally clean the gen'd header files and mib lib code).
+  - Commit autogen app as binary so will work on more platforms (doesn't build for FPGA build machine).
+  Jon or Dan - 2 days
+
+Done:
+
+
+Phase 1/2 Release Note
+======================
+
+For developers:
+- Describe how to add/edit attribs.
+- Describe MIB schema scheme and upgrade process.
+- No longer have to explicitly commit to NV.
+- CLI changes: oam.get/set now use UPPER_CASE_STYLE
+- Get/Subscribe won't return attribs for which we have no value.
+
+For customers, system test and customer support:
+- Lots of attribs now volatile.
+- Describe MIB schema scheme and upgrade process.
+- CLI changes: oam.get/set now use UPPER_CASE_STYLE but camelCase still supported in CLI.
+- DONT EDIT mib-params/factory or new .nv files.
+
+- Worked example of get/set e.g. configuring and getting intra-freq REM scan results 
+- Include MIB XML in release distro.
+- Explain reset to factory defaults incl. what doesn't change e.g. DHCP/static, IPSec config
+  for not sending intermediate certs, field engineering + test/dev settings
+
+Phase 3 Release Note
+====================
+
+TBD
+
+Phase 4 Release Note
+====================
+
+TBD
+

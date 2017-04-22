@@ -1,0 +1,218 @@
+# For  EPC messages when a peer's TEID not available
+#1. Create Session Request message on S5/S8
+#2. Create Session Request message on S4/S11, if for a given UE, the SGSN/MME has not yet obtained the Control TEID of the SGW.
+#3. Forward Relocation Request message.
+#4. Create Indirect Data Forwarding Tunnel Request message on S4/S11, if the SGW selected by the MME/S4-SGSN for indirect data forwarding is different from the SGW used as anchor.
+#5. Identification Request/Response messages.
+#6. Context Request message.
+#7. Relocation Cancel Request message except for the case where the old SGSN/MME has already been assigned the Tunnel Endpoint Identifier Control Plane of the new SGSN/MME.
+#8. Delete PDN Connection Set Request/Response messages.
+#9. Configuration Transfer Tunnel message.
+#10. RAN Information Relay message.
+#11. If a node receives a message for which it has no context, it shall respond with "Context not found" Cause in the corresponding response message to the sender. The TEID used in the GTPv2-C header in the response message shall be set to zero.
+#12. MBMS Session Start Request message.
+
+#Message   MsgName            MsgType   FuncPtr
+Message    CRTSESREQ           32        NULL
+Message    FWDRELREQ          133        NULL
+Message    CRTINDDATFWDTUNREQ  166       NULL
+Message    IDENTREQ           128        NULL
+Message    IDENTRSP           129        NULL
+Message    CTXREQ             130        NULL
+Message    RELCANCELREQ       139        NULL
+Message    DELPDNCONSETREQ     101       NULL
+Message    DELPDNCONSETRSP     102       NULL
+Message    CFGTFRTNL          141        NULL
+Message    RANINFORLY         152        NULL
+Message    MBMSESNSTRTREQ     231        NULL
+
+
+#TLIV   MsgType         IEType         IECode    IEClass  Instance  List
+#Create Session Request
+TLIV    CRTSESREQ       IMSI            1         M            0    FALSE
+TLIV    CRTSESREQ       MSISDN          76        C            0    FALSE
+TLIV    CRTSESREQ       ULI             86        C            0    FALSE
+TLIV    CRTSESREQ       SERVING_NWK     83        C            0    FALSE
+TLIV    CRTSESREQ       RAT_TYPE        82        M            0    FALSE
+TLIV    CRTSESREQ       INDICATION      77        C            0    FALSE
+TLIV    CRTSESREQ       FTEID           87        M            0    FALSE
+TLIV    CRTSESREQ       APN             71        M            0    FALSE
+TLIV    CRTSESREQ       SEL_MODE        128       C            0    FALSE
+TLIV    CRTSESREQ       PDN_TYPE        99        C            0    FALSE
+TLIV    CRTSESREQ       PAA             79        C            0    FALSE
+TLIV    CRTSESREQ       APN_RESTRICT    127       C            0    FALSE
+TLIV    CRTSESREQ       AMBR            72        C            0    FALSE
+TLIV    CRTSESREQ       PCO             78        C            0    FALSE
+TLIV    CRTSESREQ       BEARER_CNTX     93        M            0    TRUE
+TLIV    CRTSESREQ       BEARER_CNTX     93        C            1    FALSE
+TLIV    CRTSESREQ       TRACE_INFO      96        C            0    FALSE
+TLIV    CRTSESREQ       RECOVERY        3         C            0    FALSE
+TLIV    CRTSESREQ       CSID            132       C            0    FALSE
+TLIV    CRTSESREQ       CSID            132       C            1    FALSE
+TLIV    CRTSESREQ       UE_TIME_ZONE    114       C            0    FALSE
+TLIV    CRTSESREQ       CHARGING_CHAR   95        C            0    FALSE
+TLIV    CRTSESREQ       MEI             75        C            0    FALSE
+TLIV    CRTSESREQ       FTEID           87        C            1    FALSE
+TLIV    CRTSESREQ       EBI             73        C            0    FALSE
+TLIV    CRTSESREQ       PRIVATE_EXT     255       O            0    FALSE
+
+#FWDRELREQ
+TLIV    FWDRELREQ       IMSI                    1         M        0      FALSE
+TLIV    FWDRELREQ       FTEID                   87        M        0      FALSE
+TLIV    FWDRELREQ       PDN_CONN                109       M        0      TRUE
+TLIV    FWDRELREQ       FTEID                   87        M        1      FALSE
+TLIV    FWDRELREQ       FQDN                    136       C        0      FALSE
+TLIV    FWDRELREQ       GSM_KEY_TRIP            103       M        0      FALSE
+TLIV    FWDRELREQ       UMTS_KEY_CIPH_QUIN      104       M        0      FALSE
+TLIV    FWDRELREQ       GSM_KEY_CIPH_QUIN       105       M        0      FALSE
+TLIV    FWDRELREQ       UMTS_KEY_QUIN           106       M        0      FALSE
+TLIV    FWDRELREQ       EPS_SEC_QUAD_QUIN       107       M        0      FALSE
+TLIV    FWDRELREQ       UMTS_KEY_QUAD_QUIN      108       M        0      FALSE
+TLIV    FWDRELREQ       INDICATION              77        C        0      FALSE
+TLIV    FWDRELREQ       F_CONTAINER             118       C        0      FALSE
+TLIV    FWDRELREQ       F_CONTAINER             118       C        1      FALSE
+TLIV    FWDRELREQ       TARGET_ID               121       C        0      FALSE
+TLIV    FWDRELREQ       IPADDR                  74        C        0      FALSE
+TLIV    FWDRELREQ       IPADDR                  74        C        1      FALSE
+TLIV    FWDRELREQ       F_CAUSE                 119       C        0      FALSE
+TLIV    FWDRELREQ       F_CAUSE                 119       C        1      FALSE
+TLIV    FWDRELREQ       F_CONTAINER             118       C        2      FALSE
+TLIV    FWDRELREQ       F_CAUSE                 119       C        2      FALSE
+TLIV    FWDRELREQ       SEL_PLMN_ID             120       C        0      FALSE
+TLIV    FWDRELREQ       RECOVERY                3         C        0      FALSE
+TLIV    FWDRELREQ       TRACE_INFO              96        C        0      FALSE
+TLIV    FWDRELREQ       RFSP_ID                 114       C        0      FALSE
+TLIV    FWDRELREQ       RFSP_ID                 114       C        1      FALSE
+TLIV    FWDRELREQ       SRC_ID                  129       C        0       FALSE
+TLIV    FWDRELREQ       PRIVATE_EXT             255       O        0      FALSE
+
+#Create Indirect Data Forwarding Tunnel Request
+TLIV    CRTINDDATFWDTUNREQ  IMSI        1         C       0        FALSE
+TLIV    CRTINDDATFWDTUNREQ  FTEID       87        C       0        FALSE
+TLIV    CRTINDDATFWDTUNREQ  BEARER_CNTX 93        M       0        TRUE
+TLIV    CRTINDDATFWDTUNREQ  RECOVERY    3         C       0        FALSE
+TLIV    CRTINDDATFWDTUNREQ  PRIVATE_EXT 255       O       0        FALSE
+
+#Identification Request
+TLIV    IDENTREQ        ULI                     86        C        0      FALSE
+TLIV    IDENTREQ        PTMSI                   111       C        0      FALSE
+TLIV    IDENTREQ        PTMSI_SIG               112       C        0      FALSE
+TLIV    IDENTREQ        IPADDR                  74        O        0      FALSE
+TLIV    IDENTREQ        PORT                    126       C        0      FALSE
+TLIV    IDENTREQ        HOP_CNTR                113       O        0      FALSE
+TLIV    IDENTREQ        SERVING_NWK             83        C        0      FALSE
+TLIV    IDENTREQ        GUTI                    117       C        0       FALSE
+TLIV    IDENTREQ        COMP_REQ_MSG            116       C        0       FALSE
+TLIV    IDENTREQ        PRIVATE_EXT             255       O        0      FALSE
+
+#Identification Responce
+TLIV    IDENTRSP        CAUSE                   2         M        0      FALSE
+TLIV    IDENTRSP        IMSI                    1         C        0      FALSE
+TLIV    IDENTRSP        GSM_KEY_TRIP            103       C        0      FALSE
+TLIV    IDENTRSP        UMTS_KEY_CIPH_QUIN      104       C        0      FALSE
+TLIV    IDENTRSP        GSM_KEY_CIPH_QUIN       105       C        0      FALSE
+TLIV    IDENTRSP        UMTS_KEY_QUIN           106       C        0      FALSE
+TLIV    IDENTRSP        EPS_SEC_QUAD_QUIN       107       C        0      FALSE
+TLIV    IDENTRSP        UMTS_KEY_QUAD_QUIN      108       C        0      FALSE
+TLIV    IDENTRSP        TRACE_INFO              96        C        0      FALSE
+TLIV    IDENTRSP        PRIVATE_EXT             255       O        0      FALSE
+
+#Context Request
+TLIV    CTXREQ          IMSI                    1         C        0       FALSE
+TLIV    CTXREQ          ULI                     86        C        0       FALSE
+TLIV    CTXREQ          PTMSI                   111       C        0       FALSE
+TLIV    CTXREQ          PTMSI_SIG               112       C        0       FALSE
+TLIV    CTXREQ          COMP_REQ_MSG            116       C        0       FALSE
+TLIV    CTXREQ          FTEID                   87        C        0       FALSE
+TLIV    CTXREQ          PORT                    126       C        0       FALSE
+TLIV    CTXREQ          RAT_TYPE                82        C        0       FALSE
+TLIV    CTXREQ          INDICATION              77        O        0       FALSE
+TLIV    CTXREQ          HOP_CNTR                113       O        0       FALSE
+TLIV    CTXREQ          SERVING_NWK             83        C        0       FALSE
+TLIV    CTXREQ          GUTI                    117       C        0       FALSE
+TLIV    CTXREQ          PRIVATE_EXT             255       O        0       FALSE
+
+#Relocation Cancle Request
+TLIV    RELCANCELREQ    IMSI                    1         M        0      FALSE
+TLIV    RELCANCELREQ    F_CAUSE                 119       C        0      FALSE
+TLIV    RELCANCELREQ    PRIVATE_EXT             255       O        0      FALSE
+
+#Delete PDN Connection Set Request
+TLIV    DELPDNCONSETREQ CSID            132       C            0   FALSE
+TLIV    DELPDNCONSETREQ CSID            132       C            1    FALSE
+TLIV    DELPDNCONSETREQ CSID            132       C            2    FALSE
+TLIV    DELPDNCONSETREQ PRIVATE_EXT     255       O            0    FALSE
+
+#Delete PDN Connection Set Responce
+TLIV    DELPDNCONSETRSP CAUSE           2         M            0    FALSE
+TLIV    DELPDNCONSETRSP PRIVATE_EXT     255       O            0    FALSE
+
+
+#Configuration Transfer Tunnel
+TLIV    CFGTFRTNL       F_CONTAINER             118       M        0       FALSE
+TLIV    CFGTFRTNL       TARGET_ID               121       M        0       FALSE
+
+#RAN Information Relay
+TLIV    RANINFORLY      F_CONTAINER             118       M        0      FALSE
+TLIV    RANINFORLY      TARGET_ID               121       C        0      FALSE
+TLIV    RANINFORLY      PRIVATE_EXT             255       O        0      FALSE
+
+
+#MBMS Session Start Request
+
+TLIV    MBMSESNSTRTREQ  FTEID                   87        M        0       FALSE
+TLIV    MBMSESNSTRTREQ  TMGI                    150       M        0       FALSE
+TLIV    MBMSESNSTRTREQ  MBMS_SESS_DURATION      138       M        0       FALSE
+TLIV    MBMSESNSTRTREQ  MBMS_SERV_AREA          139       M        0       FALSE
+TLIV    MBMSESNSTRTREQ  MBMS_SESS_ID            140       C        0       FALSE
+TLIV    MBMSESNSTRTREQ  MBMS_FLOW_ID            141       C        0       FALSE
+TLIV    MBMSESNSTRTREQ  BEARER_QOS              80        M        0       FALSE
+TLIV    MBMSESNSTRTREQ  MBMS_IP_MULT_DIST       142       M        0       FALSE
+TLIV    MBMSESNSTRTREQ  RECOVERY                3         C        0       FALSE
+TLIV    MBMSESNSTRTREQ  PRIVATE_EXT             255       O        0       FALSE
+
+
+#GROUPED MsgName        GroupedIE       SubGroupeIe  SubIE        IEClass GrInst subGrpInst Instance List
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        EBI            M         0       0        0     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        BEARER_TFT     O         0       0        0     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        BEARER_QOS     M         0       0        0     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         0       0        0     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         0       0        1     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         0       0        2     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         0       0        3     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         0       0        4     FALSE
+
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        EBI            M         1       0        0     FALSE
+GROUPED  CRTSESREQ      BEARER_CNTX     NULLP        FTEID          C         1       0        0     FALSE
+
+#FWDRELREQ
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      APN            M      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      APN_RESTRICT   C      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      SEL_MODE       C      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      IPADDR         C      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      IPADDR         C      0       0          1      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      EBI            M      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      FTEID          M      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      FQDN           C      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      BEARER_CNTX    C      0       0          0      TRUE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      AMBR           M      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      CHARGING_CHAR  C      0       0          0      FALSE
+GROUPED  FWDRELREQ      PDN_CONN          NULLP      CNG_RPT_ACT    C      0       0          0      FALSE
+
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     EBI            M      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     BEARER_TFT     C      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     FTEID          M      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     FTEID          C      0       0          1      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     BEARER_QOS     M      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     F_CONTAINER    O      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     TRANS_ID       C      0       0          0      FALSE
+GROUPED  FWDRELREQ      BEARER_CNTX     PDN_CONN     BEARER_FLAGS   O      0       0          0      FALSE
+
+#CRTINDDATFWDTUNREQ
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP         EBI            M        0       0        0     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP         FTEID          C        0       0        0     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP         FTEID          C        0       0        1     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP         FTEID          C        0       0        2     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP         FTEID          C        0       0        3     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP        FTEID          C        0       0         4     FALSE
+GROUPED  CRTINDDATFWDTUNREQ BEARER_CNTX  NULLP        FTEID          C        0       0         5     FALSE

@@ -1,0 +1,1886 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE-MAC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases For Layer Manager
+#
+#     File:    rgac_tc1.xml
+#
+#     Sid:      rgac_tc16.xml@@/main/3 - Sat Jul 30 02:22:30 2011
+#
+#     Prg:     ns 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:hn:rgac_tc1.xml
+
+#
+#
+#       Test:    16.1
+#
+#       Desc:    To test Lower sap bind retries. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.1">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test lower sap bind retries"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Unbind Disable TFU SAP. Again send a BndReq, this time do not send
+         the reply. Expect MAX retries(2) from LRG. LRG status indication is 
+         expected after 2 retries."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="AUBND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.ubndreq/>
+      </tapa.expect>
+      
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+      
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect guardTmr="2000000">
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="8" cause="10" instId="5"/>
+      </tapa.expect>
+      <!--
+      -->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    16.2
+#
+#       Desc:    To test sap status. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.2">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test sap status"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "To test sap status."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STGEN" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_BND"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="AUBND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.ubndreq/>
+      </tapa.expect>
+      
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STRGUSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_BND"/>
+      </tapa.expect>
+      <!--
+      No wno RGR SAP at MAC Instance We might have to add Sta Req for Scheduler
+      Instance.
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STRGRSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_BND"/>
+      </tapa.expect>
+      -->
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STCRGSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_BND"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_UBND"/>
+      </tapa.expect>
+
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.send>
+         <tapa.tfu.bndcfm/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm sapState="LRG_BND"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    16.3
+#
+#       Desc:    To test cfg/sta/sts/cntrl without genCfg. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.3">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test cfg/sta/sts/cntrl without genCfg"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "To test cfg/sta/sts/cntrl without genCfg"
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.lrg.cfg.crgsap/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.cfgcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="STGEN" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STGEN" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" />
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    16.4
+#
+#       Desc:    To test Trace Indication generation. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.4">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test trace Indication generation trace Len less than Buffer Len."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "To test trace Indication generation  trace Len less than Buffer Len.."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      # Modified for SI Enhancement*/
+      <tapa.ifndef>
+         <tapa.flag id="RGR_SI_SCH"/>
+         <tapa.flag id="LTEMAC_HDFDD"/>
+      </tapa.ifndef>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+      
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SATRC" trcLen="10"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      # Send BO for Msg4 on RGU. 
+      <tapa.send>
+         <tapa.rgu.cstarsp cellId="3" lcId="1" lcType="1" bo="105" frameNum="0" subFrameNum="4"/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+      # Send a Tti to get Msg4 transmission scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+      <!--       
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+      -->
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.rgu.cstaind cellId="3" lcId="1" boSatisfied="TRUE"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.rgu.cdatreq spId ="0" cellId="3" lcId="1" lcType="1" bufSize="105"/>
+      </tapa.send>
+
+
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+      
+      # Expect TRACE IND from MAC to LM 
+      <tapa.expect>
+         <tapa.lrg.trcind/>
+      </tapa.expect>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.bch.dat.req/>
+         </tapa.tfu.dat.req>
+      </tapa.expect>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    16.5
+#
+#       Desc:    To test Trace Indication generation. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.5">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test trace Indication generation trace Len greater than Buffer Len."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "To test trace Indication generation  trace Len greater than Buffer Len.."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      # Modified for SI Enhancement*/
+      <tapa.ifndef>
+         <tapa.flag id="RGR_SI_SCH"/>
+         <tapa.flag id="LTEMAC_HDFDD"/>
+      </tapa.ifndef>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+      
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SATRC" trcLen="200"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      # Send BO for Msg4 on RGU. 
+      <tapa.send>
+         <tapa.rgu.cstarsp cellId="3" lcId="1" lcType="1" bo="105" frameNum="0" subFrameNum="4"/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+      # Send a Tti to get Msg4 transmission scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.rgu.cstaind cellId="3" lcId="1" boSatisfied="TRUE"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.rgu.cdatreq spId ="0" cellId="3" lcId="1" lcType="1" bufSize="105"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+      
+      # Expect TRACE IND from MAC to LM 
+      <tapa.expect>
+         <tapa.lrg.trcind/>
+      </tapa.expect>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.bch.dat.req/>
+         </tapa.tfu.dat.req>
+      </tapa.expect>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    16.6
+#
+#       Desc:    To test Trace Indication generation. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.6">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test trace Indication generation trace Len -1."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "To test trace Indication generation  trace Len -1."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      # Modified for SI Enhancement*/
+      <tapa.ifndef>
+         <tapa.flag id="RGR_SI_SCH"/>
+         <tapa.flag id="LTEMAC_HDFDD"/>
+      </tapa.ifndef>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+      
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SATRC" trcLen="-1"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      # Send BO for Msg4 on RGU. 
+      <tapa.send>
+         <tapa.rgu.cstarsp cellId="3" lcId="1" lcType="1" bo="105" frameNum="0" subFrameNum="4"/>
+      </tapa.send>
+
+      <tapa.delay delay="1"/>
+      # Send a Tti to get Msg4 transmission scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.rgu.cstaind cellId="3" lcId="1" boSatisfied="TRUE"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.rgu.cdatreq spId ="0" cellId="3" lcId="1" lcType="1" bufSize="105"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind cellId="3"/>
+      </tapa.send>
+      
+      # Expect TRACE IND from MAC to LM 
+      <tapa.expect>
+         <tapa.lrg.trcind/>
+      </tapa.expect>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.bch.dat.req/>
+         </tapa.tfu.dat.req>
+      </tapa.expect>
+
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    16.7
+#
+#       Desc:    To test various uncovered code legs in LRG. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.7">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test various uncovered code legs in LRG."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. Send sts request for general with action as RST.
+2. Send sts request individually for rgu, rgr, crg and tfu saps with action as RST.
+3. Send sts request with an invalid element.
+4. Send Status request for an invalid element.
+5. Send Control Request for an invalid element.
+6. Send the configuration for rgr, rgu, crg and tfu saps with invalid selector value.
+7. Try to send the general configuration twice.
+8. Try to disable the trc and usta (general elements) through control request. 
+9. Try sending the bind and unbind control request to TFU without configuring the sap.
+10. Configure tfu,rgr,crg,rgu sap and delete it.
+11. Send a bind confirm from tfu with status something differnt from CM_BND_OK.
+12."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.lrg.cfg.gen elmntType="STGEN"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.cfgcfm   status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_MSGTYPE"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STGEN" action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STTFUSAP"  action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STTFUSAP" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STRGUSAP"  action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STRGUSAP" />
+      </tapa.expect>
+      <!--
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STRGRSAP"  action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STRGRSAP"/>
+      </tapa.expect>
+      -->
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STCRGSAP"  action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STCRGSAP" />
+      </tapa.expect>
+
+      # some invalid elmnt
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="RGAC_RGR_SRS_BWCFG_7"  action="4"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="RGAC_RGR_SRS_BWCFG_7" status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expect>
+
+      # some invalid elmnt
+      <tapa.send>
+         <tapa.lrg.stareq elmntType="RGAC_RGR_SRS_BWCFG_7"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stacfm  status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_ELMNT"/>
+      </tapa.expect>
+
+      # some invalid elmnt
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="RGAC_RGR_SRS_BWCFG_7"/>
+      </tapa.send>
+
+      # Ecpect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm  status="LCM_PRIM_NOK" reason="LCM_REASON_INVALID_PAR_VAL"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADISIMM" elmntType="STGEN" subAction="SATRC"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADISIMM" elmntType="STGEN" subAction="SAUSTA"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADEL" elmntType="STRGUSAP"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm  elmntType="STRGUSAP"/>
+      </tapa.expect>
+      <!--
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADEL" elmntType="STRGRSAP"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm  elmntType="STRGRSAP"/>
+      </tapa.expect>
+      -->
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADEL" elmntType="STCRGSAP"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm  elmntType="STCRGSAP"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ADEL" elmntType="STTFUSAP"/>
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expset>
+         <tapa.lrg.cntrlcfm/>
+      # Ecpect Dummy TFU UnBind Request
+         <tapa.tfu.ubndreq/>
+      </tapa.expset>
+
+      # Send UnBind Request to RGU SAP
+      <tapa.send>
+         <tapa.rgu.ubndreq/>
+      </tapa.send>
+      
+      # Send UnBind Request to CRG SAP
+      <tapa.send>
+         <tapa.crg.ubndreq/>
+      </tapa.send>
+      <!-- 
+      # Send UnBind Request to RGR SAP
+      <tapa.send>
+         <tapa.rgr.ubndreq/>
+      </tapa.send>
+      -->
+      #Send Control Request to LTEMAC for ShutDown 
+      <tapa.send>
+         <tapa.lrg.cntrlreq action="ASHUTDOWN" elmntType="STGEN" />
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+      
+      #Send Control Request to LTEMAC for ShutDown 
+      <tapa.send>
+         <tapa.lrg.schcntrlreq action="ASHUTDOWN" elmntType="STGEN" />
+      </tapa.send>
+      
+      # Expect Dummy TFU UnBind Request
+      <tapa.expect>
+         <tapa.tfu.sch.ubndreq instId="5" spId="1"/>
+      </tapa.expect>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    16.8
+#
+#       Desc:    To test Lower sap bind retries. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.8">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test lower sap bind retries at Scheduler"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Unbind Disable TFU SAP at Scheduler. Again send a BndReq, this time do not send
+         the reply. Expect MAX retries(2) from LRG. LRG status indication is 
+         expected after 2 retries."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+      #Initialize CELL
+      <tapa.rg.cellInit/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.lrg.schcntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.lrg.schcntrlreq suId="0" spId="0" action="AUBND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.sch.ubndreq instId="5" spId="1"/>
+      </tapa.expect>
+      
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5" />
+      </tapa.expect>
+      
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.schcntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.sch.bndreq instId="5" spId="1"/>
+      </tapa.expect>
+      
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect guardTmr="2000000">
+         <tapa.tfu.sch.bndreq spId="1" />
+      </tapa.expect>
+      
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.lrg.sch.staind category="2" event="8" cause="10"/>
+      </tapa.expect>
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    16.9
+#
+#       Desc:    To test Other Scenarios. 
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.9">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test lower sap bind retries at Scheduler"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Other scenarios at LRG,CRG, RGR and TFU interfaces"
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send General Configuration for LTEMAC
+      <tapa.send>
+         <tapa.lrg.cfg.gen tmrRes="10"/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+      # Ecpect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+      
+
+      #Send Bind Request for RGU SAP without Configuring It. 
+      <tapa.send>
+         <tapa.rgu.bndreq/>
+      </tapa.send>
+      # Expect Status Indication for SAP Not available 
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="0" cause="2" />
+      </tapa.expect>
+      # Expect negative Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgu.bndcfm status="2" />
+      </tapa.expect>
+      #Send Unbind Without Binding
+      <tapa.send>
+         <tapa.rgu.ubndreq/>
+      </tapa.send>
+
+      #Send RGU  SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.rgusap/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+      #Send Bind Request for RGU SAP
+      <tapa.send>
+         <tapa.rgu.bndreq/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgu.bndcfm  />
+      </tapa.expect>
+      # Expect Status Indication for Bind Enabled 
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="256" cause="0" />
+      </tapa.expect>
+
+      #Send Bind Request for RGU SAP
+      <tapa.send>
+         <tapa.rgu.bndreq/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgu.bndcfm  />
+      </tapa.expect>
+      
+      #Send Bind Request for RGU SAP without Configuring It. 
+      <tapa.send>
+         <tapa.crg.bndreq/>
+      </tapa.send>
+      # Ecpect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="0" cause="2" />
+      </tapa.expect>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.crg.bndcfm status="2" />
+      </tapa.expect>
+
+      #Send Unbind Without Binding
+      <tapa.send>
+         <tapa.crg.ubndreq/>
+      </tapa.send>
+
+      #Send CRG  SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.crgsap/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+      #Send Bind Request for CRG SAP
+      <tapa.send>
+         <tapa.crg.bndreq/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.crg.bndcfm  />
+      </tapa.expect>
+      # Expect Status Indication for Bind Enabled 
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="257" cause="0" />
+      </tapa.expect>
+
+      #Send TFU Cfg Request
+      <tapa.send>
+         <tapa.lrg.cfg.tfusap/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+      #Expect Cntrl Confirm from LTE MAC
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.schcntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+      #Send Bind Request for RGR SAP without configuring it.
+      <tapa.send>
+         <tapa.rgr.bndreq/>
+      </tapa.send>
+      # Expect negative Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgr.bndcfm status="2" instdId="1" />
+      </tapa.expect>
+
+      # Send Cntrl request to Scheduler to Enable TFU Sap without configure it.
+      <tapa.send>
+         <tapa.lrg.schcntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5" status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      #Send RGR/TFU SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.schins numSaps="1" instId="5" rgr_suId="0" rgr_spId="0"
+            tfu_suId="0" tfu_spId="1" bndTimerValue="5" />
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.schcfgcfm instId="5"/>
+      </tapa.expect>
+      #Send Unbind Without Binding
+      <tapa.send>
+         <tapa.rgr.ubndreq/>
+      </tapa.send>
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.schcntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm />
+      </tapa.expect>
+      #Send Bind Request for RGR SAP
+      <tapa.send>
+         <tapa.rgr.bndreq/>
+      </tapa.send>
+      # Expect Positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgr.bndcfm instdId="1" />
+      </tapa.expect>
+      # Expect Status Indication for Bind Enabled 
+      <tapa.expect>
+         <tapa.lrg.sch.staind category="2" event="258" cause="0" />
+      </tapa.expect>
+      #Send Bind Request for RGR SAP Again
+      <tapa.send>
+         <tapa.rgr.bndreq/>
+      </tapa.send>
+      # Expect Postive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgr.bndcfm instdId="1" />
+      </tapa.expect>
+      #Send Control Request to Enable TFU SAP at Scheduler
+      <tapa.send>
+         <tapa.lrg.schcntrlreq instId="5" suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL" instId="5"/>
+      </tapa.expect>
+      #Expect positive Control Confirm from LTE MAC
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.sch.bndreq instId="5" spId="1" />
+      </tapa.expect>
+      #Send Dummy TFU Bind Confirm
+      <tapa.send>
+         <tapa.tfu.sch.bndcfm suId="0" instId="5" spId="1"/>
+      </tapa.send>
+      # Expect Status Indication for SAP Not available 
+      <tapa.expect>
+         <tapa.lrg.sch.staind instId="5" category="2" event="11" cause="256" />
+      </tapa.expect>
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    16.10
+#
+#       Desc:    To test Un solicited Status Indication in case of Lower Layer
+#                bind request.
+#
+#       Notes:   None
+#              
+#       Module:  Configuration 
+#
+#       File:    rgac_tc1.xml
+#
+<tapa.testcase id="16.10">>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test status indication when lower layer bound"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "When lower TFU bind request sent stack should send control confirm
+         with NOK first and then send TFU bind request to Physical layer and
+         then stack should send un solicited status indication if USTA enabled
+         and then send confirm received from physical layer."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send General Configuration for LTEMAC
+      <tapa.send>
+         <tapa.lrg.cfg.gen tmrRes="10"/>
+      </tapa.send>
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.cntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+
+      # Expect Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm/>
+      </tapa.expect>
+      
+      #Send RGU  SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.rgusap/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Bind Request for RGU SAP
+      <tapa.send>
+         <tapa.rgu.bndreq/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgu.bndcfm  />
+      </tapa.expect>
+
+      # Expect Status Indication for Bind Enabled 
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="256" cause="0" />
+      </tapa.expect>
+
+      #Send CRG  SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.crgsap/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Bind Request for CRG SAP
+      <tapa.send>
+         <tapa.crg.bndreq/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.crg.bndcfm  />
+      </tapa.expect>
+
+      # Expect Status Indication for Bind Enabled 
+      <tapa.expect>
+         <tapa.lrg.staind category="2" event="257" cause="0" />
+      </tapa.expect>
+
+      #Send TFU Cfg Request
+      <tapa.send>
+         <tapa.lrg.cfg.tfusap/>
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.cfgcfm/>
+      </tapa.expect>
+
+      #Send Control Request to Enable TFU SAP
+      <tapa.send>
+         <tapa.lrg.cntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+      
+      #Expect Cntrl Confirm from LTE MAC
+      <tapa.expect>
+         <tapa.lrg.cntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL"/>
+      </tapa.expect>
+
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.bndreq/>
+      </tapa.expect>
+
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.schcntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      #Send Bind Request for RGR SAP without configuring it.
+      <tapa.send>
+         <tapa.rgr.bndreq/>
+      </tapa.send>
+
+      # Expect negative Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.rgr.bndcfm status="2" instdId="1" />
+      </tapa.expect>
+
+      # Send Cntrl request to Scheduler to Enable TFU Sap without configure it.
+      <tapa.send>
+         <tapa.lrg.schcntrlreq suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5" status="LCM_PRIM_NOK" reason="LCM_REASON_GENCFG_NOT_DONE"/>
+      </tapa.expect>
+
+      #Send RGR/TFU SSAP Configuration to LTEMAC */
+      <tapa.send>
+         <tapa.lrg.cfg.schins numSaps="1" instId="5" rgr_suId="0" rgr_spId="0"
+            tfu_suId="0" tfu_spId="1" bndTimerValue="5" />
+      </tapa.send>
+
+      # Expect positive Configuration Confirm from MAC
+      <tapa.expect>
+         <tapa.lrg.schcfgcfm instId="5"/>
+      </tapa.expect>
+
+      #Send Unbind Without Binding
+      <tapa.send>
+         <tapa.rgr.ubndreq/>
+      </tapa.send>
+
+      # Enable USTA
+      <tapa.send>
+         <tapa.lrg.schcntrlreq elmntType="STGEN" action="AENA" subAction="SAUSTA" />
+      </tapa.send>
+
+      # Expect Negative Cntrl Confirm
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm />
+      </tapa.expect>
+
+
+      #Send Control Request to Enable TFU SAP at Scheduler
+      <tapa.send>
+         <tapa.lrg.schcntrlreq instId="5" suId="0" spId="0" action="ABND" elmntType="STTFUSAP" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm status="LCM_PRIM_OK_NDONE" reason="LCM_REASON_NOT_APPL" instId="5"/>
+      </tapa.expect>
+
+      # Expect Dummy TFU Bind Request
+      <tapa.expect>
+         <tapa.tfu.sch.bndreq instId="5" spId="1" />
+      </tapa.expect>
+
+      #Send Dummy TFU Bind Confirm
+      <tapa.send>
+         <tapa.tfu.sch.bndcfm suId="0" instId="5" spId="1"/>
+      </tapa.send>
+
+      # Expect Status Indication for SAP Not available 
+      <tapa.expect>
+         <tapa.lrg.sch.staind instId="5" category="2" event="11" cause="256" />
+      </tapa.expect>
+
+      #Expect positive Control Confirm from LTE MAC
+      <tapa.expect>
+         <tapa.lrg.schcntrlcfm instId="5"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    16.11
+#
+#       Desc:    To validate numPduTxmit statistics in tfu and rgu interface
+#
+#       Notes:   None
+#              
+#       Module:  Configuration
+#
+#       File:    rgac_tc16.xml
+#
+#
+<tapa.testcase id="16.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+        "To validate numPduTxmit statistics in tfu and rgu interface"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef>
+         <tapa.flag id="TFU_TDD"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      <tapa.rg.dbgDeInitAll/>
+      #Initialize CELL (configure min bandwidth)
+      <tapa.rg.cellInit/>
+      #Initialize UE
+      <tapa.rg.UeInit.grp16 maxUlHqTx="4" ueBr="4000"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+      # Configure bi-directional non-GBR DTCHs for default UE 
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch lcId="3" lcgId="0" dir="3" lcType="4"
+            ulQci="8"/>
+      </tapa.send>
+
+      # Expect configuration confirm after the TTI
+      <tapa.expset> 
+         <tapa.crg.cfgcfm/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch lcId="3" lcgId="0" dir="3" lcType="4"
+            ulQci="8" instId="5"/>
+      </tapa.send>
+
+      # Configure UL LCG on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg lcgId="0" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect configuration confirm after the TTI
+      <tapa.expset> 
+         <tapa.rgr.cfgCfm instId="5"/>
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expset>
+
+      # Send SR Indication for default UE
+     <tapa.send>
+        <tapa.tfu.sr.ind>
+           <tapa.tfu.sr/>
+        </tapa.tfu.sr.ind>
+     </tapa.send>
+
+      # Send a TTI to schedule SR
+      <tapa.send lc="TRUE">
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 0 and do basic validations of the grant
+      <tapa.expect>
+        <tapa.tfu.cntrl.req numCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req saveTo="1" vldtGrant="TRUE" vldtTx="TRUE"
+            isUlGrant="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send 4 (UL_SCHED_DELTA (=2) + 4 TTIs (for Ue to transmit) - TFU_DELTA
+      # (=2 in advance that we expect datRecpReq)
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+     <tapa.tfu.recp.req numRntis="1">
+        <tapa.tfu.pusch.recp.req use="1" vldtDatRecp="TRUE" saveTo="2"/>
+     </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+     
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+        <tapa.tfu.cntrl.req numCntrlReq="1">
+           <tapa.tfu.phich.cntrl.req isAck="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expect>
+
+      # Send data indication using TB size recieved in the grant
+      <tapa.send>
+       <tapa.tfu.dat.ind datInds="1">
+          <tapa.tfu.dat use="2" lcId="3" addLongBsr="TRUE" bsr0="5"
+            bsr1="12" bsr2="45" bsr3="60"/>
+       </tapa.tfu.dat.ind>
+      </tapa.send>
+      
+      # Expect datInd at RLC
+      <tapa.expect>
+         <tapa.rgu.ddatind lchTb1Data="3,1"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STRGUSAP"  action="4"/>
+      </tapa.send>
+
+      # Expect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STRGUSAP" numPduTxmit="2" numPduRcvd="1"
+           numPduDrop="0"  validateSts="TRUE"/>
+      </tapa.expect>
+      
+      # Send BO
+      <tapa.send>
+         <tapa.rgu.dstarsp lcId="3" lcType="4" bo="105"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind />
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expset>
+         <tapa.rgu.dstaind lchTb1Data="3" />
+        <tapa.tfu.cntrl.req numCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req isUlGrant="TRUE" vldtTx="TRUE" saveTo="2" vldtGrant="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+      
+      <tapa.send>
+         <tapa.rgu.ddatreq lchTb1Data="3" lcType="4"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.tfu.tti.ind />
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expset>
+         <tapa.tfu.cntrl.req numCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req/>
+         </tapa.tfu.cntrl.req>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req />
+         </tapa.tfu.dat.req>
+      </tapa.expset>
+      
+      <tapa.send>
+         <tapa.lrg.stsreq elmntType="STTFUSAP"  action="4"/>
+      </tapa.send>
+
+      # Expect Sta Confirm
+      <tapa.expect>
+         <tapa.lrg.stscfm elmntType="STTFUSAP" numPduTxmit="3" numPduRcvd="2"
+           numPduDrop="0"  validateSts="TRUE"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rg.macDeInit.grp16/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#/********************************************************************30**
+#
+#         End of file:     rgac_tc16.xml@@/main/3 - Sat Jul 30 02:22:30 2011
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+# 
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1      ---     sm   1. Initial Release.
+#/main/2      ---     sm   1. Initial Release.
+#             rg004.201 rnt  1. Modified for SI Enhancement
+#/main/3      ---     gvj  1. LTE MAC 3.1 Release
+#$SID$      ---        rt  1. LTE MAC 4.1 Release
+#*********************************************************************91*/

@@ -1,0 +1,126 @@
+#!/bin/bash
+
+#
+# hbs2-rrc
+#
+
+#
+# Lists of files for use by scripts that build tftpall and stop-apps scripts.
+# Common ones are handled automatically.
+#
+APP_FILES="oam oam-snmp oam-rem watchdogd mib-firkler rrc rrm l1 l2 post-office clogd"
+
+#
+# Do the stuff common for HBS2s.
+#
+TOP=../../../..
+. $TOP/products/fap/hbs2/etc/do-distro-fap-hbs2
+
+echo "--- hbs2-rrc specific ---"
+
+#
+# Copy apps.
+#
+echo "Copying apps."
+FAP_APPS=$FAP_APPS" $TOP/apps/fap/management/oam/obj/$PRODUCT/$HARDWARE/$BUILD/oam \
+            $TOP/apps/fap/management/update/obj/$PRODUCT/$HARDWARE/$BUILD/sw-update \
+            $TOP/apps/fap/management/oam-snmp/obj/$PRODUCT/$HARDWARE/$BUILD/oam-snmp \
+            $TOP/apps/fap/management/oam-rem/obj/$PRODUCT/$HARDWARE/$BUILD/oam-rem \
+            $TOP/apps/fap/management/mib-firkler/obj/$PRODUCT/$HARDWARE/$BUILD/mib-firkler \
+            $TOP/apps/fap/rrc/obj/$PRODUCT/$HARDWARE/$BUILD/rrc \
+            $TOP/apps/fap/rrm/obj/$PRODUCT/$HARDWARE/$BUILD/rrm \
+            $TOP/apps/fap/clogd/obj/$PRODUCT/$HARDWARE/$BUILD/clogd \
+            $TOP/apps/fap/l1/obj/$PRODUCT/$HARDWARE/$BUILD/l1 \
+            $TOP/apps/fap/l2/obj/$PRODUCT/$HARDWARE/$BUILD/l2 \
+            $TOP/apps/fap/watchdogd/obj/$PRODUCT/$HARDWARE/$BUILD/watchdogd \
+            $TOP/apps/fap/post-kernel-boot-actions/obj/$HARDWARE/$BUILD/post-kernel-boot-actions \
+            $TOP/apps/utilities/validate-ip-configuration/obj/$PRODUCT/$HARDWARE/$BUILD/validate-ip-configuration \
+            $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/configure_backhaul.sh \
+            $TOP/products/fap/hbs2/$PRODUCT/etc/scripts/firewall.sh"
+
+if [ "$HARDWARE" != "hbs2-4" ] ; then
+  FAP_APPS+=$TOP/apps/utilities/l1-test
+fi
+
+cp $CP_OPTIONS $FAP_APPS $OUTPUT_DIR_APPS
+
+#
+# Optionally copy .gdb's
+#
+. $TOP/products/fap/hbs2/etc/copy-gdbs
+
+#
+# Create the sys-root for debugging on 2-4
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-sys-root
+fi
+
+#
+# Strip applications and libraries for V4
+# 
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+. $TOP/products/fap/hbs2/etc/do-strip
+fi
+
+#
+# Copy config files in addition to those in common do-distro scripts.
+#
+echo "Copying config files."
+# TODO - are these actually used in hbs2-rrc?
+cp $CP_OPTIONS $TOP/products/fap/etc/config/nas-iu-configuration \
+               $TOP/products/fap/etc/config/nas-ue-ip-configuration \
+               $OUTPUT_DIR_LOCAL_CFG
+
+cp $CP_OPTIONS $TOP/products/fap/etc/snmp/3waysnmp.conf \
+               $OUTPUT_DIR_LOCAL_CFG
+
+#
+# Copy medium-range receive FPGA image.
+#
+if [ "$HARDWARE" = "hbs2-3-5" ] ; then
+  echo "Copying medium-range FPGA image."
+  cp $CP_OPTIONS $TOP/products/fap/hbs2/hbs2-rrc/etc/fpga_hbs2_type5_main_rx_mediumrange.bgz $OUTPUT_DIR_FPGA/fpga_hbs2_type5_main_rx.bgz
+fi
+
+#
+# Copy common installation scripts.
+# See also FAP_INSTALL_PACKAGE_CONTENTS, to be included in a release package the file in question
+# needs to be in _both_ lists!
+#
+echo "Copying common installation scripts."
+FAP_COMMON_INSTALL_SCRIPTS=
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/$HARDWARE/installUpdate "
+FAP_COMMON_INSTALL_SCRIPTS=$FAP_COMMON_INSTALL_SCRIPTS" $TOP/products/fap/hbs2/etc/scripts/StopAppsForUpdate "
+cp $CP_OPTIONS $FAP_COMMON_INSTALL_SCRIPTS $OUTPUT_DIR
+
+#
+# TAR it up for easy install on HBS2. 
+# Note that the outer .tar package is actually a gzipped tar but must retain the
+# .tar file extension because the NSN FGW software has the extension hard coded
+# into it at the moment so changing it results in much wailing and gnashing of teeth.
+#
+# Inner tarball.
+echo "Creating inner tarball."
+echo " -> ${DISTRO_INNER_FILE_NAME}"
+(cd $OUTPUT_DIR && tar -cf $DISTRO_INNER_FILE_NAME config install/config install/dbx install/kernel install/etc install/fpga install/lib)
+
+# Outer tarball.
+echo "Creating outer tarball."
+
+# List of ingredients to include in upgrade packages for all releases. UpdateInfo.txt
+# and inner tarball ($DISTRO_INNER_FILE_NAME) are mandatory, all others are optional.
+#
+# See also FAP_COMMON_INSTALL_SCRIPTS, to be included in a release package the file
+# in question needs to be in _both_ lists!
+FAP_INSTALL_PACKAGE_CONTENTS="UpdateInfo.txt $DISTRO_INNER_FILE_NAME installUpdate"
+
+cp $CP_OPTIONS $TOP/products/fap/hbs2/$PRODUCT/etc/$HARDWARE/UpdateInfo.txt $OUTPUT_DIR
+
+DISTRO_OUTER_FILE_NAME=${DISTRO_FILE_NAME_STEM}.tar
+(cd $OUTPUT_DIR && md5sum $FAP_INSTALL_PACKAGE_CONTENTS  > $DISTRO_FILE_NAME_STEM.md5)
+(cd $OUTPUT_DIR && tar -czf ${DISTRO_OUTER_FILE_NAME} ${FAP_INSTALL_PACKAGE_CONTENTS} ${DISTRO_FILE_NAME_STEM}.md5)
+
+echo "--- done hbs2-rrc specific ---"
+
+# END OF SCRIPT

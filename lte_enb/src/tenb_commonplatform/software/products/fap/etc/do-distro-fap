@@ -1,0 +1,177 @@
+#!/bin/bash
+
+#
+# This may be called by more specific do-distro's to do
+# the stuff that is common for all FAP distributions.
+#
+
+echo "--- FAP common ---"
+
+if [ ! $PRODUCT ]; then
+  echo "PRODUCT must be set."
+  exit
+fi
+
+if [ ! $TOP ]; then
+  echo "TOP must be set."
+  exit
+fi
+
+if [ ! $BUILD ]; then
+  echo "BUILD must be set."
+  exit
+fi
+
+if [ ! $HARDWARE ]; then
+  echo "HARDWARE must be set."
+  exit
+fi
+
+#
+# Set up convenience variables.
+#
+OUTPUT_DIR=distro/$HARDWARE/$BUILD
+OUTPUT_DIR_APPS=$OUTPUT_DIR/install/dbx
+OUTPUT_DIR_KERNEL=$OUTPUT_DIR/install/kernel
+OUTPUT_DIR_FPGA=$OUTPUT_DIR/install/fpga
+OUTPUT_DIR_LOCAL_CFG=$OUTPUT_DIR/install/config
+OUTPUT_DIR_COMMON_CFG=$OUTPUT_DIR/config
+OUTPUT_DIR_RADCAL=$OUTPUT_DIR_COMMON_CFG/radiocal
+OUTPUT_DIR_ETC=$OUTPUT_DIR/install/etc
+OUTPUT_DIR_LIB=$OUTPUT_DIR/install/lib
+OUTPUT_DIR_GDB=$OUTPUT_DIR/install/gdb
+OUTPUT_DIR_CERT=$OUTPUT_DIR/certificates
+CP_OPTIONS=--preserve
+
+# For quick builds, don't copy unless source is newer
+if [ -n "$BUILD_QUICK" ] ; then
+  CP_OPTIONS+=" -u"
+fi
+
+#
+# Create dirs.
+#
+echo "Creating/emptying $OUTPUT_DIR dir and subdirs."
+mkdir -p $OUTPUT_DIR
+rm -rf $OUTPUT_DIR/*
+mkdir -p $OUTPUT_DIR_APPS
+mkdir -p $OUTPUT_DIR_KERNEL
+mkdir -p $OUTPUT_DIR_COMMON_CFG
+mkdir -p $OUTPUT_DIR_LOCAL_CFG
+mkdir -p $OUTPUT_DIR_RADCAL
+mkdir -p $OUTPUT_DIR_FPGA
+mkdir -p $OUTPUT_DIR_ETC
+mkdir -p $OUTPUT_DIR_LIB
+mkdir -p $OUTPUT_DIR_GDB
+
+#
+# Copy radio calibration files.
+#
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+echo "Copying HBS2-4 radio calibration files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/radiocal/plat-v4/adf4602_rx_default.cal $OUTPUT_DIR_RADCAL
+else
+echo "Copying HBS2-3.5 radio calibration files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/radiocal/plat-v3.5/adf4602_rx_default.cal $OUTPUT_DIR_RADCAL
+fi
+cp $CP_OPTIONS $TOP/products/fap/etc/config/radiocal/adf4602_tx_default.cal $OUTPUT_DIR_RADCAL
+
+#
+# Copy config files
+# These may get overwritten by a more product-specific do-distro.
+#
+echo "Copying NAS config files."
+cp $CP_OPTIONS $TOP/products/fap/etc/config/nas-system-configuration $OUTPUT_DIR_LOCAL_CFG
+
+#
+# Copy apps for all FAP products.
+#
+echo "Adding post-office."
+FAP_APPS=$FAP_APPS" $TOP/apps/fap/post-office/obj/$PRODUCT/$HARDWARE/$BUILD/post-office"
+echo "Adding fap-flash apps."
+FAP_APPS=$FAP_APPS" $TOP/apps/utilities/fap-flash/obj/$HARDWARE/$BUILD/fap-flash"
+
+#
+# Copy libs
+#
+echo "Copying libs and modules."
+cp -r $TOP/products/fap/etc/lib/* $OUTPUT_DIR_LIB
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+  cp $TOP/thirdparty/oss/libs/arm9-linux/libasn1code.so $OUTPUT_DIR_LIB
+fi
+cp $TOP/libs/bin/threeway/$HARDWARE/$BUILD/*.so $OUTPUT_DIR_LIB 2> /dev/null
+cp $TOP/libs/bin/threeway/$PRODUCT/$HARDWARE/$BUILD/*.so $OUTPUT_DIR_LIB 2> /dev/null
+find $OUTPUT_DIR_LIB -name ".svn" -type d -print0 | xargs -0 rm -rf
+chmod -f a+x $OUTPUT_DIR_LIB/*.so
+
+#
+# Copy other scripts.
+#
+echo "Copying scripts."
+cp $CP_OPTIONS $TOP/products/fap/etc/scripts/run-app $OUTPUT_DIR_APPS
+chmod +x $OUTPUT_DIR_APPS/run-app
+cp $CP_OPTIONS $TOP/products/fap/etc/scripts/mem-monitor $OUTPUT_DIR_APPS
+chmod +x $OUTPUT_DIR_APPS/mem-monitor
+cp $CP_OPTIONS $TOP/apps/fap/management/oam/reboot-fap $OUTPUT_DIR_APPS
+chmod +x $OUTPUT_DIR_APPS/reboot-fap
+cp $CP_OPTIONS $TOP/products/fap/etc/scripts/restart-apps $OUTPUT_DIR_APPS
+chmod +x $OUTPUT_DIR_APPS/restart-apps
+
+#
+# Copy MIB XHTML file.
+#
+echo "Copying MIB XHTML."
+cp $CP_OPTIONS $TOP/libs/common/mib-common/obj/$PRODUCT/generic/generic/fap-mib*.html $OUTPUT_DIR_ETC
+
+#
+# Copy stuff for test/debug.
+#
+echo "Adding The Protocol Professor."
+FAP_APPS=$FAP_APPS" $TOP/apps/utilities/the-proto-prof/obj/$HARDWARE/$BUILD/the-proto-prof"
+
+echo "Adding CLI."
+FAP_APPS=$FAP_APPS" $TOP/apps/utilities/cli/obj/$PRODUCT/$HARDWARE/$BUILD/cli"
+
+#
+# Store SVN version if not bypassed.
+#
+if [ -z "$BUILD_QUICK" ] ; then
+
+  echo "Getting SVN version."
+
+  # Get information about current SVN version.
+  CWD=`pwd`
+  cd $TOP
+
+  # Get SVN revision suitable for use in file names.
+  chmod +x apps/utilities/bin/svnutil
+  SVNVERSION=`apps/utilities/bin/svnutil version .`
+  SVNINFO=`svn info`
+  echo "SVN Version: ${SVNVERSION}"
+
+  # Change back to original dir.
+  cd $CWD
+
+else
+
+  echo "Omitting SVN version (BUILD_QUICK set)."
+
+  SVNVERSION="unknown"
+  SVNINFO="BUILD_QUICK set"
+
+fi
+
+# Build up the name of the distro tarballs.
+MANUFACTURER=Radisys
+HARDWARE_NICE=`echo $HARDWARE | sed 's/\(hbs2-\)\(.*\)/\2/' | sed 's/-/./'`
+BUILD_NICE=`echo $BUILD | sed 's/\(bfin-uclinux-\)\(.*\)/\2/'`
+DISTRO_NAME=${MANUFACTURER}_${PRODUCT}_${HARDWARE_NICE}_${BUILD_NICE}
+DISTRO_FILE_NAME_STEM=${DISTRO_NAME}_v${SVNVERSION}
+DISTRO_INNER_FILE_NAME=${DISTRO_FILE_NAME_STEM}_manual.tar
+GDBS_FILE_NAME=gdbs_${PRODUCT}_${HARDWARE_NICE}_${BUILD_NICE}_v${SVNVERSION}.tar.gz
+
+echo "Product: ${PRODUCT} for ${BUILD}" > $OUTPUT_DIR_ETC/build-version.txt
+echo "${SVNVERSION}" >> $OUTPUT_DIR_ETC/build-version.txt
+echo "${SVNINFO}" >> $OUTPUT_DIR_ETC/build-version.txt
+
+echo "--- done FAP common ---"

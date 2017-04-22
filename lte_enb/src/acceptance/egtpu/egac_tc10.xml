@@ -1,0 +1,5191 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc10.xml
+#
+#     Sid:   
+#
+#     Prg:     kc
+#
+#*********************************************************************21*/
+
+#
+#       Test:    10.1
+#
+#       Desc:   Receive bind confrom from TUCL with invalied pst structure 
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with invalied pst structure 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"  invalPst="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.2
+#
+#       Desc:   Receive bind confrom from TUCL when general config is not done
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL when general config is not done
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" genCfgDone="FALSE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_BNDCFM"
+                          cause = "LCM_CAUSE_INV_STATE" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      #Enable Gen Config which was disabled earlier
+     <tapa.send>
+         <tapa.leg.cntrl.cfg procId="200"/>
+     </tapa.send>     
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+
+      # Send Shutdown
+      <tapa.send lc="TRUE">
+         <tapa.leg.cntrl.shutdown procId="200"/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.3
+#
+#       Desc:   Receive bind confrom from TUCL with SuId more than maximum no of TSaps
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with SuId more than maximum no of TSaps 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="10" status="LCM_PRIM_OK" procId="200"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_BNDCFM"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.4
+#
+#       Desc:   Receive bind confrom from TUCL with TSapCb NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with TSapCb NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" invalTsap="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_BNDCFM"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.5
+#
+#       Desc:   Receive connection confrom from TUCL with invalied pst structure
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.5">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with invalied pst structure
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+  
+ 
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" invalPst="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.6
+#
+#       Desc:   Receive connection confrom from TUCL with localAddr as NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.6">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with localAddr as NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" localAddrNull="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_PAR_VAL" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.7
+#
+#       Desc:   Receive connection confrom from TUCL with serverCb as NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.7">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with serverCb as NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+    
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" invalServerCb="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_PAR_VAL" type = "LEG_PAR_TSRV" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.8
+#
+#       Desc:   Receive connection confrom from TUCL with suConnId more than the max no of servers
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.8">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with suConnId more than the max no of servers
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+    
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" suConId="20"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.9
+#
+#       Desc:  Receive connection confrom from TUCL with invalied tptState 
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.9">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with invalied tptState
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+    
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" invalTptState="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.10
+#
+#       Desc:   Receive UDatIndication from TUCL, with invalied pst
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.10">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+            Receive UDatIndication from TUCL, with invalied pst
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" invalPst="TRUE"/>
+        </tapa.send>
+ 
+     <tapa.delay delay="2" />
+ 
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.11
+#
+#       Desc:   Receive UDatIndication from TUCL, with SrcAddr NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.11">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL, with SrcAddr NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="300"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" invalSrcAddr="TRUE"/>
+        </tapa.send>
+ 
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_UDATIND"
+                          cause = "LCM_CAUSE_INV_PAR_VAL" type = "LEG_PAR_TSRV" procId="300"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.12
+#
+#       Desc:   Receive UDatIndication from TUCL, with mBuf NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.12">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL, with mBuf NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="300"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" mBufNull="TRUE"/>
+        </tapa.send>
+ 
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_UDATIND"
+                          cause = "LCM_CAUSE_INV_PAR_VAL" type = "LEG_PAR_TSAP" procId="300"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.13
+#
+#       Desc:  Receive UDatIndication from TUCL, with TSapCb NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.13">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL, with TSapCb NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="300"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" invalTSapCb="TRUE"/>
+        </tapa.send>
+ 
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_UDATIND"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="300"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.14
+#
+#       Desc:  Receive UDatIndication from TUCL, with serverCb NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.14">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL, with serverCb NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" suId="1" pass="TRUE" suConId="0" procId="300" invalServerCb="TRUE"/>
+        </tapa.send>
+ 
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.discreq spId="0" procId="300" choice="1" />
+      </tapa.expect>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.15
+#
+#       Desc:   Receive UDatIndication from TUCL,with invalied TPT state
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.15">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL,with invalied TPT state
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" invalTptState="TRUE"/>
+        </tapa.send>
+
+      <tapa.delay delay="2" /> 
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.16
+#
+#       Desc:   Receive UDatIndication from TUCL,with suConnId more than the max number of servers
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.16">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive UDatIndication from TUCL,with suConnId more than the max number of servers
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="20" procId="300"/>
+        </tapa.send>
+ 
+      <tapa.delay delay="2" /> 
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.17
+#
+#       Desc:   Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_UBNDDIS
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.17">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_UBNDDIS
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" invalTsapCbState="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="2" /> 
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.18
+#
+#       Desc:   Receive bind confrom from TUCL with result type as CM_BND_NOK
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.18">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with result type as CM_BND_NOK
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" faildResult="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_NOK" procId="200" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.19
+#
+#       Desc:   Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_WAIT_BNDDIS
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.19">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_WAIT_BNDDIS
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"  invalTsapCbState1="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap 
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERNAL" event = "LCM_EVENT_BND_OK"
+                          cause = "LEG_CAUSE_SAP_BNDDIS" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.20
+#
+#       Desc:  Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_WAIT_BNDDIS
+               and result type as CM_BND_NOK
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.20">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with tsapCb state as LEG_TSAP_WAIT_BNDDIS
+               and result type as CM_BND_NOK
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"  invalTsapCbState1="TRUE"  faildResult="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_NOK" procId="200" reason="LCM_REASON_INVALID_STATE" />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    10.21
+#
+#       Desc:   Receive bind confrom from TUCL with tsapCb state as invlaid state
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.21">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with tsapCb state as invlaid state
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"  invalTsapCbState2="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_NOK" procId="200" reason="LCM_REASON_INVALID_STATE" />
+      </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.22
+#
+#       Desc:  Receive connection confrom from TUCL when general config is not done 
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.22">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL when general config is not done
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+    
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" genCfgDone="FALSE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      #Enable Gen Config which was disabled earlier
+     <tapa.send>
+         <tapa.leg.cntrl.cfg procId="200"/>
+     </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.delay delay="10"/>
+      # Send Shutdown
+      <tapa.send lc="TRUE">
+         <tapa.leg.cntrl.shutdown procId="200"/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.23
+#
+#       Desc:  Receive connection confrom from TUCL,with tSapCb as NULL
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.23">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL,with tSapCb as NULL
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+       
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" invalTsap="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.24
+#
+#       Desc:  Receive connection confrom from TUCL,with tSapCb state other than LEG_TSAP_BNDENA
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.24">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL,with tSapCb state other than LEG_TSAP_BNDENA
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+      
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" invalTsapCbState="TRUE"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_STATE" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.25
+#
+#       Desc:   Receive connection confrom from TUCL,with suId more than the max 
+                number of TSaps
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.25">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+            Receive connection confrom from TUCL,with suId more than the max
+            number of TSaps
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+    
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200"  suConId="1"/>
+      </tapa.send>
+
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="200"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      <tapa.send>
+         <tapa.hit.concfm  procId="200" suId="20"/>
+      </tapa.send>
+
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_CONCFM"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="200"/>
+      </tapa.expect>
+
+      # suppress Alarms
+      <tapa.directive alarm="FALSE"/>
+
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.26
+#
+#       Desc:   Receive UDatIndication from TUCL, with invalied pst
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.26">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+            Receive UDatIndication from TUCL, with invalied pst
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+      <tapa.eg.mme1.sgw1.dtucl.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" procId="200" suConId="1"/>
+      </tapa.expect>
+
+      # Send enable unsoliited status control Request
+      <tapa.send>
+         <tapa.leg.cntrl.usta procId="300"/>
+      </tapa.send>
+
+      # Expect Cfg Confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="300"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+     # Create new response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind suId="1" spId="1" pass="TRUE" suConId="0" procId="300" genCfgDone="FALSE"/>
+        </tapa.send>
+ 
+      #Expect Status Indication of invalid Sap
+      <tapa.expect>
+      <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event = "LEG_EVENT_HIT_UDATIND"
+                          cause = "LCM_CAUSE_INV_SAP" type = "LEG_PAR_TSAP" procId="300"/>
+      </tapa.expect>
+
+      #Enable Gen Config which was disabled earlier
+     <tapa.send>
+         <tapa.leg.cntrl.cfg procId="200"/>
+     </tapa.send>
+
+   
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.delay delay="10"/>
+      # Send Shutdown
+      <tapa.send lc="TRUE">
+         <tapa.leg.cntrl.shutdown procId="200"/> 
+      </tapa.send>
+
+      # Expect Shutdown Control Confirm  
+      <tapa.expect>
+         <tapa.leg.cntrlcfm procId="200"/>
+      </tapa.expect>
+
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    10.27
+#
+#       Desc:   Receive bind confrom from TUCL with invalied pst structure 
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.27">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive bind confrom from TUCL with invalied pst structure 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5" maxBndRetry="1"
+                suId="0" selector="2" procId="200" bndTmCfg.enb="TRUE" bndTmCfg.val="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+      <tapa.delay delay="100" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.28
+#
+#       Desc:   Receive connection confrom from TUCL with invalied pst structure
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.28">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Receive connection confrom from TUCL with invalied pst structure
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" opnSrvRetryCnt="1" opnSrvTmr.enb="TRUE" opnSrvTmr.val="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1" opnSrvTmr.enb="TRUE" opnSrvTmr.val="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+ 
+      <tapa.delay delay="20" />
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"/>
+      </tapa.send>
+
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+
+       <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+      </tapa.expset>
+
+      <tapa.delay delay="20" />
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    10.29
+#
+#       Desc:   Send DIscInd with invalid parameters
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.29">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               "Send DIscInd with invalid parameters"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" opnSrvRetryCnt="1" opnSrvTmr.enb="TRUE" opnSrvTmr.val="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+ 
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"/>
+      </tapa.send>
+
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.discind procId="200" choice="2"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.hit.disccfm procId="200" choice="2"/>
+      </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.30
+#
+#       Desc:   Send DIscCFM with invalid parameters
+#
+#       Ref:    None
+#
+#       Notes:  None
+#              
+#       Module: LI Module
+#
+#       File:   egac_tc10.xml
+#
+<tapa.testcase id="10.30">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               "Send DIscInd with invalid parameters"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeType="LEG_GTP_ENT_MME"   nmbMaxTnls="10" maxTunlArrSz="3" procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200"/>
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug  procId="200"  />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  procId = "200"/>
+      </tapa.expect>
+    
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap  procId="200"  sapId="2" intfType="EGT_GTP_INT_UNKNWN" echo="TRUE"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+   
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap sapId="1" intfType="EGT_GTP_INT_S11" procId="200" />
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap tSapId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL"
+                dstProcId="100" dstEntId="ENTHI"  dstInstId="5"
+                suId="0" selector="2" procId="200" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm tSapId="0" procId="200" />
+      </tapa.expect>
+
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver  lSapId="0" tptSrvId="0" 
+         isDfltSrv="TRUE" port="2123" uSapId="2" address="127.0.0.1" procId="200" opnSrvRetryCnt="1" opnSrvTmr.enb="TRUE" opnSrvTmr.val="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver lSapId="0" tptSrvId="1" procId="200"  
+         isDfltSrv="FALSE" port="3123" uSapId="1" address="127.0.0.1"/>
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  procId="200" />
+      </tapa.expect>
+ 
+   
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" procId="200" />
+      </tapa.send>
+
+       <tapa.expect>
+         <tapa.hit.bndreq suId="2" spId="0" procId="200" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" procId="200"/>
+      </tapa.send>
+
+
+      <tapa.expset>
+         <tapa.hit.servopenreq suConId="0" procId="200"  />
+         <tapa.hit.servopenreq suConId="1" procId="200"  />
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" procId="200" />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.hit.disccfm procId="200" choice="1"/>
+      </tapa.send>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.31
+#
+#       Desc:   Send a unrelated response to CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="10.31">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                Send a unrelated response to CSR.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq suId="0" suConId="1" />
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_MB_CMND"
+                 pass="FALSE" seqNo="0" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    10.32
+#
+#       Desc:   Send a unrelated response to CSR.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: Dummy Tucl Module
+#
+#       File:   egac_tc9.xml
+#
+<tapa.testcase id="10.32">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+                Send a unrelated response to CSR.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+<tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.dtucl.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" 
+                intfType="EGT_GTP_INT_S11" crtFlag="TRUE"
+                spId="1" transId="1" t3TmrVal="1"
+                lclPort="3123" rmtPort="3124"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      # Expect Message at DTUCL
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq suId="0" suConId="1" />
+      </tapa.expect>
+
+     # Create new unrelated response from DTUCL and indicate to EG
+     <tapa.send>
+         <tapa.hit.udatind spId="1" msgType="EGT_GTPC_MSG_CB_RSP"
+                 pass="FALSE" seqNo="0" teidValue="1" 
+                intfType="EGT_GTP_INT_S11" suConId="1"/>
+        </tapa.send>
+
+      # Expect 3 retransmission
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.expect waittmr="10000">
+         <tapa.hit.udatreq save="FALSE" suId="0" suConId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+    <tapa.egtp.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    10.33
+#
+#       Desc:   Verify the successful exchange of Command Message
+#               b/w MME and SGW with same seq no
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="10.33">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+         "Verify the successful exchange of Command Message b/w MME and SGW"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as SGW and PGW
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" 
+             crtFlag="TRUE" spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" 
+               rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" 
+             teid="1" spId="1" procId="300" addInterfaceType="11" teidValue="1" 
+             transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" 
+            suId="1" procId="200"/>
+      </tapa.expect>
+  
+      <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" intfType="EGT_GTP_INT_S11" 
+            crtFlag="FALSE" seqNoPres="TRUE" seqNo="8388609" spId="1" procId="200" transId="1" 
+            addInterfaceType="10" lclPort="3123" rmtPort="2124" t3TmrVal="100" 
+            lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+       <tapa.send>
+        <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" intfType="EGT_GTP_INT_S11" 
+            crtFlag="FALSE" seqNoPres="TRUE" seqNo="8388609" spId="1" procId="200" transId="1" 
+            addInterfaceType="10" lclPort="3123" rmtPort="2124" t3TmrVal="100" 
+            lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+   
+ 
+      
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#/********************************************************************30**
+#
+#         End of file:
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     mm           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Testcases updated
+#*********************************************************************91*/

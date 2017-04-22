@@ -1,0 +1,204 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// CliApplication.h
+//
+// See header file for documentation.
+//
+// Copyright Radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include <string>
+#include <string.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <dirent.h>
+
+
+#include <system/Filename.h>
+#include <messaging/transport/MessagingEntity.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "CliCmdFile.h"
+#include "CliCmdFileMgr.h"
+#include "CliApplication.h"
+#include <system/Utilities.h>
+
+using namespace std;
+using namespace threeway;
+
+#define MAX_DIR_LEN 50
+
+///////////////////////////////////////////////////////////////////////////////
+// Static Data
+///////////////////////////////////////////////////////////////////////////////
+
+CliCmdFile::CliCmdFile( const char * command ) :
+    m_found(false),m_entity(ENTITY_INVALID),m_maxArgs(0),m_minArgs(0) 
+{
+   string val;
+   std::string CliFiledDir = "";
+
+   val = getConfigParam("OAM_CONFIG_FILES_DIR", "");
+   CliFiledDir = (char *)val.c_str(); 
+   CliFiledDir = CliFiledDir + "/.cli";
+
+   Filename commandFilename(CliFiledDir.c_str(), command);
+
+   ifstream commandFile;
+   commandFile.open(commandFilename.c_str());
+
+   TRACE_PRINTF("CliCmdFile( %s )", command);
+
+   if(!commandFile.fail())
+   {
+      char data[1024];
+      commandFile.getline( &data[0], 1024 );
+
+      while (!commandFile.eof())
+      {
+         unsigned u;
+
+         if( sscanf(data, "entity %u", &u) == 1)
+         {
+            m_entity = (MessagingEntity)u;
+            TRACE_PRINTF("CliCmdFile( %s ).entity=%u", command, u);
+         }
+         else
+            if( sscanf(data, "group %s", &data[0]) == 1)
+            {
+               m_group = data;
+               TRACE_PRINTF("CliCmdFile( %s ).group=%s", command, data);
+            }
+            else
+               if( sscanf(data, "min-args %u", &u) == 1)
+               {
+                  m_minArgs = u;
+                  TRACE_PRINTF("CliCmdFile( %s ).min-args=%u", command, u);
+               }
+               else
+                  if( sscanf(data, "max-args %u", &u) == 1)
+                  {
+                     m_maxArgs = u;
+                     TRACE_PRINTF("CliCmdFile( %s ).max-args=%u", command, u);
+                  }
+                  else
+                     if( sscanf(data, "help %c", &data[0]) == 1)
+                     {
+                        m_help = &data[5];
+                        TRACE_PRINTF("CliCmdFile( %s ).help=%s", command, &data[5]);
+                     }
+                     else
+                        if( sscanf(data, "short-description %c", &data[0]) == 1)
+                        {
+                           m_shortDesc = &data[18];
+                           TRACE_PRINTF("CliCmdFile( %s ).short-description=%s", command, &data[18]);
+                        }
+
+         commandFile.getline( &data[0], 1024 );
+      }
+
+      commandFile.close();
+      m_found = true;
+   }
+}
+
+CliCmdFileMgr* CliCmdFileMgr::s_instance = NULL;
+
+CliCmdFileMgr::CliCmdFileMgr()
+{
+   string val;
+   std::string CliFiledDir = "";
+
+   val = getConfigParam("OAM_CONFIG_FILES_DIR", "");
+   CliFiledDir = (char *)val.c_str();
+   CliFiledDir = CliFiledDir + "/.cli";
+
+   DIR *dir = opendir(CliFiledDir.c_str());
+
+   if(dir)
+   {
+      struct dirent *dirEnt = readdir(dir);
+
+      while( dirEnt )
+      {
+         if( 0 != strcmp("..", dirEnt->d_name) && 0 != strcmp(".", dirEnt->d_name) )
+         {
+            string command(dirEnt->d_name);
+
+            TRACE_PRINTF("Added %s to all-commands set.", command.c_str() );
+
+            m_allCommands.insert( command );
+         }
+
+         dirEnt = readdir(dir);
+      }
+
+      closedir(dir);
+   }
+}
+
+CliCmdFileMgr& CliCmdFileMgr::GetInstance()
+{
+    ENTER ();
+
+    if(s_instance == NULL)
+    {
+        s_instance = new CliCmdFileMgr();
+    }
+
+    RETURN (*s_instance);
+}
+
+void CliCmdFileMgr::ListAllMatchingCommands( set<string> & allMatchingCommands, const string & partialCommand )
+{
+    GetMatchingCommands( partialCommand, allMatchingCommands );
+}
+
+void CliCmdFileMgr::ListAllNamespaces( set<string> & allNamespaces )
+{
+    set<string> availableCommands;
+
+    ListAllMatchingCommands( availableCommands, "" );
+
+    set<string>::iterator i;
+
+    for (i = availableCommands.begin(); i != availableCommands.end(); i++)
+    {
+        size_t posOfFirstDot = i->find_first_of('.');
+
+        string Namespace = i->substr(0, posOfFirstDot + 1);
+
+        TRACE_PRINTF("Added %s to namespace set.", Namespace.c_str() );
+
+        allNamespaces.insert( Namespace );
+    }
+}
+
+void CliCmdFileMgr::GetMatchingCommands( const string & filter, set<string> & matches )
+{
+    set<string>::iterator i = m_allCommands.begin();
+
+    while( i != m_allCommands.end() )
+    {
+        if( 0 == i->compare( 0, filter.size(), filter ) )
+        {
+            TRACE_PRINTF("Added %s to matching-commands set \"%s\".", i->c_str(), filter.c_str() );
+            matches.insert( *i );
+        }
+        else
+        {
+            TRACE_PRINTF("Excluding %s from matching-commands set \"%s\".", i->c_str(), filter.c_str() );
+        }
+
+        i++;
+    }
+}

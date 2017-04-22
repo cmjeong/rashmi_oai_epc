@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 26844 $
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+
+if [ ! $1 ]; then
+  echo "Usage: ./tftp-trace-files <tftp-server-ip-address>"
+  exit
+fi
+
+DATESTR=`date '+%Y%m%d-%Htftp-trace-filesS'`
+FILENAME=${DATESTR}_traces
+
+$FLASH_DIR_APPS/create-trace-tarball /tmp/${FILENAME}
+
+if [ -s /tmp/${FILENAME}.tar.gz ]; then
+  cd /tmp
+  tftp -p -l ${FILENAME}.tar.gz $1
+fi
+
+rm -f /tmp/${FILENAME}.tar.gz

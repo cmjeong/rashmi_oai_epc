@@ -1,0 +1,99 @@
+# This is my comment
+
+fsm Spv;
+basename Tr069SetParameterValue;
+namespace tr069;
+
+type_header "Tr069SetParameterValueTypes.h";
+
+type "shared_ptr<RpcSetParameterValue>";
+type "shared_ptr<DataModelVerifyCnf>";
+type "shared_ptr<MibValidateAttributesCnf>";
+type "void*";
+
+# Events
+event SetParameterValueRequest type "shared_ptr<RpcSetParameterValue>";
+event DataModelVerifyConfirm type "shared_ptr<DataModelVerifyCnf>";
+event MibVerifyConfirm type "shared_ptr<MibValidateAttributesCnf>";
+
+
+# States & Superstates
+state AwaitSet;
+superstate Setting;
+    exit_point SetFail;
+    exit_point SetSuccess;
+    state AwaitDataModelVerifyCnf;
+    state AwaitMibVerifyCnf;
+    
+# Guard Conditions
+guard_condition QueryEmptySet;
+guard_condition QueryVerified;
+
+# Actions
+action StoreSetRequest;
+action SendSetParametersReject;
+action SendSetParametersConfirm;
+action SendSetMibAttributes;
+
+# Initial State
+initial_state AwaitSet;
+
+
+
+state AwaitSet
+{
+	event SetParameterValueRequest action StoreSetRequest >> Setting;
+}
+
+superstate Setting
+{
+	entry;
+	exit;
+	
+	initial_state
+	{
+		if QueryEmptySet >> SetSuccess;
+		else >> AwaitDataModelVerifyCnf;
+	}
+	
+	exit_point SetFail
+	{
+		action SendSetParametersReject >> AwaitSet;
+	}
+		
+	exit_point SetSuccess
+	{
+		action SendSetParametersConfirm >> AwaitSet;
+	}
+	
+	defer SetParameterValueRequest;
+}
+
+state AwaitDataModelVerifyCnf
+{
+	superstate Setting;
+	
+	entry;
+	exit;
+
+	event DataModelVerifyConfirm
+	{
+		if QueryVerified >> AwaitMibVerifyCnf;
+		else >> SetFail;
+	}
+}
+
+state AwaitMibVerifyCnf
+{
+	superstate Setting;
+	
+	entry;
+	exit;
+
+	event MibVerifyConfirm
+	{
+		if QueryVerified action SendSetMibAttributes >> SetSuccess;
+		else >> SetFail;
+	}
+}
+

@@ -1,0 +1,66 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// HwCryptoAvailableInd
+//
+// Copyright radisys
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include <system/Trace.h>
+#include <system/SerialisationUtils.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "HwCryptoAvailableInd.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Class Functions
+///////////////////////////////////////////////////////////////////////////////
+
+using namespace std;
+using namespace threeway;
+
+s32 HwCryptoAvailableInd::Serialise(u8* data, u32 dataMaxBytes) const
+{
+    ENTER();
+
+    u8 * start = data;
+
+    if (4 <= dataMaxBytes)
+    {
+        SerialiseIt(m_available, data);
+    }
+
+    RETURN(data - start);
+}
+
+bool HwCryptoAvailableInd::DeSerialise(const u8* data, u32 dataLen)
+{
+    ENTER();
+
+    bool decode = (4 <= dataLen);
+
+    if (decode)
+    {
+        DeSerialiseIt(m_available, data);
+    }
+
+    RETURN(decode);
+}
+
+string HwCryptoAvailableInd::ToString() const
+{
+    ENTER();
+
+    ostringstream stream;
+
+    stream << "HwCryptoAvailableInd: available=" << m_available;
+
+    RETURN(stream.str());
+}

@@ -1,0 +1,212 @@
+RELEASE NOTES
+-------------
+
+${DATETIME}
+
+Product: ${PRODUCT}
+Version: ${SVNVERSION}
+
+<Summarise reason for release.>
+
+
+NEW FEATURES
+------------
+
+<List of new features to help systems test and customers.>
+
+
+REQUIREMENTS
+------------
+
+<List hardware, kernel and u-boot requirements.>
+
+
+CONFIGURATION
+-------------
+
+<Config changes that have been made that the customer should be
+ aware of (e.g. defaults) or config changes that need to be made
+ by the customer.>
+
+
+INSTALLATION
+------------
+
+These instructions assume you are installing over 3049 or later.
+If not, please refer to the 3049 installation notes first.
+
+- Backup nas-* config files from /mnt/config if you have made any changes you would
+  like to be able to refer back to.  It is unlikely you will need to refer to
+  these again and if you want to change anything in a nas-* config file then do
+  so manually, do not copy the old config file back over the top as there have been
+  a number of changes and new parameters added.
+
+  A number of parameters have been moved from the config files into SNMP (e.g.
+  Iu sigtran parameters) so you may need to configure these via SNMP after the
+  upgrade.
+
+- Remove old release tarballs using the following command:
+
+    rm /mnt/Radisys-*.tar
+    rm /mnt/Radisys-*.tar.gz
+    
+- Make a note of Binding ID format (TransportAssocBindingIdMSByteAligned) used 
+  (last line in /mnt/config/nas-iu-configuration) as this file will be 
+  overwritten as part of the upgrade process, and needs to be correct for the 
+  specific gateway used.
+    
+- TFTP the file Radisys_${PRODUCT}_3.5_2008_v${SVNVERSION}_manual.tar to /mnt and unzip it:
+
+    cd /mnt
+    tftp -g -r Radisys_${PRODUCT}_3.5_2008_v${SVNVERSION}_manual.tar <tftp-server-ip>
+    tar -xvf Radisys_${PRODUCT}_3.5_2008_v${SVNVERSION}_manual.tar
+    sync
+
+- To upgrade the kernel:
+  Only execute the kernel upgrade if it has not been done before:
+      
+  To verify whether the kernel has already been upgraded exceute the following command:
+          root:~> uname -a
+  
+  The output should have the same date and time as below:
+  
+          Linux blackfin 2.6.16-ipnetblackfin #1 Fri Sep 26 17:01:38 BST 2008 blackfin unknown
+  The kernel needs upgrading if the output is not the same:
+    
+    /mnt/dbx/stop-apps  
+    tftp -g -r uImage-v${SVNVERSION} <tftp-server-ip>
+    mv uImage-v${SVNVERSION} /mnt/dbx/uImage
+    cd /mnt/dbx
+    chmod +x fap-flash
+    ./fap-flash kernel uImage
+
+- Now wait for the fap-flash utility to complete    
+
+- IMPORTANT!  The unit MUST NOT be power cycled whilst the fap-flash utility is 
+  running.  Doing so would corrupt the flash memory and render the unit
+  unusable.
+
+
+- Type 'sync' to ensure all data is written to flash.
+
+- IMPORTANT!  Please ensure the file /mnt/dbx/dbxstart is present, has sensible
+  looking contents (not empty) and is executable.  If dbxstart is missing, corrupt
+  or empty then if you reboot you may lose IP connectivity to the unit.
+  Improvements to help prevent this are available in the latest kernel build
+  but flashing the unit with the new kernel requires a return-to-base.
+  Check /etc/svnversion.txt for kernel version.  Kernel 3521 or later is preferred.
+
+- Power cycle the unit.
+
+- Upgrading a FAP that will be used with a TR069 server:
+
+    - TODO: This information is out-of-date.  We now have new MIB and no longer have SNMP in hbs2-iu build.
+    
+    - Telnet to the FAP and execute the following commands:
+    
+        cd /mnt/config
+        mv mib-params mib-params_old
+    	
+    - From a SNMP browser, perform the following actions:
+    
+      a) Configure the IP address of the configuration server (mib-objects /
+         management / tr069) and commit to non-volatile (mib-objects /
+         management). 
+
+    - Verify that the mib-params file looks similar:
+    
+        root:/mnt/config> cat mib-params
+        REM_SCAN_OK = 0
+        LIVE_OSC_DAC = 1472
+        1ST_CONFIGURATION_SERVER = 123.123.0.25
+        2ND_CONFIGURATION_SERVER = 123.123.0.26
+        3RD_CONFIGURATION_SERVER = 123.123.0.27
+   
+    - Reboot the FAP. The FAP will attempt to connect to the TR069 server and
+      download the configuration, and restart using the plan downloaded. Any
+      paramters not supplied in the plan, will be taken from the mib-params file,
+      and any config not in the mib-params file, will be taken from the
+      mib-params-defaults.  Downloaded plan has highest priority, followed by
+      mib-params, followed by mib-params-defaults.
+    
+- Upgrading a FAP that will not be used with a TR069 server:
+
+    - Before following this procedure make sure you have noted your FAP specific 
+      configuration as this mechanism will delete the existing configuration.
+      Below is a likely set of parameters that will need reconfiguring:
+    
+        mibObjects/
+          topLevelCellConfig/
+            mnc
+            mcc
+            dlUArfcn
+            dlPrimaryScramblingCode
+            lac
+            rac
+            sac
+            rncId
+          sib1CellConfig/
+            psDomainEnable
+            networkModeOfOperation
+          sib3CellConfig/
+            cellIdentity
+          sib11CellConfig/
+            intraFreqNeighbourCell0/
+              neighbourCellScramblingCode-a0
+            intraFreqNeighbourCell1/
+              neighbourCellScramblingCode-a1
+          iuInterface/
+            iuSettings/
+              iuCoreNetIpAddress
+              iuSctpLocalPort
+              iuSctpRemotePort
+              iuFemtoPointCode
+              iuCoreNetCsPointCode
+              iuCoreNetPsPointCode
+            m3uaSettings/
+              m3uaAspId
+              m3uaLocalRoutingContext
+              m3uaRemoteCsRoutingContext
+              m3uaRemotePsRoutingContext
+            sccpSettings/
+              sccpInactivityReceiveTimer
+              sccpInactivitySendTimer
+        mibEngObjects/
+          radioEnvironment/
+            scanAtPowerOn
+    
+    - In a telnet session, execute the following commands:
+
+        cd /mnt/config
+        mv mib-params mib-params-backup
+   	    sync
+   	  
+    - Now power cycle the FAP
+    
+    - Using an SNMP mib browser, configure the correct values for the FAP. As a
+      minimum, set the values for the parameters listed above.  Write '1' to the
+      commitNonVolatile parameter in order to store these parameters permanently.
+
+
+TR-069 SUPPORTED PARAMETERS
+---------------------------
+
+<Provide table>
+
+
+RESOLVED ISSUES
+---------------
+
+<Exported resolved customer visible Mantis issues.>
+
+
+OPEN ISSUES
+-----------
+
+<Exported open customer visible Mantis issues.>
+
+
+RESOLVED IN EARLIER RELEASES
+----------------------------
+
+<Exported old resolved customer visible Mantis issues.>

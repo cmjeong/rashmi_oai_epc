@@ -1,0 +1,145 @@
+#
+# FSM controlling startup of an app using SingleThreadedAppWithAttrCache base class.
+#
+
+fsm AppWithAttrCache;
+basename AppWithAttrCache;
+
+# Types
+type "void*";
+type "boost::shared_ptr<RegisterEntityCnf>";
+type "boost::shared_ptr<MibSubscribeAttributesCnf>";
+type "boost::shared_ptr<threeway::MessageSerialisedData>";
+
+# Headers
+type_header "messaging/transport/MessageSerialisedData.h";
+type_header "messaging/messages/common/RegisterEntityCnf.h";
+type_header "mib-common/messages/MibSubscribeAttributesCnf.h";
+
+# States
+superstate All;
+superstate NotRegistered;
+superstate Registered;
+
+superstate NotSubscribed;
+superstate Subscribed;
+
+state Idle;
+state Registering;
+junction CheckSubscriptions;
+state Subscribing;
+state InformingReady;
+state Started;
+
+initial_state Idle;
+
+# Events
+event Start type "void*"; # This just gets the FSM going.
+
+event RegisterEntityCnf type "boost::shared_ptr<RegisterEntityCnf>";
+event MibSubscribeAttributesCnf type "boost::shared_ptr<MibSubscribeAttributesCnf>";
+event RequestStartRsp type "void*"; # This is from OAM once it is ready to start this app.
+
+event TimerExpiryRegistration type "void*";
+event TimerExpirySubscriptions type "void*";
+event TimerExpiryReady type "void*";
+
+# Guards
+guard_condition AllEntitiesRegistered;
+guard_condition HaveSubscriptions;
+guard_condition AllSubscriptionsReceived;
+guard_condition IsMibSubscribeAttributesInd;
+
+# Actions
+action SendEntityRegisterReqs;
+action SendOutstandingEntityRegisterReqs;
+action SendSubscribeAttributesReqs; 
+action SendOutstandingSubscribeAttributesReqs; 
+action SendReadyToStart;
+
+
+superstate All
+{
+}
+
+superstate NotRegistered
+{
+    superstate All;
+}
+
+superstate Registered
+{
+    superstate All;
+
+}
+
+superstate NotSubscribed
+{
+    superstate Registered;
+}
+
+superstate Subscribed
+{
+    superstate Registered;
+}
+
+state Idle
+{
+    superstate NotRegistered;
+    
+    event Start action SendEntityRegisterReqs state Registering;
+}
+
+state Registering
+{
+    superstate NotRegistered;
+    
+    entry; # Start repeating registration guard timer.
+    exit;  # Stop registration guard timer.
+    
+    event TimerExpiryRegistration action SendOutstandingEntityRegisterReqs;
+    event RegisterEntityCnf
+    {
+        if AllEntitiesRegistered state CheckSubscriptions;
+    } 
+}
+
+junction CheckSubscriptions
+{
+    superstate NotSubscribed;
+    
+    if HaveSubscriptions action SendSubscribeAttributesReqs state Subscribing;
+    else action SendReadyToStart state InformingReady;
+}
+
+state Subscribing
+{
+    superstate NotSubscribed;
+    
+    entry; # Start repeating subscription guard timer.
+    exit;  # Stop subscription guard timer.
+    
+    event MibSubscribeAttributesCnf
+    {
+        if AllSubscriptionsReceived action SendReadyToStart state InformingReady;
+    }
+    event TimerExpirySubscriptions action SendOutstandingSubscribeAttributesReqs;
+}
+
+state InformingReady
+{
+    superstate Subscribed;
+
+    entry; # Start repeating ready guard timer.
+    exit;  # Stop ready guard timer.
+
+    event RequestStartRsp state Started;
+    event TimerExpiryReady action SendReadyToStart;
+}
+
+state Started
+{
+    superstate Subscribed;
+    
+    entry; # Call concrete app hook for registering KPIs etc 
+}

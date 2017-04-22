@@ -1,0 +1,1174 @@
+#/********************************************************************20**
+#
+#     Name:    RLC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    kwac_grp6.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group 8 Test Cases  
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=6:1:Group 8 Test Cases :kwac_grp8.xml
+
+#
+#       Test:    8.1(TC_UT_RLC_16)
+#
+#       Test Steps:    a)RLC received UL packet with SN = 1 from MAC  
+#                      b)RLC received UL packet with SN = 0 from MAC
+#
+#       Expected O/P: Verify that RLC 
+#                     a)Sends packet with RLC SN = 0 
+#                       and isOutOfSeq = FALSE to PDCP
+#                     b)Sends packet with RLC SN = 1 
+#                       and isOutOfSeq = FALSE to PDCP
+#
+#       Notes:   None
+#
+#       Module:  RLC
+#
+#       File:    kwac_grp8.xml
+#
+#
+<tapa.testcase id="8.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="AM"/>
+
+      <tapa.desc>
+         "RLC AM mode data transfer for a SDU"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.amcfg/>
+    </tapa.cfg>
+
+   <tapa.test>
+        
+      #1.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+
+      #2.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      
+      #3.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="397:2:0:1:1:407:
+                        0:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #4.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="0:0:0:1:1:399:
+                        1:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #5.MAC -> RLC Data Packet with RLC SN=1
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+ 
+     #6.MAC -> RLC Data Packet with RLC SN=0
+     <tapa.send>
+        <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0"/>
+     </tapa.send>
+
+     #7.RLC -> PDCP In-sequence delivery
+     <tapa.expset>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+        <tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+        <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+    </tapa.expset>
+ 
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+     <tapa.kw.deinit/>
+
+   <tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    8.2(TC_UT_PDCP_17)
+#
+#       Test Steps:    a)RLC received UL packet with RLC SN = 0 from MAC
+#                      b)RLC received UL packet with RLC SN = 4 from MAC
+#                      c)RLC received UL packet with RLC SN  = 5 from MAC
+#                      d)RLC received UL packet with RLC SN = 1 from MAC
+#                      e)RLC received  Re-estab config from RRC during Handover   
+#
+#       Expected O/P:   Verify that RLC 
+#		        a)Sends packet with isOutOfSeq = FALSE set for SN = 0
+#                       b)Sends packet with isOutOfSeq = FALSE set for SN = 1 
+#                       c)Sends packet with isOutOfSeq = TRUE set  for SN = 3
+#                       d)Sends packet with isOutOfSeq = TRUE set  for SN = 4
+#                       e)Sends Re-estab Complete indication to PDCP
+#
+#       Notes:   None
+#
+#       Module:  RLC
+#
+#       File:    kwac_grp8.xml
+#
+#
+<tapa.testcase id="8.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="AM"/>
+
+      <tapa.desc>
+         "RLC AM mode data transfer for a SDU"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.amcfg/>
+    </tapa.cfg>
+
+   <tapa.test>
+        
+      #1.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #2.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #3.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="6" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #4.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1600" estHdrSz="8" staPduPrsnt="0"/>
+      </tapa.expect>
+
+   
+      #5.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1197:6:0:1:1:407:
+                        0:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #6.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="794:4:0:1:1:407:
+                        1:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #7.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="391:2:0:1:1:407:
+                        2:-1:-1:-1:-1"/>
+      </tapa.expect>
+ 
+      #8.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="0:0:0:1:1:393:
+                        3:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #9.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #10.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="0:0:0:1:1:402:
+                        4:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #11.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #12.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="0:0:0:1:1:402:
+                        5:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #13.MAC -> RLC Data Packet with RLC SN=0
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+     #14.RLC -> PDCP In-sequence delivery
+     <tapa.expset>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+      <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+    </tapa.expset>
+
+
+      #15.MAC -> RLC Data Packet with RLC SN=4
+     <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #16.MAC -> RLC Data Packet with RLC SN=5
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="6"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #17.MAC -> RLC Data Packet with RLC SN=1
+     <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+     #18.RLC -> PDCP In-sequence delivery
+      <tapa.expset>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+        <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+     </tapa.expset>
+
+
+     #19.Re-estab Config from RRC
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+
+     #20.RLC -> PDCP OutofSeq packet 
+     <tapa.expect>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="TRUE"/>
+     </tapa.expect>
+
+     #21.RLC -> PDCP OutofSeq packet 
+     <tapa.expect>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="TRUE"/>
+    </tapa.expect>
+
+     #22
+     <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1"
+           rbId="1" rbType="1"
+            status="1" />
+     </tapa.expect>
+
+     #TODO : Handler for Re-estab Complete indication
+            
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+     <tapa.kw.deinit/>
+
+   <tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    8.3(TC_UT_RLC_18)
+#
+#       Test Steps:   a)RLC received  Re-estab config from RRC during Handover
+#                     b)UL Packets : RLC reception  buffer 
+#                       SDU 1 :SO = 2,3(LSF = 1)
+#                       SDU 2 :SO = 0,1,2,3,4(LSF = 1)
+#
+#       Expected O/P: Verify that RLC 
+#                     a)Sends packet with SN = 1 re-assembled and 
+#                       sent with the isOutOfSeq = TRUE
+#
+#       Notes:   None
+#
+#       Module:  RLC
+#
+#       File:    kwac_grp8.xml
+#
+#
+<tapa.testcase id="8.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="AM"/>
+
+      <tapa.desc>
+         "RLC AM mode data transfer for a SDU"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+    <tapa.ckw.amcfg/> 
+    </tapa.cfg>
+
+   <tapa.test>
+       <!-- 
+      #1.Send SDU1 from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="800" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #############SDU1 segmented ########################      
+      #2.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="595:2:0:1:1:207:
+                        0:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #3.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="390:2:0:1:1:207:
+                        1:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #4.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="185:2:0:1:1:207:
+                        2:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #5.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="0:0:0:1:1:187:
+                        3:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #6.Send SDU2 from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="800" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #################SDU2 segmented##############################
+      #7.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="595:2:0:1:1:207:
+                        4:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #8.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="390:2:0:1:1:207:
+                        5:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #9.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="7"
+               lchData="185:2:0:1:1:207:
+                        6:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #10.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="210" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="8"
+               lchData="0:0:0:1:1:187:
+                        7:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #11.MAC->RLC : SDU1 : SO=2
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #12.MAC->RLC : SDU1 : SO=3
+       <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="4"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #13.MAC->RLC : SDU2 : SO=0
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #14.MAC->RLC : SDU2 : SO=1
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="6"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #15.MAC->RLC : SDU2 : SO=2
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="7"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #16.MAC->RLC : SDU2 : SO=3
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="8"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+     #17.RRC->RLC : Re-estab Config
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+  
+     #18.Re-assemble SDU2 ->PDCP
+     <tapa.expect>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="TRUE"/>
+     </tapa.expect>
+
+     #19.Re-estab confirm to RRC
+     <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1"
+           rbId="1" rbType="1"
+            status="1" />
+     </tapa.expect>
+     #TODO : Handler for Re-estab Complete indication
+           --> 
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+      <tapa.kw.deinit/> 
+
+   <tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.4(TC_UT_RLC_19)
+#
+#       Test Stpes:    a)RLC received Re-estab config from RRC because of RLF
+#                      b)RLC sends out of sequence packets to PDCP
+#                      c)RLC -> PDCP : Re-estab Complete Indication 
+#                      d)RLC : isOutOfSeq flag should be set to TRUE
+#                      e)Re-establishment is success
+#                      f)RLC will received re-transmitted packet        
+#
+#       Expected O/P:  Verify that RLC 
+#                      a)Sends Packet with SN = 1 and  isOutOfSeq = TRUE to PDCP
+#                      b)Sends Packet with SN = 3,4,5 and  isOutOfSeq = FALSE  for every packet
+#                      c)Sends packet with SN = 6 and inSeqInd = TRUE
+#
+#       Notes:   None
+#
+#       Module:  RLC
+#
+#       File:    kwac_grp8.xml
+#
+#
+<tapa.testcase id="8.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="AM"/>
+
+      <tapa.desc>
+         "Making Packets Out-Of-Seq when received from MAC itself before Re-Estb in RLC."
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.amcfg/>
+    </tapa.cfg>
+
+   <tapa.test>
+      #Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="1" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="3000" lcId="1" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="2" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="6000" lcId="1" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="3" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="9000" lcId="1" estHdrSz="6" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #########Send Data Request for Logical channel 1 and verify path
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="9015" lcId="1" ueId="1" cellId="1" 
+            numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="1"
+            lchData="3000:2:0:1:2:3002,3002:
+            0,1:0,0:1,1:1,1:0,0"  />
+         ## lchData - Buffer Occupancy by RLC(BO)[0]: Estimated RLC header size[0]: Status PDU Presence in Buffer Occupancy[0]: Logical Channel Id (lcId)[1]:
+         Nos of PDUs[3]: PDU Size[3002,3002,3002]: SN[0,1,2]: FI[0,0,0]: PollBit[1,1,1]: Data/Ctrl PDU[1,1,1]: RF[0,0,0]
+      </tapa.expect>
+
+      #Send the PDU in uplink
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" lcId="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:4:0,1,2,2:0,0,0:0,0,0:0,0,0"/>
+         ## lchData - lcId[1]: numPdu[4]: isPduRemoved[0,1,2,2]: pduCorrupt : headerCorrupt : isPduRemoved for LCH
+      </tapa.send>
+
+      #Expect a Data Indication to KWU for PDU 1
+      <tapa.expect>
+         <tapa.kwu.datind  entity="ENTPJ" sduSize="3000" cellId="1" ueId="1"
+            rbId="1" rbType="1" />
+      </tapa.expect>
+
+       #Expect a Data Indication to KWU for PDU 2
+       <tapa.expect>
+         <tapa.kwu.datind  entity="ENTPJ" sduSize="3000" cellId="1" ueId="1"
+            rbId="1" rbType="1" />
+      </tapa.expect>
+      <!--
+       #Expect a Data Indication to KWU for PDU 3
+      <tapa.expect>
+         <tapa.kwu.datind  entity="ENTPJ" sduSize="3000" cellId="1" ueId="1"
+            rbId="1" rbType="1" />
+      </tapa.expect>   -->
+
+      #Expect a status response for logical channel 2 for the control PDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+      </tapa.expect>
+      
+      ######################################################### 1st Set ############################
+
+      #Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="4" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="6000" lcId="1" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="5" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="9000" lcId="1" estHdrSz="6" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="1" rbType="1" ueId="1" cellId="1" 
+            sduId="6" sduSize="3000"/>
+      </tapa.send>
+      #Expect Status Response for the received SDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" bo="12000" lcId="1" estHdrSz="8" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #########Send Data Request for Logical channel 1 and verify path
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="9015" lcId="1" ueId="1" cellId="1" 
+            numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="1"
+            lchData="6000:4:0:1:2:3002,3002:
+            2,3:0,0:1,1:1,1:0,0"  />
+      </tapa.expect>
+
+      ######## To make the Packets Out-Of-Seq when being sent from MAC to RLC (which may not happen) #####
+      ### "3 kwu.datreq were sent" so the Q will contain 3 PDUs from index - Q[0], Q[1], Q[2]
+      ###  So while sending "rgu.ddatind" below, set "numPdu" to 3 and "isPduRemoved" to [1,2,2] by skipping [0].
+           This will start sending PDUs from Q[1], Q[2]. So in b/n Q[0]th SeqNum is not sent making it Out-Of-Seq
+
+      #Send the PDU in uplink
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" lcId="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:3:1,2,2:0,0,0:0,0,0:0,0,0" isOutOfSeq="TRUE" />
+      </tapa.send>
+
+      ### In RLC "SN = SN of PDU received from MAC" and "amUl->vrR = SN of next PDU"
+      ### If "SN != amUl->vrR" then none of the 3 PDUs sent above will be reassembled and sent to PDCP.
+      ### "kwu.datInd" is not received for the 3 PDUs sent in "rgu.ddatind"
+
+      #Expect a status response for logical channel 2 for the control PDU
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="4" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.ckw.cfgreq  ueId="2" cellId="1" numEnt="2"
+            cfgType="4:4"
+            rbId="1:2"
+            rbType="1:1"
+            entMode="3:3"
+            dir="1:1"
+            logChId0Id="1:2"
+#Pradeep
+#            logChId0Type="5:5"
+            logChId0Type="4:4"
+            logChId1Id="1:2"
+            logChId1Type="5:5"
+            umDlSnLen="0:0"
+            umUlSnLen="0:0"
+            umUlReOrdTmr="0:0"
+            amDlPollRetxTmr="500:500"
+            amDlPollPdu="1:1"
+            amDlPollByte="25000:50000"
+            amDlMaxRetx="1:1"
+            amUlStaProhTmr="0:0"
+            amUlReOrdTmr="200:200"
+         />
+   </tapa.send>
+      
+      ### The 2 PDUs that were not sent previously will be sent now after Re-Estblishment of RLC with inSeqInd = FALSE.
+      #Expect a Data Indication to KWU for PDU 1
+      <tapa.expect>
+         <tapa.kwu.datind  entity="ENTPJ" sduSize="3000" cellId="1" ueId="1"
+            rbId="1" rbType="1" />
+      </tapa.expect>
+      <!--
+       #Expect a Data Indication to KWU for PDU 2
+       <tapa.expect>
+         <tapa.kwu.datind  entity="ENTPJ" sduSize="3000" cellId="1" ueId="1"
+            rbId="1" rbType="1" />
+      </tapa.expect>   -->
+
+      ########################## RLC will send Re-Estb Cmp Indication to UL PDCP ############################
+      ## The message is currently dropped and not processed.
+
+
+      ############################ RLC will send Cfg Cfm to RRC #############################
+      <tapa.expect>
+         <tapa.ckw.cfgcfm cellId="1" ueId="2" status="1:1" numEnt="2"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection 
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+         
+   <tapa.kw.deinit/>
+         
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    8.5
+#
+#       Desc:    a)RLC and PDCP are LW_LC or LC
+#                b)PDCP sends RLC received Re-estab config ->RLC
+#                c)RLC has out of sequence packets in reception buffer             
+#
+#       Notes:   None
+#
+#       Module:  RLC
+#
+#       File:    kwac_grp8.xml
+#
+#
+<tapa.testcase id="8.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="AM"/>
+
+      <tapa.desc>
+         "RLC AM mode data transfer for a SDU"
+      </tapa.desc>
+
+      <tapa.longdesc>
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.amcfg/>
+    </tapa.cfg>
+
+   <tapa.test>
+        
+      #1.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #2.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="4" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #3.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="6" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #4.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1600" estHdrSz="8" staPduPrsnt="0"/>
+      </tapa.expect>
+
+   
+      #5.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1197:6:0:1:1:407:
+                        0:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #6.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="794:4:0:1:1:407:
+                        1:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #7.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="391:2:0:1:1:407:
+                        2:-1:-1:-1:-1"/>
+      </tapa.expect>
+ 
+      #8.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="0:0:0:1:1:393:
+                        3:-1:-1:-1:-1"/>
+      </tapa.expect> 
+
+      #9.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #10.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="0:0:0:1:1:402:
+                        4:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #11.Send SDU from PDCP for DCCH
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="2" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #12.Send Data Request for Logical channel 1 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="410" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="0:0:0:1:1:402:
+                        5:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #13.MAC -> RLC Data Packet with RLC SN=0
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+     #14.RLC -> PDCP In-sequence delivery
+     <tapa.expset>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+      <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+    </tapa.expset>
+
+
+      #15.MAC -> RLC Data Packet with RLC SN=4
+     <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #16.MAC -> RLC Data Packet with RLC SN=5
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="6"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      #17.MAC -> RLC Data Packet with RLC SN=1
+     <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+     #18.RLC -> PDCP In-sequence delivery
+      <tapa.expset>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="FALSE"/>
+        <tapa.dummy.rgu.dstarsp cellId="1" ueId="2" bo="2" lcId="1" estHdrSz="0" staPduPrsnt="1"/>
+     </tapa.expset>
+
+
+     #19.Re-estab Config from RRC
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+
+     #20.RLC -> PDCP OutofSeq packet 
+     <tapa.expect>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="TRUE"/>
+     </tapa.expect>
+
+     #21.RLC -> PDCP OutofSeq packet 
+     <tapa.expect>
+	<tapa.kwu.datind entity="ENTPJ" ueId="2" cellId="1"
+               rbId="1" rbType="1" sduSize="400" ulDatFwd="TRUE" isOutOfSeq="TRUE"/>
+    </tapa.expect>
+
+     #22
+     <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1"
+           rbId="1" rbType="1"
+            status="1" />
+     </tapa.expect>
+
+     #TODO : Handler for Re-estab Complete indication
+            
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
