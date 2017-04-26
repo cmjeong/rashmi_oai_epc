@@ -117,8 +117,8 @@ PUBLIC Void ysPalHdlTtiInd(timingInfo)
 CmLteTimingInfo  *timingInfo;
 #endif
 {
-   TfuTtiIndInfo   *ttiInd;
-   TfuTtiIndInfo   *schTtiInd;
+   TfuTtiIndInfo   ttiInd;
+   TfuTtiIndInfo   schTtiInd;
    /* Removed cellCb for optimization */
 
    TRC2(ysPalHdlTtiInd)
@@ -127,7 +127,6 @@ CmLteTimingInfo  *timingInfo;
    PRIVATE unsigned long ttiCnt = 0;
    ttiCnt++;
    
-   ttiInd = NULLP;
    /* ys003.102: Fix for CID:1622-02-01 DefectId:ccpu00115333. adding Cell delete 
       feature for PAL.
    */
@@ -136,6 +135,7 @@ CmLteTimingInfo  *timingInfo;
    {
       /* allocate TTI indication for MAC */
 	   if (ttiCnt < 3) {
+#if 0
 		   if(SGetSBuf(ysCb.tfuSap.sapPst.region, ysCb.tfuSap.sapPst.pool, 
 					   (Data **)&ttiInd, sizeof(TfuTtiIndInfo)) != ROK)
 		   {
@@ -153,23 +153,24 @@ CmLteTimingInfo  *timingInfo;
 					   (Data *)ttiInd, sizeof(TfuTtiIndInfo));
 			   RETVOID;
 		   }/* fill TTI indication for MAC */
+#endif
 #if 0
 		   ttiInd->cellId = ysCb.cellCb.cellId;
 
 		   ttiInd->timingInfo = *timingInfo;
 		   ttiInd->isDummyTti = FALSE;
 #else
-		   ttiInd->numCells = 1;
-		   ttiInd->cells[0].cellId = ysCb.cellCb.cellId;
-		   ttiInd->cells[0].timingInfo = *timingInfo;
-		   ttiInd->cells[0].isDummyTti = 0;   
-		   ttiInd->cells[0].schTickDelta = 0; 
-		   ttiInd->cells[0].dlBlankSf = 0;    
-		   ttiInd->cells[0].ulBlankSf = 0; 
+		   ttiInd.numCells = 1;
+		   ttiInd.cells[0].cellId = ysCb.cellCb.cellId;
+		   ttiInd.cells[0].timingInfo = *timingInfo;
+		   ttiInd.cells[0].isDummyTti = 0;   
+		   ttiInd.cells[0].schTickDelta = 0; 
+		   ttiInd.cells[0].dlBlankSf = 0;    
+		   ttiInd.cells[0].ulBlankSf = 0; 
 #endif
 
 		   /* fill TTI indication for scheduler */
-		   *schTtiInd = *ttiInd;
+		   schTtiInd = ttiInd;
 	   } 
       
 	if((ttiCnt == 2) || (ttiCnt == 3)) {
@@ -177,15 +178,20 @@ CmLteTimingInfo  *timingInfo;
 	}
 	/* 2 TTIs slower */
 	if(ttiCnt == 3) {
+#if 0
 		start_dl();
+#else
+         extern U8 isStartDl;
+         isStartDl= 1;
+#endif
 	}
 	if(ttiCnt < 2) {
 		printf("CL: sending proper TTI to MAC and scheduler sf(%d) sfn(%d)\n", ttiCnt % 10, ttiCnt / 10);
 		/* Give TTI indication to MAC */
-		YsUiTfuTtiInd(&ysCb.tfuSap.sapPst, ysCb.tfuSap.suId, ttiInd);
+		YsUiTfuTtiInd(&ysCb.tfuSap.sapPst, ysCb.tfuSap.suId, &ttiInd);
 
 		/* Give TTI indication to scheduler */
-		YsUiTfuSchTtiInd(&ysCb.schTfuSap.sapPst, ysCb.schTfuSap.suId, schTtiInd);
+		YsUiTfuSchTtiInd(&ysCb.schTfuSap.sapPst, ysCb.schTfuSap.suId, &schTtiInd);
 	}
 #if 0
 #ifdef TENB_SPLIT_ARCH_SUPPORT

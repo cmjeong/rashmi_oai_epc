@@ -921,7 +921,6 @@ TfuDatReqInfo   *datReq;
    ret = ROK;
 
 
-   printf("CL: DATA REQ YsUiTfuDatReq(): spId = %d;\n", spId);
 
    if(ysUiChkAndGetTfuSap(spId, LYS_TFU_USR_SAP, &tfuSapCb) != ROK) 
    {

@@ -123,7 +123,6 @@ TfuCntrlReqInfo *cntrlReq;
    
    U8 cntrlReqSf = ((cellCb->timingInfo.subframe + TFU_DLCNTRL_DLDELTA) % 10 ) ;
 
-   printf("ysPalPrcCntrlReq CL: RXD CNTRL REQ sf(%d) delta(%d) cntrlReqSf(%d) \n", cellCb->timingInfo.subframe, TFU_DLCNTRL_DLDELTA , cntrlReqSf);
     /* This section is used for HI DCI Information
     * 1. Hi is used to send ACK/NACK for the MAC Pdus of the uplink
     * 2. DCI pertains to the downlink control information on PDCCH 
@@ -189,7 +188,6 @@ TfuDatReqInfo   *datReq;
 
 	U8 datReqSf   = ((cellCb->timingInfo.subframe + TFU_DLDATA_DLDELTA ) % 10 ) ;
 
-	printf("ysPalPrcDatReq CL: RXD DATA REQ sf(%d) cell_sf(%d) delta(%d) datReqSf(%d) \n",  datReq->timingInfo.subframe, cellCb->timingInfo.subframe, TFU_DLDATA_DLDELTA, datReqSf);
 	if(cellCb->txMsgInfo[datReqSf].datReq != NULLP)
 	{
 		printf("CL: ERRRR ysTrUtlSetDatReqInfo(): DatReq pointer is not NULL \
@@ -249,7 +247,6 @@ TfuRecpReqInfo  *recpReq;
 
    U8 recpReqSf  = ((cellCb->timingInfo.subframe + TFU_RECPREQ_DLDELTA ) % 10 ) ;
 
-	printf("ysPalPrcRecpReq CL: RXD CNTRL REQ sf(%d) delta(%d) recpReqSf(%d) \n",  cellCb->timingInfo.subframe, TFU_RECPREQ_DLDELTA , recpReqSf);
    if(cellCb->txMsgInfo[recpReqSf].recpReq != NULLP)
    {
 	   YS_DBG_ERR((_ysp, "ysPcUtlSetRecpReqInfo(): RecpReq pointer is not NULL \

@@ -1038,7 +1038,7 @@ U8                         tbIndex
 		/* fill sfidx */
 		if(pdcch->rnti == 65535 ) {
 			SS_DEBUGP("AR: putting PDCCH L(%d) ncce(%d)\n", location.L, location.ncce);
-			srslte_enb_dl_put_pdcch_dl(q, &dl_dci, format,location, 0 /*pdcch->rnti*/, tti % 10);
+			srslte_enb_dl_put_pdcch_dl(q, &dl_dci, format,location, 0/*pdcch->rnti*/, tti % 10);
 		} else {
 			srslte_enb_dl_put_pdcch_dl(q, &dl_dci, format,location, pdcch->rnti, tti % 10);
 		}
@@ -1057,8 +1057,7 @@ U8                         tbIndex
 		}
 		SRemPreMsgMult((Data*)send_data, size, data->mBuf[tbIndex]);
 		if(data->rnti == 65535 ) {
-			srslte_enb_dl_put_pdsch(q, &grant, &softbuffer,
-					0, data->dciInfo.u.format1aAllocInfo.rv, tti % 10,
+			srslte_enb_dl_put_pdsch(q, &grant, &softbuffer, 0/*65535*/, data->dciInfo.u.format1aAllocInfo.rv, tti % 10,
 					send_data);
 		} else {
 
@@ -1624,13 +1623,15 @@ void start_dl(){
 void encodeDl()
 {
 	static U32 tti_rx = 0;
+	static U32 cnt_sfn = 0;
+	static U32 cnt_sf = 0;
 	CmLteTimingInfo  timingInfo;
-	TfuTtiIndInfo   *ttiInd;
-	TfuTtiIndInfo   *schTtiInd;
+	TfuTtiIndInfo   ttiInd;
+	TfuTtiIndInfo   schTtiInd;
 
-	SS_DEBUGP("L1 SFN(%d) SF(%d)\n", tti_rx / 10, tti_rx % 10 );
-	timingInfo.sfn = (tti_rx) % 1024;
-	timingInfo.subframe = (tti_rx) % 10;
+	SS_DEBUGP("L1 SFN(%d) SF(%d)\n", cnt_sfn, cnt_sf );
+	timingInfo.sfn = cnt_sfn;
+	timingInfo.subframe = cnt_sf;
 
 	srslte_enb_dl_clear_sf(dl_init);
 
@@ -1638,41 +1639,55 @@ void encodeDl()
 
 	ysFillEncMsgs(dl_init, tti_rx);
 
-	SS_DEBUGP("Transform OFDM SYMBOLS output_buffer(%p)\n", &output_buffer[sf_n_samples * (tti_rx % 10)]);
-	srslte_enb_dl_gen_signal(dl_init, &output_buffer[sf_n_samples *( tti_rx % 10)]);	
-
+	SS_DEBUGP("Transform OFDM SYMBOLS output_buffer(%p)\n", &output_buffer[sf_n_samples * cnt_sf]);
+	srslte_enb_dl_gen_signal(dl_init, &output_buffer[sf_n_samples * cnt_sf]);	
+#if 0
 	SGetSBuf(ysCb.schTfuSap.sapPst.region, ysCb.schTfuSap.sapPst.pool, 
 			(Data **)&schTtiInd, sizeof(TfuTtiIndInfo));
 
 	SGetSBuf(ysCb.tfuSap.sapPst.region, ysCb.tfuSap.sapPst.pool, 
 			(Data **)&ttiInd, sizeof(TfuTtiIndInfo));
+#endif
 
 	/* fill TTI indication for MAC */
-	ysCb.cellCb.timingInfo.subframe =  (tti_rx) % 10;
-	ysCb.cellCb.timingInfo.sfn =  (tti_rx) % 1024;
+	ysCb.cellCb.timingInfo.subframe =  cnt_sf;
+	ysCb.cellCb.timingInfo.sfn =  cnt_sfn;
 #if 0
 	ttiInd->cellId = ysCb.cellCb.cellId;
 	ttiInd->timingInfo = timingInfo;
 	ttiInd->isDummyTti = FALSE;
 #else
-        ttiInd->numCells = 1;
-        ttiInd->cells[0].cellId = ysCb.cellCb.cellId;
-        ttiInd->cells[0].timingInfo = timingInfo;
-        ttiInd->cells[0].isDummyTti = 0;   
-        ttiInd->cells[0].schTickDelta = 0; 
-        ttiInd->cells[0].dlBlankSf = 0;    
-        ttiInd->cells[0].ulBlankSf = 0; 
+        ttiInd.numCells = 1;
+        ttiInd.cells[0].cellId = ysCb.cellCb.cellId;
+        ttiInd.cells[0].timingInfo = timingInfo;
+        ttiInd.cells[0].isDummyTti = 0;   
+        ttiInd.cells[0].schTickDelta = 0; 
+        ttiInd.cells[0].dlBlankSf = 0;    
+        ttiInd.cells[0].ulBlankSf = 0; 
 #endif
-
+        //printf("SFN:SF [%d :%d]\n", cnt_sfn, cnt_sf);
 	/* fill TTI indication for scheduler */
-	*schTtiInd = *ttiInd;
+	schTtiInd = ttiInd;
 
 	/* Give TTI indication to scheduler */
-	YsUiTfuSchTtiInd(&ysCb.schTfuSap.sapPst, ysCb.schTfuSap.suId, schTtiInd);
+	YsUiTfuSchTtiInd(&ysCb.schTfuSap.sapPst, ysCb.schTfuSap.suId, &schTtiInd);
 
 	/* Give TTI indication to MAC */
-	YsUiTfuTtiInd(&ysCb.tfuSap.sapPst, ysCb.tfuSap.suId, ttiInd);
+	YsUiTfuTtiInd(&ysCb.tfuSap.sapPst, ysCb.tfuSap.suId, &ttiInd);
 	tti_rx++;
+        cnt_sf++;
+        if((cnt_sf % 10) == 0)
+        {
+           cnt_sf = 0;
+           if(cnt_sfn == 1023)
+           {
+              cnt_sfn = 0;
+           }
+           else
+	   {
+	      cnt_sfn++;
+	   }
+        }
 }
 
 
@@ -1692,7 +1707,7 @@ void myttiHandler()
 
 int main7(CtfCellCfgInfo*       cellCfg) {
 	srslte_cell_t cell;
-//   srslte_pusch_hopping_cfg_t hopping_cfg;
+   srslte_pusch_hopping_cfg_t hopping_cfg;
 	/* TODO: Generic cell configuration validate the ranges from APP to L1 */
 	if(CTF_BW_RB_25 == cellCfg->bwCfg.dlBw)
 	{
@@ -1782,8 +1797,8 @@ int main7(CtfCellCfgInfo*       cellCfg) {
 
 	srslte_softbuffer_tx_reset(&softbuffer);
 
-	//srslte_enb_ul_init(ul_init, cell, &prach_cfg, &pusch_cfg, &hopping_cfg, &pucch_cfg, 2);
-	srslte_enb_ul_init(ul_init, cell, &prach_cfg, &pusch_cfg,  &pucch_cfg, 2);
+	srslte_enb_ul_init(ul_init, cell, &prach_cfg, &pusch_cfg, &hopping_cfg, &pucch_cfg, 2);
+	//srslte_enb_ul_init(ul_init, cell, &prach_cfg, &pusch_cfg,  &pucch_cfg, 2);
 	srslte_enb_rf_init(dl_init);
 
 		return(1);
@@ -1791,6 +1806,9 @@ int main7(CtfCellCfgInfo*       cellCfg) {
 
 void net_thread_fnc(void *args)
 {
+    extern U8 isStartDl;
+        while(isStartDl == 0)
+          usleep(500);
 	while(!go_exit)
 	{
 		myttiHandler();

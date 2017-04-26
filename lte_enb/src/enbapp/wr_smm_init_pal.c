@@ -63,6 +63,8 @@ EXTERN const char * wrGetSwVersion_UL2(Void);
 #ifdef TIP_L3
 EXTERN U8 tipIsL3Ready;
 #endif
+U8 isStartDl = 0;
+extern void start_dl();
 
 #define PRINT_STR(x)   #x
 #include "wr_msm_common.h"
@@ -1174,6 +1176,7 @@ PUBLIC S16 tst(Void)
       thread(system task). Essentially this will reduce number of 
       threads but impacts parallelism, since application threads involves
       IO operations. */
+   start_dl();
    SCreateSTsk(32, &rrc_s1ap_app_taskId); 
    
    sm_taskId = sctp_taskId = egtp_dat_app_taskId = rrc_s1ap_app_taskId;
@@ -6861,6 +6864,7 @@ PUBLIC S16 tst(Void)
 		RETVALUE(RFAILED);
 	} /* end of if statement */
  
+   start_dl();
    proc_Id = WR_LL2_OFFSET + (LL2_IP_ADDR & 0x0000ffff); //LL2_PORT_TIP;
    SSetProcId(SM_RG_PROC);
 
