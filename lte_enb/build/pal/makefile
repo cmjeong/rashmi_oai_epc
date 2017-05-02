@@ -369,6 +369,7 @@ endif
 	$(Q)cp -f ../config/ssi_mem_net ./rsys/config
 	$(Q)cp -f ../config/ssi_mem_radio ./rsys/config
 	$(Q)cp -f ../config/ssi_mem ./rsys/config
+	$(Q)cp -f ./rsys/config/configFile_tip_4cells ./rsys/config/configFile
 	$(Q)cp -f ../scripts/start_ul2_tip.sh ./rsys/bin/ul2.sh
 #	$(Q)cp -f ../scripts/l3_t33h.sh ./rsys/scripts/start_eNB.sh
 #	$(Q)cp -f ../scripts/l1_t33h.sh $(ROOT_DIR)/l1
