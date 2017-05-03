@@ -84,7 +84,10 @@ ifneq ($(wildcard $(ROOT_DIR)/src/tenb_commonplatform/software), )
 OAM_SRC=NO
 endif
 
+ifeq ($(SRS_PHY),YES)
+L_OPTS = -lrt -lm -lpthread -lstdc++ -export-dynamic -L/usr/local/lib/ -lsrslte -L /usr/lib/i386-linux-gnu/ -lfftw3f -lbladeRF -L $(LIB_ROOT)
+else
 L_OPTS = -lrt -lm -lpthread -lstdc++ -L $(LIB_ROOT)
-
+endif
 L_OAM += -L./oamlibs/ -lsm  -lRadisys-mib-common -lthreeway-comms \
    -lthreeway-messaging -ldl -lthreeway-mobnet -lthreeway-system

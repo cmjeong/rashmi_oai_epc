@@ -113,6 +113,9 @@ endif
 ifeq ($(TIP),YES)
    PLTFRM_FLAGS += -DTIP_OAM
 endif
+ifeq ($(SRS_PHY),YES)
+   PLTFRM_FLAGS += -DSRS_PHY -DUSE_PURE
+endif
 
 # The include options get merged with the options needed by
 # the called makefiles and hence we export these to make them
@@ -174,7 +177,11 @@ enb_upperl2:
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rl.mak OBJ_DIR=$(BUILD_DIR)/obj/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/mt.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rg.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
+ifeq ($(SRS_PHY),YES)
+	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_srs.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
+else
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_pal.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
+endif
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/sec.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/tip.mak OBJ_DIR=$(OBJ_ROOT)/pal/ul2 LIB_DIR=$(LIB_ROOT)/pal/ul2 LOG_DIR=$(LOG_ROOT)/pal/ul2 CC='$(CC2)' TIP_UPPER_L2=YES
 
@@ -196,7 +203,11 @@ enb_lowerl2:
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rl.mak OBJ_DIR=$(BUILD_DIR)/obj/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/mt.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rg.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
+ifeq ($(SRS_PHY),YES)
+	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_srs.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
+else
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_pal.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
+endif
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/sec.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC2)' TIP_LOWER_L2=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/tip.mak OBJ_DIR=$(OBJ_ROOT)/pal/ll2 LIB_DIR=$(LIB_ROOT)/pal/ll2 LOG_DIR=$(LOG_ROOT)/pal/ll2 CC='$(CC3)' TIP_LOWER_L2=YES
 
@@ -218,7 +229,11 @@ enb_l3: oam
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rl.mak OBJ_DIR=$(BUILD_DIR)/obj/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/mt.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rg.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
+ifeq ($(SRS_PHY),YES)
+	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_srs.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
+else
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_pal.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
+endif
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/sec.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC2)' TIP_L3=YES
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/tip.mak OBJ_DIR=$(OBJ_ROOT)/pal/l3 LIB_DIR=$(LIB_ROOT)/pal/l3 LOG_DIR=$(LOG_ROOT)/pal/l3 CC='$(CC1)' TIP_L3=YES
 
@@ -240,7 +255,11 @@ enb: oam
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rl.mak OBJ_DIR=$(BUILD_DIR)/obj/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/mt.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/rg.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
+ifeq ($(SRS_PHY), YES)
+	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_srs.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
+else
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/ys_pal.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
+endif
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/sec.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
 	$(Q)$(MAKE) -f $(COM_BUILD_DIR)/tip.mak OBJ_DIR=$(OBJ_ROOT)/pal LIB_DIR=$(LIB_ROOT)/pal LOG_DIR=$(LOG_ROOT)/pal CC='$(CC1)'
 

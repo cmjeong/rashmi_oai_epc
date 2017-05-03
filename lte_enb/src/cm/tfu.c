@@ -1115,6 +1115,23 @@ TfuRecpReqInfo * recpReq;
    RETVALUE(SPstTsk(pst,mBuf));
 }
 
+PUBLIC S16 cmUnpkTful1DataReq
+(
+TfuL1ReadReq func,
+Pst *pst,
+Buffer *mBuf
+)
+{
+   SpId spId;
+   U8 event;   
+   TRC3(cmUnpkTfuRecpReq)
+
+   SUnpkS16(&spId, mBuf);
+
+   TFU_FREE_MSG(mBuf);
+   RETVALUE((*func)(pst, spId, 0));
+}
+
 
 /***********************************************************
 *

@@ -2080,6 +2080,11 @@ typedef S16 (*TfuRecpReq) ARGS((
    SpId                 spId,
    TfuRecpReqInfo   *recpReq));
 
+typedef S16 (*TfuL1ReadReq) ARGS((
+   Pst *                pst,
+   SpId                 spId,
+   U32 			tti));
+
 typedef S16 (*TfuUlCqiInd) ARGS((
    Pst *                pst,
    SuId                 suId,

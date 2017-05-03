@@ -2360,7 +2360,7 @@ Data  **ptr;         /* Reference to pointer for which need to be allocate */
 #else
 /*   *ptr = (Data*) malloc(*size); */
 #endif
-#ifndef TIP_L2_L3_SPLIT
+#ifndef USE_PURE
    *ptr = (Data *)tcmalloc(*size);
 #else
    *ptr = (Data*) malloc(*size);
@@ -3344,7 +3344,7 @@ Size    size;       /* Size of the block */
    /* (Void)free(ptr); */
 #endif
 /*   avail_size += size; */
-#ifndef TIP_L2_L3_SPLIT
+#ifndef USE_PURE
    tcfree(ptr);
 #else
    (Void)free(ptr);
@@ -3923,7 +3923,7 @@ Data  **ptr;
 /*   *ptr = (Data*) malloc(*size); */
 #endif
 
-#ifndef TIP_L2_L3_SPLIT
+#ifndef USE_PURE
    *ptr = (Data *)tcmalloc(*size);
 #else
    *ptr = (Data*) malloc(*size);
@@ -4115,7 +4115,7 @@ Size    size;
 /*   (Void)free(ptr); */
 #endif
 /*   avail_size += size; */
-#ifndef TIP_L2_L3_SPLIT
+#ifndef USE_PURE
    tcfree(ptr);
 #else
    (Void)free(ptr);

@@ -100,6 +100,9 @@
 #define EVTTFUERRIND            25    /*!< TFU Error Indication */
 /** @} */
 
+#define EVTTFUREADL1DATA        26
+#define EVTTFUENCODEL1DATA 	27
+
 /* selector(coupling) values */
 #define TFU_SEL_TC              1    /*!< Selector for Tight coupling. */
 #define TFU_SEL_LC              0    /*!< Selector for Loose coupling. */
