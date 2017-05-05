@@ -386,7 +386,8 @@ void trfgen_start_test(int test_id, char *host_ip, char *bind_ip, char *host_por
       }
       else
       {
-         iperf_set_test_socket_bufsize(test,20000);
+         iperf_set_test_rate(test, 5000);
+         iperf_set_test_socket_bufsize(test,200);
       }
 #if 0
       /* create client thread */
