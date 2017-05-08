@@ -134,3 +134,17 @@ Common configuration parameters in ys_cfg.txt (mandatory for both flavours)
 ===========================================================================
 YS_IP_ADDR_ENB        192.168.10.4  - eNodeB address
 YS_IP_ADDR_UE         192.168.10.5  - UE IP address
+
+Compilation and execution of sliced eNodeB with SRS PHY (without OAM)
+============================================================
+1) Untar the release package.
+2) Go to folder lte_enb/build/pal/
+3) Run following compilation command:
+   b) make tenb TEXT_LOG=YES SRS_PHY=YES
+4) On successful compilation, an executable package will be created at path: lte_enb/build/pal/rsys_withoutoam/
+5) Go to rsys_withoutoam/bin;
+6) Update wr_cfg.txt file; [Key parameters to be updated are mentioned in the configuration section]
+7) Update ys_cfg.txt file;
+8) Execute the follwing command to run the binary:
+   a) L3: ./start_eNB.sh
+
