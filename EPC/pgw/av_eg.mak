@@ -726,7 +726,7 @@ GNULLIBS=""
 LNXENV="-DSUNOS -DSS_LINUX -DANSI "
 
 ifeq ($(MACHINE), BIT64)
-LNXCOPTS="-g -march=core2 -DALIGN_64BIT -DBIT_64 -Wall -Wno-comment \
+LNXCOPTS="-g -march=native -fPIC -DALIGN_64BIT -DBIT_64 -Wall -Wno-comment \
 	-pipe -Wshadow -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes \
 	-Wuninitialized  -Wunused "
 else

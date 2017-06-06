@@ -590,7 +590,7 @@ LNXENV="-DSUNOS   -DSS_LINUX -DANSI -D_GNU_SOURCE"
 #LNXENV="-DSUNOS   -DSS_LINUX "
 
 ifeq ($(MACHINE), BIT64)
-LNXCOPTS=" -O3 -march=core2 -DALIGN_64BIT -DBIT_64 -Wall -Wno-comment \
+LNXCOPTS=" -O3 -march=native -fPIC -DALIGN_64BIT -DBIT_64 -Wall -Wno-comment \
 	-pipe -Wshadow -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes \
 	-Wuninitialized  -Wunused "
 else
