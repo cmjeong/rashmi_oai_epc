@@ -4797,7 +4797,7 @@ S16 dst;                    /* destination id */
 	S16 j;                   /* counter */
    S16 k;                   /* counter */
    U8 data;                 /* data */
-   U8 tdata[16];            /* temporary data */
+   U8 tdata[16]={0};            /* temporary data */
    S8 prntBuf[256];         /* print buffer */
    Buffer *tmp;             /* buffer ptr */
    Data *cptr;

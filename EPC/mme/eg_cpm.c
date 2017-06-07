@@ -2098,7 +2098,7 @@ EgEvnt *evnt;                                    /* Event Structure */
    ********************************/
    EG_DBG_INFO(0,0, (egp,"Event Structure : \n"));
    EG_DBG_INFO(0,0, (egp,"Msg Typ : %d \n",evnt->msgType ));
-   EG_DBG_INFO(0,0, (egp,"Sequence Number : %ld \n",evnt->seqNumber));
+   EG_DBG_INFO(0,0, (egp,"Sequence Number : %u \n",evnt->seqNumber));
 
   /******************************************
    * Printing the Local Tunnel information  *

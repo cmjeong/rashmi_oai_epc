@@ -165,6 +165,26 @@ PRIVATE LhiStaReq SmMiLhiStaReqMt[MAXHIMI] =
 #endif
 };
 
+PUBLIC S16 SmMiLhiCfgReq ARGS ((
+ Pst *spst,                /* post structure */
+ HiMngmt *cfg              /* configure */
+ ));
+
+PUBLIC S16 SmMiLhiStsReq ARGS((
+ Pst *spst,                /* post structure */
+ Action action,
+ HiMngmt *sts              /* statistics */
+ ));
+
+PUBLIC S16 SmMiLhiCntrlReq ARGS ((
+ Pst *spst,                 /* post structure */
+ HiMngmt *cntrl            /* control */
+ ));
+
+PUBLIC S16 SmMiLhiStaReq ARGS((
+ Pst *spst,                /* post structure */
+ HiMngmt *sta              /* status */
+));
 
 /*
 *     layer management interface functions 

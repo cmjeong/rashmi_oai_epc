@@ -1157,7 +1157,7 @@ U8 value;              /* Value to encode */
 #endif
 {
    U8     octetVal;
-   U8     byte;
+   U8     byte = 0;
    MsgLen len;
 
    TRC2 (cmPAsnRepAndEncBitField)

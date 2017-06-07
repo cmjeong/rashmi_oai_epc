@@ -3670,8 +3670,8 @@ PRIVATE S16 qoSgwOutDDN(msg,s11Tun)
 
    QO_SGW_TRC2(qoSgwOutDDN)
 
-   cmMemset(&create,0,sizeof(TknU8));
-   cmMemset(&teidTkn,0,sizeof(TknU32));
+   cmMemset((U8 *)&create,0,sizeof(TknU8));
+   cmMemset((U8 *)&teidTkn,0,sizeof(TknU32));
    teidTkn.pres = PRSNT_NODEF;
    teidTkn.val  = s11Tun->locTeid;
    create.pres=PRSNT_NODEF;
@@ -5341,8 +5341,8 @@ EgMsg             *egMsg;     /* gtp-c msg */
 
    QO_SGW_TRC2(qoSgwOutCBReq)
 
-   cmMemset(&teidTkn,0,sizeof(TknU32));
-   cmMemset(&transId,0,sizeof(TknU32));
+   cmMemset((U8 *)&teidTkn,0,sizeof(TknU32));
+   cmMemset((U8 *)&transId,0,sizeof(TknU32));
    /* Create SGW S1-U dedicated tunnels */
    bearerLst = &(pdnCb->tmpPdnData->bearers);
    CM_LLIST_FIRST_NODE(bearerLst, tmp);
@@ -5435,8 +5435,8 @@ EgMsg             *egMsg;     /* gtp-c msg */
 
    QO_SGW_TRC2(qoSgwOutDBReq)
 
-   cmMemset(&teidTkn,0,sizeof(TknU32));
-   cmMemset(&transId,0,sizeof(TknU32));
+   cmMemset((U8 *)&teidTkn,0,sizeof(TknU32));
+   cmMemset((U8 *)&transId,0,sizeof(TknU32));
    ret = qoSgwBldDBReq(pdnCb, egMsg);
    if (ROK == ret)
    {
@@ -5502,8 +5502,8 @@ EgMsg             *egMsg;     /* gtp-c msg */
 
    QO_SGW_TRC2(qoSgwOutUBReq)
 
-   cmMemset(&teidTkn,0,sizeof(TknU32));
-   cmMemset(&transId,0,sizeof(TknU32));
+   cmMemset((U8 *)&teidTkn,0,sizeof(TknU32));
+   cmMemset((U8 *)&transId,0,sizeof(TknU32));
    ret = qoSgwBldUBReq(pdnCb, egMsg);
    if (ROK == ret)
    {

@@ -3326,7 +3326,7 @@ EgMsgHdr       egGmHdr;         /* GTP header */
    EG_STRCAT(prnBuff, buff);
 #endif /* end of  ALIGN_64BIT */
 
-   snprintf(buff, EG_UTIL_PRNT_BUFF_SIZE,"  Seq No    = %ld\n", egGmHdr.seqNumber);
+   snprintf(buff, EG_UTIL_PRNT_BUFF_SIZE,"  Seq No    = %u\n", egGmHdr.seqNumber);
    EG_STRCAT(prnBuff, buff);
 #ifdef LEG_FILE_LOG
    fprintf(fp, "%s\n", prnBuff);
@@ -6766,7 +6766,7 @@ PRIVATE S16 egUUtilDumpGmHdr(egGmHdr)
    if(egGmHdr.seqNumber.pres)
    {
       /*-- eg005.201: Format specifier aligned to 32-bit val of Seq Num --*/
-      sprintf(buff, "  Seq No    = %ld\n", egGmHdr.seqNumber.val);
+      sprintf(buff, "  Seq No    = %u\n", egGmHdr.seqNumber.val);
       EG_STRCAT(prnBuff, buff);
    }
 

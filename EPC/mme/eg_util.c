@@ -3326,7 +3326,7 @@ EgMsgHdr       egGmHdr;         /* GTP header */
    EG_STRCAT(prnBuff, buff);
 #endif /* end of  ALIGN_64BIT */
 
-   snprintf(buff, EG_UTIL_PRNT_BUFF_SIZE,"  Seq No    = %ld\n", egGmHdr.seqNumber);
+   snprintf(buff, EG_UTIL_PRNT_BUFF_SIZE,"  Seq No    = %u\n", egGmHdr.seqNumber);
    EG_STRCAT(prnBuff, buff);
 #ifdef LEG_FILE_LOG
    fprintf(fp, "%s\n", prnBuff);

@@ -517,7 +517,6 @@ S1apPdu  *pdu;
 #endif /* ANSI */
 {
    SzConCb         *conCb = NULLP;
-   SztUE_S1AP_IDs  *ueS1apId = NULLP;
    /* sz008.301 : Added UE_S1AP_IDS_MME_UE_S1AP_ID to decode,
     * in the Ue Context Release Command message. */
    TknU32           *mmeIdTkn = NULLP; 

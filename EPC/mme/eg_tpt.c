@@ -1187,7 +1187,7 @@ Bool          pbVal;                              /* pBit validation */
     EG_EXAM_U32(seqNo, mBuf, count);
     seqNo >>= EG_SHIFT_8;
     seqNo &= 0x00FFFFFF;
-    EG_DBG_INFO(0, 0, (egp,"\n Seq No.(%ld) of Message", seqNo));
+    EG_DBG_INFO(0, 0, (egp,"\n Seq No.(%u) of Message", seqNo));
 
 
    /*************************************************
@@ -1262,7 +1262,7 @@ EgPartialMsg *partialMsg;                 /* Partial Decoded Message */
     if ((ret != ROK) || (seqNoCb == NULLP))
     {
        EG_DBG_ERR(0, 0,
-        (egp,"\n Failed to get the Seq No(%ld). CB ", seqNo));
+        (egp,"\n Failed to get the Seq No(%u). CB ", seqNo));
        EG_RETVALUE(RFAILED);
     }
    
@@ -2069,7 +2069,7 @@ Buffer        *mBuf;      /* Received message                        */
    EG_TRC2(egTptQueueMsg);
 
     EG_DBG_INFO(0,0,
-        (egp, "\n Queueing the Message with Seq No(%ld).", partialMsg->seqNo));
+        (egp, "\n Queueing the Message with Seq No(%u).", partialMsg->seqNo));
  
    /********************************************
     * Allocate a seq. Number Control block. If *
@@ -2289,7 +2289,7 @@ Bool            isSendInd;    /* To send the Error Indication to PCM */
     ********************************************************/
     if ((ret != ROK) || (seqNoCb == NULLP))
     {
-       EG_DBG_INFO(0, 0, (egp,"\n Failed to get the Seq No(%ld). CB ", seqNo));
+       EG_DBG_INFO(0, 0, (egp,"\n Failed to get the Seq No(%u). CB ", seqNo));
        EG_RETVALUE(ROK);
     }
 
@@ -2551,7 +2551,7 @@ Buffer        *mBuf;                     /* Received message buffer */
     msgCat = partialMsg->msgCat;
 
     EG_DBG_INFO(0,0, 
-    (egp,"\n Queueing Message with MSB set in Seq No(%ld).", seqNo));
+    (egp,"\n Queueing Message with MSB set in Seq No(%u).", seqNo));
 
    /************************************************
     * Initialize with number of Hash Bins. Now try *
@@ -4177,7 +4177,7 @@ EgTptReTmrCb       *tptReTmrCb;            /* Control block pointer */
             0, (PTR *)&seqNoCb); 
       if ((ret != ROK) || (seqNoCb == NULLP))
       {
-         EG_DBG_ERR(0, 0, (egp,"\n Failed to get the Seq No(%ld). CB ", 
+         EG_DBG_ERR(0, 0, (egp,"\n Failed to get the Seq No(%u). CB ", 
                     seqNo));
          EG_RETVOID;
       }
@@ -4996,7 +4996,7 @@ EgPartialMsg  *partialMsg;                 /* Ptr to Partial Message */
      {
         /*-- eg003.201: use format specifier according to datatype --*/
 #ifdef LONG_MSG
-       EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%ld iniMLen:%ld pbMlen:%ld)",bufLen,
+       EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%u iniMLen:%u pbMlen:%u)",bufLen,
                                partialMsg->iniMsgLen,partialMsg->pbMsgLen));
 #else
        EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%d iniMLen:%d pbMlen:%d)",bufLen,
@@ -5011,7 +5011,7 @@ EgPartialMsg  *partialMsg;                 /* Ptr to Partial Message */
         * Length is inconsistent, return with error *
         *********************************************/
 #ifdef LONG_MSG
-       EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%ld iniMLen:%ld)",bufLen,partialMsg->iniMsgLen));
+       EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%u iniMLen:%u)",bufLen,partialMsg->iniMsgLen));
 #else
        EG_DBG_ERR(0, 0, (egp,"\n Invalid Length of PiggyBacked Msg (TotLen:%d iniMLen:%d)",bufLen,partialMsg->iniMsgLen));
 #endif

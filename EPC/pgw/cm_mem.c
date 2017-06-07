@@ -126,6 +126,7 @@ PRIVATE S16 cmFree  ARGS((Void *regionCb, Data *ptr, Size size, U32 line,
 PRIVATE S16 cmHeapFree  ARGS((CmMmHeapCb *heapCb, Data *ptr, Size size,
             U32 line, U8 *fileName, U8 entId, Bool hstReg));
 #else /* no histogram support */
+#ifndef USE_PURE
 /* cm_mem_c_001.main_12 - prototype is changed to accept memType(static/dynamic) */
 #ifdef SSI_DEBUG_LEVEL1
 PRIVATE S16 cmHeapAlloc ARGS((CmMmHeapCb *heapCb, Data **ptr, Size *size, U32 memType));
@@ -133,6 +134,7 @@ PRIVATE S16 cmHeapAlloc ARGS((CmMmHeapCb *heapCb, Data **ptr, Size *size, U32 me
 PRIVATE S16 cmHeapAlloc ARGS((CmMmHeapCb *heapCb, Data **ptr, Size *size));
 #endif /* SSI_DEBUG_LEVEL1 */
 PRIVATE S16 cmHeapFree  ARGS((CmMmHeapCb *heapCb, Data *ptr, Size size));
+#endif /* SSI_DEBUG_LEVEL1 */
 /*  cm_mem_c_001.main_15 :Additions */
 #ifdef SSI_DEBUG_LEVEL1
 PRIVATE S16 cmAlloc ARGS((Void *regionCb, Size *size, U32 flags, Data **ptr, U32 memType));
@@ -2205,6 +2207,7 @@ Size         size;
 
 } /* end of cmMmHeapInit */
 
+#ifndef USE_PURE
 
 /*
 *
@@ -2559,7 +2562,9 @@ Size        *size;
    RETVALUE(ROUTRES);
 
 } /* end of cmHeapAlloc */
+#endif
 
+#ifndef USE_PURE
 
 /*
 *
@@ -2994,6 +2999,7 @@ Size         size;
 
    RETVALUE(RFAILED);
 } /* end of cmHeapFree */
+#endif
 /*  cm_mem_c_001.main_15 : Additions */
 #ifdef SS_MEM_LEAK_STS 
 /*

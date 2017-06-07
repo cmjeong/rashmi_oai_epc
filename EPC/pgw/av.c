@@ -144,12 +144,15 @@ PRIVATE S16 avPgwEgtCSReqRej ARGS((AvPgwUeTunnelCb *tunnelCb));
 
 PRIVATE S16 avPgwEgtDSReqAcc ARGS((AvPgwUeTunnelCb *tunnelCb));
 
+#if 0
 PRIVATE S16 avPgwEgtMBReqRej ARGS((
 AvPgwUeTunnelCb   *pCTun));
 
 PRIVATE S16 avPgwEgtMBReqAcc ARGS((
 AvPgwUeTunnelCb   *pCTun,
 EgMsg             *pEgMsg));
+
+#endif
 
 PRIVATE S16 avPgwEgtDSReqRej ARGS((AvPgwUeTunnelCb *tunnelCb));
 
@@ -203,6 +206,25 @@ AvPgwUeTunnelCb *tunnelCb,
 EgMsg          *egMsg
 ));
 
+EXTERN Void avPgwUpdtPdnCbtoIpCb (AvPgwPdnCb        *pdnCb);
+
+PUBLIC S16 avPgwTrigDBReq ARGS((
+U32 ipAddr
+));
+
+EXTERN S16 AvPgwGetPdnCbOnIp (AvPgwIpCb *pIpCb, AvPgwPdnCb **pdnCb);
+
+PUBLIC S16 avPgwTrigCBReq ARGS((
+U32 ipAddr, U32 ueSrcPort
+));
+
+EXTERN S16 avPgwGetTempTftParams(AvPgwTft *tft, U32 ueSrcPort);
+
+EXTERN S16 avPgwUpdtTftParams(AvPgwUeTunnelCb *ueTunnCb, AvPgwTft *tft);
+
+EXTERN S16 avPgwEncTftBuf(U8 *tftBuf, U32 *tftLen, AvPgwTft *tft);
+
+EXTERN S16 avPgwFillQos(AvPgwUeTunnelCb  *ueTunlCb);
 
 /*
 *
@@ -927,6 +949,7 @@ AvPgwUeTunnelCb *tunnelCb;
  *    SUCCESS if handling is successful otherwise its FAILURE
  *
  *****************************************************************************/
+#if 0
 PRIVATE S16 avPgwEgtMBReqAcc
 (
 AvPgwUeTunnelCb   *pCTun,
@@ -948,7 +971,7 @@ EgMsg             *pMbRsp
    AV_PGW_SND_RETVALUE(ROK);
 
 } /* avPgwEgtMBReqAcc */
-
+#endif
 
 /**************************************************************************//**
  *
@@ -963,6 +986,7 @@ EgMsg             *pMbRsp
  *    SUCCESS if handling is successful otherwise its FAILURE
  *
  *****************************************************************************/
+#if 0
 PRIVATE S16 avPgwEgtMBReqRej
 (
 AvPgwUeTunnelCb   *pCTun
@@ -983,7 +1007,7 @@ AvPgwUeTunnelCb   *pCTun
    AV_PGW_SND_RETVALUE(ROK);
 }
 
-
+#endif
 /*
 *
 *    Fun:    avPgwEgtDSReqAcc
@@ -2839,7 +2863,7 @@ EgMsg             *egMsg;
 
    AV_PGW_SND_TRC2(avPgwEgtInDBCmd);
 
-   cmMemset(&create,0,sizeof(TknU8));
+   cmMemset((U8 *)&create,0,sizeof(TknU8));
    ueCb = tunnelCb->ueCb;
    pdnCb = tunnelCb->pdnCb;
    pdnCb->seqNum = egMsg->msgHdr.seqNumber;
@@ -3189,7 +3213,6 @@ PUBLIC S16 avPgwTrigDBReq(U32 ipAddr)
    S16 retVal = ROK;
    AvPgwPdnCb        *pdnCb = NULLP;
    EgMsg             *dbReq = NULLP;
-   U32         cause = 0;
    TknU8       create;
    TknU32      localTeId = {0};
    AvPgwUeTunnelCb   *tunnelCb = NULLP;
@@ -3299,9 +3322,7 @@ PUBLIC S16 avPgwTrigCBReq(U32 ipAddr, U32 ueSrcPort)
 {
    AvPgwPdnCb        *pdnCb = NULLP;
    EgMsg             *egMsg = NULLP;
-   AvPgwPendingTun   *pendingTun = NULLP;
    U32               ipIdx = 0;
-   U32               bCnt = 0;
    TknU8             create;
    TknU32            localTeId = {0};
    AvPgwUeTunnelCb   *s5s8CTun = NULLP;

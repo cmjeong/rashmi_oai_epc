@@ -454,7 +454,7 @@ EgMsg       *pEgMsg
    }
    else
    {
-      VB_MME_DBG_ERROR((VB_MME_PRNTBUF, "Getting S3 Tunnel, Teid: [%ld]",\
+      VB_MME_DBG_ERROR((VB_MME_PRNTBUF, "Getting S3 Tunnel, Teid: [%u]",\
             locTeid.val));
    }
 

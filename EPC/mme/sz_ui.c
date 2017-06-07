@@ -1533,7 +1533,6 @@ SztDatEvntReq *datEvnt;   /*  cn st sdus */
    SzPeerCb    *peer;
    U8          evnt;          /* Event type */
    /* sz008.301: Removed the gurading of variable under SZ_ENB , SZ_MME */
-   TknU8       *eNbId = NULLP;
    TknU8       *mmeS1apId = NULLP;
 
    TRC3(SzUiSztDatReq);

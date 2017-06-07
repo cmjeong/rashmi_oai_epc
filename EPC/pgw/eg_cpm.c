@@ -2098,7 +2098,7 @@ EgEvnt *evnt;                                    /* Event Structure */
    ********************************/
    EG_DBG_INFO(0,0, (egp,"Event Structure : \n"));
    EG_DBG_INFO(0,0, (egp,"Msg Typ : %d \n",evnt->msgType ));
-   EG_DBG_INFO(0,0, (egp,"Sequence Number : %ld \n",evnt->seqNumber));
+   EG_DBG_INFO(0,0, (egp,"Sequence Number : %u \n",evnt->seqNumber));
 
   /******************************************
    * Printing the Local Tunnel information  *
@@ -2242,7 +2242,7 @@ PUBLIC S16 egUHndlT3N3TmrExpiry(Void)
             {
                /*-- eg002.201: Changed format specified for U32 --*/
                EG_DBG_ERR(0, 0,(egp,"\n egUHndlT3N3TmrExpiry:Failed to retransmit \
-                        echo request for sequence No (%ld)\n",echoReq->seqNo));
+                        echo request for sequence No (%u)\n",echoReq->seqNo));
                continue;
             }
          }

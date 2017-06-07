@@ -333,7 +333,9 @@ VbHssAuthVec        *authVec;
 U8                  *plmn;
 #endif
 {
+#if 0   
    U32 rndNmb = 0;
+#endif   
    U8  indx = 0;
    U8 seqXorAk[VB_HSS_SEQ_NMB_SIZE];
    U8 amf[2] = {0x80, 0x00};

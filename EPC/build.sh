@@ -15,7 +15,7 @@ ARCH=$MARCH
 #build MME and create a softlink in SETUP
 echo "[INFO]Build MME"
 cd mme
-make -f vb.mak BLDENV=lnx_acc COMPILER=GPP MACHINE=$MACHINE  acc -j 5 > ../.build/mme.build.log 2>&1
+make -f vb.mak BLDENV=lnx_acc COMPILER=GCC MACHINE=$MACHINE  acc -j 5 > ../.build/mme.build.log 2>&1
 
 if [ ! -f $C_DIR/mme/vb_acc ]
 then

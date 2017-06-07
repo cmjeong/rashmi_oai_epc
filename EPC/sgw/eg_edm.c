@@ -13250,7 +13250,7 @@ PUBLIC S16 egUEncMsgReq(evntMsg)
          /*-- eg003.201: use format specifier according to datatype --*/
 #ifdef LONG_MSG
          EG_DBG_INFO(0,0, (egp,
-                  "egUEncMsgReq: T-PDU size: %ld exceeds the maximum configured value: %d \n",
+                  "egUEncMsgReq: T-PDU size: %u exceeds the maximum configured value: %d \n",
                   tPduSize, evntMsg->maxTPduSize));
 #else
          EG_DBG_INFO(0,0, (egp,

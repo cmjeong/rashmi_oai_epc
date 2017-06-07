@@ -1423,14 +1423,14 @@ PUBLIC Txt *osTmpnam()
    if ((ret == 0) || (ret > sizeof(tmpDir)))
    {
       /* GetTempPath failed */
-      RETVALUE(tmpnam(NULLP));
+      RETVALUE((Txt*)tmpfile());
    }
    if (GetTempFileName(tmpDir, NULLP, 0, tmpFile) == 0)
       RETVALUE(NULLP);
    else
       RETVALUE(tmpFile);
 #else
-   RETVALUE(tmpnam(NULLP));
+   RETVALUE((Txt*)tmpfile());
 #endif /* DEF_NTSSLIB || DEF_NU */
 } /* end of osTmpnam */
 
@@ -1969,10 +1969,7 @@ PRIVATE S8 *sysErrStr()
 
    if (errno != 0)
    {
-      if (errno > 0 && errno < sys_nerr)
-         sprintf(msgstr, "(%s)", sys_errlist[errno]);
-      else
-         sprintf(msgstr, "(errno = %ld)", (long) errno);
+      snprintf(msgstr, 200, "(%s)", strerror(errno));
    }
    else
       msgstr[0] = '\0';
@@ -2376,6 +2373,7 @@ PRIVATE Void INTERRPT msgClean()
 *       File:  cm_os.c
 *
 */
+#if 0
 #ifdef ANSI
 PRIVATE Void msgRmv
 (
@@ -2394,7 +2392,7 @@ S32 mid;
    RETVOID;
 
 } /* end of msgRmv */
-
+#endif
 
 /*
 *

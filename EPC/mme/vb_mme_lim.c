@@ -2834,7 +2834,7 @@ U8          msgType
 
    VB_TRC2(vbMmeLimHdlIncUeConCfm);
 
-   VB_MME_DBG_INFO((VB_MME_PRNTBUF, "Received Ue ConMsg eNodeb(%ld)",\
+   VB_MME_DBG_INFO((VB_MME_PRNTBUF, "Received Ue ConMsg eNodeb(%u)",\
          pConCfm->spConnId));
 
    switch(msgType)

@@ -733,7 +733,7 @@ Buffer         *mBuf;       /* message buffer */
 #endif
 
    EG_TRC3(EgLiHitUDatInd);
-   EGDBGP(DBGMASK_UI,(egCb.init.prntBuf,"EgLiHitUDatReq: In From (%ld)\n", remAddr->u.ipv4TptAddr.address));
+   EGDBGP(DBGMASK_UI,(egCb.init.prntBuf,"EgLiHitUDatReq: In From (%u)\n", remAddr->u.ipv4TptAddr.address));
 
 #ifdef SS_MULTIPLE_PROCS
    if((SGetXxCb(pst->dstProcId, pst->dstEnt,\

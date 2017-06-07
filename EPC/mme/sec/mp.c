@@ -1421,7 +1421,7 @@ void mpfprint(FILE* f, size_t size, const mpw* data)
 		# elif SIZEOF_UNSIGNED_LONG == 8
 		fprintf(f, "%016lx", *(data++));
 		# else
-		fprintf(f, "%016llx", *(data++));
+		fprintf(f, "%016lx", *(data++));
 		# endif
 		#else
 		# error
@@ -1448,7 +1448,7 @@ void mpfprintln(FILE* f, size_t size, const mpw* data)
 		# elif SIZEOF_UNSIGNED_LONG == 8
 		fprintf(f, "%016lx", *(data++));
 		# else
-		fprintf(f, "%016llx", *(data++));
+		fprintf(f, "%016lx", *(data++));
 		# endif
 		#else
 		# error
