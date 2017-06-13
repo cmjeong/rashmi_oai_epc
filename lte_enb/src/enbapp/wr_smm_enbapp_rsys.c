@@ -7839,7 +7839,11 @@ LwrMngmt      *usta;
          RLOG0(L_INFO, "Enabling Buffered IO");
          /* changes for CR ccpu00147678 */
 #ifdef RM_INTF
+#ifdef TIP_L3
          smSendCellUpIndToRrm(tipCellId);
+#else
+         smSendCellUpIndToRrm(1);
+#endif
 #endif
 #ifdef WR_RSYS_OAM
        /*indicate to OAM cell Tx is switch on */

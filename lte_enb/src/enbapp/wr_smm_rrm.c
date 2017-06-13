@@ -439,7 +439,7 @@ PRIVATE S16 smSndRmuEnbStaInd
    pst.region    = smCb.init.region;
    pst.pool      = RM_POOL;
 
-   RLOG0(L_DEBUG, "USTA Request sent");
+   RLOG0(L_DEBUG, "SENT RRM ENB STATUS IND");
 
    /* Send the request to RM */
    SmMiLrmEnbStaInd(&pst, rmMngmt);
