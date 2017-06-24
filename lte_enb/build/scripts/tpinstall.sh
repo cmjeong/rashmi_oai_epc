@@ -97,7 +97,7 @@ mkdir -p $THIRDPARTY_DIR/../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/inclu
 mkdir -p $THIRDPARTY_DIR/../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/include/libcsoap-1.1/libcsoap
 mkdir -p $THIRDPARTY_DIR/../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/include/nanohttp-1.1/nanohttp
 mkdir -p $THIRDPARTY_DIR/../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/share/aclocal
-chmod -R 0777 $THIRDPARTY_DIR/../libs/bin/csoap/*
+chmod -R 777 $THIRDPARTY_DIR/../libs/bin/csoap/*
 
 #Set the compiler path in PATH environment variable:
 source setVar.sh
@@ -253,25 +253,25 @@ echo "**********************************************************************"
 #**************** Autoconf ***************#
 
 cd $THIRDPARTY_DIR/autoconf*
-
+chmod -R 777 *
 ./configscript_autoconf $CROSS_COMPILER
 
 #**************** libxml ***************#
 
 cd  $THIRDPARTY_DIR/libxml2-2.7.2/
-
+chmod -R 777 *
 ./configscript_libxml2 $CROSS_COMPILER
 
 #**************** openssl ***************#
 
 cd  $THIRDPARTY_DIR/origopenssl/
-
+chmod -R 777 *
 ./configscript_openssl $CROSS_COMPILER
 
 #**************** csoap ***************#
 
 cd  $THIRDPARTY_DIR/csoap
-
+chmod -R 777 *
 ./configscript_csoap_1 $CROSS_COMPILER
 
 sed -i '39,39s/HAVE_MALLOC.*0/HAVE_MALLOC 1/' $THIRDPARTY_DIR/csoap/config.h
