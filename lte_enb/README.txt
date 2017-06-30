@@ -1,4 +1,4 @@
-This version of TeNB software supports be below flavours;
+This version of TeNB software supports be below flavors;
 
 * Monolithic eNodeB (without OAM)
 * Monolithic eNodeB (with OAM)
@@ -148,3 +148,6 @@ Compilation and execution of sliced eNodeB with SRS PHY (without OAM)
 8) Execute the follwing command to run the binary:
    a) L3: ./start_eNB.sh
 
+Compiler version:
+=================
+This version of the TeNB software was verifed on GCC version: 4.4.7

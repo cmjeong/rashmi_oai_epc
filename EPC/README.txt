@@ -28,3 +28,7 @@ Configuration:
    a) set AVSM_PGW_DFLT_ADDR to PGW IP address
    b) set AVSM_PGW_DFLT_EXGW_ADDR to default gateway IP address
    c) set AVSM_SGW_IPADDR to SGW IP address
+
+Compiler version:
+=================
+This version of the EPC software was verifed on GCC version: 4.4.7

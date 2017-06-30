@@ -15,3 +15,7 @@ Execution:
    b) set YS_IP_ADDR_ENB1 to eNodeB LL2 IP address (same as WR_TAG_LL2_IP)
 3) Run the following command to execute UE SIM:
    a) ./uesim
+
+Compiler version:
+=================
+This version of the UESIM software was verifed on GCC version: 4.4.7
