@@ -354,6 +354,9 @@ typedef struct _sztAbortS1
    TknU32     peerId;
    CmStatus   abortS1Cfm;
    U8         sndAbortFlag;
+#ifdef S1SIMAPP
+   U8         cause;
+#endif
 } SztAbortS1;
 #endif /* SZTV2 */
 

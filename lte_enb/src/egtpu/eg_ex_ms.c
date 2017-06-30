@@ -427,7 +427,7 @@ Buffer *mBuf;               /* message buffer                     */
                      retVal = cmUnpkLegStsReq(EgMiLegStsReq, pst, mBuf);
                      break;
                   }
-#if 1 /* NIranjan Tip Debug */
+#ifdef TIP_UPPER_L2
 #ifdef REVIEW
                case EVTEGTTXDATA:
                   {

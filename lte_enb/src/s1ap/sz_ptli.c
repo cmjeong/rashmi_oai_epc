@@ -1016,6 +1016,17 @@ SctStatus           status;             /* Status */
 */
 
 #ifdef ANSI
+#ifdef S1SIMAPP
+PUBLIC S16 SzLiSctTermReq
+(
+Pst *pst,                 /* post structure */
+SpId spId,                /* service provider SAP ID */
+UConnId assocId,          /* association ID */
+U8 assocIdType,           /* association ID type */
+Bool abrtFlg,              /* abort flag */
+U8   cause
+)
+#else
 PUBLIC S16 SzLiSctTermReq
 (
 Pst *pst,                 /* post structure */
@@ -1024,6 +1035,16 @@ UConnId assocId,          /* association ID */
 U8 assocIdType,           /* association ID type */
 Bool abrtFlg              /* abort flag */
 )
+#endif
+#else
+#ifdef S1SIMAPP
+PUBLIC S16 SzLiSctTermReq(pst, spId, assocId, assocIdType, abrtFlg,cause)
+Pst *pst;                 /* post structure */
+SpId spId;                /* service provider SAP ID */
+UConnId assocId;          /* association ID */
+U8 assocIdType;           /* association ID type */
+Bool abrtFlg;             /* abort flag */
+U8   cause;
 #else
 PUBLIC S16 SzLiSctTermReq(pst, spId, assocId, assocIdType, abrtFlg)
 Pst *pst;                 /* post structure */
@@ -1031,6 +1052,7 @@ SpId spId;                /* service provider SAP ID */
 UConnId assocId;          /* association ID */
 U8 assocIdType;           /* association ID type */
 Bool abrtFlg;             /* abort flag */
+#endif
 #endif
 {
    TRC3(SzLiSctTermReq);
@@ -1051,9 +1073,15 @@ Bool abrtFlg;             /* abort flag */
    }
 #endif /* DEBUGP */
 
+#ifdef S1SIMAPP
+   /* jump to specific primitive depending on configured selector */
+   RETVALUE((*SzLiSctTermReqMt[pst->selector])(pst, spId, assocId, assocIdType, 
+                                               abrtFlg,cause));
+#else
    /* jump to specific primitive depending on configured selector */
    RETVALUE((*SzLiSctTermReqMt[pst->selector])(pst, spId, assocId, assocIdType, 
                                                abrtFlg));
+#endif
 } /* end of SzLiSctTermReq */
 
 

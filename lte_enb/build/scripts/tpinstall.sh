@@ -100,6 +100,7 @@ mkdir -p $THIRDPARTY_DIR/../libs/bin/csoap/hbs2-4/mipsel-unknown-linux-gnu/share
 chmod -R 777 $THIRDPARTY_DIR/../libs/bin/csoap/*
 
 #Set the compiler path in PATH environment variable:
+chmod 777 setVar.sh
 source setVar.sh
 
 #######################  DOWNLOADING AND EXTRACTION #################################

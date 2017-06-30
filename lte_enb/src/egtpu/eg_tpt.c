@@ -836,6 +836,10 @@ EgTptSrvAct    srvAction;              /* Type of action to perform */
 *
 *       File:  eg_tpt.c
 ***********************************************************************/
+#ifdef S1SIMAPP
+int tmrval=0;
+struct timespec tsStart;
+#endif
 #ifdef ANSI
 PUBLIC S16 egTptOpenServer
 (
@@ -927,6 +931,12 @@ U16           *reason;                              /* Return reason */
    /*********************************************
     *  Guard opening of tpt server with a timer *
     *********************************************/
+#ifdef S1SIMAPP
+    ret = egSchedTmr(serverCb, 100, TMR_START,
+          1);
+    printf("\n**********************TPT open server******** %d\n",serverCb->suConnId);
+    gettimeofday(&tsStart, NULL);
+#endif
    if (serverCb->cfg.opnSrvTmr.enb == TRUE)
    {
       if (serverCb->opnSrvCurRetryCnt-- >= 0)

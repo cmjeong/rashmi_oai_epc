@@ -478,7 +478,11 @@ EXTERN S16 szLiRcvFromLower ARGS((Buffer *mBuf,SzPeerCb *peerCb));
 EXTERN S16 szLiCOMsgHandler ARGS((SzPeerCb *peerCb, S1apPdu *pdu));
 EXTERN S16 szLiPeerErrHandler ARGS((SzPeerCb *peerCb, S1apPdu *pdu));
 EXTERN S16 szLiSndAssocReq  ARGS((SzAssocCb  *assocCb));
+#ifdef S1SIMAPP
+EXTERN S16 szLiTermAssoc    ARGS((SzPeerCb  **peerCb, Bool assocAbort,U8 cause));
+#else
 EXTERN S16 szLiTermAssoc    ARGS((SzPeerCb  **peerCb, Bool assocAbort));
+#endif
 #ifdef SZ_MME
 EXTERN S16 szLiDynamPeerConfig ARGS((SuId suId, SctAssocIndParams *assocParams));
 #endif

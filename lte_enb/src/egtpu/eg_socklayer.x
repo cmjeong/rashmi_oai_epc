@@ -150,6 +150,9 @@ typedef struct _egTLCb
    U32  ePollFd;                          /*!< Kernel Epoll File Descriptor */
    U32  maxMsgToread;                     /*!< Max Message to Read per TTI indication */
    Pst  egPst;
+#ifdef S1SIMAPP
+   EgTimer egtTxRxTmrNode; /**< Open Server Timer control block*/
+#endif
    EgUlQueueCntrl egUlQueueCntrl;         /* !< UL Queue control structure */
    EgDlPktCntrl   dlPktCntrl;             /* !< DL packet control structure */
    EgUlPktCntrl   ulPktCntrl;             /* !< UL packet control structure */

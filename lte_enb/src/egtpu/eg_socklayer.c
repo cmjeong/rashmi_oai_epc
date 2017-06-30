@@ -120,8 +120,9 @@ EXTERN U32 ssGetTimerTick(Void);
 #endif /* ENB_CPU_OVERLOAD_CONTROL */
 
 PacketInfo packetData;
-
-
+#ifdef S1SIMAPP
+struct timespec tsStart1;
+#endif
 /*Private Function Declaration*/
 /** @details
  * This primitive is used by Thin Layer to close any existing open socket.
@@ -686,6 +687,11 @@ CmTptAddr    *servTAddr                 /* Address */
     cfmPst.dstEnt = pst->srcEnt;
 
     EgLiHitConCfm(&cfmPst,spId,servConId,servConId,servTAddr);
+#ifdef S1SIMAPP
+    egSchedTmr(&egTLCb, EG_TMR_EGT_RXTXDATA, TMR_START,1);
+    
+    gettimeofday(&tsStart1, NULL);
+#endif
     RETVALUE(ROK);
 }
 /*purecov ccompilation error fix:ccpu00136421 */
@@ -1082,7 +1088,9 @@ Pool pool;         /* !< Memory Pool to be used by thin layer */
     /* egTLCb.memInfo.pool   = pool; */
     egTLCb.memInfo.pool   = 3;
     egTLCb.memInfo.region = region;
-
+#ifdef S1SIMAPP
+    egCmInitTimer (&egTLCb.egtTxRxTmrNode);
+#endif
 #ifdef ENB_CPU_OVERLOAD_CONTROL
     egTLCb.dlPktCntrl.maxNumPacketsToRead = 
              (EG_MAX_PACKETS_TO_READ_WINDOW - EG_MIN_PACKETS_TO_READ_WINDOW);

@@ -709,7 +709,9 @@ sprintf(__tapa_fun,#_arg);
 #define EG_TMR_TPT_BND               3 /* Timer for Bind Request */
 #define EG_TMR_INVALID               4 /* Invalid Timer */
 
-
+#ifdef S1SIMAPP
+#define EG_TMR_EGT_RXTXDATA          12
+#endif
 #ifdef EGTP_U
 #define EG_TMR_ECHO_GLOBAL 5 /* Invalid Timer */
 #define EG_TMR_N3T3_REQ    9 /* N3T3 req timer*/

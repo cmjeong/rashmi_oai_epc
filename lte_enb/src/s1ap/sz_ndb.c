@@ -914,7 +914,11 @@ U8     opn;
          }
 
          /* Terminate the association */
+#ifdef S1SIMAPP
+         ret = szLiTermAssoc(&next,assocAbort,FALSE);
+#else
          ret = szLiTermAssoc(&next,assocAbort);
+#endif
          /* sz008.301 : Handling ROKPENDING also */
          if((ret != ROK) && (ret != ROKPENDING))
          {
