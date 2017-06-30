@@ -387,8 +387,17 @@ PRIVATE S16 avPgwDelTft ARGS((
 AvPgwIpCb    *pIpCb
 ));
 
+PUBLIC Void avPgwUpdtPdnCbtoIpCb ARGS((
+AvPgwPdnCb        *pdnCb
+));
 
+PUBLIC S16 AvPgwGetPdnCbOnIp ARGS((
+AvPgwIpCb *pIpCb, AvPgwPdnCb **pdnCb
+));
 
+PUBLIC Void avPgwLoopBackData ARGS((
+Buffer *mBuf
+));
 /*
  *
  *       Fun:   avPgwInitRoutPst
@@ -2114,7 +2123,7 @@ CONSTANT U8   protoType;
    S16               ret = ROK;
    U32               dstIPAddr;
    S32               ipIdx = 0;
-	AvPgwTunInfo		tunInfo = {0};
+   AvPgwTunInfo		tunInfo = {0};
 
    AV_PGW_RCV_TRC2(avPgwRoutToSgw)
 
@@ -2239,7 +2248,6 @@ AvPgwTunInfo      *tunInfo
 )
 {
    AvPgwPktFilterCb  *filterCb= NULLP;
-   U32               pfCnt = 0;
    U8                protoType = pIpPkt[9];
    U16               srcPort = 0;
    U16               dstPort = 0;
@@ -3591,15 +3599,8 @@ Buffer *mBuf;
    U8     ipPkt[AV_PGW_ROUT_MAX_ETH_PKT_LEN]; 
    MsgLen len;
    MsgLen cnt;
-   U32    srcIPAddr;
-   U16    srcPort = 0;
-   U32    dstIPAddr;
-   U16    dstPort = 0;
    U8     protoType;
    U8     tempVal[4];
-
-   int n;
-
    AV_PGW_SND_TRC2(avPgwLoopBackData)
 
    /* Find the length of the received IP packet */

@@ -1731,9 +1731,10 @@ CmNasEvnt   *evnt;
 #endif
 {
    U8       i = 0;
+#if 0   
    S16      ret = RFAILED;
    U8       cause = VB_ESM_NETWORK_FAILURE;
-
+#endif   
    VB_MME_TRC2(vbEsmHndlIncPDNConnectReq)
 
 

@@ -83,6 +83,7 @@ U8             inst,
 S16            *bCnt
 ));
 
+EXTERN S16 egUtilDupIe(CmMemListCp *memCp, EgIe *oldIe, EgIe **dupIe);
 /*
  *
  *       Fun:   qoSgwValCSReq
@@ -2812,7 +2813,7 @@ U32             *cause;    /* cause of failure (OUT) */
    QO_SGW_SET_IE_LVL_INFO(ieLvlInfo, 0, EG_BEARER_CNTX_IETYPE, 0);
    
    /* Get the number of Bearer ID IEs */
-   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, &ieOcr);
+   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, (U16 *)&ieOcr);
    if (ROK != ret)
    {
       *cause = EGT_GTPC_CAUSE_INV_RPL_FRM_PEER;
@@ -4378,7 +4379,7 @@ S16            *bCnt;
    QO_SGW_SET_IE_LVL_INFO(ieLvlInfo, 0, ieType, inst);
    
    /* Get the number of Bearer ID IEs */
-   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, bCnt);
+   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, (U16 *)bCnt);
 
    QO_SGW_RETVALUE(ret);
 }

@@ -1200,7 +1200,7 @@ EgEvnt *event;           /* the event representing the GTP-C message . */
    if ( event->seqNumber > EG_MAX_SEQ_NUM )
    {
       event->resultType = EGT_ERR_INV_SEQ_NUM;
-      EG_DBG_ERR(EG_DBG_TUNN, 0, (egp,"Message Sequence Number  %ld is greater than 24Bit",
+      EG_DBG_ERR(EG_DBG_TUNN, 0, (egp,"Message Sequence Number  %u is greater than 24Bit",
                event->seqNumber ));
       egSendErrInd(event, usap);
       EG_RETVALUE(RFAILED);

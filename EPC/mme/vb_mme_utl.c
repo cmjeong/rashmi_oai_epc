@@ -5984,8 +5984,6 @@ CmNasEvnt    **evnt;
    VbHssPdnSubCntxt  *pdnCtxt    = NULLP;
    U16               ipaddr1 = 0;
    U16               ipaddr2 = 0;
-   U32               dnsAddr = 0;
-   U32               pcscfAddr = 3;
    U8                pdnCnt = 0;
    S16               ret = ROK;
 
@@ -8980,8 +8978,6 @@ VbMmeUeCb   *pSrcUeCb
    VbMmeEsmCb  *pNewEsmCb = NULLP;
    VbMmePdnCb  *pPdnCb = NULLP;
    U8  count = 0;
-   U8  i= 0;
-
    VB_TRC2(vbMmeUtlCopyUeCbData);
 
    cmMemcpy(pTgtUeCb->ueSTmsiCbKey, pSrcUeCb->ueSTmsiCbKey, 5);

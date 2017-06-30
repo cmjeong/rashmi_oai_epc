@@ -101,10 +101,12 @@ PRIVATE S16 cmPkAvCfg ARGS((AvCfg *param, Elmnt elmnt,
 PRIVATE S16 cmUnpkAvCfgPgw ARGS((AvCfg *param, Elmnt elmnt, Buffer *mBuf));
 PRIVATE S16 cmUnpkAvCfg ARGS((AvCfg *param, Elmnt elmnt,
          Buffer *mBuf));
+#if 0
 #ifdef DEBUGP
 PRIVATE S16 cmPkAvDbgCntrl ARGS((AvDbgCntrl *param, Buffer *mBuf));
 PRIVATE S16 cmUnpkAvDbgCntrl ARGS((AvDbgCntrl *param, Buffer *mBuf));
 #endif /* DEBUGP */
+#endif
 PRIVATE S16 cmPkAvSapCntrl ARGS((AvSapCntrl *param, Buffer *mBuf));
 PRIVATE S16 cmUnpkAvSapCntrl ARGS((AvSapCntrl *param, Buffer *mBuf));
 PRIVATE S16 cmPkAvPgwCntrl ARGS((AvPgwCntrl *param, Elmnt  elmnt,
@@ -1829,7 +1831,7 @@ Buffer *mBuf;
    ret1 = cmUnpkAvCfgPgw(param, elmnt, mBuf);
    RETVALUE(ret1);
 }
-
+#if 0
 #ifdef DEBUGP
 
 #ifdef ANSI
@@ -1867,6 +1869,7 @@ Buffer *mBuf;
    CMCHKUNPK(SUnpkU32, &param->dbgMask, mBuf);
    RETVALUE(ROK);
 }
+#endif
 #endif
 
 #ifdef ANSI

@@ -319,8 +319,6 @@ SztUDatEvnt    *uDatEvnt;
     SztPagDRX        *sztPagDRX = NULLP;
     PTR              prevEnt = NULLP;
     VbMmeUeCb        *ueCb = NULLP;
-    U32              enodeBId = 0;
-
     VB_TRC2(vbMmeAppIncSetup);
   
     VB_MME_DBG_INFO((VB_MME_PRNTBUF, "Received S1 Setup Request"));
@@ -2691,8 +2689,9 @@ VbMmeUeCb      *pUeCb
 )
 {
    S16            ret = ROK;
+#if 0   
    VbMmeEsmCb     *pEsmCb = NULLP;
-
+#endif
    VB_TRC2(vbMmeHndlS3HOReqAck);
 
    VB_MME_DBG_INFO((VB_MME_PRNTBUF, "Adding UE Cb into imsi hash table"));
@@ -2887,9 +2886,6 @@ SztDatEvntInd  *pEvnt
 )
 {
    S16            ret = ROK;
-   VbMmeEsmCb     *pEsmCb = NULLP;
-   U8 i;
-       
    VB_TRC2(vbMmeHndlHONotif);
    
    VB_MME_DBG_INFO(( VB_MME_PRNTBUF, "Received Handover Notify from eNodeB"));
@@ -3495,7 +3491,9 @@ S1apPdu      **ppHoCmd
    SztProtIE_SingleCont_E_RABDataFwdingItemIEs  *pRabIe = NULLP;
    U8                            tptAddr[16]            = {'\0'};
    U8         idx = 0;
+#ifdef VB_MME_NAS_SEC 
    U8         nasSecParamsFromEUtran = 0;
+#endif   
    VbMmeEsmCb                 *pEsmCb        = NULLP;
    U8  count = 0,i;
    U32 noCmp = 0;

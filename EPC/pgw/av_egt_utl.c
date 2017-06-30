@@ -1803,7 +1803,7 @@ S16            *bCnt;
    AV_PGW_SET_IE_LVL_INFO(ieLvlInfo, 0, EG_BEARER_CNTX_IETYPE, inst);
    
    /* Get the number of Bearer ID IEs */
-   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, bCnt);
+   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo,(U16 *)bCnt);
 
    AV_PGW_RCV_RETVALUE(ret);
 }
@@ -2061,7 +2061,7 @@ S16            *bCnt;
    AV_PGW_SET_IE_LVL_INFO(ieLvlInfo, 0, ieType, inst);
    
    /* Get the number of Bearer ID IEs */
-   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, bCnt);
+   ret = EgUtilGmGetIeOccrCnt(egMsg, &ieLvlInfo, (U16 *)bCnt);
 
    AV_PGW_SND_RETVALUE(ret);
 }
@@ -2184,7 +2184,7 @@ EgMsg                   *pEgMsg
    }
 
    AV_PGW_SND_DBG_INFO((AV_PGW_SND_PRNTBUF, "Modify EGTP-U Tunnel For S5/S8-U"\
-         "Interface With Tunnel %ld", pUTun->localTeIdKey));
+         "Interface With Tunnel %u", pUTun->localTeIdKey));
 
    pUTun->pEgMsg = pEgMsg;
    eguEvt->u.tnlMgmt.action = EGT_TMGMT_REQTYPE_MOD;

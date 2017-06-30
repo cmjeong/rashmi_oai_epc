@@ -525,7 +525,7 @@ Bool         *fragFlag; /* If fragmentation is done */
   U8 pos;                   /* To store value */
   U8 noBytes;
   U8 noBits;
-  U8     unPkArray[4];      /* To store integer value */
+  U8     unPkArray[4] = {0};      /* To store integer value */
   U32    intVal;            /* Decoded value of integer */
 
   TRC2(cmPAsnDecConLen)
@@ -726,7 +726,7 @@ Bool         isSigned;  /* Is the integer signed */
   Bool   fragFlag;          /* Fragmentation Flag */
   U8     ub;                /* upper bound on length determinant */ 
   U8     i;                 /* Loop variable */ 
-  U8     unPkArray[4];      /* To store integer value */
+  U8     unPkArray[4]={0};      /* To store integer value */
   S16    ret;               /* Return value */
   U32    range;             /* Range of the integer */
   U32    intVal;            /* Decoded value of integer */
@@ -1432,7 +1432,7 @@ Bool         isSigned; /* Is the integer signed */
 #endif
 {
 
-  U8    unPkArray[CM_PASN_FOUR_OCTETS];       /* To store octets */
+  U8    unPkArray[CM_PASN_FOUR_OCTETS]={0};       /* To store octets */
   U8    i;                                    /* index */ 
   U32   value;                                /* Integer Value */
 

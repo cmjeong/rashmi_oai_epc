@@ -106,9 +106,6 @@
 #ifdef __cplusplus
 EXTERN "C" {
 #endif /* end of __cplusplus */
-
-PRIVATE  U32      gXaTransId = 0;
-
 PRIVATE Txt   prBuf[PRNTSZE];   /* SPrint buffer */
 
 
@@ -460,8 +457,9 @@ U8           esmMsgType;
 {
    S16 ret = RFAILED;
    U8  loop = 0;
+#ifdef CM_NAS_SEC 
    U8  i = 0;
-
+#endif
    VB_TRC2(vbMmeRcvEsmMsg)
 
    /* Added one more check for passing mPDN */
@@ -921,7 +919,9 @@ VbMmeEmmFlrInd *flrInd;
 
    if(NULLP != flrInd->evntPtr)
    { 
-      CM_FREE_NASEVNT((CmNasEvnt**)&flrInd->evntPtr);
+      CmNasEvnt *tempEnt = (CmNasEvnt*)flrInd->evntPtr;
+      CM_FREE_NASEVNT((CmNasEvnt**)&tempEnt);
+      flrInd->evntPtr = NULLP;
    }
 
    RETVALUE(ret);

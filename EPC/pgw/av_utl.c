@@ -77,6 +77,22 @@ AvPgwUeRouteCb    *pUeRouteCb,
 U8                ebi
 ));
 
+PUBLIC S16 avPgwGetTempTftParams ARGS((
+AvPgwTft *tft, U32 ueSrcPort
+));
+
+PUBLIC S16 avPgwUpdtTftParams ARGS((
+AvPgwUeTunnelCb *ueTunnCb, AvPgwTft *tft
+));
+
+PUBLIC S16 avPgwEncTftBuf ARGS((
+U8 *tftBuf, U32 *tftLen, AvPgwTft *tft
+));
+
+PUBLIC S16 avPgwFillQos ARGS((
+AvPgwUeTunnelCb  *ueTunlCb
+));
+
 /**********************************************************************/
 
 /* av001.101: Removed unused functions */
