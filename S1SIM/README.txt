@@ -45,6 +45,6 @@ Note: Few sample test cases are placed in S1SIM/TestCntlrStub/bin folder, where
 the final binary will get generated.
 
 - testCaseList_2 - using which 1 UE attach, detach and service request,
-                    tracking area update cane be verified.
+                    tracking area update can be verified.
 
 
