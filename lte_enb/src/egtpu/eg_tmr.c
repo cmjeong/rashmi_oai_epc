@@ -271,6 +271,10 @@ EgTimer      *tmr;         /* timer control block array */
 *       File:  eg_tmr.c
 *
 ****************************************************************************/
+#ifdef S1SIMAPP
+extern int tmrval;
+static Bool egTxEvnt = TRUE;
+#endif
 #ifdef ANSI
 PUBLIC S16 egSchedTmr
 (
@@ -333,6 +337,22 @@ U32          tmrVal;       /* timer value */
     tmr = &egTmr->tmr;
     break;
  } /* End of case EG_TMR_TPT_OPEN_SRV */
+#ifdef S1SIMAPP
+      case 100:
+         {
+            egTmr = &((EgTptSrvCb *)egHandle)->tstSrvTmrNode;
+            egTmr->egCbPtr  = (PTR)egHandle;
+            tmr = &egTmr->tmr;
+            break;
+         }
+      case EG_TMR_EGT_RXTXDATA:
+         { 
+            egTmr = &((EgTLCb *)egHandle)->egtTxRxTmrNode;
+            egTmr->egCbPtr  = (PTR)egHandle;
+            tmr = &egTmr->tmr;
+            break;
+         }
+#endif
 #ifdef EGTP_U
       case EG_TMR_ECHO_GLOBAL: /*-- iEcho req transmit Timer --*/
  {
@@ -506,6 +526,13 @@ U8       maxNmbTmrs;       /* maximum nmb of timers for this control block */
  *       File:  eg_tmr.c
  *
  */
+#ifdef S1SIMAPP
+struct timespec tsStop;
+struct timespec tsStop1;
+struct timespec tsResult;
+extern struct timespec tsStart;
+extern struct timespec tsStart1;
+#endif
 #ifdef ANSI
 PUBLIC Void egTmrEvnt
 (
@@ -549,6 +576,46 @@ S16       event;
 
          break;
       }
+#ifdef S1SIMAPP
+      case 100:
+      {
+#if 1
+         gettimeofday(&tsStop, NULL);
+         tsResult.tv_nsec = (((tsStop.tv_sec -
+                     tsStart.tv_sec) * 1000000) +
+               (tsStop.tv_nsec -
+                tsStart.tv_nsec));
+         printf("\n************* Testing *Time elapsed(in usec): for timer expiry\
+               :%ld usec\n", tsResult.tv_nsec);
+#endif
+         break;
+      }
+      case EG_TMR_EGT_RXTXDATA:
+      {
+         gettimeofday(&tsStop1, NULL);
+         tsResult.tv_nsec = (((tsStop1.tv_sec -
+                     tsStart1.tv_sec) * 1000000) +
+               (tsStop1.tv_nsec -
+                tsStart1.tv_nsec));
+       /*  printf("\n************* Testing RXTADATA Timer *Time elapsed(in usec): for timer expiry\
+               :%ld usec\n", tsResult.tv_nsec);*/
+         if (egTxEvnt)
+         {
+            EgTLReadMsg(0,10);
+            egTxEvnt = FALSE;
+            egSchedTmr(&egTLCb, EG_TMR_EGT_RXTXDATA, TMR_START,
+                  1);
+         }
+         else
+         {
+            EgTLSendMsg(FALSE);
+            egTxEvnt = TRUE;
+            egSchedTmr(&egTLCb, EG_TMR_EGT_RXTXDATA, TMR_START,
+                  1);
+         }
+         break;
+      }
+#endif
 #ifdef EGTP_U
        case EG_TMR_REORD_EXP:
       {

@@ -3271,8 +3271,11 @@ SzPeerCb *peerCb;    /* Peer control block */
    /* Terminate the association */
    /* sz008.301 : Removed redundant code and 
     * removed the double checking of ret values */
+#ifdef S1SIMAPP
+   RETVALUE(szLiTermAssoc(&peerCb, FALSE,FALSE));
+#else
    RETVALUE(szLiTermAssoc(&peerCb, FALSE));
-   
+#endif
    
 
 } /* szDelPeer */

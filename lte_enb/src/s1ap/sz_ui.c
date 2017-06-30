@@ -2033,7 +2033,11 @@ SztAbortS1   *abortS1;
     * so that SCTP will call abort or shutdown accordingly
     *
     */
+#ifdef S1SIMAPP
+   ret = szLiTermAssoc(&peerCb, abortS1->sndAbortFlag, abortS1->cause);
+#else
    ret = szLiTermAssoc(&peerCb, abortS1->sndAbortFlag);
+#endif
 #if (ERRCLASS & ERRCLS_DEBUG)
    if (ret != ROK)
    {

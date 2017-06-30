@@ -289,12 +289,20 @@ typedef S16 (*SctAssocCfm)   ARGS((Pst            *pst,
                                    SctStrmId       outStrms,
                                    Buffer         *vsInfo)); 
 #endif /* SCT2 */
-
+#ifdef S1SIMAPP
+typedef S16 (*SctTermReq)    ARGS((Pst            *pst,
+                                   SpId            spId,
+                                   UConnId         assocId,
+                                   U8              assocIdType,
+                                   Bool            abrtFlg,
+                                   U8              cause));
+#else
 typedef S16 (*SctTermReq)    ARGS((Pst            *pst,
                                    SpId            spId,
                                    UConnId         assocId,
                                    U8              assocIdType,
                                    Bool            abrtFlg));
+#endif
 
 typedef S16 (*SctTermInd)    ARGS((Pst            *pst,
                                    SuId            suId,
@@ -509,13 +517,20 @@ EXTERN S16 SbUiSctAssocCfm          ARGS((Pst           *pst,
                                           Buffer        *vsInfo));
 
 #endif /* SCT2 */
-
+#ifdef S1SIMAPP
+EXTERN S16 SbUiSctTermReq           ARGS((Pst           *pst,
+                                          SpId           spId,
+                                          UConnId        assocId,
+                                          U8             assocIdType,
+                                          Bool           abrtFlg,
+                                          U8             cause));
+#else
 EXTERN S16 SbUiSctTermReq           ARGS((Pst           *pst,
                                           SpId           spId,
                                           UConnId        assocId,
                                           U8             assocIdType,
                                           Bool           abrtFlg));
-
+#endif
 EXTERN S16 SbUiSctTermInd           ARGS((Pst           *pst,
                                           SuId           suId,
                                           UConnId        assocId,
@@ -3093,12 +3108,20 @@ EXTERN S16 cmPkSctAssocCfm          ARGS((Pst           *pst,
                                           SctStrmId      outStrms,
                                           Buffer        *vsInfo));
 #endif /* SCT2 */
-
+#ifdef S1SIMAPP
+EXTERN S16 cmPkSctTermReq           ARGS((Pst           *pst,
+                                          SpId           spId,
+                                          UConnId        assocId,
+                                          U8             assocIdType,
+                                          Bool           abrtFlg,
+                                          U8             cause));
+#else
 EXTERN S16 cmPkSctTermReq           ARGS((Pst           *pst,
                                           SpId           spId,
                                           UConnId        assocId,
                                           U8             assocIdType,
                                           Bool           abrtFlg));
+#endif
 
 EXTERN S16 cmPkSctTermInd           ARGS((Pst           *pst,
                                           SuId           suId,
@@ -4007,12 +4030,20 @@ EXTERN S16 SzLiSctAssocCfm          ARGS((Pst           *pst,
                                           SctStrmId      outStrms,
                                           Buffer        *vsInfo));
 #endif /* SCT2 */
-
+#ifdef S1SIMAPP
+EXTERN S16 SzLiSctTermReq           ARGS((Pst           *pst,
+                                          SpId           spId,
+                                          UConnId        assocId,
+                                          U8             assocIdType,
+                                          Bool           abrtFlg,
+                                          U8             cause));
+#else
 EXTERN S16 SzLiSctTermReq           ARGS((Pst           *pst,
                                           SpId           spId,
                                           UConnId        assocId,
                                           U8             assocIdType,
                                           Bool           abrtFlg));
+#endif
 
 EXTERN S16 SzLiSctTermInd           ARGS((Pst           *pst,
                                           SuId           suId,

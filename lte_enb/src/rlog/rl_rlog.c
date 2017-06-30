@@ -608,58 +608,58 @@ void storeFileHeader(FILE* fp)
 void rlInitLog(U8 type)
 {
 #ifdef SS_RBUF    
-        /* Initilize the signal handler */
-        rlSigHandler = &rlCatchSegViolation;
+   /* Initilize the signal handler */
+   rlSigHandler = &rlCatchSegViolation;
 #else
-	signal(SIGSEGV, rlCatchSegViolation);
-	signal(SIGBUS, rlCatchSegViolation);
-	signal(SIGINT, flushData);
+   signal(SIGSEGV, rlCatchSegViolation);
+   signal(SIGBUS, rlCatchSegViolation);
+   signal(SIGINT, flushData);
 #endif
-/* set rate limit count for L3 Logs */
+   /* set rate limit count for L3 Logs */
    g_maxRlogCount = RLOG_LIMIT_L3_COUNT;
    g_bRemoteLoggingDisabled = 1;
 
 #ifdef RLOG_DEBUG_MODE
-	rlPrintConfiguration();
+   rlPrintConfiguration();
 #endif /* RLOG_DEBUG_MODE */
 
 #if RLOG_ALLOW_CONSOLE_LOGS
-	if( !strcmp(g_fileName, "stdout")) {
-		g_fp = stderr;
-		return;
-	}
+   if( !strcmp(g_fileName, "stdout")) {
+      g_fp = stderr;
+      return;
+   }
 #endif
 
 #ifndef RLOG_ENABLE_TEXT_LOGGING
-	{
+   {
       printf("\n IP Type before reader thread spawn [%d]\n",type);
-	/* Allocate circular buffer */
+      /* Allocate circular buffer */
       gIpType = type;
-		pthread_t tid;
-		if( pthread_create(&tid, NULL, &rLogServer, NULL) != 0 ) {
-			fprintf(stderr, "Failed to initialize log server thread\n");
-			_exit(0);
-		}
-	}
+      pthread_t tid;
+      if( pthread_create(&tid, NULL, &rLogServer, NULL) != 0 ) {
+         fprintf(stderr, "Failed to initialize log server thread\n");
+         _exit(0);
+      }
+   }
 
-	rlInitPlatformSpecific();
+   rlInitPlatformSpecific();
 
 #ifdef RLOG_USE_CIRCULAR_BUFFER
-	{
-		pthread_t tid;
-		pthread_mutex_init(&g_logmutex, NULL);
-		if( pthread_create(&tid, NULL, &cirBufReaderThread, NULL) != 0 ) {
-			fprintf(stderr, "Failed to initialize log server thread\n");
-			_exit(0);
-		}
-/* Initialize single circular buffer for all threads */
-   g_pSingCirBuff = rlRegisterThread("DUMMY");
-}
+   {
+      pthread_t tid;
+      pthread_mutex_init(&g_logmutex, NULL);
+      if( pthread_create(&tid, NULL, &cirBufReaderThread, NULL) != 0 ) {
+         fprintf(stderr, "Failed to initialize log server thread\n");
+         _exit(0);
+      }
+      /* Initialize single circular buffer for all threads */
+      g_pSingCirBuff = rlRegisterThread("DUMMY");
+   }
 
 #endif
 #endif
 
-	createNewLogFile();
+   createNewLogFile();
 }
 
 
@@ -1086,14 +1086,20 @@ void logLevN(int logLevel, const char* modName, const char* file, int lineno, co
 	char szLog1[MAX_LOG_LEN], szLog2[MAX_LOG_LEN];
 
 	getLogTimeStr(szTime);
+#ifdef S1SIMAPP
+	snprintf(szLog1, MAX_LOG_LEN, "[%s][%s]%s:%d => %s:", szTime, modName, file, lineno, g_logStr[logLevel]);
+#else
 	snprintf(szLog1, MAX_LOG_LEN, "[%s][%s]%s:%d\n%s:", szTime, modName, file, lineno, g_logStr[logLevel]);
+#endif
 
 	va_start(argList,fmtStr);
 	vsnprintf(szLog2, MAX_LOG_LEN, fmtStr, argList);
 	va_end(argList);
-
+#ifdef S1SIMAPP
+	fprintf(g_fp, "%s%s\n",szLog1, szLog2);
+#else
 	fprintf(g_fp, "%s%s",szLog1, szLog2);
-
+#endif
 	CHECK_FILE_SIZE
 }
 #else /* BINARY LOGGING */ 

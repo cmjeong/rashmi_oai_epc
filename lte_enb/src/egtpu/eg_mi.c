@@ -2198,6 +2198,9 @@ CmStatus          *status;             /* function status */
     ************************/
 
    egCmInitTimer (&TSrvCb->opnSrvTmrNode);
+#ifdef S1SIMAPP
+   egCmInitTimer (&TSrvCb->tstSrvTmrNode);
+#endif
 
    /******************************
     * Store the TSAPCB in TPT CB *

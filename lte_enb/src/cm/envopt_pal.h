@@ -144,7 +144,7 @@
 
 #undef  SSI_MEM_CORR_PREVENTION
 #undef  MS_MBUF_CORRUPTION
-//CHINNA
+
 #define TENB_MULT_CELL_SUPPRT
 
 /* LTE product specific definitions are here */

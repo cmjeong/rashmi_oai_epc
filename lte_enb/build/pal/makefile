@@ -363,6 +363,7 @@ prepare_code:
 	$(Q)rsync -a $(ROOT_DIR)/src/enbapp/wr_smm_init_pal.c $(ROOT_DIR)/src/enbapp/wr_smm_init.c
 	$(Q)rsync -a $(ROOT_DIR)/src/enbapp/wr_sw_version_pal_fdd.c $(ROOT_DIR)/src/enbapp/wr_sw_version.c
 	$(Q)rsync -a $(ROOT_DIR)/src/ltepdcp/pj_ptlib_pal.c $(ROOT_DIR)/src/ltepdcp/pj_ptlib.c
+	$(Q)rsync -a $(ROOT_DIR)/src/cm/envopt_pal.h $(ROOT_DIR)/src/cm/envopt.h
 
 copy_build: link_enb
 ifeq ($(TIP), YES)
@@ -390,6 +391,7 @@ endif
 	$(Q)cp -f ../config/ssi_mem ./rsys/config
 	$(Q)cp -f ./rsys/config/configFile_tip_4cells ./rsys/config/configFile
 	$(Q)cp -f ../scripts/start_ul2_tip.sh ./rsys/bin/ul2.sh
+	$(Q)cp -f ../scripts/start_ll2_tip.sh ./rsys_withoutoam/bin/ll2.sh
 #	$(Q)cp -f ../scripts/l3_t33h.sh ./rsys/scripts/start_eNB.sh
 #	$(Q)cp -f ../scripts/l1_t33h.sh $(ROOT_DIR)/l1
 #	$(Q)cp -f ../config/icc_setup $(ROOT_DIR)/l1

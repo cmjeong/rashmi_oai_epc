@@ -656,6 +656,9 @@ SztAbortS1 *abortS1;
     CMCHKPKLOG(SPkU16, abortS1->abortS1Cfm.status, mBuf, ESZT012, pst);
     CMCHKPK(cmPkTknU32, &abortS1->peerId, mBuf);
     CMCHKPKLOG(SPkU8, abortS1->sndAbortFlag, mBuf, ESZTXXX, pst);
+#ifdef S1SIMAPP
+    CMCHKPKLOG(SPkU8, abortS1->cause, mBuf, ESZTXXX, pst);
+#endif
     CMCHKPKLOG(SPkS16, spId, mBuf, ESZTXXX, pst);
     pst->event = (Event) EVTSZTABORTS1REQ;
     RETVALUE(SPstTsk(pst,mBuf));
@@ -2601,6 +2604,9 @@ Buffer *mBuf;
     cmMemset((U8 *)&abortS1, 0, sizeof(SztAbortS1));
 
     CMCHKUNPKLOG(SUnpkS16, &spId, mBuf, ESZT140, pst);
+#ifdef S1SIMAPP
+    CMCHKUNPKLOG(SUnpkU8, &(abortS1.cause), mBuf, ESZTXXX, pst);
+#endif
     CMCHKUNPKLOG(SUnpkU8, &(abortS1.sndAbortFlag), mBuf, ESZTXXX, pst);
     CMCHKUNPKLOG(cmUnpkTknU32, &abortS1.peerId, mBuf, ESZT143, pst);
     CMCHKUNPKLOG(SUnpkU16, &abortS1.abortS1Cfm.status, mBuf, ESZT141, pst);

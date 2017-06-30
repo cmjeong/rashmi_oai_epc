@@ -2595,15 +2595,31 @@ SzAssocCb  *assocCb;               /* Association control block */
 */
 
 #ifdef ANSI
+#ifdef S1SIMAPP
+PUBLIC S16 szLiTermAssoc 
+(
+SzPeerCb  **peerCb,     /* Association control block */
+Bool      assocAbort,
+U8        cause
+)
+#else
 PUBLIC S16 szLiTermAssoc 
 (
 SzPeerCb  **peerCb,     /* Association control block */
 Bool      assocAbort
 )
+#endif
+#else
+#ifdef S1SIMAPP
+PUBLIC S16 szLiTermAssoc(peerCb,assocAbort,cause)
+SzPeerCb   **peerCb;    /* Association control block */
+Bool       assocAbort;
+U8         cause;
 #else
 PUBLIC S16 szLiTermAssoc(peerCb,assocAbort)
 SzPeerCb   **peerCb;    /* Association control block */
 Bool       assocAbort;
+#endif
 #endif
 {
    SzAssocCb  *assocCb;    /* Association control block */
@@ -2647,17 +2663,31 @@ Bool       assocAbort;
     * send termenation request */
    if(assocState == SZ_ASSOC_IN_PRG)
    {
+#ifdef S1SIMAPP
+      /* Send termination request */
+      ret = SzLiSctTermReq(&(assocCb->peer->sctSapCb->pst), 
+            assocCb->peer->sctSapCb->spId,  
+            assocCb->suAssocId, SCT_ASSOCID_SU, assocAbort,cause);
+#else
       /* Send termination request */
       ret = SzLiSctTermReq(&(assocCb->peer->sctSapCb->pst), 
             assocCb->peer->sctSapCb->spId,  
             assocCb->suAssocId, SCT_ASSOCID_SU, assocAbort);
+#endif
    }
    else
    {
+#ifdef S1SIMAPP
+      /* Send termination request */
+      ret = SzLiSctTermReq(&(assocCb->peer->sctSapCb->pst), 
+                  assocCb->peer->sctSapCb->spId,  
+                  assocCb->spAssocId, SCT_ASSOCID_SP, assocAbort,cause);
+#else
       /* Send termination request */
       ret = SzLiSctTermReq(&(assocCb->peer->sctSapCb->pst), 
                   assocCb->peer->sctSapCb->spId,  
                   assocCb->spAssocId, SCT_ASSOCID_SP, assocAbort);
+#endif
    }
 
    if(ret != ROK)

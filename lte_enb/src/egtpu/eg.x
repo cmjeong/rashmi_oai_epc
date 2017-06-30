@@ -333,6 +333,10 @@ struct egTptSrvCb
    EgUSapCb       *uSapCb;       /**< Associated USAP */
    EgTSapCb       *tSapCb;       /**< Associated TSAP */
    EgTimer        opnSrvTmrNode; /**< Open Server Timer control block*/
+#ifdef S1SIMAPP
+   EgTimer        tstSrvTmrNode; /**< Open Server Timer control block*/
+#endif
+
    S16            opnSrvCurRetryCnt; /**< Tpt Srv open current retry     *
                                        *  attempt                       */
 /*eg004.201 Modified for PSF :PSF Control block added*/

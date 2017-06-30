@@ -2364,6 +2364,9 @@ SpId                      spId,        /* Service Provider Id */
 UConnId                   assocId,     /* Association Id */
 U8                        assocIdType, /* Association Id type */
 Bool                      abrtFlag     /* Abort Flag */
+#ifdef S1SIMAPP
+,U8                       cause
+#endif
 )
 #else
 PUBLIC S16 cmPkSctTermReq (pst, spId, assocId, assocIdType, abrtFlag)
@@ -2372,6 +2375,9 @@ SpId                      spId;        /* Service Provider Id */
 UConnId                   assocId;     /* Association Id */
 U8                        assocIdType; /* Association Id type */
 Bool                      abrtFlag;    /* Abort Flag */
+#ifdef S1SIMAPP
+;U8 cause
+#endif
 #endif
 {
    Buffer       *mBuf;
@@ -2379,7 +2385,9 @@ Bool                      abrtFlag;    /* Abort Flag */
    TRC2(cmPkSctTermReq)
 
    SCT_GETMSG(pst, mBuf, ESCT093);
-
+#ifdef S1SIMAPP
+   CMCHKPKLOG(SPkU8, cause, mBuf, ESCT094, pst);
+#endif
    CMCHKPKLOG(SPkU8, abrtFlag, mBuf, ESCT094, pst);
    CMCHKPKLOG(SPkU8, assocIdType, mBuf, ESCT095, pst);
    CMCHKPKLOG(cmPkUConnId, assocId, mBuf, ESCT096, pst);
@@ -2531,6 +2539,9 @@ Buffer                   *mBuf;        /* Message Buffer */
    UConnId                   assocId = 0;     /* Association Id */
    U8                        assocIdType; /* Association Id type */
    Bool                      abrtFlag;    /* Abort Flag */
+#ifdef S1SIMAPP
+   U8                        cause;
+#endif
 
    TRC2(cmUnpkSctTermReq)
 
@@ -2538,10 +2549,16 @@ Buffer                   *mBuf;        /* Message Buffer */
    CMCHKUNPKLOG(cmUnpkUConnId, &assocId, mBuf, ESCT111, pst);
    CMCHKUNPKLOG(SUnpkU8, &assocIdType, mBuf, ESCT112, pst);
    CMCHKUNPKLOG(SUnpkU8, &abrtFlag, mBuf, ESCT113, pst);
+#ifdef S1SIMAPP
+   CMCHKUNPKLOG(SUnpkU8, &cause, mBuf, ESCT113, pst);
+#endif
 
    (Void)SPutMsg(mBuf);
-
+#ifdef S1SIMAPP
+   RETVALUE((*func)(pst, spId, assocId, assocIdType, abrtFlag, cause));
+#else
    RETVALUE((*func)(pst, spId, assocId, assocIdType, abrtFlag));
+#endif
 }   /* cmUnpkSctTermReq */
 
 

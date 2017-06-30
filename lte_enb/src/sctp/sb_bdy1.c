@@ -3215,6 +3215,7 @@ Buffer        *vsInfo;           /* VsInfo - not used anymore */
 
 /* sb005.103: Move the sanity checks outside ERRCLASS */
    /* check the out streams parameter */
+#ifndef S1SIMAPP
    if ( (outStrms > sbGlobalCb.genCfg.maxNmbOutStrms) || (outStrms == 0) )
    {
 #if (ERRCLASS & ERRCLS_INT_PAR)
@@ -3227,7 +3228,7 @@ Buffer        *vsInfo;           /* VsInfo - not used anymore */
                       &rtrv);
       RETVALUE(RFAILED);
    }
-
+#endif
    /* check to see if association ID exists */
    for ( i = 0; i < sbGlobalCb.genCfg.maxNmbAssoc; i++ )
    {
@@ -3403,8 +3404,11 @@ Buffer        *vsInfo;           /* VsInfo - not used anymore */
                       &rtrv);
       RETVALUE(RFAILED);
    }
-
+#ifdef S1SIMAPP
+   assocCb->sbSqCb.nmbOutStreams   = sbGlobalCb.genCfg.maxNmbOutStrms;/*outStrms;*/
+#else
    assocCb->sbSqCb.nmbOutStreams   = outStrms;
+#endif
    assocCb->sbSqCb.nmbInStreams    = sbGlobalCb.genCfg.maxNmbInStrms;
    assocCb->sbSqCb.inStreamSeqNum  = (SctStrmId *) NULLP;
    assocCb->sbSqCb.outStreamSeqNum = (SctStrmId *) NULLP;
@@ -4554,6 +4558,17 @@ Buffer               *vsInfo;          /* VsInfo - not used any more */
 */
 
 #ifdef ANSI
+#ifdef S1SIMAPP
+PUBLIC S16 SbUiSctTermReq
+(
+Pst                  *pst,              /* Post structure */
+SpId                  spId,             /* Service provider SAP ID */
+UConnId               assocId,          /* Association ID */
+U8                    assocIdType,      /* Association ID type */
+Bool                  abortFlg,          /* Termination type */
+U8                    cause
+)
+#else
 PUBLIC S16 SbUiSctTermReq
 (
 Pst                  *pst,              /* Post structure */
@@ -4562,6 +4577,16 @@ UConnId               assocId,          /* Association ID */
 U8                    assocIdType,      /* Association ID type */
 Bool                  abortFlg          /* Termination type */
 )
+#endif
+#else
+#ifdef S1SIMAPP
+PUBLIC S16 SbUiSctTermReq(pst, spId, assocId, assocIdType, abortFlg,cause)
+Pst                  *pst;              /* Post structure */
+SpId                  spId;             /* Service provider SAP ID */
+UConnId               assocId;          /* Association ID */
+U8                    assocIdType;      /* Association ID type */
+Bool                  abortFlg;         /* Termination type */
+U8                    cause;
 #else
 PUBLIC S16 SbUiSctTermReq(pst, spId, assocId, assocIdType, abortFlg)
 Pst                  *pst;              /* Post structure */
@@ -4569,6 +4594,7 @@ SpId                  spId;             /* Service provider SAP ID */
 UConnId               assocId;          /* Association ID */
 U8                    assocIdType;      /* Association ID type */
 Bool                  abortFlg;         /* Termination type */
+#endif
 #endif
 {
    /* local parameters */
@@ -4775,14 +4801,27 @@ Bool                  abortFlg;         /* Termination type */
    /*sb070.102 Multi-Homing changes */
   /* sb013.103: Dual Checksum Fix */
 #ifdef SCT3
+#ifdef S1SIMAPP
                ret = sbAsSendUserAbort(assocCb->peerInitTag,assocCb->sbAcCb.pri->localConn,
                                        &(assocCb->sbAcCb.pri->addr),assocCb->localPort,
-                                       assocCb->peerPort,0,FALSE,assocCb->tos,
+                                       assocCb->peerPort,cause,FALSE,assocCb->tos,
                                        assocCb->checksumType);
 #else
                ret = sbAsSendUserAbort(assocCb->peerInitTag,assocCb->sbAcCb.pri->localConn,
                                        &(assocCb->sbAcCb.pri->addr),assocCb->localPort,
+                                       assocCb->peerPort,0,FALSE,assocCb->tos,
+                                       assocCb->checksumType);
+#endif
+#else
+#ifdef S1SIMAPP
+               ret = sbAsSendUserAbort(assocCb->peerInitTag,assocCb->sbAcCb.pri->localConn,
+                                       &(assocCb->sbAcCb.pri->addr),assocCb->localPort,
+                                       assocCb->peerPort,cause,FALSE, assocCb->checksumType);
+#else
+               ret = sbAsSendUserAbort(assocCb->peerInitTag,assocCb->sbAcCb.pri->localConn,
+                                       &(assocCb->sbAcCb.pri->addr),assocCb->localPort,
                                        assocCb->peerPort,0,FALSE, assocCb->checksumType);
+#endif
 #endif /* SCT3 */
                if ( ret != ROK )
                {
