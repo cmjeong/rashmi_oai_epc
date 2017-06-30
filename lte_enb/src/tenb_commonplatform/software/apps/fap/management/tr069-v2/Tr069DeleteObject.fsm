@@ -1,0 +1,57 @@
+# This is my comment
+
+fsm DeleteObject;
+basename Tr069DeleteObject;
+namespace tr069;
+
+type_header "Tr069DeleteObjectTypes.h";
+
+# Types
+type "shared_ptr<RpcDeleteObject>";
+type "shared_ptr<MibDeleteObjectCnf>";
+
+# Events
+event DeleteObject type "shared_ptr<RpcDeleteObject>";
+event MibDeleteObjectCnf type "shared_ptr<MibDeleteObjectCnf>";
+
+# States & Superstates
+state Idle;
+state DeleteObjectInProgress;
+
+# Faults
+fault DELETE_OBJECT_NOT_SUPPORTED;
+fault MAX_ENTRIES_EXCEEDED;
+
+# Actions
+action SendDeleteMibObjectReq { fault DELETE_OBJECT_NOT_SUPPORTED; fault MAX_ENTRIES_EXCEEDED; }
+action SendDeleteObjectResponse;
+
+
+ #Initial State
+initial_state Idle;
+
+state Idle
+{
+        entry;
+
+        event DeleteObject
+        {
+                action SendDeleteMibObjectReq
+                {
+                        fault DELETE_OBJECT_NOT_SUPPORTED >> Idle;
+                        fault MAX_ENTRIES_EXCEEDED >> Idle;
+                }
+                state DeleteObjectInProgress;
+        }
+}
+
+state DeleteObjectInProgress
+{
+        event MibDeleteObjectCnf
+        {
+                action SendDeleteObjectResponse >> Idle;
+        }
+
+        defer DeleteObject;
+}
+

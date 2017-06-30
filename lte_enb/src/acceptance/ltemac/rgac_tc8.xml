@@ -1,0 +1,666 @@
+#
+#/********************************************************************20**
+#
+#     Name:    SIP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    rgac_tc8.xml
+#
+#     Sid:      rgac_tc8.xml@@/main/3 - Sat Jul 30 02:22:48 2011
+#
+#     Prg:     hn 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=8:hn:rgac_tc8.xml
+
+#
+#
+#       Test:    8.1
+#
+#       Desc:    To test DL Scheduler for UE refreshing
+#
+#       Notes:   None
+#              
+#       Module:  None
+#
+#       File:    rgac_tc8.xml
+#
+#
+<tapa.testcase id="8.1">>>
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="" section=""/>
+      <tapa.module/>
+
+      <tapa.desc>
+         "To test DL Scheduler for UE refreshing"
+      </tapa.desc>
+
+      <tapa.longdesc>
+        "Configure 1 UE and 1 Svc. Make BO = 2*GBR, MBR/AMBR=0. 
+        Verify that this BO is satisfied over 2 UE refresh cycles.
+        In the first cycle after this UE is scheduled once, it has 
+        left with no data and hence would be removed from consideration
+        by scheduler through out the remaining period of 1st cycle.
+        There is a provision to specify no of TTIs to be sent via xml command."
+      </tapa.longdesc>
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef/>
+      <tapa.ifndef/>
+      
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      <tapa.rg.dbgDeInitAll/>
+
+      #Initialize CELL
+      <tapa.rg.cellInit.dlSched/>
+
+      #Do RACH and UE Config
+      <tapa.rg.UeInit/>
+      
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send DlCqi for the created UE  
+      <tapa.send>
+         <tapa.tfu.dlcqi.ind>
+            <tapa.tfu.dlcqi cqiIdx="15"/>
+         </tapa.tfu.dlcqi.ind>
+         <!--
+         <tapa.tfu.dlcqi.ind  cqiIdx="15"/>
+         -->
+      </tapa.send>
+      
+      # Configure a dedicated logical channel for the created UE  at CRG
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch ueId="0" lcId="8" lcType="4" dir="1"/>
+      </tapa.send>
+      <!--
+      # Send a Tti to get the configuration applied. 
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+      -->
+      # Expect success in cfg cfm from LTEMAC
+      <tapa.expect>
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure a dedicated logical channel for the created UE at RGR 
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch ueId="0" lcId="8" lcType="4" dir="1"
+                                 dlQci="3" dlGbr="256"  dlMbr="256"/>
+      </tapa.send>
+
+      # Send a Tti to get the configuration applied at Scheduler. 
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect success in cfg cfm from Scheduler
+      <tapa.expect>
+         <tapa.rgr.cfgCfm/>
+      </tapa.expect>
+
+      # Send BO for the created logical channel on RGU. 
+      <tapa.send>
+         <tapa.rgu.dstarsp ueId="0" lcId="8" lcType="4" bo="64"/>
+      </tapa.send>
+
+      # Send a Tti to get the transmission scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="8" />
+      </tapa.expect>
+     
+      # Send data with size equal to the allocated size on RGU. 
+     <tapa.send>
+         <tapa.rgu.ddatreq  ueId="0" lchTb1Data="8"  lcType="4"/>
+      </tapa.send>
+
+      # Send 1 Tti to get the MAC PDU at PHY.
+      <tapa.send>
+         <tapa.tfu.tti.ind />
+      </tapa.send>
+
+      # Expect PDU from MAC to PHY. UeId to check rnti sent by MAC.
+      <tapa.expset>
+         <tapa.tfu.dat.req datReqs="1" >
+            <tapa.tfu.pdsch.dat.req use="1" ueId="0" numSdu="1"/>
+         </tapa.tfu.dat.req>
+            
+         <tapa.tfu.cntrl.req numCntrlReq="1" spId="1">
+            <tapa.tfu.pdcch.cntrl.req saveTo="1" ueId="0" />
+         </tapa.tfu.cntrl.req>
+         <!--
+         <tapa.tfu.dat.req use="1" ueId="0" numSdu="1" />
+         <tapa.tfu.pdcch.cntrl.req.req saveTo="1" ueId="0"/>
+         -->
+      </tapa.expset>
+
+      # Send TFU_DELTA(for transmission) + 4 (for fdbk to PHY)+
+      # 1(TFU_UL_DELTA) - TFU_DELTA Ttis to expect harqrecp req from MAC.
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="2" op="RG_ACC_PLUS" numTfuDelta="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1" spId="1">
+            <tapa.tfu.hq.recp.req />
+         </tapa.tfu.recp.req>
+         <!--
+         <tapa.tfu.harqrecp.req/>
+         -->
+      </tapa.expect>
+
+      # Send 1 Tti to get the MAC PDU at PHY.
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      # Send ACK for the received PDU
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1">
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+         </tapa.tfu.hq.ind>
+         <!--
+         <tapa.tfu.harqack.ind ueId="0" isAck="TRUE"/>
+         -->
+      </tapa.send>
+ 
+      #<tapa.tfu.directive noTimeValidation="TRUE"/>
+
+      <!--
+      # Send a Tti to get the transmission scheduled. 
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="990"/>
+      </tapa.send>
+
+      # Expect staInd from MAC to RLC for Msg4 
+      <tapa.expect>
+         <tapa.rgu.dstaind ueId="0" lchTb1Data="8" />
+      </tapa.expect>
+     
+      
+      # Send data with size equal to the allocated size on RGU. 
+     <tapa.send>
+         <tapa.rgu.ddatreq  ueId="0" lchTb1Data="8"  lcType="4"/>
+      </tapa.send>
+
+      # Send 1 Tti to get the MAC PDU at PHY.
+      <tapa.send>
+         <tapa.tfu.tti.ind  numTti="1"/>
+      </tapa.send>
+      -->
+
+      <!--
+      # Expect PDU from MAC to PHY. UeId to check rnti sent by MAC.
+      <tapa.expset>
+         <tapa.tfu.dat.req datReqs="1">
+            <tapa.tfu.pdsch.dat.req use="1" ueId="0" numSdu="1"/>
+         </tapa.tfu.dat.req>
+            
+         <tapa.tfu.cntrl.req numCntrlReq="1">
+            <tapa.tfu.pdcch.cntrl.req saveTo="1" ueId="0" />
+         </tapa.tfu.cntrl.req>
+      -->
+         <!--
+         <tapa.tfu.dat.req use="1" ueId="0" numSdu="1" />
+         <tapa.tfu.pdcch.cntrl.req.req ueId="0" saveTo="1"/>
+         -->
+         <!--
+      </tapa.expset>
+         -->
+
+         <!--
+      # Send TFU_DELTA(for transmission) + 4 (for fdbk to PHY)+
+      # 1(TFU_UL_DELTA) - TFU_DELTA Ttis to expect harqrecp req from MAC.
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.tfu.recp.req numRntis="1">
+            <tapa.tfu.hq.recp.req />
+         </tapa.tfu.recp.req>
+         -->
+         <!--
+         <tapa.tfu.harqrecp.req/>
+         -->
+         <!--
+      </tapa.expect>
+         -->
+
+         <!--
+      # Send 1 Tti to get the MAC PDU at PHY.
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      # Send ACK for the received PDU
+      <tapa.send>
+         <tapa.tfu.hq.ind hqInds="1">
+            <tapa.tfu.hq ueId="0" isAck="TRUE"/>
+         </tapa.tfu.hq.ind>
+         -->
+         <!--
+         <tapa.tfu.harqack.ind ueId="0" isAck="TRUE"/>
+         -->
+         <!--
+      </tapa.send>
+         -->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    8.2
+#
+#       Desc:   "To test the successful creation of MAC PDU with subheaders,
+#                padding subheaders, control elements, SDUs and padding
+#
+#       Notes:   None
+#              
+#       Module:  "MUX Module"
+#
+#       File:    rgac_tc8.xml
+#
+#
+<tapa.testcase id="8.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="" section=""/>
+      <tapa.module id=""/>
+
+      <tapa.desc>
+         "Successful multiplexing of MAC PDU" 
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Testing that the MAC PDU contains subheaders for SDU, CE and padding
+         along with the CE, SDU and padding bytes"
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Layer Manager Configuration
+      <tapa.rg.macInit/>
+
+      # Cell Configuration
+      <tapa.rg.cellInit/>
+
+      # UE Creation
+      <tapa.rg.UeInit ueCatEnum="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         # Configure a dedicated logical channel for the created UE  
+         <tapa.crg.cfgreq.cfg.lch lcId="1" lcgId="0" dir="3" lcType="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch lcId="1" dir="1" lcType="5" instId="5" />
+      </tapa.send>
+
+      # Configure UL LCG on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg lcgId="0" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         # Expect success in cfg cfm
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      <tapa.send>
+         # Send BO for the created logical channel on RGU. 
+         <tapa.rgu.dstarsp lcId="1" lcType="5" bo="64"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send a Tti to get the transmission scheduled. 
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         # Expect staInd from MAC to RLC for Msg4 
+         <tapa.rgu.dstaind lchTb1Data="1" />
+      </tapa.expect>
+
+      <tapa.send>
+         # Send data with size less than the allocated on RGU. 
+         # if we can send less data from TA or to report a BO which
+         # will surely result in padding 
+         <tapa.rgu.ddatreq lchTb1Data="1" ueId="0" lcId="1" lcType="5"/>
+      </tapa.send>
+
+      <tapa.send>
+         # Send DL_DELTA Ttis to get the MAC PDU at PHY.
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+   <tapa.expset>
+     <tapa.tfu.cntrl.req numCntrlReq="1">
+        <tapa.tfu.pdcch.cntrl.req/>
+     </tapa.tfu.cntrl.req>
+     <tapa.tfu.dat.req datReqs="1">
+        <tapa.tfu.pdsch.dat.req  validate="TRUE"/>
+     </tapa.tfu.dat.req>
+   </tapa.expset>
+
+      <tapa.send>
+         # Send a 4 TTIs to get the harqrecpRequest from MAC
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+   <tapa.expset>
+     <tapa.tfu.recp.req numRntis="1" spId="1">
+        <tapa.tfu.hq.recp.req ueId="0"/>
+     </tapa.tfu.recp.req>   
+   </tapa.expset>
+
+      <tapa.send>
+         # Send a 2 TTIs to Send the HARQ ACK Indication
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+   <tapa.send>
+     <tapa.tfu.hq.ind hqInds="1">
+        <tapa.tfu.hq ueId="0"/>
+     </tapa.tfu.hq.ind>   
+   </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      #Command To ShutDown LTEMAC Layer
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    8.3
+#
+#       Desc:    To validate UL HARQ processing for 1 MAC SDU without MAC CEs.
+#
+#       Notes:   None
+#              
+#       Module:  uplink.datapath
+#
+#       File:    rgac_tc8.xml
+#
+#
+<tapa.testcase id="8.3">>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36321.830" section=""/>
+      <tapa.module id="uplink.datapath"/>
+
+      <tapa.desc>
+         "To validate UL HARQ processing for 1 MAC SDU without MAC CEs."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Initialize LTEMAC
+      <tapa.rg.macInit/>
+
+      <tapa.rg.dbgDeInitAll/>
+      #Initialize CELL
+      <tapa.rg.cellInit ulTotalBw="20"/>
+      #Initialize UE
+      <tapa.rg.UeInit/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+     
+      <tapa.tfu.directive ulDeltaPrsnt="TRUE"/> 
+
+      # Configure bi-directional DTCH for default UE 
+      <tapa.send>
+         <tapa.crg.cfgreq.cfg.lch lcId="1" lcgId="0" dir="3" lcType="5" />
+      </tapa.send>
+
+      # Expect configuration confirm after the TTI
+      <tapa.expect> 
+         <tapa.crg.cfgcfm/>
+      </tapa.expect>
+
+      # Configure DL LC on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lch lcId="1" dir="1" lcType="5" instId="5" />
+      </tapa.send>
+
+      # Configure UL LCG on RGR
+      <tapa.send>
+         <tapa.rgr.cfgreq.cfg.lcg lcgId="0" instId="5"/>
+      </tapa.send>
+
+      # Send TTI indication for default cell
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect configuration confirm after the TTI
+      <tapa.expect> 
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      # Expect configuration confirm after the TTI
+      <tapa.expect> 
+         <tapa.rgr.cfgCfm instId="5"/>
+      </tapa.expect>
+
+      # Send SR Indication for default UE
+     <tapa.send>
+        <tapa.tfu.sr.ind>
+           <tapa.tfu.sr/>
+        </tapa.tfu.sr.ind>
+     </tapa.send>
+
+      # Send a TTI to schedule SR
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect DCI format 0 and do basic validations of the grant
+      <tapa.expset>
+        <tapa.tfu.cntrl.req numCntrlReq="1">
+           <tapa.tfu.pdcch.cntrl.req saveTo="1" isUlGrant="TRUE" vldtGrant="TRUE" vldtTx="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expset>
+
+      # Send 4 (UL_SCHED_DELTA (=2) + 4 TTIs (for Ue to transmit) - TFU_DELTA
+      # (=2 in advance that we expect datRecpReq)
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="4"/>
+      </tapa.send>
+
+      # Expect data reception request
+      <tapa.expect>
+     <tapa.tfu.recp.req numRntis="1">
+        <tapa.tfu.pusch.recp.req use="1" vldtDatRecp="TRUE" saveTo="2"/>
+     </tapa.tfu.recp.req>   
+      </tapa.expect>
+
+      # Send 3 TTIs (TFU_DELTA(=2) for UE to transmit + 1 (TFU_UL_DELTA))
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="3"/>
+      </tapa.send>
+
+      #Send CRC for Msg
+      <tapa.send>
+         <tapa.tfu.crc.ind>
+            <tapa.tfu.crc ueId="0" isFailure="FALSE"/>
+         </tapa.tfu.crc.ind>
+      </tapa.send>
+     
+      <tapa.send>
+         <tapa.tfu.tti.ind numTti="1"/>
+      </tapa.send>
+
+      # Expect HARQ ACK in PHICH
+      <tapa.expect>
+        <tapa.tfu.cntrl.req numCntrlReq="1">
+           <tapa.tfu.phich.cntrl.req isAck="TRUE"/>
+        </tapa.tfu.cntrl.req>
+      </tapa.expect>
+ 
+      # Send Data Indication using TB size recieved in the grant
+      <tapa.send>
+       <tapa.tfu.dat.ind datInds="1">
+          <tapa.tfu.dat use="2" lcId="1"/>
+       </tapa.tfu.dat.ind>
+      </tapa.send>
+
+      # Expect Data Indication at RLC
+      <tapa.expect>
+         <tapa.rgu.ddatind lchTb1Data="1,1" vldtBuf="TRUE"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rg.macDeInit/>
+   </tapa.clean>
+   # Shutdown subsection
+   <tapa.shutdown>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     rgac_tc8.xml@@/main/3 - Sat Jul 30 02:22:48 2011
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1      ---     ns  1. Initial Release.
+#/main/2      ---     sm   1. Initial Release.
+#/main/3      ---     gvj  1. LTE MAC 3.1 Release
+#$SID$      ---        rt  1. LTE MAC 4.1 Release
+#*********************************************************************91*/

@@ -1,0 +1,59 @@
+#! /bin/sh
+
+function printUsageAndExit(){
+   echo ""
+   echo "Usage: $0  <opensourcepackages_dir>"
+   echo ""
+   echo "Mandatory arguments"
+   echo "==================="
+   echo "   <opensourcepackages_dir>   Desitnation directory where compilation will be done"
+   echo ""
+   exit 1;
+}
+
+DIR=$PWD/../..
+MODE=
+CMD_DIR="rsync -a"
+
+if [ "$1" == "" ]
+then
+  echo "error: invalid command "
+  printUsageAndExit
+fi
+
+while [ "$1" != "" ]; do
+   case $1 in
+      -h | --help )   printUsageAndExit
+                     ;;
+      * )            OPENSRC_PATH=$1
+    esac
+shift
+done
+
+if [ ! -d "$OPENSRC_PATH" ]
+then
+  echo "error: open Source path invalid"
+  printUsageAndExit
+fi
+
+echo "Mode: "$MODE "OpenSource Dir: "$OPENSRC_PATH
+
+SRC_PATH=$DIR/src
+
+#echo $PWD $SRC_PATH $BIN_PATH
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/thirdparty
+$CMD_DIR $OPENSRC_PATH/thirdparty/kb_getc $SRC_PATH/tenb_commonplatform/software/thirdparty/
+$CMD_DIR $OPENSRC_PATH/thirdparty/md5 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/csoap $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+ln -sf $OPENSRC_PATH/thirdparty/openssl-0.9.8 $SRC_PATH/tenb_commonplatform/software/thirdparty/
+
+mkdir -p $SRC_PATH/tenb_commonplatform/software/libs/bin
+$CMD_DIR $OPENSRC_PATH/bin/threeway $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/csoap $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/libxml2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+ln -sf $OPENSRC_PATH/bin/libxml2-2.7.2 $SRC_PATH/tenb_commonplatform/software/libs/bin/
+
+ln -sf $OPENSRC_PATH/boost $SRC_PATH/tenb_commonplatform/software/libs/common/include/
+

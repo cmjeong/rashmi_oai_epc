@@ -1,0 +1,6166 @@
+#*********************************************************************17*/
+#
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=10:rs:nhac_tc10.xml
+
+#/********************************************************************20**
+#
+#     Name:    RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for handover in LTE RRC.
+#
+#     File:    nhac_tc10.xml
+#
+#     Sid:     
+#
+#     Prg:     rcs 
+#
+#*********************************************************************21*/
+
+#
+#
+#       Test:    10.1
+#
+#       Desc:    Verification of CDMA2000 CSFB to 1x Parameter transfer
+#                procedure failure scenario due to SRB1 not configured.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.1">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.6.4, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the CDMA2000 CSFB to 1x Parameter transfer"
+           "procedure failure scenario."
+
+           "Pretest includes RRC layer initialization and Cell Configuration."
+
+           "It involves sending of RRC Connection Request message to RRC from"
+           "PDCP. RRC on getting this message sends the message to RRC user."
+ 
+           "RRC user sends RRC Connection Setup message to RRC. RRC sends this"
+           "message to PDCP for transmission to UE."
+ 
+           "Before receiving RRC Connection Setup Complete message, RRC receives"
+           "CSFB Parameters Request CDMA2000 from PDCP. RRC sends it to RRC user."
+           "RRC user sends CSFB Parameters Response CDMA2000 to RRC to transmit to UE."
+
+           "RRC on receiving the message checks whether UE context exists "
+           "and SRB1 is established. RRC finds the UE context"
+           "but since SRB1 is not established, RRC user issues error indication."
+           "RRC gives error indication to RRC user with error type 'invalid header'"
+           "and error cause as 'UE not configured'."
+
+           Steps:
+           "1. RRC user sends CSFB Parameters Request CDMA2000 message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to SRB1 validation failure, RRC issues error indication to RRC 
+               user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1" pdcpId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect RRC Connection Setup at RLC. Configuration request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send CSFB Parameters Request CDMA2000 message to RRC from PDCP 
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="0" spId="0" suId="0"
+         ueId="2" cellId="1"/>
+     </tapa.send>
+
+     #Expect CSFB Parameters Request CDMA2000 message at RRC user
+     <tapa.expect>
+       <tapa.nhu.datind ueId="2" cellId="1"/>
+     </tapa.expect>
+
+     #Send CSFB Parameters Response CDMA2000 message to RRC from RRC user
+     <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0"
+          msgCategory="28" msgType="0" 
+          transId="10" rbId="1" tCrnti="2" ueId="2" cellId="1" valChk="0"/>
+     </tapa.send>
+ 
+     #Expect Error indication at RRC user because CSFB Parameters Response CDMA2000 
+     #is sent before SRB1 establishment
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.2
+#
+#       Desc:    Verification of Mobility from E-UTRA Command procedure 
+#                failure scenario when the message is sent before SRB1 
+#                establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.2">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "failure scenario."
+
+           "Pretest includes RRC layer initialization and Cell Configuration."
+
+           "It involves sending of RRC Connection Request message to RRC from"
+           "PDCP. RRC on getting this message sends the message to RRC user."
+ 
+           "RRC user sends RRC Connection Setup message to RRC. RRC sends this"
+           "message to PDCP for transmission to UE."
+ 
+           "Before receiving RRC Connection Setup Complete message, RRC user"
+           "sends the Mobility from E-UTRA Command message to RRC."
+
+           "RRC on receiving the message checks whether UE context exists for"
+           "mobility(handover) and SRB1 is established. RRC finds the UE context"
+           "but since SRB1 is not established, RRC user issues error indication."
+           "RRC gives error indication to RRC user with error type 'invalid header'"
+           "and error cause as 'UE not configured'."
+
+           Steps:
+           "1. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to SRB1 validation failure, RRC issues error indication to RRC 
+               user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1" pdcpId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect RRC Connection Setup at RLC. Configuration request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+ 
+     # Send Mobility From E-UTRA Command to PDCP
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     #Expect Error indication at RRC user because Mobility From E-UTRA Command 
+     #is sent before SRB1 establishment
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.3
+#
+#       Desc:    Verification of Mobility from E-UTRA Command procedure 
+#                failure scenario when the message is sent before 
+#                security activation,SRB2 establisment and one DRB establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.3">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "failure scenario."
+         
+           "Pretest includes RRC layer initialization and Cell Configuration."
+           "Connection Setup."
+
+           "It involves sending of the mobility from E-UTRA command message"
+           "before security activation. RRC user sends Mobility from E-UTRA"
+            message to RRC before security activation, SRB2 establishment and 
+            one DRB establishment."
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated as this message"
+           "can be sent to UE only after security activation. As RRC user has"
+           "sent the message before security activation,RRC issues error"
+           "indication to RRC user with error type as 'UE config' and error"
+           "cause as 'security not configured'."
+
+           Steps:
+           "1. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to security validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Mobility From E-UTRA Command to PDCP
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     #Expect Error indication at RRC user since security activation is not done 
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+  
+#
+#
+#       Test:    10.4
+#
+#       Desc:    Verification of cell statistics for Mobility from E-UTRA
+#                failure counter when mobility from E-UTRA fails. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.4">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "success statistics of the cell."
+ 
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup and Security Activation."
+
+           "To verify the statistics, issue cell statistics request from LM"
+           "and verify that counter is zero."
+
+           "It involves sending of the mobility from E-UTRA command message"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE. 
+
+           "RRC on getting this message checks whether the UE context exists,"
+           "if exists, checks if security is activated.RRC then encodes this"
+           "message and sends the message to PDCP for transmission to UE."
+
+           "UE on receiving this message, initiates inter-RAT mobility towards"
+           "the RAT indicated by target RAT type in the message and fails to"
+           "move to the target RAT. On failure, UE initiates RRC Connection"
+           "Re-establishment procedure to E-UTRA."
+
+           "RRC on getting the RRC Re-establishment message from RRC user,"
+           "increments the 'mobility from E-UTRA failure counter'"
+
+           "To verify the statistics, issue cell statistics request from LM and"
+           "verify that the 'mobility failure counter' is incremented."
+
+           Steps:
+           "1. Get statistics using NhMiLnhStsReq/NhMiLnhStsCfm
+               (tapa.lnh.sts.peer/tapa.lnh.stscfm). 
+           "2. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "3. RRC sends the message using NhLiPjuDatReq to PDCP.tapa.pju.datreq
+               is used to expect message at PDCP."
+           "4. UE trigggers re-establishment procedure. This is done using
+               high level tapa command."
+           "5. Get statistics using NhMiLnhStsReq/NhMiLnhStsCfm
+               (tapa.lnh.sts.peer/tapa.lnh.stscfm).
+           "6. RRC user verifies the statistics."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+      #perform RRC connection reconfiguration to establish SRB2 
+      #and atleast one DRB
+      <tapa.rrc.conrecfg ueId="1" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Cell Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.cell elem="11" action="1" cellId="1"/>
+      </tapa.send>
+
+      # Expect Cell Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm hoStsCntr="0"/>
+      </tapa.expect>
+
+      #Send Mobility From E-UTRA Command to RRC from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="1" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+ 
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      #TODO REENA -- Restablishment Procedure 
+      <tapa.rrc.restab cellId="1"/>
+
+      # Send Cell Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.cell elem="11" action="1" cellId="1"/>
+      </tapa.send>
+
+      # Expect Cell Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm hoStsCntr="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.5
+#
+#       Desc:    Verification of PDCP SDU status primitives successful scenario
+#                during Mobility from E-UTRA.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.5">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+           
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup,Security Activation and Mobility from E-UTRA"
+           "procedure."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC."
+           "RRC checks if UE  context exists and sends the request to 
+               -- MAC to reset using NhLiCrgCfgReq."
+               -- RLC to re-establish using NhLiCkwCfgReq.
+               -- PDCP to re-estblish and provide the PDCP SDU status using
+                  NhLiCpjPdcpStaReq.
+           "After receiving the response from all the three layers, RRC sends"
+           "confirm to RRC user which contains the PDCP SDU status." 
+         
+           "RRC user after receiving the PDCP status,verifies the status." 
+
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. RRC sends the cfg request to RLC and PDCP for re-establishment, 
+               and cfg request to MAC to reset."
+           "3. RRC on receiving confirms from lower layers, sends confirm to
+               RRC user using NhUiNhuPdcpSduStaCfm(tapa.nhu.pdcpstacfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #perform RRC connection reconfiguration to establish SRB2 and
+      #atleast one DRB
+      <tapa.rrc.conrecfg ueId="2" cellId="1"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+      
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expset>
+<!--
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+-->
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" ueId="2"/>
+      </tapa.send>
+     
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+     
+     <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1" drbIdStr="3,4" numDrbs="2"
+          sduStatus="0"/>
+      </tapa.expect>
+  <!--   <tapa.expect>
+         <tapa.nhu.cfgcfm ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>-->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.6
+#
+#       Desc:    Verification of PDCP SDU status primitives failure scenario
+#                due to failure in finding the UE context.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.6">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup with ueId=1 and ueId=2."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC"
+           "with ueId=3.RRC checks if UE context exists and finds that UE"
+           "context doesnot exist and issues error indication to RRC user with"
+           "error cause as 'UE not configured'".
+
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. Due to UE CB  validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send PDCP SDU status to RRC 
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="3" transId="6"/>
+      </tapa.send>
+
+      #Expect Error indication at RRC user due to non-existing ueId
+      <tapa.expect>
+        <tapa.nhu.errind/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.7
+#
+#       Desc:    Verification of PDCP SDU status primitives scenario
+#                when MAC reset and RLC re-establish fails.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.7">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+           
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup,Security Activation and Mobility from E-UTRA"
+           "procedure."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC."
+           "RRC checks if UE  context exists and sends the request to 
+               -- MAC to reset using NhLiCrgCfgReq."
+               -- RLC to re-establish using NhLiCkwCfgReq.
+               -- PDCP to re-estblish and provide the PDCP SDU status using
+                  NhLiCpjPdcpStaReq.
+
+           "RRC receives negative confirm from MAC and RLC, and send confirm 
+           "to RRC user with negative confirm."
+
+           "RRC user after receiving the PDCP status,verifies the status." 
+ 
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. RRC sends the cfg request to RLC and PDCP for re-establishment, 
+               and cfg request to MAC to reset."
+           "3. RRC receives negative confirm from MAC, and positive confirms
+               from PDCP and RLC. RRC sends the PDCP status received from PDCP
+               to RRC user with negative confirm using NhUiNhuPdcpSduStaCfm
+               (tapa.nhu.pdcpstacfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+        <!-- <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>-->
+      </tapa.expset>
+<!--
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  cellId="1" ueId="2" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+-->
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" cellId="1" ueId="2" status="15"/>
+     </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm  use="1" status="1" ueId="2" cellId="1" drbIdStr="3,4"/>
+      </tapa.send>
+     
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  cellId="1" ueId="2" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+
+      # NHU_CFGERRTYPE_RLC(1) if RLC failure
+      # NHU_CFGERRTYPE_MAC(2) if MAC failure
+      # NHU_CFGERRTYPE_PDCP(4) if PDCP failure
+      # Expect failure status set to 3 as MAC RESET and RLC RESTABLISH fails.
+     
+     <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1"  numDrbs="2" sduStatus="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.8
+#
+#       Desc:    Verification of Handover from E-UTRA Preparation(CDMA2000)
+#                procedure successful scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.8">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.4, 5.4.5"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of successful Handover from"
+           "E-UTRA Preparation(CDMA2000) procedure.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup and Security Activation."
+
+           "It involves sending of the Handover from E-UTRA Preparation"
+           "Request message(with all the mandatory and correct values filled)"
+           "from RRC user to RRC for transmission to UE." 
+ 
+           "RRC on getting this message checks whether the UE context exists"
+           "and if exists, checks if security is activated. RRC then encodes"
+           "this message and sends the message to PDCP for transmission to UE." 
+
+           "UE on getting this message, sends UL handover preparation transfer"
+           "(CDMA2000) to eNB. RRC on getting this message, decodes the message"
+           "and gives it to RRC user.
+
+           Steps:
+           "1. RRC user sends Handover from E-UTRA Preparation Request message"
+               to RRC using NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. RRC sends the message using NhLiPjuDatReq to PDCP.tapa.pju.datreq
+               is used to expect message at PDCP."
+           "3. Arrival of UL Handover preparation Transfer message from PDCP 
+               is indicated to RRC using NhLiPjuDatInd(tapa.pju.datind)."
+           "4. RRC sends this message to RRC user using NhUiNhuDatInd 
+               (tapa.nhu.datind)."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send HO From E-UTRA Preparation Request to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="2" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect HO From E-UTRA Preparation Request at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     # Send Dat ind from PDCP
+     <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="8" spId="0" suId="0"
+                  ueId="2" cellId="1" />
+     </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat ind at RRC User
+     <tapa.expect>
+         <tapa.nhu.datind ueId="2" />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.9
+#
+#       Desc:    Verification of Handover from E-UTRA Preparation(CDMA2000)
+#                procedure failure scenario when the message is sent before 
+#                SRB1 establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.9">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.4, 5.4.5"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Handover from E-UTRA Preparation procedure"
+           "failure scenarios."
+
+           "Pretest includes RRC layer initialization and Cell Configuration."
+
+           "It involves sending of RRC Connection Request message to RRC from"
+           "PDCP. RRC on getting this message sends the message to RRC user."
+
+           "RRC user sends RRC Connection Setup message to RRC. RRC sends this"
+           "message to PDCP for transmission to UE."
+
+           "Before receiving RRC Connection Setup Complete message, RRC user"
+           "sends the Handover from E-UTRA Request message to RRC."
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "SRB1 is established. RRC finds the UE context but since SRB1 is not"
+           "established, RRC issues error indication to RRC user with error type"
+           "'invalid header' and error cause as 'UE not configured'."
+
+           Steps:
+           "1. RRC user sends Handover from E-UTRA Request message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to SRB1 validation failure, RRC issues error indication to RRC 
+               user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send RRC Connection Request from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="1" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+      #Expect RRC Connection Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind cellId="1" tCrnti="2" />
+      </tapa.expect>
+
+      #Send RRC Connection Setup from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="3"
+          rrc_transId="1" transId="10" rbId="1" tCrnti="2" cellId="1" 
+          addRbIdStr="1" pdcpId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" valTCrnti="2" tCrntiPres="1" rbIdx="0" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+         <tapa.dummy.cpj.cfgreq  use="1" valTCrnti="2" tCrntiPres="1" cleanup="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" cellId="1" ueId="2"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection Setup at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2" 
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send HO From E-UTRA Preparation Request to PDCP
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="2" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     #Expect Error Indication at RRC user because HO From E-UTRA Preparation
+     #Request is sent before SRB1 establishment
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.10
+#
+#       Desc:    Verification of Handover from E-UTRA Preparation(CDMA2000)
+#                procedure failure scenario when the message is sent after 
+#                SRB1 establishment but before security activation.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.10">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.4, 5.4.5"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Handover from E-UTRA Preparation procedure"
+           "failure scenarios."
+
+           "Pretest includes RRC layer initialization , Cell Configuration."
+           "Connection Setup."
+
+           "RRC user sends Handover from Request message to RRC before"
+           "activating the security." 
+
+           "RRC on receiving the message checks whether UE context exists,"
+           "and if exists,checks whether security is activated. As RRC user"
+           "has sent the message before security activation,RRC issues error"
+           "indication to RRC user with error type as 'UE config'and error"
+           "cause as 'security not configured'."
+
+           Steps:
+           "1. RRC user sends Handover from E-UTRA Request message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to security validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send HO From E-UTRA Preparation to PDCP
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="2" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     #Expect Error Indication at RRC user because HO From E-UTRA Preparation
+     #is sent before security activation
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.11
+#
+#       Desc:    Verification of CDMA2000 CSFB to 1x Parameter transfer
+#                procedure successful scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.11">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.6.4, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of successful CDMA2000 CSFB to"
+           "1x Parameter transfer procedure when the CSFB request is received"
+           "before security activation."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup"
+
+           "It involves receiving of the CSFB Parameters Request CDMA2000 "
+           "message(with the mandatory and correct values filled) by RRC from"
+           "PDCP(NhLiPjuDatInd-tapa.dummy.pju.datind). RRC on getting this"
+           "message, decodes the message and checks if the UE context exists."
+           "RRC then sends the message to RRC user."
+
+           "RRC user on getting this message sends CSFB Parameters Response"
+           "message to RRC for transmission to UE. RRC sends this message before"
+           "security activation as the request is received before security"
+           "activation. RRC on getting this message, checks UE context, encodes"
+           "the message and gives it to PDCP for transmssion to UE."
+
+           Steps:
+           "1. Arrival of CSFB Parameters Request CDMA2000 message from UE
+               is indicated to RRC using NhLiPjuDatInd(tapa.pju.datind)."
+           "2. RRC sends the message to RRC user using NhUiNhuDatInd
+               (tapa.nhu.datind)."
+           "3. RRC user sends CSFB Parameters Response CDMA2000 message"
+               to RRC using NhUiNhuDatReq(tapa.nhu.datreq)."
+           "4. RRC sends the message using NhLiPjuDatReq to PDCP.tapa.pju.datreq
+               is used to expect message at PDCP."
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send CSFB Parameters Request CDMA2000 message to RRC from PDCP 
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="0" spId="0" suId="0"
+         ueId="2" cellId="1"/>
+     </tapa.send>
+
+     #Expect CSFB Parameters Request CDMA2000 message at RRC user
+     <tapa.expect>
+       <tapa.nhu.datind ueId="2" cellId="1"/>
+     </tapa.expect>
+
+     #Send CSFB Parameters Response CDMA2000 message to RRC from RRC user
+     <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0"
+          msgCategory="1" msgType="0" 
+          transId="10" rbId="1" tCrnti="2" ueId="2" cellId="1" valChk="0"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect at CSFB Parameters Response CDMA2000 message at PJU/PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.12
+#
+#       Desc:    Verification of encode primitives with RRC Reconfiguration
+#                and Handover Command message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.12">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="6.2.2, 10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of successful encoding of the RRC"
+           "messages."
+
+           "Pretest includes RRC layer initialization."
+
+           "It involves sending of RRC Connection Reconfiguration message"
+           "including mobility control information by RRC user to RRC"
+           "for encoding using encode primitive. RRC on getting this request,"
+           "encodes the message and gives the encoded to the RRC user in encode" 
+           "confirm."
+
+           "Similarly Handover command is encoded and sent to RRC user. This"
+           "Handover Command contains the RRC Reconfiguration message encoded"
+           "as octet string."
+
+           Steps:
+           "1. RRC user sends RRC Connection Reconfiguration message to RRC 
+               to encode using NhUiNhuEncodeReq(tapa.nhu.encreq)."
+           "2. RRC encodes and gives the encoded message to RRC user using
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+           "3. RRC user sends inter-node Handover command message to RRC 
+               to encode using NhUiNhuEncodeReq(tapa.nhu.encreq)."
+           "4. RRC encodes and gives the encoded message to RRC user using
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="1" numAddDrb="2" 
+         addRbIdStr="2,1,3,1"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="1" status="0"/>
+     </tapa.expect>
+     <tapa.delay delay="1" />
+     #Send Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="11" msgType="8"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="8" status="0"/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.13
+#
+#       Desc:    Verification of encode failure due to invalid message type.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.13">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the encode failure due to invalid message type.
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "It involves sending of encode request with invalid message type
+           "from RRC user to RRC."
+
+           "RRC on getting this gives error indication to RRC user."
+
+           Steps:
+           "1. RRC user sends encode request to RRC using NhUiNhuEncodeReq
+               (tapa.nhu.encreq) to encode."
+           "2. RRC gives error indication to RRC user using the primitive
+               NhUiNhuErrInd(tapa.nhu.errind)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send encode request to RRC with invalid message type
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="20"/>
+     </tapa.send>
+     #Expect Error Indication
+     <tapa.expect>
+         <tapa.nhu.errind />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.14
+#
+#       Desc:    Verification of encode failure due to missing mandatory field
+#                in UE capability Information message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.14">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the encode failure due to missing mandatory"
+           "field in UE capability Information message."
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "It involves sending of UE capability Information message encode "
+           "request with transId(mandatory) not present from RRC user to RRC."
+
+           "RRC on getting this gives encode confirm to RRC user with failure"
+           "status."
+
+           Steps:
+           "1. RRC user sends encode request to RRC using NhUiNhuEncodeReq
+               (tapa.nhu.encreq) to encode."
+           "2. RRC gives encode confirm to RRC user using the primitive
+               NhUiNhuEncodeCfm(tapa.nhu.encodecfm) with failure status."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send encode request to RRC  
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="10" rrcTransIdPres="0"/>
+     </tapa.send>
+     #Expect encode confirm with failure status
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="10" status="1"/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.15
+#
+#       Desc:    Verification of inter-cell Handover to E-UTRA procedure 
+#                failure scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.ccm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.15">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.2, 5.3.5, 10.2.2, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of handover to E-UTRA failure "
+           "procedure from one cell to another cell in the same eNB.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "(cellId=1 and cellId=2)",Connection Setup, Security Activation."
+
+           "It involves connection setup and security activation of UE"
+           "with cellId=1. Then RRC user triggers handover procedure as follows:"
+
+           "1. RRC user sends Configuration Request(with C-RNTI obtained) to
+               RRC to configure SRBs,DRBs,security config and also provides
+               the HO info needed by PDCP. RRC on receiving this creates UE
+               context with C-RNTI in cell with cellId=2. Also RRC configures
+               RLC,MAC and PDCP." 
+           "2. RRC user fills the C-RNTI obtained in RRC Reconfiguration message
+               and requests RRC to encode the message using NhUihuEncodeReq
+               (tapa.nhu.encreq). RRC encodes and gives the encoded message 
+               to RRC user using NhUihuEncodeCfm(tapa.nhu.enccfm)."
+           "3. RRC user then requests RRC to send the message to UE and indicates
+               RRC that the message has already been encoded using NhUiNhuDatReq
+               (tapa.nhu.datreq). RRC on getting this message sends the message 
+               to PDCP for transmission to UE.PDCP gets the message using 
+               NhLiPjuDatReq(tapa.pju.datreq).  This message is sent using cellId=1. 
+           "4. UE fails to synchronize with the target cell (cell ID=2).
+               UE triggers RRC Re-establishment procedure with source cell
+               (cell ID=1)  successfully. Rhis re-establishment procedure deletes
+               the old UE context in cellId 1 and creates a new UE(10) context in 
+               cell Id 1."
+           "5. RRC user initiates cancel UE request to RRC with cellId=2
+               to clear the UE context and resources in cellId=2 as UE 
+               failed to move to cell with cellId=2."
+           "6. To verify that UE context exists in source cell (cellID=1 n ueId=1),
+               send DL Info Transfer message from RRC user to RRC with cellId=1
+               for transmission to UE."
+           
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.cellcfg cellId="2"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+     <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="11" bitMask="2"
+          rbCfgType="1"  numAddRb="3" transId="1" addBitMskStr="7,7,7"
+          cellId="2" ueId="0" addRbIdStr="1,0,2,0,4,1"  pdcpId="1" addLcIdStr="1,2,4"
+          tCrnti="2" fillUeIdCfg="1" conReCfgCause="1" />
+     </tapa.send>
+
+     # Expect Config Request at MAC,RLC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+     </tapa.expset>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1"  ueId="2" status="1"/>
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expect>
+
+     #Send HO Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="2" transId="10" msgType="1" numAddRb="2"
+         addRbIdStr="2,1,3,1"/>
+     </tapa.send>
+
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="2" encMsgType="1" status="0" 
+          storeEncMsg="TRUE"/>
+     </tapa.expect>
+
+     #Send encoded recfg message to UE thru cellId = 1
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" msgCategory="1" msgType="4" isMsgEncoded="TRUE" 
+       cellId="1" ueId="1" pdcpId="1" valChk="0" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect Conn Recfg PJU/PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+     </tapa.expect>
+
+     #TODO REENA -- Restablishment Procedure 
+     <tapa.rrc.restab/>
+
+     #Send cancel UE request from RRC user
+     <tapa.send>
+        <tapa.nhu.cncluereq cellId="2" ueId="2" />
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect revert configuration request at RLC, MAC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.ckw.cfgreq  use="1"  />
+         <tapa.dummy.cpj.cfgreq  use="1"  />
+     </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send downlink message
+     <tapa.send>
+       <tapa.nhu.datreq msgCategory="1" msgType="1" cellId="1" ueId="10" rbId="1" pdcpId="1"/>
+     </tapa.send>
+
+     #Check whether data request  is received at PJU interface
+     <tapa.expect>
+       <tapa.dummy.pju.datreq cellId="1" ueId="10" pdcpInstId="1"/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.16
+#
+#       Desc:    Verification of inter-cell Handover to E-UTRA procedure 
+#                failure and RRC Re-establishment(triggered due to HO failure)
+#                failure scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.ccm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.16">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.2, 5.3.5, 10.2.2, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "- tapa.kwu.datind(NhLiKwuDatInd) to send RRC Re-establishment Request
+              from RLC to RRC."
+           "- tapa.nhu.datind(NhUiNhuDatInd) to expect RRC Re-establishment Request
+              at RRC user."
+           "- tapa.nhu.datrsp(NhUiNhuDatRsp) to send RRC Re-establishment Reject
+              from RRC user to RRC."
+           "- tapa.kwu.datrsp(NhLiKwuDatRsp) to expect RRC Re-establishment Reject
+              at RLC."
+
+           "This test case tests the scenario of handover to E-UTRA failure and"
+           "RRC Re-establishment procedure failure which was triggered by UE"  
+           "due to handoverto E-UTRA failure.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "(cellId=1 and cellId=2)",Connection Setup, Security Activation."
+
+           "It involves connection setup and security activation of UE"
+           "with cellId=1. Then RRC user triggers handover procedure as follows:"
+
+           "1. RRC user sends Configuration Request(with C-RNTI obtained) to
+               RRC to configure SRBs,DRBs,security config and also provides
+               the HO info needed by PDCP. RRC on receiving this creates UE
+               context with C-RNTI in cell with cellId=2. Also RRC configures
+               RLC,MAC and PDCP." 
+           "2. RRC user fills the C-RNTI obtained in RRC Reconfiguration message
+               and requests RRC to encode the message using NhUihuEncodeReq
+               (tapa.nhu.encreq). RRC encodes and gives the encoded message 
+               to RRC user using NhUihuEncodeCfm(tapa.nhu.enccfm)."
+           "3. RRC user then requests RRC to send the message to UE and indicates
+               RRC that the message has already been encoded using NhUiNhuDatReq
+               (tapa.nhu.datreq). RRC on getting this message sends the message 
+               to PDCP for transmission to UE.PDCP gets the message using 
+               NhLiPjuDatReq(tapa.pju.datreq).  This message is sent using cellId=1. 
+           "4. UE fails to synchronize with the target cell (cell ID=2). 
+               UE triggers RRC Re-establishment procedure with source cell
+               (cell ID=1). RRC receives RRC Re-establishment Request from
+               PDCP and sends it to RRC user. RRC user sends RRC 
+               Re-establishment Reject to RRC to send it to UE.RRC sends it
+               to RLC for transmission."
+           "5. RRC user initiates cancel UE request to RRC with cellId=1 and
+               cellId=2 to clear the UE context and resources in both cells as
+               UE both Handover and Re-establishment due to HO failure failed."
+               RRC user sends cancel UE request to RRC to release resources 
+               using NhUiNhuCnclUeReq(tapa.nhu.cncluereq). After releasing the
+               resources, RRC sends confirm to RRC user using
+               NhUiNhuCfgCfm(tapa.nhu.cfgcfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.cellcfg cellId="2"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+     # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+     <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="11" bitMask="2"
+          rbCfgType="1"  numAddRb="3" transId="8" addBitMskStr="7,7,7"
+          cellId="2" ueId="0" addRbIdStr="1,0,2,0,4,1"  pdcpId="1" addLcIdStr="1,2,4"
+          tCrnti="2" fillUeIdCfg="1" conReCfgCause="1" />
+     </tapa.send>
+
+     # Expect Config Request at MAC,RLC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+     </tapa.expset>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1"  ueId="2" status="1"/>
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expect>
+
+     #Send HO Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="2" transId="10" msgType="1" numAddRb="2"
+         addRbIdStr="2,1,3,1"/>
+     </tapa.send>
+
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="2" encMsgType="1" status="0" 
+          storeEncMsg="TRUE"/>
+     </tapa.expect>
+
+     #Send encoded recfg message to UE thru cellId = 1
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" msgCategory="1" msgType="4" isMsgEncoded="TRUE" 
+       cellId="1" ueId="2" pdcpId="1" valChk="0" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect Conn Recfg PJU/PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+     </tapa.expect>
+
+     # Send RRC Connection Re Establishment request to RRC from RLC
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0"
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect Reestablishment request
+     <tapa.expect>
+        <tapa.nhu.datind ueId="0" cellId="1"/>
+      </tapa.expect>
+
+      #Send RRC Connection Reetsblishment Reject withOut Old Ue Id
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0" expCfgBitMask="0"
+          msgCategory="3" msgType="1" rrc_transId="1" transId="11"
+        rbId="1" tCrnti="100" cellId="1" valChk="0"/>
+      </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection Reestablishment Reject at RLC
+     <tapa.expect>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="100"
+          cellId="1" />
+     </tapa.expect>
+
+     #Send cancel UE request from RRC user
+     <tapa.send>
+        <tapa.nhu.cncluereq cellId="1" ueId="2" />
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect revert configuration request at RLC, MAC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.ckw.cfgreq  use="1"  />
+         <tapa.dummy.cpj.cfgreq  use="1"  />
+     </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send cancel UE request from RRC user
+     <tapa.send>
+        <tapa.nhu.cncluereq cellId="2" ueId="2" />
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect revert configuration request at RLC, MAC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.ckw.cfgreq  use="1"  />
+         <tapa.dummy.cpj.cfgreq  use="1"  />
+     </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="2"/>
+     </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.17
+#
+#       Desc:    Verification of successful encoding of HO Preparation 
+#                Information message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.17">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the successful encoding of inter-node Handover"
+           "Preparation Information."
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "It involves sending of Handover Preparation Information message from"
+           "RRC user to RRC by filling all the mandatory fields."
+ 
+           "RRC on getting this message encodes the message and gives it back to"
+           "RRC user using encode confirm."
+
+           Steps:
+           "1. RRC user sends encode request to RRC using NhUiNhuEncodeReq
+               (tapa.nhu.encreq) to encode Handover Preparation Information 
+               message."
+           "2. RRC encodes and gives encoded message in confirm using  
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Handover Preparation Information message to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="11" numAddRb="2" 
+         addRbIdStr="3,1,5,1" />
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="11" status="0"/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.18
+#
+#       Desc:    Verification of successful encoding of UE Radio Access
+#                Capability Information message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.18">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the successful encoding of inter-node UE Radio"
+           "Access Capability Information."
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "It involves sending of UE Capability Information message"
+           "from RRC user to RRC by filling all the mandatory fields."
+
+           "RRC on getting this message encodes the message and gives it back to"
+           "RRC user using encode confirm."
+
+           "Then RRC user sends the UE Radio Access Capability Information message"
+           "RRC to encode. The message will contain the encoded UE Capability"
+           "Information message as octet string."
+ 
+           "RRC on getting this message encodes the message and gives it back to"
+           "RRC user using encode confirm."
+
+           Steps:
+           "1. RRC user sends encode request to RRC using NhUiNhuEncodeReq
+               (tapa.nhu.encreq) to encode UE Capability Information message."
+           "2. RRC encodes and gives encoded message in confirm using  
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+           "3. RRC user sends encode request to RRC using NhUiNhuEncodeReq
+               (tapa.nhu.encreq) to encode UE Radio Access Capability 
+               Information message."
+           "4. RRC encodes and gives encoded message in confirm using  
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send UE Capability Information message to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="10"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="10" status="0"/>
+     </tapa.expect>
+
+     #Send UE Radio Access Capability Information message to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="11" msgType="9"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="9" status="0"/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.19
+#
+#       Desc:    Verification of successful decoding of HO Preparation 
+#                Information message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.19">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the successful decoding of inter-node Handover"
+           "Preparation Information."
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "It involves sending of encoded Handover Preparation Information" 
+           "message from RRC user to RRC."
+ 
+           "RRC on getting this message decodes the message and gives it back to"
+           "RRC user using decode confirm."
+
+           Steps:
+           "1. RRC user sends decode request to RRC using NhUiNhuDecodeReq
+               (tapa.nhu.decreq) to decode Handover Preparation Information
+               message." 
+           "2. RRC decodes and gives decoded message in confirm using  
+               NhUiNhuDecodeCfm(tapa.nhu.deccfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send HO Preparation Information message to encode to RRC
+     <tapa.send>
+        <tapa.nhu.decodereq ueId="2" cellId="1" transId="11" msgType="11"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+        <tapa.nhu.decodecfm ueId="2" cellId="1" decMsgType="11" status="0"/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.20
+#
+#       Desc:    Verification of successful decoding of UE Radio Access
+#                Capability Information message.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.20">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the successful decoding of inter-node UE Radio"
+           "Access Capability Information."
+
+           "Pretest includes RRC layer initialization,Cell Configuration."
+
+           "Then RRC user sends the encoded UE Radio Access Capability Information"
+           "message RRC to decode."
+ 
+           "RRC on getting this message decodes the message and gives it back to"
+           "RRC user using decode confirm."
+
+           Steps:
+           "1. RRC user sends decode request to RRC using NhUiNhuDecodeReq
+               (tapa.nhu.decreq) to decode UE Radio Access Capability 
+               Information message." 
+           "2. RRC decodes and gives decoded message in confirm using  
+               NhUiNhuDecodeCfm(tapa.nhu.deccfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send UE Radio Access Capability Information message to encode to RRC
+     <tapa.send>
+        <tapa.nhu.decodereq ueId="2" cellId="1" transId="11" msgType="9"/>
+     </tapa.send>
+     #Expect encode confirm
+     <tapa.expect>
+        <tapa.nhu.decodecfm ueId="2" cellId="1" decMsgType="9" status="0"/>
+     </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.21
+#
+#       Desc:    Verification of PDCP SDU status primitives successful scenario
+#                during Mobility from E-UTRA.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.21">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+           
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup,Security Activation and Mobility from E-UTRA"
+           "procedure."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC."
+           "RRC checks if UE  context exists and sends the request to 
+               -- MAC to reset using NhLiCrgCfgReq."
+               -- RLC to re-establish using NhLiCkwCfgReq.
+               -- PDCP to re-estblish and provide the PDCP SDU status using
+                  NhLiCpjPdcpStaReq.
+           "After receiving the response from all the three layers, RRC sends"
+           "confirm to RRC user which contains the PDCP SDU status." 
+         
+           "RRC user after receiving the PDCP status,verifies the status." 
+
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. RRC sends the cfg request to RLC and PDCP for re-establishment, 
+               and cfg request to MAC to reset."
+           "3. RRC on receiving confirms from lower layers, sends confirm to
+               RRC user using NhUiNhuPdcpSduStaCfm(tapa.nhu.pdcpstacfm)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+    
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   duplicate="1" status="1" ueId="2" invalidCellId="3" cleanup="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   duplicate="1" status="1"  ueId="2" invalidUeId="3" cleanup="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   duplicate="1" status="1"  ueId="2" invalidTransId="10" cleanup="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" ueId="2"/>
+      </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1" drbIdStr="3,4" numDrbs="2"
+          sduStatus="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.22
+#
+#       Desc:    Failure of CDMA2000 CSFB to 1x Parameter transfer
+#                procedure with UE Cfg info in it.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc4.xml
+#
+#
+<tapa.testcase id="10.22">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.6.4, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of successful CDMA2000 CSFB to"
+           "1x Parameter transfer procedure when the CSFB request is received"
+           "before security activation."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup"
+
+           "It involves receiving of the CSFB Parameters Request CDMA2000 "
+           "message(with the mandatory and correct values filled) by RRC from"
+           "PDCP(NhLiPjuDatInd-tapa.dummy.pju.datind). RRC on getting this"
+           "message, decodes the message and checks if the UE context exists."
+           "RRC then sends the message to RRC user."
+
+           "RRC user on getting this message sends CSFB Parameters Response"
+           "message to RRC for transmission to UE. RRC sends this message before"
+           "security activation as the request is received before security"
+           "activation. RRC on getting this message, checks UE context, encodes"
+           "the message and gives it to PDCP for transmssion to UE."
+
+           Steps:
+           "1. Arrival of CSFB Parameters Request CDMA2000 message from UE
+               is indicated to RRC using NhLiPjuDatInd(tapa.pju.datind)."
+           "2. RRC sends the message to RRC user using NhUiNhuDatInd
+               (tapa.nhu.datind)."
+           "3. RRC user sends CSFB Parameters Response CDMA2000 message"
+               to RRC using NhUiNhuDatReq(tapa.nhu.datreq)."
+           "4. RRC sends the message using NhLiPjuDatReq to PDCP.tapa.pju.datreq
+               is used to expect message at PDCP."
+         
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send CSFB Parameters Request CDMA2000 message to RRC from PDCP 
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="0" spId="0" suId="0"
+         ueId="2" cellId="1"/>
+     </tapa.send>
+
+     #Expect CSFB Parameters Request CDMA2000 message at RRC user
+     <tapa.expect>
+       <tapa.nhu.datind ueId="2" cellId="1"/>
+     </tapa.expect>
+
+     #Send CSFB Parameters Response CDMA2000 message to RRC from RRC user
+     <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="11"
+          msgCategory="1" msgType="0" rbCfgType="1"  numAddRb="1"
+          rrc_transId="1" addRbIdStr="1,0" pdcpId="1"
+          transId="10" rbId="1" tCrnti="2" ueId="2" cellId="1" valChk="0"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect at CSFB Parameters Response CDMA2000 message at PJU/PDCP
+     <tapa.expect>
+         <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.23
+#
+#       Desc:    Verification of PDCP SDU status primitives failure scenario
+#                due to failure in cell context.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.23">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup with ueId=1 and ueId=2."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC"
+           "with ueId=3.RRC checks if UE context exists and finds that UE"
+           "context doesnot exist and issues error indication to RRC user with"
+           "error cause as 'UE not configured'".
+
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. Due to UE CB  validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      #Send PDCP SDU status to RRC 
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="10" ueId="3" transId="6"/>
+      </tapa.send>
+
+      #Expect Error indication at RRC user due to non-existing ueId
+      <tapa.expect>
+        <tapa.nhu.errind/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    10.24
+#
+#       Desc:    Verification of encode primitives with RRC Reconfiguration
+#                and Handover Command message - Failure - NULL SDU
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.24">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="6.2.2, 10.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "4. RRC encodes and gives the encoded message to RRC user using
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="1" numAddDrb="2" 
+         addRbIdStr="2,1,3,1" nullSdu="1"/>
+     </tapa.send>
+     <tapa.timeout/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.25
+#
+#       Desc:    Verification of PDCP SDU status primitives failure scenario
+#                - Invalide SAP
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.25">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.rrc.delsap.kwu/>
+      <tapa.rrc.delsap.ckw/>
+      <tapa.rrc.delsap.crg/>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6" />
+      </tapa.send>
+
+      <tapa.timeout/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.delsap.cpj/>
+      <tapa.rrc.delsap.pju/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.26
+#
+#       Desc:    Verification of Handover to E-UTRA procedure successful
+#                scenario using RRC Reconfiguration message with seciruty
+#                cfg info
+#
+#       Notes:   None
+#              
+#       Module:  rrc.ccm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.26">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.2, 10.2.2, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of successful handover to E-UTRA"
+           "procedure from another RAN or from another eNB.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation."
+
+           "First, it involves getting C-RNTI from MAC." 
+
+           "RRC user then sends configuration request to RRC. Configuration"
+           "Request will contain SRB, DRB, security configuration information"
+           "with config during HO flag set and HO information(needed by PDCP)."
+           "RRC validates the information and  configures lower layers by sending"
+           "config requests to PDCP, RLC and MAC. PDCP is asked to disable"
+           "Selective Security Mode Configuration feature for handover. Lower"
+           "layers send confirms. RRC on receiving all the confirms, sends"
+           "confirm to RRC user". 
+
+           "RRC user sends the encode request with RRC Connection Reconfiguration"
+           "message including mobility control information to RRC"
+           "for encoding. RRC on getting this request,encodes the message and"
+           "gives the encoded message buffer to RRC user in encode confirm."
+
+           "RRC user sends the encode request with Handover Command message"
+           "to RRC. RRC on getting this request,encodes the message and gives"
+           "the encoded message buffer to RRC user in encode confirm. This"
+           "Handover Command contains the RRC Reconfiguration message encoded"
+           "as octet string."
+
+           "Once handover is successful, UE sends RRC Connection Reconfiguration"
+           "Complete message to target eNB. RRC on receiving this message,"
+           "sends this message to RRC user." 
+
+           Steps:
+           "1  RRC user sends config request to RRC to configure lower layers
+               using NhUiNhuCfgReq(tapa.nhu.cfgreq). RRC sends the config request
+               to lower layers."
+           "2. Once RRC receives confirms from the lower layers, gives final
+               confirm to RRC user using NhUiNhuCfgCfm(tapa.nhu.cfgcfm).
+           "3. RRC user fills the C-RNTI obtained from MAC in RRC Reconfiguration 
+               and requests RRC to encode the message using NhUiNhuEncodeReq
+               (tapa.nhu.encreq)."
+           "4. RRC encodes and gives the encoded message to RRC user using
+               NhUiNhuEncodeCfm(tapa.nhu.enccfm)."
+           "5. RRC user sends inter-node Handover command message to RRC 
+               to encode using NhUiNhuEncodeReq(tapa.nhu.encreq)."
+           "6. RRC sends the encoded message to RRC user using NhUiNhuEncodeCfm
+               (tapa.nhu.enccfm)."
+           "7. UE sends RRC Reconfiguration Complete to eNB. Arrival of this 
+               message is indicated to RRC by PDCP using NhLiPjuDatInd
+               (tapa.pju.datind)."
+           "8. RRC sends this message to RRC user using NhUiNhuDatInd
+               (tapa.nhu.datind)."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+     <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="15" bitMask="2"
+          rbCfgType="1"  numAddRb="3" transId="8" addBitMskStr="7,7,7"
+          cellId="1" ueId="0" addRbIdStr="1,0,2,0,4,1"  pdcpId="1" addLcIdStr="1,2,4"
+          tCrnti="2" fillUeIdCfg="1" conReCfgCause="1"/>
+     </tapa.send>
+
+     # Expect Config Request at MAC,RLC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+         <tapa.dummy.cpj.seccfgreq use="1"/>
+     </tapa.expset>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.seccfgcfm use="1"  ueId="2" status="1"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1"  ueId="2" status="1"/>
+     </tapa.send>
+
+
+     <tapa.expect>
+        #<tapa.nhu.cfgcfm />
+        #<tapa.nhu.cfgcfm status="1"/>
+        <tapa.lnh.staind category="2" event="256" cause="0" alarmType="7"/>
+     </tapa.expect>
+
+     #Send HO Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="10" msgType="1" numAddRb="2"
+         addRbIdStr="2,1,3,1"/>
+     </tapa.send>
+
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="1" status="0"/>
+     </tapa.expect>
+
+     #Send Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="1" transId="11" msgType="8"/>
+     </tapa.send>
+
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="1" encMsgType="8" status="0"/>
+     </tapa.expect>
+
+     # Send Conn Recfg Complete
+     <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" ueId="2" cellId="1"/>
+     </tapa.send>
+
+     #Expect Conn Recfg Complete at NHU
+     <tapa.expect>
+         <tapa.nhu.datind ueId="2" cellId="1"/>
+     </tapa.expect>
+
+     <tapa.send>
+        # Send Config Request to RRC with HO information 
+        <tapa.nhu.cfgreq spId="0"  expCfgBitMask="3"
+          rbCfgType="2"  numModRb="1" transId="1" 
+          rbId="1" cellId="1" ueId = "2" modRbIdStr="4,1" 
+          modBitMskStr="4" modLcIdStr="1" pdcpCfgBitMsk="32" isHoPres="1" 
+          ulCntVal="1" numBits="17" ulrlcCfgType="4" ulLcCfgType="4"
+          dlrlcCfgType="4" trChCfgType="4" pdcpId="1" 
+          drbSduStaStr="1,0,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1"/>
+     </tapa.send>
+
+ <tapa.expect>
+     <tapa.nhu.errind/>
+</tapa.expect>
+     #Expect Config Request at PDCP and MAC
+     #<tapa.expset>
+      #   <tapa.dummy.crg.cfgreq store_tid="1"/>
+         #<tapa.dummy.cpj.cfgreq use="1"/>
+     #</tapa.expset>
+
+     # Send config confirm from CPJ to RRC
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1" status="1" ueId = "2"/>
+     </tapa.send>
+
+     # Send config confirm from CRG to RRC.RRC will send it to
+     # RRC user on receiving confirm from PDCP and MAC
+     #<tapa.send>
+      #   <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId = "2"/>
+     #</tapa.send>
+
+     #<tapa.delay delay="5"/>
+
+     # Expect Config confirm at RRC user
+     #<tapa.expect>
+      #   <tapa.nhu.cfgcfm status="1"/>
+     #</tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.27
+#
+#       Desc:    Verification of PDCP SDU status primitives failure scenario
+#                - Invalide SAP and duplicate transId
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.27">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6" />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.lnh.staind category="4" event="256" cause="16" alarmType="0" />
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" ueId="2"/>
+      </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1" drbIdStr="3,4" numDrbs="2"
+          sduStatus="0"/>
+      </tapa.expect>
+      <tapa.timeout/>
+
+      </tapa.test>
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.28
+#
+#       Desc:    Verification of inter-cell Handover to E-UTRA procedure 
+#                failure scenario - Invalide SAP ID
+#
+#       Notes:   None
+#              
+#       Module:  rrc.ccm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.28">
+   <tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.2, 5.3.5, 10.2.2, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the scenario of handover to E-UTRA failure "
+           "procedure from one cell to another cell in the same eNB.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "(cellId=1 and cellId=2)",Connection Setup, Security Activation."
+
+           "It involves connection setup and security activation of UE"
+           "with cellId=1. Then RRC user triggers handover procedure as follows:"
+
+           "1. RRC user sends Configuration Request(with C-RNTI obtained) to
+               RRC to configure SRBs,DRBs,security config and also provides
+               the HO info needed by PDCP. RRC on receiving this creates UE
+               context with C-RNTI in cell with cellId=2. Also RRC configures
+               RLC,MAC and PDCP." 
+           "2. RRC user fills the C-RNTI obtained in RRC Reconfiguration message
+               and requests RRC to encode the message using NhUihuEncodeReq
+               (tapa.nhu.encreq). RRC encodes and gives the encoded message 
+               to RRC user using NhUihuEncodeCfm(tapa.nhu.enccfm)."
+           "3. RRC user then requests RRC to send the message to UE and indicates
+               RRC that the message has already been encoded using NhUiNhuDatReq
+               (tapa.nhu.datreq). RRC on getting this message sends the message 
+               to PDCP for transmission to UE.PDCP gets the message using 
+               NhLiPjuDatReq(tapa.pju.datreq).  This message is sent using cellId=1. 
+           "4. UE fails to synchronize with the target cell (cell ID=2).
+               UE triggers RRC Re-establishment procedure with source cell
+               (cell ID=1)  successfully. Rhis re-establishment procedure deletes
+               the old UE context in cellId 1 and creates a new UE(10) context in 
+               cell Id 1."
+           "5. RRC user initiates cancel UE request to RRC with cellId=2
+               to clear the UE context and resources in cellId=2 as UE 
+               failed to move to cell with cellId=2."
+           "6. To verify that UE context exists in source cell (cellID=1 n ueId=1),
+               send DL Info Transfer message from RRC user to RRC with cellId=1
+               for transmission to UE."
+           
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      <tapa.rrc.cellcfg cellId="2"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     # Send Config Request to RRC. RRC will send it to MAC,RLC and PDCP
+     <tapa.send>
+         <tapa.nhu.cfgreq spId="0"  expCfgBitMask="11" bitMask="2"
+          rbCfgType="1"  numAddRb="3" transId="1" addBitMskStr="7,7,7"
+          cellId="2" ueId="0" addRbIdStr="1,0,2,0,4,1"  pdcpId="1" addLcIdStr="1,2,4"
+          tCrnti="2" fillUeIdCfg="1" conReCfgCause="1" />
+     </tapa.send>
+
+     # Expect Config Request at MAC,RLC and PDCP
+     <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq use="1"/>
+         <tapa.dummy.cpj.cfgreq use="1"/>
+     </tapa.expset>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm use="1" status="1" ueId="2"/>
+     </tapa.send>
+
+     # Send Config Confirm to RRC from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm use="1"  ueId="2" status="1"/>
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm status="1"/>
+     </tapa.expect>
+
+     #Send HO Reconfiguration msg to encode to RRC
+     <tapa.send>
+        <tapa.nhu.encodereq ueId="2" cellId="2" transId="10" msgType="1" numAddRb="2"
+         addRbIdStr="2,1,3,1"/>
+     </tapa.send>
+
+     #Expect encode confirm
+     <tapa.expect>
+         <tapa.nhu.encodecfm ueId="2" cellId="2" encMsgType="1" status="0" 
+          storeEncMsg="TRUE"/>
+     </tapa.expect>
+ 
+   # Delete PJU SAP
+    <tapa.rrc.delsap.pju/>
+
+     #Send encoded recfg message to UE thru cellId = 1
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" msgCategory="1" msgType="4" isMsgEncoded="TRUE" 
+       cellId="1" ueId="1" pdcpId="1" valChk="0" />
+     </tapa.send>
+
+     <tapa.timeout/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.delsap.kwu/>
+      <tapa.rrc.delsap.ckw/>
+      <tapa.rrc.delsap.crg/>
+      <tapa.rrc.delsap.cpj/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.29
+#
+#       Desc:    Verification of PDCP SDU status primitives scenario
+#                during Mobility from E-UTRA. - Failure due to
+#                NULL Sdu in Cfm coming from CPJ
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.29">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         Verification of PDCP SDU status primitives scenario
+         during Mobility from E-UTRA. - Failure due to
+         NULL Sdu in Cfm coming from CPJ
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+     
+#-- NULL Cfm SDU from CPJ
+     <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" ueId="2"
+               nullCfgCfm="1"/>
+      </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+
+
+     <tapa.timeout/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.30
+#
+#       Desc:    Verification of PDCP SDU status primitives scenario
+#                during Mobility from E-UTRA. - Failure due to
+#                Invalide num RBs sent from CPJ in SduStaCfm
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.30">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         Verification of PDCP SDU status primitives scenario
+         during Mobility from E-UTRA. - Failure due to
+         Invalide num RBs sent from CPJ in SduStaCfm
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+
+#-- NULL Cfm SDU from CPJ
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" cellId="1" ueId="2" 
+                  cleanup="1" zeroRBs="1"/>
+      </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.timeout/>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    10.31
+#
+#       Desc:    Verification of PDCP SDU status primitives successful scenario
+#                during Mobility from E-UTRA. =-  - Failure due to
+#                SduStaCfm-> status is "FAILURE"
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.31">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Verification of PDCP SDU status primitives successful scenario
+        during Mobility from E-UTRA. =-  - Failure due to
+        SduStaCfm-> status is "FAILURE"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2" cellId="1"/>
+     </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="0" drbIdStr="3,4" ueId="2"/>
+      </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2" cellId="1"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1" numDrbs="0"
+          sduStatus="5"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    10.32
+#
+#       Desc:    Verification of PDCP SDU status primitives successful scenario
+#                during Mobility from E-UTRA. =-  - Failure due to
+#                SduStaCfm-> status is "FAILURE"
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.32">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Verification of PDCP SDU status primitives successful scenario
+        during Mobility from E-UTRA.Failure due to
+        SduStaCfm-> status is "FAILURE"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #Establish SRB2 with atleast one DRB before sending mobility from E-utra cmd
+      #perform RRC connection reconfiguration with DRBs 3,4
+      <tapa.rrc.conrecfg cellId="1" ueId="2"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2" nullCfgCfm="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm ueId="2" cellId="1" status="0"/>
+      </tapa.expect>
+
+      <tapa.timeout/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.33
+#
+#       Desc:    Verification of cell statistics for Mobility from E-UTRA
+#                failure counter when mobility from E-UTRA fails. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.33">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         Verification of cell statistics for Mobility from E-UTRA
+         failure counter when mobility from E-UTRA fails.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send Cell Statistics Request from LM
+      <tapa.send>
+         <tapa.lnh.sts.cell elem="11" action="1" cellId="1"/>
+      </tapa.send>
+
+      # Expect Cell Statistics Confirm from RRC
+      <tapa.expect>
+         <tapa.lnh.stscfm hoStsCntr="0"/>
+      </tapa.expect>
+
+      #Send Mobility From E-UTRA Command to RRC from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="1" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1" rrcTransIdPres="0" />
+      </tapa.send>
+ 
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.nhu.errind />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.34
+#
+#       Desc:    Verification of Handover from E-UTRA Preparation(CDMA2000)
+#                procedure unsuccessful scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.34">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.4, 5.4.5"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          Verification of Handover from E-UTRA Preparation(CDMA2000)
+          procedure unsuccessful scenario.
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Send HO From E-UTRA Preparation Request to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="2" transId="6" rrc_transId="1"  valChk="0" pdcpId="1" rrcTransIdPres="0"/>
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.nhu.errind />
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.35
+#
+#       Desc:    Verification of Mobility from E-UTRA Command procedure 
+#                failure scenario when the message is sent before SRB2 and DRBs 
+#                establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.35">
+   #<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "failure scenario."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup and Security Activation.
+
+           "It involves sending of the mobility from E-UTRA command message"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is 
+           "activated then checks whether SRB2 with atleast one DRB is 
+           "established as this message can be sent to UE only after SRB2 with atleast
+           "one DRB establishment.As RRC user has sent the message before SRB2 
+           "establishment,RRC issues error indication to RRC user with error 
+           "type as 'UE config' and error cause as 'SRB2 not established'."
+
+
+           Steps:
+           "1. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to SRB2 validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Mobility From E-UTRA Command to PDCP from RRC user
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1"
+         msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect Error indication at RRC user since SRB2 is not established 
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.36
+#
+#       Desc:    Verification of Mobility from E-UTRA Command procedure 
+#                failure scenario when the message is sent before one DRB 
+#                establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.36">
+   #<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "failure scenario."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment
+
+           "It involves sending of the mobility from E-UTRA command message"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is 
+           "activated then checks whether SRB2 is established if Yes then
+           "checks whether one DRB is established as this message can be sent
+           "to UE only after one DRB establishment.As RRC user has sent the 
+           "message before one DRB establishment,RRC issues error indication to
+           "RRC user with error type as 'UE config' and error cause as 'One DRB
+           "is not established'."
+
+
+           Steps:
+           "1. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to DRB validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+       
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="1" addRbIdStr="2,0"
+		 addLcIdStr="2" addBitMskStr="7" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"  valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Lower Layer configurations
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1" />
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.delay delay="1" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+     #Expect config cfm at NHU
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Mobility From E-UTRA Command to PDCP from RRC user
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="1" msgCategory="1"
+         msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect Error indication at RRC user since one DRB is not established 
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.37
+#
+#       Desc:    Verification of Mobility from E-UTRA Command procedure 
+#                failure scenario when the message is sent after suspention
+#                one DRB establishment.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.37">
+   #<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility from E-UTRA Command procedure"
+           "failure scenario."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment and" 
+           "one DRB, successfull mobility from  E-UTRA Command procedure,"
+           "release of one DRB"
+
+           "It involves sending of the mobility from E-UTRA command message"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC user sends mobility"
+           "from E-utra command to RRC and RRC encode it sends to the PDCP"
+           "release the one DRB and now RRC user sends the Mobility from E-utra"
+           "command to RRC, RRC validates whether one DRB is established as this"
+           "can be sent only after one DRB establishment. As user has sent the 
+           "message after deletetion of one DRD,RRC issues error indication to
+           "RRC user with error type as 'UE config' and error cause as 'One DRB
+           "is suspended'."
+
+
+           Steps:
+           "1. RRC user sends Mobility from E-UTRA Command message to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to DRB validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="9" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+     
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="1" />
+ 
+   </tapa.cfg>
+
+   <tapa.test>
+     #Send Mobility From E-UTRA Command to PDCP from RRC user
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="1" msgCategory="1" 
+         msgType="3" transId="1" rrc_transId="1"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect Mobility From E-UTRA Command at PJU/PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+     </tapa.expect>
+
+
+     #Release Data Rb 4
+	 #Send Connection Reconfiguration For ueId 1, cellId=1
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="2" rlsRbIdStr="3,1,4,1"
+		  rbCfgType="4" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" rrc_transId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+     #Send Mobility From E-UTRA Command to PDCP from RRC user
+     <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="1" msgCategory="1"
+         msgType="3" transId="3" rrc_transId="3"  valChk="0" pdcpId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="1" />
+
+     #Expect Error indication at RRC user since one DRB is not established 
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.38
+#
+#       Desc:    Verification RRC Connection Reconfiguration which includes 
+#                mobility control info successful scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.38">
+   #<tapa.attribute scenarioType="Normal"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the Mobility procedure through RRC connection reconfiguration"
+           "Successfull scenario."
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment and" 
+           "one DRB"
+
+           "It involves sending of the RRC connection reconfiguration message"
+           "which includes mobility control info IE"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC user sends RRC connection"
+           "reconfiguration message to RRC and RRC encode it sends to the PDCP"
+           
+
+
+           Steps:
+           "1. RRC user sends RRC connection recfg includes mobility control info to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. RRC sends RRC connection recfg to PDCP
+           "3. PDCP sends confirmation to the RRC 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="9" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+     
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+     #Release Data Rb 4
+	 #Send Connection Reconfiguration For ueId 1, cellId=1
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="1" rlsRbIdStr="4,1"
+        rbCfgType="4" valChk="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+<!--		   <tapa.dummy.crg.cfgreq  store_tid="1"/>-->
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+    <!-- 
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+     -->
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" rrc_transId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.39
+#
+#       Desc:    Verification RRC connection reconfiguration which includes
+#                mobility control info, from RRC User to 
+#                RRC before AS-Security activation, SRB2 establishment, one DRB
+#                establishment. This is a failure scenario. 
+#                
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.39">
+   #<tapa.attribute scenarioType="Failure"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+            "Verification RRC connection reconfiguration which includes
+            "mobility control info, from RRC User to 
+            "RRC before AS-Security activation, SRB2 establishment, one DRB
+            "establishment. This is a failure scenario. 
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment and" 
+           "one DRB"
+
+           "It involves sending of the RRC connection reconfiguration message"
+           "which includes mobility control info IE"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC will send the error"
+           "indication to RRC user since AS-security is not activated."
+           
+
+
+           Steps:
+           "1. RRC user sends RRC connection recfg includes mobility control info to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. RRC sends error indication to the RRC user since AS-security is not activated.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="9" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+     
+
+   </tapa.cfg>
+
+   <tapa.test>
+
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+     
+     #Expect Error indication at RRC user since Security not activated 
+     <tapa.expect>
+      <tapa.nhu.errind/>
+     </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    10.40
+#
+#       Desc:    Verification RRC connection reconfiguration which includes
+#                mobility control info, from RRC User to 
+#                RRC before SRB2 establishment, one DRB
+#                establishment. This is a failure scenario. 
+#                
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.40">
+   #<tapa.attribute scenarioType="Failure"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+            "Verification RRC connection reconfiguration which includes
+            "mobility control info, from RRC User to 
+            "RRC before SRB2 establishment, one DRB
+            "establishment. This is a failure scenario. 
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment and" 
+           "one DRB"
+
+           "It involves sending of the RRC connection reconfiguration message"
+           "which includes mobility control info IE"
+           "(with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC will send the error"
+           "indication to RRC user since SRB2 is not established."
+           
+
+
+           Steps:
+           "1. RRC user sends RRC connection recfg includes mobility control info to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. RRC sends error indication to the RRC user since SRB2 is not established.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="9" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+     
+   </tapa.cfg>
+
+   <tapa.test>
+
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+     
+     #Expect Error indication at RRC user since Security not activated 
+     <tapa.expect>
+      <tapa.nhu.errind/>
+     </tapa.expect>
+
+     <tapa.delay delay="1" />
+
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.41
+#
+#       Desc:    Verification RRC connection reconfiguration which includes
+#                mobility control info, from RRC User to 
+#                RRC before one DRB establishment. This is a failure scenario. 
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.41">
+   #<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+            Verification RRC connection reconfiguration which includes
+            mobility control info, from RRC User to 
+            RRC before one DRB establishment. This is a failure scenario. 
+
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment"
+
+           "It involves sending of RRC connection reconfiguration with mobility
+           "control info (with all the mandatory and correct values filled) from RRC user"
+           "to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC user sends mobility"
+           "from E-utra command to RRC and RRC encode it sends to the PDCP"
+           "release the one DRB and now RRC user sends the Mobility from E-utra"
+           "command to RRC, RRC validates whether one DRB is established as this"
+           "can be sent only after one DRB establishment. RRC sends error indi
+           "cation to the RRC user since one DRB is not established"
+
+
+           Steps:
+           "1. RRC user sends RRC connection recongiguartion with mobility
+           "control info message to RRC using NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. Due to DRB validation failure, RRC issues error indication 
+               to RRC user using NhUiNhuErrInd(tapa.nhu.errind) with error type
+               error cause."
+           "3. RRC user validates the error cause and type received by RRC."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="9" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+     
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+       <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="1" addRbIdStr="2,0"
+		 addLcIdStr="2" addBitMskStr="7" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="1" />
+ 
+   </tapa.cfg>
+
+   <tapa.test>
+	   #Send Connection Reconfiguration For ueId 1, cellId=1 with mobility control info
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numAddRb="2" addRbIdStr="3,1,4,1"
+		  rbCfgType="1" valChk="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="1" />
+
+     #Expect Error indication at RRC user since one DRB is not established 
+     <tapa.expect>
+       <tapa.nhu.errind/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.42
+#
+#       Desc:    Verification of RRC connection reconfiguration from RRC User
+#                to RRC after deletion of one DRB. RRC should send error indication
+#                to the RRC user. Failure scenario.
+#
+#       Notes:   None
+#              
+#       Module:  rrc.cpm 
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.42">
+   #<tapa.attribute scenarioType="Positive"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0" section="5.4.3, 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Verification of RRC connection reconfiguration with mobility control
+        info from RRC User to RRC after deletion of one DRB. RRC should send
+        error indication to the RRC user. Failure scenario.
+
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup, Security Activation and SRB2 establishment and" 
+           "one DRB, delete one DRB"
+R
+           "It involves sending of RRC connection reconfiguration with mobility
+           "control info message" (with all the mandatory and correct values
+           "filled) from RRC user to RRC for transmission to UE." 
+
+           "RRC on receiving the message checks whether UE context exists and"
+           "if exists, checks whether security is activated,if security is"
+           "activated then checks whether SRB2 is established if Yes then"
+           "checks whether one DRB is established as this message can be sent"
+           "to UE only after one DRB establishment. RRC user sends RRC Connection"
+           "reconfiguration with mobility control info to RRC and RRC encode it 
+           "sends to the PDCP. release the one DRB and now RRC user sends the RRC connection
+           "reconfiguration with mobility control info to RRC, RRC validates whether one DRB 
+           "is established as this can be sent only after one DRB establishment. RRC sends error
+           "Indication to the RRC user since one DRB is deleted"
+
+
+           Steps:
+           "1. RRC user sends RRC connection recfg includes mobility control info to RRC using
+               NhUiNhuDatReq(tapa.nhu.datreq)."
+           "2. RRC sends rrc connection reconfiguaration with mobility control
+               info after deletion one DRB"
+           "3. RRC sends error indication to the RRC user since one drb is delteted" 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+        <tapa.flag id="LTERRC_REL9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell 
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+      # Connection setup procedure 
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+      # Security activation procedure 
+      <tapa.rrc.security_actv ueId="1" cellId="1"/>
+     
+      #perform RRC connection reconfiguration to establish SRB2 and DRbs
+	   #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+   </tapa.cfg>
+
+   <tapa.test>
+	 #Send Connection Reconfiguration For ueId 1, cellId=1
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="1" rlsRbIdStr="4,1"
+        rbCfgType="4" valChk="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+<!--		   <tapa.dummy.crg.cfgreq  store_tid="1"/>-->
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+    <!-- 
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+     -->
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" rrc_transId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	 #Send Connection Reconfiguration For ueId 1, cellId=1 to release one DRB
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="3" rrc_transId="3"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="1" rlsRbIdStr="3,1"
+        rbCfgType="4" valChk="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+<!--		   <tapa.dummy.crg.cfgreq  store_tid="1"/>-->
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+    <!-- 
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+     -->
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" rrc_transId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	   #Send Connection Reconfiguration For ueId 1, cellId=1 with mobility control info
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="4" rrc_transId="4"
+		  cellId="1" ueId="1" pdcpId="1" numModRb="1" modRbIdStr="2,0"
+        rbCfgType="2" valChk="0" mobilityCntrlInfoPres="TRUE"/>
+      </tapa.send>
+ 
+      # expect error ind since one DRB is deleted
+      <tapa.expect>
+        <tapa.nhu.errind/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+#
+#
+#       Test:    10.43
+#
+#       Desc:    Verify successful Packing and unpacking of  isULFwding   
+#                which is used to request UL data forwarding 
+#                in PDCP data forward request
+#
+#       Notes:   None
+#              
+#       Module:  rrc.uim
+#
+#       File:    nhac_tc10.xml
+#
+#
+<tapa.testcase id="10.43">
+   <tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331-8.5.0, 36.300-8.8.0" 
+                section="5.4.3, 6.2.2 in 36.331 and 10.1, 10.2 in 36.300"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This test case tests the PDCP SDU status primitives when RRC user"
+           "initiates PDCP SDU status request to RRC."
+           
+           "Pretest includes RRC layer initialization,Cell Configuration,"
+           "Connection Setup,Security Activation and Mobility from E-UTRA"
+           "procedure."
+
+           "It involves sending of PDCP SDU status request from RRC user to RRC."
+           "RRC checks if UE  context exists and sends the request to 
+               -- MAC to reset using NhLiCrgCfgReq."
+               -- RLC to re-establish using NhLiCkwCfgReq.
+               -- PDCP to re-estblish and provide the PDCP SDU status using
+                  NhLiCpjPdcpStaReq.
+           "After receiving the response from all the three layers, RRC sends"
+           "confirm to RRC user which contains the PDCP SDU status." 
+         
+           "RRC user after receiving the PDCP status,verifies the status." 
+
+           Steps:
+           "1. RRC user sends PDCP status request to RRC to get PDCP SDU 
+               status from PDCP using NhUiNhuPdcpSduStaReq(tapa.nhu.pdcpstareq)."
+           "2. RRC sends the cfg request to RLC and PDCP for re-establishment, 
+               and cfg request to MAC to reset."
+           "3. RRC on receiving confirms from lower layers, sends confirm to
+               RRC user using NhUiNhuPdcpSduStaCfm(tapa.nhu.pdcpstacfm)."
+           "4.RRC user sends PDCP data forward request."
+           "5.RRC sends Data forward request to PDCP."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Bring up the RRC layer using LM
+      <tapa.rrc.init />
+      # Configure Cell
+      <tapa.rrc.cellcfg cellId="1"/>
+      # Connection setup procedure
+      <tapa.rrc.consetup ueId="2" cellId="1" tCrnti="2"/>
+      # Security activation procedure
+      <tapa.rrc.security_actv ueId="2" cellId="1"/>
+      #perform RRC connection reconfiguration to establish SRB2 and
+      #atleast one DRB
+      <tapa.rrc.conrecfg ueId="2" cellId="1"/>
+
+      #Send Mobility From E-UTRA Command to PDCP from RRC user
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" cellId="1" ueId="2" msgCategory="1" msgType="3" transId="6" rrc_transId="1"  valChk="0" pdcpId="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      #Expect Mobility From E-UTRA Command at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+   <tapa.test>
+      
+      <tapa.send>
+         <tapa.nhu.sdustareq spId="0" cellId="1" ueId="2" transId="6"/>
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expset>
+<!--
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+-->
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="2"/>
+     </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.cpj.sdustareq ueId="2" cellId="1" pdcpInstId="1" use="1"/>
+         <tapa.dummy.ckw.cfgreq cellId="1"  use="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.dummy.cpj.sdustacfm   use="1" status="1" drbIdStr="3,4" ueId="2"/>
+      </tapa.send>
+     
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1"  ueId="2"/>
+     </tapa.send>
+     
+     <tapa.expect>
+         <tapa.nhu.sdustacfm ueId="2" cellId="1" pdcpInstId="1" drbIdStr="3,4" numDrbs="2"
+          sduStatus="0"/>
+     </tapa.expect>
+
+         <tapa.send>
+	<tapa.nhu.pdcpdatafwdreq transId="6" ueId="2" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+	<tapa.dummy.cpj.pdcpdatafwdreq/>
+     </tapa.expect>
+
+  <!--   <tapa.expect>
+         <tapa.nhu.cfgcfm ueId="2" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>-->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     nhac_tc10.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     rcs              1. Initial for LTE RRC HO testcases.
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#$SID$         ---     mpatel           1. HO test cases updated for ticket ccpu00118385
+#*********************************************************************91*/
+
+

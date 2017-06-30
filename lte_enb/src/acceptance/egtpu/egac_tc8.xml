@@ -1,0 +1,3464 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc1.xml
+#
+#     Sid:   
+#
+#     Prg:  mm
+#
+#*********************************************************************21*/
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:ad:egac_tc7.xml
+
+#
+#       Test:    8.1
+#
+#       Desc:   Test a basic scenario of creating a tunnel and deleting a tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.1">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Test a basic scenario of creating a tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1" addInterfaceType="10"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+
+        # Receive Create Session Request at SGW
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ"  teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response at SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11"  addInterfaceType="11" teid="1" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response at MME
+
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    8.2
+#
+#       Desc:   Send Modify Bearer request with request to create a tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.2">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+         Send Modify Bearer request with request to create a tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1"  addInterfaceType="10" 
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP"  intfType="EGT_GTP_INT_S11" teid="1" spId="1"
+                 procId="300" addInterfaceType="11" teidValue="1" seqNo="0"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Now create another tunnel while sending Modify Bearer Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="2"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+                teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+        # at SGW this should not create a new tunnel since it is sent to existing TEID
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_MB_REQ" teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send response from SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_MB_RSP" teid="1" spId="1" procId="300" 
+                intfType="EGT_GTP_INT_S11" seqNo="0" teidValue="2"/>
+        </tapa.send>
+
+        # receive response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_MB_RSP" transId="2" teid="2" suId="1" procId="200"/>
+        </tapa.expect>
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        #delete tunnel 2 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="2" procId="200" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="2" suId="1" procId="200"/>
+        </tapa.expect>
+
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.3
+#
+#       Desc:   Send Delete session request on existing tunnel. This should not delete any tunnels.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.3">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+         Send Delete Bearer session on existing tunnel. This should not delete any tunnels.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1" addInterfaceType="10" 
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="300" addInterfaceType="11"  intfType="EGT_GTP_INT_S11" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Now create another tunnel while sending Modify Bearer Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DS_REQ" intfType="EGT_GTP_INT_S11" teid="1"
+                spId="1" procId="200" lclPort="3123" rmtPort="3124" t3TmrVal="10" seqNo="1"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+        # at SGW this should not create a new tunnel since it is sent to existing TEID
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_DS_REQ" teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send response from SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_DS_RSP" teid="1" seqNo="1" intfType="EGT_GTP_INT_S11" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+
+        # receive response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_DS_RSP" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.4
+#
+#       Desc:   Send Create Seesion Request on existing tunnel which is not
+#                 in connected state. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.4">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send Create Seesion Request on existing tunnel which is not
+              in connected state. Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1"  addInterfaceType="10" 
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+   
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" teid="1"
+                spId="1" procId="200" lclPort="3123" rmtPort="3124" t3TmrVal="10"    addInterfaceType="10" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="300"
+                intfType="EGT_GTP_INT_S11" addInterfaceType="11" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    8.5
+#
+#       Desc:   Send unrelated response to the incoming create bearer request
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.5">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send Create Seesion Request on existing tunnel which is not
+              in connected state. Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="1"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CB_REQ" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+          <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_UB_RSP" teid="1" spId="1" procId="300"
+                intfType="EGT_GTP_INT_S5_S8" teidValue="1"/>
+        </tapa.send>
+
+ 
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_UB_RSP" transId="1" teid="1" suId="1" procId="300"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.6
+#
+#       Desc:   Send Create Session Request without local teid and without
+#                 create flag enabled. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.6">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send Create Session Request without local teid and without
+                 create flag enabled. Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="FALSE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" teid="0" teidValue="0"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+ 
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1" suId="1" procId="300"/>
+      </tapa.expect>
+ 
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.7
+#
+#       Desc:   Send request with unknown teid.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.7">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send request with unknown teid.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="2"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CB_RSP" transId="1" teid="0" suId="2" procId="100"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.8
+#
+#       Desc:   Send request with unknown teid that is out of range.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.8">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send request with unknown teid that is out of range.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="22222"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CB_REQ" transId="1" teid="0" suId="2" procId="100"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.9
+#
+#       Desc:   Delete a tunnel using transId.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.9">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+             Delete a tunnel using transId.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" seqNo="1"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="2"  addInterfaceType="6" seqNo="2"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="2" suId="2" procId="100"/>
+        </tapa.expect>
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq transId="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq transId="2" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm transId="2" suId="1" procId="300"/>
+        </tapa.expect>
+
+ 
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.10
+#
+#       Desc:   Delete an unknown tunnel using transId.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.10">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+             Delete a tunnel using transId.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="2"  addInterfaceType="6" seqNo="2" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="2" suId="2" procId="100"/>
+        </tapa.expect>
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq transId="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq transId="2" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm transId="2" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq transId="3" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm transId="3" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+ 
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.11
+#
+#       Desc:   Test a basic scenario of creating a tunnel and deleting a tunnel.
+#               Delete a non existing tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.11">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Test a basic scenario of creating a tunnel.
+#               Delete a non existing tunnel.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1" addInterfaceType="10"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+
+        # Receive Create Session Request at SGW
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ"  teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response at SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11"  addInterfaceType="11" teid="1" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="3" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="3" suId="2" procId="300" status="0"/>
+        </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.12
+#
+#       Desc:   Test a basic scenario of creating a tunnel and deleting a tunnel.
+#               Delete a non existing tunnel with teid out of range.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.12">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Test a basic scenario of creating a tunnel.
+#               Delete a non existing tunnel with teid out of range.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1" addInterfaceType="10"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+
+        # Receive Create Session Request at SGW
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ"  teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response at SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11"  addInterfaceType="11" teid="1" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="2222" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="2222" suId="2" procId="300" status="0"/>
+        </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.13
+#
+#       Desc:   Echo Request fails encoding and the user receives an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.13">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Echo Request fails encoding and the user receives an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.mme1.sgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+                spId="1" procId="200" transId="1" addInterfaceType="10"
+                lclPort="3123" rmtPort="3124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+
+        # Receive Create Session Request at SGW
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ"  teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+        # Send Create Session Response at SGW
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11"  addInterfaceType="11" teid="1" spId="1" procId="300" teidValue="1"/>
+        </tapa.send>
+
+        # Receive Create Session Response at MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="200" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="200"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        # Receive delete confirm at SGW
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="300"/>
+        </tapa.expect>
+
+
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" intfType="EGT_GTP_INT_UNKNWN" teid="0"
+                spId="1" procId="200" lclPort="3123" rmtPort="3124" t3TmrVal="10" mandIePres="FALSE" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidValue="0"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" transId="0" teid="0" suId="1" procId="200"/>
+      </tapa.expect>
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.14
+#
+#       Desc:   Send request with MSB set without receiving a command, on a tunnel.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.14">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+         Send request with MSB set without receiving a command, on a tunnel.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="1"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10" seqNoPres="TRUE" seqNo="8388609"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CB_REQ" transId="1" teid="0" suId="2" procId="100"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.15
+#
+#       Desc:   Try to create a tunnel by sending a response with create flag enabled.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.15">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+         Try to create a tunnel by sending a response with create flag enabled.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="0" suId="1" procId="300"/>
+      </tapa.expect>
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.16
+#
+#       Desc:   Send create session request without FTEID IE and create flag enabled.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.16">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send create session request without FTEID IE and create flag enabled.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" FTeidPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_INV_IE_TYPE"/>
+      </tapa.expect>
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.17
+#
+#       Desc:   Send echo response without receiving a echo request.
+#                 Use non-echo USAP
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.17">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+         Send echo response without receiving a echo request.
+                Use non-echo USAP
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" FTeidPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_INV_IE_TYPE"/>
+      </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" teid="0"
+                spId="1" procId="300" lclPort="3124" rmtPort="2125" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidValue="0"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" transId="0" 
+                teid="0" suId="1" procId="300" errType="EGT_ERR_INV_SAP"/>
+      </tapa.expect>
+ 
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.18
+#
+#       Desc:   Send echo response without receiving a echo request.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.18">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send echo response without receiving a echo request.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" FTeidPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_INV_IE_TYPE"/>
+      </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" teid="0"
+                spId="2" procId="300" lclPort="3124" rmtPort="2125" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidValue="0"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" transId="0" 
+                teid="0" suId="2" procId="300" errType="EGT_ERR_MSG_NO_MATCH"/>
+      </tapa.expect>
+ 
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+#
+#       Test:    8.19
+#
+#       Desc:   Send echo response with wrong seqno after receiving a echo request.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.19">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send echo response with wrong seqno after receiving a echo request.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+
+       <tapa.ifndef>
+		       <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifndef>
+             
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" FTeidPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_INV_IE_TYPE"/>
+      </tapa.expect>
+
+        # echo sent on non-echo usap
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" intfType="EGT_GTP_INT_UNKNWN"
+                crtFlag="FALSE" teidPres="FALSE"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10" seqNo="2" seqNoPres="TRUE"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidValue="0"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" transId="1"
+                 teid="0" suId="2" procId="300" />
+      </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" teidPres="FALSE"
+                spId="2" procId="300" lclPort="3124" rmtPort="2125" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" seqNo="1" seqNoPres="TRUE"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" transId="0" 
+                teid="0" suId="2" procId="300" errType="EGT_ERR_MSG_NO_MATCH"/>
+      </tapa.expect>
+ 
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" teidPres="FALSE"
+                spId="2" procId="300" lclPort="3124" rmtPort="2125" t3TmrVal="10"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" seqNoPres="TRUE" seqNo="2"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" transId="1"
+                 teid="0" suId="2" procId="100" />
+      </tapa.expect>
+      
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.20
+#
+#       Desc:   Send echo response with encoding error after receiving a echo request.
+#                 Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.20">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+          Send echo response with encoding error after receiving a echo request.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+
+     <tapa.ifndef>
+		       <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifndef>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" FTeidPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_INV_IE_TYPE"/>
+      </tapa.expect>
+
+        # echo sent on non-echo usap
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" intfType="EGT_GTP_INT_UNKNWN"
+                crtFlag="FALSE" teidPres="FALSE"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10" seqNo="2" seqNoPres="TRUE"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" />
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" transId="1"
+                 teid="0" suId="2" procId="300" />
+      </tapa.expect>
+
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" teidPres="FALSE"
+                spId="2" procId="300" lclPort="3124" rmtPort="2125" t3TmrVal="10" recvPresent="FALSE" 
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" seqNo="2" seqNoPres="TRUE"/>
+        </tapa.send>
+      
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" transId="0" 
+                teid="0" suId="2" procId="300" errType="EGT_ERR_MSG_MISS_MAND_IE"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.21
+#
+#       Desc:   Send response with wrong sequence no. to the incoming create bearer request
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.21">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Send response with wrong sequence no. to the incoming create bearer request
+              in connected state. Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="1"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10" seqNo="2" seqNoPres="TRUE"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CB_REQ" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+          <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CB_RSP" teid="1" spId="1" procId="300" seqNo="3" seqNoPres="TRUE"
+                intfType="EGT_GTP_INT_S5_S8" teidValue="1"/>
+        </tapa.send>
+
+ 
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CB_RSP" transId="1" seqNo="3" seqNoPres="TRUE"
+                 teid="1" suId="1" procId="300" errType="EGT_ERR_MSG_NO_MATCH"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.22
+#
+#       Desc:   Send response with encoding err to the incoming create bearer request
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.22">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Send response with encoding err to the incoming create bearer request
+              in connected state. Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" 
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Response from MME
+        <tapa.expect>
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+
+        # Now create another tunnel while sending Create Session Request to remTeid 1
+        #Should create new tunnel
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CB_REQ" intfType="EGT_GTP_INT_S5_S8" teid="1"
+                spId="1" procId="100" lclPort="3125" rmtPort="2124" t3TmrVal="10" seqNo="2"
+                lcladdr="127.0.0.1" rmtaddr="127.0.0.1" teidPres="PRSNT_NODEF" teidValue="1"/>
+        </tapa.send>
+      
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CB_REQ" teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+          <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CB_RSP" teid="1" spId="1" procId="300" seqNo="2"
+                intfType="EGT_GTP_INT_S5_S8" teidValue="1" causePresent="FALSE"/>
+        </tapa.send>
+
+ 
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CB_RSP" transId="1" seqNo="2"
+                 teid="1" suId="1" procId="300" errType="EGT_ERR_MSG_MISS_MAND_IE"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+#
+#       Test:    8.23
+#
+#       Desc:   Send response with wrong seq. no. to the incoming create session request
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.23">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Send response with wrong seq. no. to the incoming create session request.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" seqNo="1"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" seqNo="2" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" seqNo="2"
+                 teid="1" suId="2" procId="100" errType="EGT_ERR_MSG_NO_MATCH"/>
+      </tapa.expect>
+ 
+
+        #delete tunnel 1 at MME
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="300" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="1" procId="300"/>
+        </tapa.expect>
+
+        # Delete Tunnel at SGW
+        <tapa.send>
+         <tapa.egt.lcldelreq teid="1" procId="100" spId="1"/>
+        </tapa.send>
+
+        <tapa.expect>
+         <tapa.egt.lcldelcfm teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.24
+#
+#       Desc:   Send response with encoding err to the incoming create session request
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.24">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Send response with encoding err to the incoming create session request.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" seqNo="1"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1" FTeidIntfType="EGT_INT_S5_S8_SGW_GTP_C"/>
+        </tapa.send>
+
+        # Receive Create Session Request from MME
+        <tapa.expect>
+         <tapa.egt.sigind egtpMsgType="EGT_GTPC_MSG_CS_REQ" teid="1" suId="2" procId="100"/>
+        </tapa.expect>
+   
+        # Send Create Session Response from MME
+        <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" teid="1" spId="1" procId="100" causePresent="FALSE"
+                intfType="EGT_GTP_INT_S5_S8" addInterfaceType="7" teidValue="1" seqNo="1" FTeidIntfType="EGT_INT_S5_S8_PGW_GTP_C"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" seqNo="1"
+                 teid="1" suId="2" procId="100" errType="EGT_ERR_MSG_MISS_MAND_IE"/>
+      </tapa.expect>
+ 
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.25
+#
+#       Desc:   Send CSR with encoding err.
+#                 at SGW. Expect an error indication.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: PCM Module
+#
+#       File:   egac_tc8.xml
+#
+<tapa.testcase id="8.25">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.pcm"/>
+
+      <tapa.desc>
+       Send CSR with encoding err.
+              Expect an error indication.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+
+    # Configure EGTP as MME
+      <tapa.eg.sgw1.pgw1.init/>
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+        # Send Create Session Request from MME
+        <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S5_S8" crtFlag="TRUE" 
+                spId="1" procId="300" transId="1"  addInterfaceType="6" seqNo="1" imsiPresent="FALSE"
+                lclPort="3124" rmtPort="2125" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+        </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1" seqNo="1"
+                 teid="0" suId="1" procId="300" errType="EGT_ERR_MSG_MISS_MAND_IE"/>
+      </tapa.expect>
+ 
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit1/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.26
+#
+#       Desc:    A command message is sent by MME for which a request is not received.
+#                A delete bearer request is sent by SGW for which a response is not received.
+#                A CSR is sent on tunnel by MME for which SGW responds.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="8.26">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+           A command message is sent by MME for which a request is not received.
+           A delete bearer request is sent by SGW for which a response is not received.
+           A CSR is sent on tunnel by MME for which SGW responds.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               teidValue="1" spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+     
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_MB_CMND" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="200" transId="1" lclPort="3123" seqNo="8388609"
+          rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10">
+         <tapa.egt.sigind teid="1" suId="2" procId="300" transId="1"/>   
+      </tapa.expect>
+  
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_DB_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+          spId="1" procId="300" transId="1" lclPort="3124" seqNo="3" teid="1" teidValue="1"
+          rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+ 
+      <tapa.expect guardTmr="10">
+         <tapa.egt.sigind teid="1" suId="1" procId="200" transId="1"/>   
+      </tapa.expect>
+  
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10" teid="1" teidValue="1"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               teidValue="1" spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+     
+    <tapa.delay delay="5" />
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    8.27
+#
+#       Desc:   Echo Request is sent and response not received. 
+#               Response received after timer expiry.
+#               CSR sent on tunnel fails encoding.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: TPT Module
+#
+#       File:   egac_tc7.xml
+#
+<tapa.testcase id="8.27">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.tpt"/>
+
+      <tapa.desc>
+               Echo Request is sent and response not received. 
+               Response received after timer expiry.
+               CSR sent on tunnel fails encoding.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_C"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef>
+		       <tapa.flag id="EGTP_C_PTH_MGT"/>
+      </tapa.ifndef>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+
+    # Configure TUCL
+      <tapa.hi.init/>
+ 
+      <tapa.eg.mme1.sgw1.init/>
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="TRUE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.sigind teid="1" suId="2" procId="300"  transId="1"/>   
+      </tapa.expect>
+   
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_CS_RSP" intfType="EGT_GTP_INT_S11" teid="1" 
+               teidValue="1" spId="1" procId="300" addInterfaceType="11" transId="1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.sigcfm egtpMsgType="EGT_GTPC_MSG_CS_RSP" transId="1" teid="1" suId="1" procId="200"/>
+      </tapa.expect>
+   
+     
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_ECHO_REQ" intfType="EGT_GTP_INT_UNKNWN" crtFlag="FALSE" 
+          spId="1" procId="200" lclPort="3123" seqNo="2"  teidPres="FALSE"
+          rmtPort="2124" t3TmrVal="1" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+      <tapa.expect guardTmr="10">
+         <tapa.egt.sigind teid="0" suId="1" procId="300" transId="0"/>   
+      </tapa.expect>
+ 
+    <tapa.delay delay="50" />
+ 
+      <tapa.expect guardTmr="100">
+         <tapa.egt.errind teid="0" suId="2" procId="200" />   
+      </tapa.expect>
+
+     #send response after timer expiry
+      <tapa.send>
+         <tapa.egt.sigrsp egtpMsgType="EGT_GTPC_MSG_ECHO_RSP" intfType="EGT_GTP_INT_UNKNWN" crtFlag="FALSE" 
+          spId="2" procId="300" transId="1" lclPort="2124" seqNo="2"  teidPres="FALSE"
+          rmtPort="2123" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+      
+  
+      <tapa.send>
+         <tapa.egt.sigreq egtpMsgType="EGT_GTPC_MSG_CS_REQ" intfType="EGT_GTP_INT_S11" crtFlag="FALSE" 
+               spId="1" procId="200" transId="1" addInterfaceType="10"
+               teid="1" teidValue="1"  imsiPresent="FALSE" seqNo="3" 
+               lclPort="3123" rmtPort="2124" t3TmrVal="10" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"/>
+      </tapa.send>
+       
+
+      <tapa.expect>
+         <tapa.egt.errind egtpMsgType="EGT_GTPC_MSG_CS_REQ" transId="1" seqNo="3"
+                 teid="0" suId="1" procId="200" errType="EGT_ERR_MSG_MISS_MAND_IE"/>
+      </tapa.expect>
+ 
+      <tapa.send>
+         <tapa.egt.lcldelreq spId="1" procId="200" transId="1" teid="1"/>
+      </tapa.send>
+       
+      <tapa.expect>
+         <tapa.egt.lcldelcfm transId="1" suId="1" procId="200" teid="1"/>
+      </tapa.expect>
+     
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+
+   # De-Init EGTP
+   <tapa.egtp.deinit/>
+
+   
+   # De-Init TUCL
+   <tapa.hi.deinit/>
+
+   <tapa.delay delay="100" />
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+
+
+
+
+
+
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     mm           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Testcases updated
+#*********************************************************************91*/

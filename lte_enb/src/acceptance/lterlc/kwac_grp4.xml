@@ -1,0 +1,438 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE_RLC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    kwac_grp4.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group 4 Test Cases  
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=4:1:Group 4 Test Cases :kwac_grp4.xml
+
+#
+#
+#       Test:    4.1
+#
+#       Desc:    verification of in sequence delivery of CCCH data
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp4.xml
+#
+#
+<tapa.testcase id="4.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="TM"/>
+
+      <tapa.desc>
+         "verification of in sequence delivery of CCCH data"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.tmcfg/>
+    </tapa.cfg>
+     
+
+   # Test Steps subsection
+   <tapa.test>
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTNH" rbId="3" rbType="0" ueId="0" cellId="1"
+               type="3"
+               sduId="1" sduSize="500" conResId="100" rnti="30" isRej="FALSE"/>
+         </tapa.send>
+         #Expect Status Response for the received SDU
+         <tapa.expect>
+            <tapa.dummy.rgu.cstarsp bo="500" cellId="1" lcId="3" 
+               conResId="100" rnti="30" isRej="FALSE"/>
+         </tapa.expect>
+
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTNH" rbId="3" rbType="0" ueId="0" cellId="1" 
+               type="3"
+               sduId="2" sduSize="400" conResId="300" rnti="10" isRej="TRUE"/>
+         </tapa.send>
+         #Expect Status Response for the received SDU
+         <tapa.expect>
+            <tapa.dummy.rgu.cstarsp bo="400" cellId="1" lcId="3" 
+               conResId="300" rnti="10" isRej="TRUE"/>
+         </tapa.expect>
+
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTNH" rbId="3" rbType="0" ueId="0" cellId="1" 
+               type="3"
+               sduId="3" sduSize="600" conResId="200" rnti="10" isRej="TRUE"/>
+         </tapa.send>
+         Expect Status Response for the received SDU
+         <tapa.expect>
+            <tapa.dummy.rgu.cstarsp bo="600" cellId="1" lcId="3" 
+               conResId="200" rnti="10" isRej="TRUE"/>
+         </tapa.expect>
+
+         ##############################################################################################
+         <tapa.delay delay="5"/>
+
+         <tapa.send>
+            <tapa.dummy.rgu.cstaind bo="500" lcId="3" cellId="1" transId="1" rnti="30"/>
+         </tapa.send>
+         <tapa.expect guardTmr="80">
+            <tapa.dummy.rgu.cdatreq pduSz="500" conResId="100" sduId="0"
+               rnti="30" isRej="FALSE" cellId="1" lcId="3" lcType="3" transId="1"/>
+         </tapa.expect>
+         <tapa.send>
+            <tapa.dummy.rgu.cstaind bo="400" lcId="3" cellId="1" transId="2"
+               rnti="10"/>
+         </tapa.send>
+         <tapa.expect guardTmr="80">
+            <tapa.dummy.rgu.cdatreq  cellId="1" lcId="3" lcType="3" sduId="1" 
+               pduSz="400" conResId="300" rnti="10" isRej="TRUE" transId="2"/>
+         </tapa.expect>
+       
+         <tapa.send>
+            <tapa.dummy.rgu.cstaind bo="600" lcId="3" cellId="1" transId="3"
+               rnti="10"/>
+         </tapa.send>
+         <tapa.expect guardTmr="80">
+            <tapa.dummy.rgu.cdatreq cellId="1" lcId="3" lcType="3" sduId="2"
+               pduSz="600" conResId="200" rnti="10" isRej="TRUE" transId="3"/>
+         </tapa.expect>
+         #######################################################################################################
+         <tapa.delay delay="5"/>
+         <tapa.send>
+            <tapa.dummy.rgu.cdatind lcId="3" cellId="2" rnti="30" pduSize="500" transId="1"/>
+         </tapa.send>
+         <tapa.expect>
+            <tapa.kwu.datind  entity="ENTNH" sduSize="500" rnti="30" inst="1"/>
+         </tapa.expect>
+
+         <tapa.send>
+            <tapa.dummy.rgu.cdatind lcId="3" cellId="2" rnti="10" pduSize="400" transId="2"/>
+         </tapa.send>
+         <tapa.expect>
+            <tapa.kwu.datind  entity="ENTNH" sduSize="600" rnti="10" inst="1"/>
+         </tapa.expect>
+      
+         <tapa.send>
+            <tapa.dummy.rgu.cdatind lcId="3" cellId="2" rnti="10" pduSize="600" transId="3"/>
+         </tapa.send>
+         <tapa.expect>
+            <tapa.kwu.datind  entity="ENTNH" sduSize="600" rnti="10" inst="1"/>
+         </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    4.2
+#
+#       Desc:    verification of invalid RB id
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp4.xml
+#
+#
+<tapa.testcase id="4.2"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="TM"/>
+
+      <tapa.desc>
+         "Verification of invalid rlc entity"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.tmcfg/>
+   </tapa.cfg>
+
+   <tapa.test>
+      # Test Steps subsection
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTNH" rbId="6" ueId="0" cellId="1" 
+            type="1"
+            sduId="1" sduSize="500" conResId="100" rnti="30" isRej="FALSE"/>
+      </tapa.send>
+   </tapa.test>
+  
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    4.3
+#
+#       Desc:    verification of sending data from PDCP for TM mode 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp4.xml
+#
+#
+<tapa.testcase id="4.3"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Data transfer from invalid upper layer"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.tmcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" rbId="6" ueId="0" cellId="1" 
+            sduId="1" sduSize="500" conResId="100" rnti="30" isRej="FALSE"/>
+   </tapa.send>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    4.4
+#
+#       Desc:    verification of error scenarios
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp4.xml
+#
+#
+<tapa.testcase id="4.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Data transfer from invalid upper layer"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "Acceptance test case No:4
+           1. configure RLC through LM
+           2. configure RLC entities
+           3. send a SDU from PDCP for TM  RB id
+           4. there should be no status response
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.ckw.tmcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   
+   <tapa.test>
+      <tapa.send>
+         <tapa.dummy.rgu.cstaind bo="400" lcId="2" cellId="1" transId="1"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTNH" rbId="3" rbType="0" ueId="0" cellId="1"  type="3"
+            sduId="1" sduSize="500" conResId="100" rnti="30" isRej="FALSE"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.cstarsp bo="500" cellId="1" lcId="3" conResId="100" rnti="30" isRej="FALSE"/>
+      </tapa.expect>
+     
+      #Discard SDU for TM
+      <tapa.send>
+          <tapa.kwu.discsdu rbId="3" ueId="0" cellId="1" sduId="0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.rgu.cstaind bo="400" lcId="1" cellId="4" transId="2"/>
+      </tapa.send>
+    
+      #Expect the third SDU with conResId 100 rnti 30 and isRej False for CCCH
+      <tapa.send>
+         <tapa.dummy.rgu.cstaind bo="500" lcId="3" cellId="1" transId="3"
+            rnti="30"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.dummy.rgu.cdatreq cellId="1" lcId="3" lcType="3"
+            pduSz="500" conResId="100" rnti="30" isRej="FALSE" transId="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#^L
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#^L
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     gk                   1. Initial Release of RLC.
+#$SID$           ---     gk                   1. LTERLC Release 2.1.
+#*********************************************************************91*/
+

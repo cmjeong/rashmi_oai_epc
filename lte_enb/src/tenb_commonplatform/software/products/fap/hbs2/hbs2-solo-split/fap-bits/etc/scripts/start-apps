@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# $LastChangedRevision$
+#
+# This script is called by dbxstart at start up or
+# may be run on its own manually.
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_APPS=$FLASH_DIR/dbx
+FLASH_DIR_CFG=$FLASH_DIR/config
+FLASH_DIR_FPGA=$FLASH_DIR/fpga
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+CONFIG_PRESENT=0
+if [ -f $FLASH_DIR_CFG/eth0_ip_address ]; then
+  CONFIG_PRESENT=1
+fi
+
+cp $FLASH_DIR_CFG/db_nas_hlr_v2 $RUNTIME_DIR
+
+#
+##############################################################################
+
+# Load REM FPGA images
+$FLASH_DIR_APPS/load-fpgas rem
+
+cd $RUNTIME_DIR
+# Export HOME so net-snmp can pick up /root/.snmp/3waysnmp.conf
+export HOME=/root
+
+echo "disabling IP firewall"
+/bin/ipf pass in quick from any to any
+/bin/ipf pass out quick from any to any
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/post-office --forever
+sleep 1
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam-rem
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/l1 -msg
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam
+sleep 1
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/nas-ggsn
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/cs-user-plane
+
+# Execute script to create list of processes in dbx/trace
+./get-proc-addr &

@@ -1,0 +1,5257 @@
+#*********************************************************************17*/
+#/********************************************************************20**
+#
+#     Name:    LTE RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc6.xml
+#
+#     Sid:     
+#
+#     Prg:     Reena
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=6:rcs:nhac_tc6.xml
+
+#
+#
+#       Test:    6.1
+#
+#       Desc:    Successful RRC Connection Reconfiguration that 
+#                includes Radio Resource Configuration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message along with Reconfiguration details to RRC to send it to 
+           UE in RRC_CONNECTED state." 
+          "RRC will encode the Connection Reconfiguration message and send 
+           it to UE."
+          "UE will also do the configuration at its end and will send the 
+           RRC Connection Reconfiguration Complete message to eNB."
+          "On getting RRC Connection Reconfiguration Complete message from 
+           PDCP, RRC will decode this message and if decode is successful, 
+           RRC sends Configuration Request to RLC, MAC and PDCP. Then RRC 
+           will forward the Reconfiguration Complete message to RRC user."
+          "RLC, MAC and PDCP layers will do the configuration and will send 
+           back configuration confirm to RRC. On getting all the 
+           configuration confirm messages from RLC,MAC and PDCP, RRC will 
+           send Config Confirm message to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.2
+#
+#       Desc:    RRC transaction identifier is not present in RRC
+#                Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "RRC transaction identifier is not present in RRC Connection 
+            Reconfiguration.In this case, RRC should give an error Indication 
+            to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+
+     #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  #rrcTransIdPres="0" no rrc TransID present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrcTransIdPres="0"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+
+      #RRC should throw error Indicaton
+      #Verify for error Type/cause
+      <tapa.expect>
+         <tapa.nhu.errind errorType="7" errorCause="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    6.3
+#
+#       Desc:    Successful RRC Connection Reconfiguration that
+#                includes UE Related Information
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "In this case, RRC user will send RRC Connection Reconfiguration 
+           message to RRC to send it to UE in RRC_CONNECTED state. 
+         "RRC will encode the RRC Connection Reconfiguration message and 
+          sends it to UE."
+         "UE will also do the reconfiguration at its end and sends RRC 
+          Reconfiguration Complete message to eNB"
+         "On getting RRC Connection Reconfiguration Complete message from PDCP, 
+          RRC will decode this message and if decode is successful, RRC will forward 
+          the message to RRC user. 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=3 Only RbConfig and transport channel config  is given 
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,7" rbCfgType="1" logChType="3"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+     <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.4
+#
+#       Desc:    Unsuccessful RRC Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message to RRC to send it to UE in RRC_CONNECTED state. 
+          "RRC will then encode the RRC Connection Reconfiguration message 
+           and send it to UE. "
+          "UE will also do the reconfiguration at its end and sends RRC 
+           Connection Re-establishment procedure to eNB as it is not able 
+           to comply with the configuration sent."
+           "On getting RRC Connection Re-establishment Request message 
+           from PDCP, RRC will decode this message and if decode is 
+           successful, RRC will verify the reestablishment cause. If the 
+           cause is Reconfiguration failure then RRC will forward the 
+           message to RRC user. RRC user will then send Connection 
+           Re-establishment Reject message to UE. Also 
+		   Releases the cnfiguration of Old UE
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1.
+     # Set the bitMask to '0' so that no UE config is sent in DatReq
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,7" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  # Send RRC Connection Re Establishment request to RRC from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Reestablishment request will have nly tCrnti
+	  <tapa.expect>
+	     <tapa.nhu.datind ueId="0" cellId="1"/>
+      </tapa.expect>
+
+      #Send RRC Connection Reetsblishment Reject with Old Ue Id
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0" expCfgBitMask="0"
+          msgCategory="3" msgType="1" rrc_transId="1" transId="11" 
+		  rbId="1" tCrnti="100" cellId="1" 
+		  ueId="1" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect RRC Connection Reestablishment Reject at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="100" 
+          cellId="1" />
+     </tapa.expset>
+
+	 #Expect configuration RRC Connection Setup at RLC request at MAC, RLC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+         <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.5
+#
+#       Desc:    Un Successful Connection Recfg
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message to RRC to send it to UE in RRC_CONNECTED state. 
+          "RRC will then encode the RRC Connection Reconfiguration message 
+           and send it to UE. "
+          "UE will also do the reconfiguration at its end and sends RRC 
+           Connection Re-establishment procedure to eNB as it is not able 
+           to comply with the configuration sent."
+           "On getting RRC Connection Re-establishment Request message 
+           from PDCP, RRC will decode this message and if decode is 
+           successful, RRC will verify the reestablishment cause. If the 
+           cause is Reconfiguration failure then RRC will forward the 
+           message to RRC user. RRC user will then send Connection 
+           Re-establishment Reject message to UE. Also It doesnot
+		   Release the cnfiguration of Old UE as Old Ue Id is 
+		   not present in Re-est reject 
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+    # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+     #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=3 Only RbConfig and transport channel config  is given 
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,7" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  # Send RRC Connection Re Establishment request to RRC from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Reestablishment request 
+	  <tapa.expect>
+	     <tapa.nhu.datind ueId="0" cellId="1"/>
+      </tapa.expect>
+
+      #Send RRC Connection Reetsblishment Reject withOut Old Ue Id
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0" expCfgBitMask="0"
+          msgCategory="3" msgType="1" rrc_transId="1" transId="11" 
+		  rbId="1" tCrnti="100" cellId="1" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect RRC Connection Reestablishment Reject at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="100" 
+          cellId="1" />
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.6
+#
+#       Desc:    Successful DRB release with RRC Connection 
+#                Reconfiguration message
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+            message (with drb identity to be released) to RRC to send it to 
+            UE in RRC_CONNECTED state."
+            "RRC will then encode the actual message and sends it to UE. "
+            "UE deletes the DRB and sends RRC Connection Reconfiguration 
+            Complete to eNB."
+            "On getting RRC Connection Reconfiguration complete message from 
+            PDCP, RRC will decode this message and if decode is successful,
+            RRC sends Configuration Request to RLC, MAC and PDCP. 
+            "Then RRC sends Reconfiguration Complete Message to RRC User."
+            "RLC, MAC and PDCP layers will do the configuration and will send back 
+            configuration confirm to RRC. On getting all the configuration confirm 
+            messages from RLC,MAC and PDCP, RRC will send Config Confirm 
+            message to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+ 
+
+     #Release Data Rb 4
+	 #Send Connection Reconfiguration For ueId 1, cellId=1
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="2" rlsRbIdStr="2,1,4,1"
+		  rbCfgType="4" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="1" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" rrc_transId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+    <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.7
+#
+#       Desc:    Unsuccessful Reconfiguration due to RLC 
+#                configuration failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+          message with reconfiguration details to RRC to send it to UE in 
+          RRC_CONNECTED state. On getting Reconfiguration Complete, RRC also 
+          sends Configuration Request to RLC, MAC and PDCP."
+          "MAC and PDCP layers will do the configuration and will send back 
+          configuration confirm to RRC indicating configuration success. RLC 
+          sends configuration confirm indicating failure of configuration. 
+          On getting all the configuration confirm messages from RLC,MAC and 
+          PDCP, RRC will send config failure indication to RRC user."
+          "Also RRC will revert back all the configuration of RLC/MAC and 
+          PDCP. RRC will send configuration request to all the lower layers 
+          to revert the configuration, and it will expect configuration 
+          confirm from all the lower layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+  # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=7  RbConfig, Trch Cfg and Scheduling Cfg is filled
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+	#	 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expset>
+     
+     #RLC Sends config failure to RBId 2
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" numFailedRb="1" failedRbIdStr="2,1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  
+	 #Revert will happen
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+    </tapa.expset>
+
+     <tapa.delay delay="5" />
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.8
+#
+#       Desc:    Unsuccessful Reconfiguration due to MAC 
+#                configuration failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "In this case, RRC user will send RRC Connection Reconfiguration 
+         message with reconfiguration details to RRC to send it to UE in 
+         RRC_CONNECTED state. On getting Reconfiguration Complete, RRC sends 
+         Configuration Request to RLC, MAC and PDCP."
+         "PDCP and RLC layers will do the configuration and will send 
+         back configuration confirm to RRC indicating configuration success. 
+         MAC sends configuration confirm indicating failure of configuration. 
+         On getting all the configuration confirms messages from RLC, MAC and 
+         PDCP, RRC will send configuration failure indication to RRC user."
+         "Also RRC will revert back all the configuration of RLC/MAC and PDCP. 
+         RRC will send configuration request to all the lower layers to revert 
+         the configuration, and it will expect configuration confirm from all 
+         the lower layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=7  RbConfig, Trch Cfg and Scheduling Cfg is filled
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="4" addRbIdStr="2,1,3,1,4,1,5,1"
+		 addLcIdStr="2,3,4,5" addBitMskStr="7,1,1,7" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+	 # CRG will send 4 cfgReq each for 1 Rb and 1 more for Trch.sched cfg
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     #MAC Sends config failure to RBId 5
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" status="15" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 ##MAC Sends Failure for Rb 2
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" status="15" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	 #Revert will happen
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.9
+#
+#       Desc:    Unsuccessful Reconfiguration due to PDCP 
+#                configuration failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "In this case, RRC user will send RRC Connection Reconfiguration 
+         message with reconfiguration details to RRC to send it to UE in 
+         RRC_CONNECTED state. On getting Reconfiguration Complete, RRC  
+         sends Configuration Request to RLC, MAC and PDCP."
+         "MAC and RLC layers will do the configuration and will send back 
+         configuration confirm to RRC indicating configuration success. PDCP 
+         sends configuration confirm indicating failure of configuration. 
+         On getting all the configuration confirm messages from RLC, MAC and 
+         PDCP, RRC will send configuration failure indication to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=7  RbConfig, Trch Cfg and Scheduling Cfg is filled
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="4" addRbIdStr="5,1,6,1,7,1,8,1"
+		 addLcIdStr="5,6,7,8" addBitMskStr="7,1,7,7" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+	 # CRG will send 4 cfgReq each for 1 Rb and 1 more for Trch.sched cfg
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     #PDCP Sends config failure to RBId 7
+	 <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" failedRbIdStr="5,1,7,1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	 #Revert will happen
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.10
+#
+#       Desc:    Successful Reconfig Procedure with two RBs  
+#                Same Logchannel and different direction(UL/DL)
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "Verify that RRC will send Negetive Cfg Cfm to RRC user as there 
+          is no configuration confirm from RLC. RRC will revert back all the
+          configuration of MAC and PDCP. RRC will send configuration request 
+          to all the lower layers to revert the configuration, and it will 
+          expect configuration confirm from all the lower layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+
+    # Configuration subsection
+    <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+    </tapa.cfg>
+
+    # Test Steps subsection
+    <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=7  RbConfig, Trch Cfg and Scheduling Cfg is filled
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="3"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="4" addRbIdStr="5,1,6,1,7,1,8,1"
+		 addLcIdStr="5,6,7,8" addBitMskStr="7,1,7,2" rbCfgType="1" logChType="3"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+	 # CRG will send 4 cfgReq each for 1 Rb and n1 more for Trch.sched cfg
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="3"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1"  ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	 <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.11
+#
+#       Desc:    MAC resources not configured properly during 
+#                Connection reconfiguration procedure. MAC 
+#                configuration confirm time out
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+<tapa.testcase id="6.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "Verify that RRC will send negetive Cfg Cfm to RRC as MAC 
+          configuration confirm is not sent to RRC. RRC will revert 
+          back all the configuration of RLC and PDCP. RRC will send 
+          configuration request to all the lower layers to revert the 
+          configuration, and it will expect configuration confirm from 
+          all the lower layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+	 #MAC Does Not Send Cfg Cfm  
+
+     <tapa.delay delay="30" />
+
+	 #RRC Will revert the configurations
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expset>
+      
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+     <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.12
+#
+#       Desc:    PDCP resources not configured properly during RB 
+#                reconfiguration procedure. PDCP configuration 
+#                confirm time out
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "Verify that RRC will send error indication to RRC as PDCP 
+          configuration confirm is not sent to RRC. RRC will revert 
+          back all the configuration of MAC and RLC. RRC will send 
+          configuration request to all the lower layers to revert the 
+          configuration, and it will expect configuration confirm from 
+          all the lower layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 #PDCP Does Not Send Cfg Cfm  for 1 RB Id(Log Ch) 
+
+     <tapa.delay delay="30" />
+
+	 #RRC Will revert the configurations
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.13
+#
+#       Desc:    None of the lower layer resources send configuration
+#                confirms
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Verify that RRC will send error indication to RRC user as lower 
+            layer configuration confirm is not sent to RRC. RRC will not 
+            revert back any configuration on lower layer."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+     
+     #None of the layers Send Cfg Cfm  
+
+     <tapa.delay delay="30" />
+
+	 #RRC Will revert the configurations
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.14
+#
+#       Desc:    Lower layer revert configuration fails for RLC
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "When RRC reverts the lower layer configuration for PDCP, RLC 
+           and MAC. RLC does not send configuration confirm to RRC."
+           "Verify that RRC raises an alarm to the Layer manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" failedRbIdStr="2,1,4,1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	 #Revert the configuration
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+	  #Again Revert Fails for RB 3 in RLC
+	  #Expect Alarm raised by RRC
+	  <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" failedRbIdStr="3,1" ueId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Handle the alarm
+	 <tapa.expset>
+	    <tapa.nhu.cfgcfm/>
+	    <tapa.lnh.staind category="2" event="258" cause="0" alarmType="7" />
+	 </tapa.expset>
+
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.15
+#
+#       Desc:    Lower layer reconfiguration fails for MAC
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "When RRC reverts the lower layer configuration for RLC, PDCP 
+         and MAC. MAC does not send configuration confirm to RRC."
+         "Verify that RRC raises an alarm to the Layer manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 #MAC Cfg cfm fails
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" status="15" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	 #Revert the configuration
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+	    <tapa.nhu.cfgcfm/>
+      </tapa.expset>
+
+	  #Again Revert Fails at MAC
+	  #Expect Alarm raised by RRC
+	  <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" status="15" ueId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Handle the alarm
+	 <tapa.expset>
+	    <tapa.lnh.staind category="2" event="259" cause="0" alarmType="7" />
+	 </tapa.expset>
+
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    6.16
+#
+#       Desc:    Lower layer reconfiguration fails for PDCP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "When RRC reverts the lower layer configuration for RLC, PDCP and
+         MAC. PDCP does not send configuration confirm to RRC."
+         "Verify that RRC raises an alarm to the Layer manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,1" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     #PDCP Cfg cfm fails
+	 <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" failedRbIdStr="2,1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	 #Revert the configuration
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  #Again Revert Fails at MAC
+	  #Expect Alarm raised by RRC
+	  <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" failedRbIdStr="3,1" ueId="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+     #Handle the alarm
+	 <tapa.expset>
+	    <tapa.nhu.cfgcfm/>
+	    <tapa.lnh.staind category="2" event="257" cause="0" alarmType="7" />
+	 </tapa.expset>
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.17
+#
+#       Desc:    RRC header compression field must be present in 
+#                PDCP-configuration of RRC Connection Reconfiguration
+#                message
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "If RRC header compression field is not present in 
+         PDCP-configuration of RRC Connection Reconfiguration, 
+         RRC should give an Error Indication to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,1" rbCfgType="1" logChType="3"
+		 pdcpHdrCompPres="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+	   #RRC should throw error Indicaton
+      #Verify for error Type/cause
+      <tapa.expect>
+         <tapa.nhu.errind errorType="7" errorCause="0"/>
+      </tapa.expect>
+
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.18
+#
+#       Desc:    RLC Will send Duplicate CfgCfm to RRC 
+#                RRC Should ignore the duplicate one and process the 
+#                First cfg cfm
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "During Connection Reconfiguration, ower layer Configuration of 
+         RLC/OPDCP/MAC will happen. ALl three layers will send successful 
+         config confirm to RRC. But RLC will send one more duplicate cfgcfm 
+         with same transId. RRC should ignore the duplicate cfgcfm and should
+         process the first one"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+		     
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,1" rbCfgType="1" logChType="3"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     
+	 <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+	 #Sending Duplicate CfgCfm for RLC
+	 <tapa.send>
+         <tapa.dummy.cpj.cfgcfm  duplicate="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" cleanup="0" />
+     </tapa.send>
+
+	 #Sending Duplicate CfgCfm for RLC
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   ueId="1" duplicate="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   ueId="1" stored_tid="1" cleanup="0"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+	 #Sending Duplicate CfgCfm for MAC
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   duplicate_tid="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+
+     <tapa.delay delay="5" />
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     #Handle the alarm
+	 <tapa.expect>
+	    <tapa.nhu.cfgcfm/>
+	 </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+ 
+
+
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.19
+#
+#       Desc:    Verify RRC Connection Reconfiguration Failure
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "Verify that RRC returns error if RRC Connection"
+         "Reconfiguration is sent before security activation."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  #Donot activate Security
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,1" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+	  #Expect Error Indication
+      <tapa.expect>
+         <tapa.nhu.errind errorType="15" errorCause="27"/>
+      </tapa.expect>
+	  
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.20
+#
+#       Desc:    Un Successful Reconfig Procedure  
+#                RLC Cfg Cfm Times Out
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "Verify that RRC will send Negetive Cfg Cfm to RRC user as there 
+          is no configuration confirm from RLC. RRC will revert back all the
+          configuration of MAC and PDCP. RRC will send configuration request 
+          to all the lower layers to revert the configuration, and it will 
+          expect configuration confirm from all the lower layers.."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+
+    # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+	 #RLC Does Not Send Cfg Cfm   
+
+     <tapa.delay delay="30" />
+
+	 #RRC Will revert the configurations
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.21
+#
+#       Desc:    Verify successful Addition of  9 RBs
+#                using Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+		   message (with drb identity to be added (8 Rbs) to RRC to send it to 
+		   UE in RRC_CONNECTED state. RRC will then encode the actual message 
+		   and sends it to UE. UE adds the DRB and sends RRC Connection 
+		   Reconfiguration Complete to eNB. On getting RRC Connection Reconfiguration 
+		   complete message from PDCP, RRC will decode this message and if decode is 
+		   successful, RRC sends Configuration Request to RLC, MAC and PDCP. 
+           Then RRC sends Reconfiguration Complete Message to RRC User.
+           RLC, MAC and PDCP layers will do the configuration and will send back 
+		   configuration confirm to RRC. Here MAC config will fail.
+		   On getting Failure from MAC RRC reverts the config of remaining 8 RBs 
+		   RRC will send Config Confirm message to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="8" addRbIdStr="3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1"
+		 addLcIdStr="2,3,4,5,6,7,8,9" addBitMskStr="7,1,7,7,2,3,7,7" rbCfgType="1" 
+		 logChType="3" valChk="0"/>
+      </tapa.send>
+
+
+
+	  <tapa.delay delay="5" />
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" status="15" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+
+	 #Revert all cfg
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.22
+#
+#       Desc:    Verify successful modification of existing DRBs
+#                using Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+		   message (with drb identity to be modified) to RRC to send it to 
+		   UE in RRC_CONNECTED state. RRC will then encode the actual message 
+		   and sends it to UE. UE modified the DRB and sends RRC Connection 
+		   Reconfiguration Complete to eNB. On getting RRC Connection Reconfiguration 
+		   complete message from PDCP, RRC will decode this message and if decode is 
+		   successful, RRC sends Configuration Request to RLC, MAC and PDCP. 
+           Then RRC sends Reconfiguration Complete Message to RRC User.
+           RLC, MAC and PDCP layers will do the configuration and will send back 
+		   configuration confirm to RRC. On getting all the configuration 
+		   confirm messages from RLC,MAC and PDCP, RRC will send Config 
+		   Confirm message to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="8" addRbIdStr="3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1"
+		 addLcIdStr="2,3,4,5,6,7,8,9" addBitMskStr="7,7,7,7,2,3,7,7"
+       rbCfgType="1" pdcpCfgBitMsk="31" ulRlcModStr="2,1,3,2,0,3,2,2"
+       dlRlcModStr="2,0,3,2,0,3,2,2"
+		 logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  <tapa.expect>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+
+      #ading new test steps for modification
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numModRb="6" numRlsRb="2" modRbIdStr="5,1,6,1,7,1,8,1,9,1,10,1"
+		 modLcIdStr="4,5,6,7,8,9" modBitMskStr="7,2,3,7,7,7" rbCfgType="6" 
+		 logChType="3" rlsRbIdStr="3,1,4,1" valChk="0"  pdcpCfgBitMsk="31" pdcpCfgAbsent="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  <tapa.expect>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+      
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.23
+#
+#       Desc:    Unsuccessful RRC Connection Reconfiguration 
+#                procedure with Delete Transaction Request
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message along with Reconfiguration details to RRC to send it to 
+           UE in RRC_CONNECTED state." 
+          "RRC will encode the Connection Reconfiguration message and send 
+           it to UE. UE fails to send the RRC Connection Reconfiguration
+           Complete message to eNB, so RRC user sends Delete Transaction Request
+           to RRC. RRC deletes the active transaction and sends Configuration
+           Confirm to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="32" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+     
+	  <tapa.delay delay="5" />
+
+     #Send Delete Transaction Request from RRC user  
+	  <tapa.send>
+         <tapa.nhu.deletetransreq ueId="1" cellId="1" transId="32" spId="0" />
+	  </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="4" errorCause="5" />
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.24
+#
+#       Desc:    DRB release Revert due to RLC configuration fails during 
+                 RRC Connection Reconfiguration message
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+            message (with drb identity to be released) to RRC to send it to 
+            UE in RRC_CONNECTED state."
+            "RRC will then encode the actual message and sends it to UE. "
+            "UE deletes the DRB and sends RRC Connection Reconfiguration 
+            Complete to eNB."
+            "On getting RRC Connection Reconfiguration complete message from 
+            PDCP, RRC will decode this message and if decode is successful,
+            RRC sends Configuration Request to RLC, MAC and PDCP. 
+            "Then RRC sends Reconfiguration Complete Message to RRC User."
+            "RLC, MAC and PDCP layers will do the configuration and will send back 
+            configuration confirm to RRC. RLC will send configuration fail
+            satus. RRC will revert Other configurations.RRC will send Config
+            Confirm  message to RRC user with status = 0."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" pdcpCfgBitMsk="31" ulRlcModStr="3,1,2"
+       dlRlcModStr="2,0,0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+
+     #Release Data Rb 4
+	 #Send Connection Reconfiguration For ueId 1, cellId=1
+      # logChType="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 except Only RB Config
+      #Release DRB-4, rbCfgBitMask="4" is release config
+	  #rbCfgType="4" release RB config
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		  msgCategory="1" msgType="4" transId="2" rrc_transId="2"
+		  cellId="1" ueId="1" pdcpId="1" numRlsRb="2" rlsRbIdStr="2,1,4,1"
+		  rbCfgType="4" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+
+	  #Expect Lower Layer configurations
+      #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+#RLC Config cfm failed for during rb release
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" numFailedRb="1" failedRbIdStr="2,1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+       <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+        <tapa.nhu.cfgcfm/>
+      </tapa.expset>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+    <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.25
+#
+#       Desc:    Verify revert of  modification/release of existing DRBs
+#                using Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+		   message (with drb identity to be modified) to RRC to send it to 
+		   UE in RRC_CONNECTED state. RRC will then encode the actual message 
+		   and sends it to UE. UE modified the DRB and sends RRC Connection 
+		   Reconfiguration Complete to eNB. On getting RRC Connection 
+		   Reconfiguration complete message from PDCP, RRC will decode this 
+		   message and if decode is successful, RRC sends Configuration 
+		   Request to RLC, MAC and PDCP. 
+           Then RRC sends Reconfiguration Complete Message to RRC User.
+           RLC, MAC and PDCP layers will do the configuration and will send back 
+		   configuration confirm to RRC. On getting all the configuration 
+		   confirm messages from RLC,MAC and PDCP, RRC will send Config 
+		   Confirm message to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="8" addRbIdStr="3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1"
+		 addLcIdStr="2,3,4,5,6,7,8,9" addBitMskStr="7,1,2,7,2,1,7,7" rbCfgType="1" 
+		 logChType="3" pdcpCfgBitMsk="31" ulRlcModStr="2,3,0,2,0,1,2,3"
+       dlRlcModStr="2,0,3,2,1,0,3,2" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  <tapa.expect>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+#ading new test steps for modification
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numModRb="6" numRlsRb="2" modRbIdStr="3,1,6,1,7,1,8,1,9,1,10,1"
+		 modLcIdStr="2,6,7,8,9,10" modBitMskStr="7,2,1,7,7,7" rbCfgType="6" 
+		 logChType="3" rlsRbIdStr="4,1,5,1" valChk="0"  pdcpCfgBitMsk="31" pdcpCfgAbsent="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expset>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" numFailedRb="1" failedRbIdStr="3,1" ueId="1"/>
+     </tapa.send>
+     
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  <tapa.expset>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+         <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0"/>
+      </tapa.expset>
+      
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expset>
+	     <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0"/>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expset>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.26
+#
+#       Desc:    To Test status PJU Indication
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This is to test status Indication from PJU. Send Status 
+		    Indicaton from PJU with cause=PJU_CIP_FAILED. RRC should 
+			process and should send it to RRC User with 
+			cause=NHU_ERRCAUSE_DECIPHERING_FAILED"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #send status ind with cause= PJU_CIP_FAILED
+	 <tapa.send>
+        <tapa.dummy.pju.staind ueId="1" pdcpInstId="1" cellId="1" cause="2"/>
+     </tapa.send>
+
+   #send status ind with cause= NHU_ERRCAUSE_DECIPHERING_FAILED
+    <tapa.expect>
+       <tapa.nhu.staind pdcpId="1" errorCause="34"/>
+    </tapa.expect>
+    
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.27
+#
+#       Desc:    Unuccessful RRC Connection Reconfiguration 
+#                procedure with Delete Transaction Request
+#                validation tests
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message along with Reconfiguration details to RRC to send it to 
+           UE in RRC_CONNECTED state." 
+          "RRC will encode the Connection Reconfiguration message and send 
+           it to UE. UE fails to send the RRC Connection Reconfiguration
+           Complete message to eNB, so RRC user sends Delete Transaction Request
+           to RRC. RRC deletes the active transaction and sends Configuration
+           Confirm to RRC user. While doing this several validations for
+           delete transaction are tested in this test case."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="32" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,1,1" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+
+     #Send Delete Transaction Request from RRC user  
+     # incorrect cell id validation
+	  <tapa.send>
+         <tapa.nhu.deletetransreq ueId="1" cellId="2" transId="32" spId="0" />
+	  </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="4" errorCause="2" />
+      </tapa.expect>
+
+     # incorrect cell id validation
+	  <tapa.send>
+         <tapa.nhu.deletetransreq ueId="1" cellId="0" transId="32" spId="0" />
+	  </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="6" />
+      </tapa.expect>
+
+     # incorrect ue id validation
+	  <tapa.send>
+         <tapa.nhu.deletetransreq ueId="2" cellId="1" transId="32" spId="0" />
+	  </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="4" errorCause="3" />
+      </tapa.expect>
+
+     # incorrect nx trans id validation
+	  <tapa.send>
+         <tapa.nhu.deletetransreq ueId="1" cellId="1" transId="33" spId="0" />
+	  </tapa.send>
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="4" errorCause="12" />
+      </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.28
+#
+#       Desc:    RLC MAC and PDCP Will send Invalid  CfgCfm to RRC 
+#                RRC Should ignore the Invalid one  
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "During Connection Reconfiguration, RLC/MAC and PDCP will send  
+		  Invalid cfgcfm. RRC should ignore the invalid cfms."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+		     
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="2" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,7,1" rbCfgType="1" logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     
+	 #Send Invalid cfm from PDCP
+	 <tapa.send>
+         <tapa.dummy.cpj.cfgcfm  />
+     </tapa.send>
+	 
+	 #Send Invalid cfm from RLC
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm />
+     </tapa.send>
+
+	 #Send Invalid cfm from MAC
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm />
+     </tapa.send>
+
+
+  </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.29
+#
+#       Desc:    Invalid Rb configuration during RB ADD
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+      Invalid Rb configuration during RB ADD.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,1,4,1,2,1"
+		 addLcIdStr="2,3,2" addBitMskStr="7,1,7"
+       rbCfgType="1" pdcpCfgBitMsk="31" ulRlcModStr="2,1,3"
+       dlRlcModStr="2,0,3"
+		 logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+   <tapa.expect>
+     <tapa.nhu.errind errType="15" errCause="21" />
+   </tapa.expect>
+
+  </tapa.test>
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.30
+#
+#       Desc:    To Test status PJU Indication
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "This is to test status Indication from PJU. Send Status 
+		    Indicaton from PJU with cause=PJU_CIP_FAILED. RRC should 
+			process and should send it to RRC User with 
+			cause=NHU_ERRCAUSE_DECIPHERING_FAILED"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #send status ind with cause= PJU_CIP_FAILED
+	 <tapa.send>
+        <tapa.dummy.pju.staind ueId="1" pdcpInstId="5" cellId="1" cause="1" secModFailMsg="1"/>
+     </tapa.send>
+
+    <tapa.expect>
+       <tapa.nhu.datind />
+    </tapa.expect>
+    
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.31
+#
+#       Desc:    Verify unsuccessful modification of existing DRBs
+#                using Connection Reconfiguration due to Emeory
+#                alocation failure while processing release RBs
+#
+# THIS FAILS MEMORY ALLOCATION (intentional)
+# THIS FAILS MEMORY ALLOCATION (intentional)
+# THIS FAILS MEMORY ALLOCATION (intentional)
+# THIS FAILS MEMORY ALLOCATION (intentional)
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "In this case, RRC user will send RRC Connection Reconfiguration 
+		   message (with drb identity to be modified) to RRC to send it to 
+		   UE in RRC_CONNECTED state. RRC will then encode the actual message 
+		   and sends it to UE. UE modified the DRB and sends RRC Connection 
+		   Reconfiguration Complete to eNB. On getting RRC Connection Reconfiguration 
+		   complete message from PDCP, RRC will decode this message and if decode is 
+		   successful, RRC sends Configuration Request to RLC, MAC and PDCP. 
+           Then RRC sends Reconfiguration Complete Message to RRC User.
+           RLC, MAC and PDCP layers will do the configuration and will send back 
+		   configuration confirm to RRC. On getting all the configuration 
+		   confirm messages from RLC,MAC and PDCP, RRC will send Config 
+		   Confirm message to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="8" addRbIdStr="3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1"
+		 addLcIdStr="2,3,4,5,6,7,8,9" addBitMskStr="7,7,7,7,2,3,7,7"
+       rbCfgType="1" pdcpCfgBitMsk="31" ulRlcModStr="2,1,3,2,0,3,2,2"
+       dlRlcModStr="2,0,3,2,0,3,2,2"
+		 logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+	  <tapa.expect>
+		 <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+	  <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+      #ading new test steps for modification
+      # THIS FAILS MEMORY ALLOCATION (intentional)
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numModRb="6" numRlsRb="0" modRbIdStr="5,1,6,1,7,1,8,1,9,1,10,1"
+		 modLcIdStr="4,5,6,7,8,9" modBitMskStr="7,2,3,7,7,7" rbCfgType="6" 
+	 isHoPres="1"	 logChType="3"  valChk="0"  pdcpCfgBitMsk="63" pdcpCfgAbsent="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.errind/>
+      </tapa.expect>
+	  <tapa.timeout/>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.32
+#
+#       Desc:    Unsuccessful RRC Connection Reconfiguration that 
+#                includes Radio Resource Configuration - due to 
+#                 failure in sending Dat Indication to ser from RRC
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Unsuccessful RRC Connection Reconfiguration that
+        includes Radio Resource Configuration - due to
+        failure in sending Dat Indication to ser from RRC
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+     #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+     #expCfgBitMask=1 Only RbConfig is given
+     #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" />
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" failInd="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+   <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.33
+#
+#       Desc:    Verify Unsuccessful Connection Reconfiguration
+#                 PDCP Cfg failed
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         Verify Unsuccessful Connection Reconfiguration PDCP Cfg failed
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      #Configure RRC
+      <tapa.rrc.init />
+   </tapa.cfg>
+
+   # Test Steps subsection
+  <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="8" addRbIdStr="3,1,4,1,5,1,6,1,7,1,8,1,9,1,10,1"
+		 addLcIdStr="2,3,4,5,6,7,8,9" addBitMskStr="7,7,7,7,2,3,7,7"
+       rbCfgType="1" pdcpCfgBitMsk="31" ulRlcModStr="2,1,3,2,0,3,2,2"
+       dlRlcModStr="2,0,3,2,0,3,2,2"
+		 logChType="3" valChk="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+	  <tapa.delay delay="5" />
+
+	  <tapa.expect>
+	     <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+     
+	 <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+	 
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1" fillWrngRbId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="3" />
+
+	 #Revert will happen
+	 <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0" cleanup="1"/>
+       <tapa.dummy.ckw.cfgreq  use="1" storeCfms="0" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" storeCfms="0" cleanup="1"/>
+      </tapa.expset>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+  # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.34
+#
+#       Desc:    Unsuccessful RRC Connection Reconfiguration that
+#                includes UE Related Information
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc6.xml
+#
+#
+<tapa.testcase id="6.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         Unsuccessful RRC Connection Reconfiguration that includes UE Related Information
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+      <tapa.rrc.delsap.crg/>
+	  
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=3 Only RbConfig and transport channel config  is given 
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.errind/>
+      </tapa.expect>
+
+	  <tapa.delay delay="5" />
+
+	  # Send Conn Recfg Complete
+      # msgType="3" Conn Recfg Complete
+      # cellId and ueId should be passed.
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1" cleanup="1"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+ 
+	  <tapa.expect>
+		 <tapa.nhu.datind ueId="1" cellId="1"/>
+      </tapa.expect>
+
+      <tapa.timeout/>
+     
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.delsap.ckw/>
+      <tapa.rrc.delsap.cpj/>
+      <tapa.rrc.delsap.pju/>
+      <tapa.rrc.delsap.kwu/>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     nhac_tc6.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$         ---     rp               1. LTE RRC Initial Release.
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#*********************************************************************91*/

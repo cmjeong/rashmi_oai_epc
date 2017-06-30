@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#
+# hbs2-solo-split i686-bits
+# i686 distro for solo-split build.  Pulls together i686 apps and config to make
+# it easy to run the i686 parts of a split build. 
+#
+
+echo "--- hbs2-solo (i686-bits) specific ---"
+
+TOP=../../../../..
+OUTPUT_DIR=distro
+CP_OPTIONS=--preserve
+
+#
+# Create dirs.
+#
+echo "Creating/emptying $OUTPUT_DIR dir and subdirs."
+mkdir -p $OUTPUT_DIR
+rm -rf $OUTPUT_DIR/*
+
+#
+# Copy apps.
+#
+echo "Copying apps."
+cp $CP_OPTIONS $TOP/apps/fap/nas-core/obj/$PRODUCT/$HARDWARE/$BUILD/nas-core \
+               $TOP/apps/fap/nas-smsc/obj/$PRODUCT/$HARDWARE/$BUILD/nas-smsc \
+               $TOP/apps/fap/nas-hlr/obj/$PRODUCT/$HARDWARE/$BUILD/nas-hlr \
+               $TOP/apps/fap/rrc/obj/$PRODUCT/$HARDWARE/$BUILD/rrc \
+               $OUTPUT_DIR
+
+#
+# Copy dynamic libs.
+#
+echo "Copying libs."
+cp $CP_OPTIONS $TOP/libs/bin/threeway/$HARDWARE/$BUILD/*.so $OUTPUT_DIR
+cp $CP_OPTIONS $TOP/libs/bin/threeway/$PRODUCT/$HARDWARE/$BUILD/*.so $OUTPUT_DIR
+cp $CP_OPTIONS $TOP/thirdparty/oss/libs/$BUILD/*.so $OUTPUT_DIR
+
+#
+# Copy config files in addition to those in common do-distro scripts.
+#
+echo "Copying config files."
+cp $CP_OPTIONS etc/nas-system-configuration \
+               $TOP/products/fap/etc/config/nas-ue-ip-configuration \
+               $TOP/products/fap/etc/config/nas-smsc-configuration \
+               $OUTPUT_DIR_LOCAL_CFG
+
+#
+# Copy startup script.
+#
+echo "Copying start/stop scripts."
+cp $CP_OPTIONS etc/run-i686-bits.sh $OUTPUT_DIR
+chmod +x $OUTPUT_DIR/run-i686-bits.sh
+cp $CP_OPTIONS etc/stop-i686-bits.sh $OUTPUT_DIR
+chmod +x $OUTPUT_DIR/stop-i686-bits.sh
+
+echo "--- done hbs2-solo (i686-bits) specific ---"
+
+# END OF SCRIPT

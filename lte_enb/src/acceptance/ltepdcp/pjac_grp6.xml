@@ -1,0 +1,1497 @@
+#
+#/********************************************************************20**
+#
+#     Name:    PDCP
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    pjac_grp6.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group 10 Test Cases  
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=1:1:Group 11 Test Cases :pjac_grp6.xml
+
+
+#
+#
+#       Test:    6.1
+#
+#       Desc:    Handover scenario without data in RBS.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.1"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_3)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Send some data on SRB1 SRB2 and DRB1 and get confirmation for the data and delete the data.
+             So currently we have no data in the RB control blocks.
+          3. Since we have no data, do not expect any DatFwdInd.
+          4. Send a re-establishment request for all the entities.
+          5. Expect a re-establishemt confirm with success.
+          6. Send a SDU to DRB1 and expect the SN of PDCP to be 1 since we already sent one
+             PDU with sn 0."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg discardTmr0="0"/>
+    
+      <tapa.srb2cfg discardTmr0="0"/>
+  
+      <tapa.drb1cfg discardTmr0="0"/>
+  
+      <tapa.drb2cfg discardTmr0="0"/>
+
+      <tapa.drb4cfg discardTmr0="0"/>
+
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.dsrb1ue1T2/>
+
+      <tapa.dsrb2ue1T2/>
+
+      <tapa.ddrb1ue1T2 />
+
+      # Send a ReEstablishment request on SRB1
+      <tapa.pj.srb1.reEstReq />
+
+      #Send a ReEstablishment request on SRB1
+      <tapa.send>
+         <tapa.cpj.reestreq  ueId="1" cellId="1"
+            rbId="2"
+            rbType="0"
+            intkey="123456789012345678901234567890123"
+            ctrlplnkey="123456789012345678901234567890123"
+            usrplnkey="123456789012345678901234567890123"
+         />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/> 
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/> 
+      </tapa.expset>
+      
+      #Step 10. Send ReEstablishment Requests.
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="1"
+            rbId    = "1"
+            rbType  = "1"
+            cfgType = "4"
+         />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1" rbType="1" suId="1" />
+      </tapa.send> 
+  
+
+      #Step 12. Receive confirms
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+            rbId   = "1"
+            rbType = "1"
+            status = "1"
+         />
+      </tapa.expset>
+
+      <tapa.ddrb1ue1T2 />
+
+
+   <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.2
+#
+#       Desc:    Verification of Data Request during SDUStaReq.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.2"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_14)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Send some data on SRB1 SRB2 and DRB1 and get confirmation for the data and delete the data.
+             So currently we have no data in the RB control blocks.
+          3. Send some PDCP PDUs (missing) to the RLC.
+          4. Send a sdu status request to PDCP.
+          5. Send a SDU from upper layer to PDCP.
+          6. Send a re-establishment to RLC and get the PDUs at PDCP
+          7. Expect 2 data fwd indications - one for uplink and other for downlink.
+             (The data forward indication for downlink should hold the sdu sent in step 5)
+          8. Expect a SDU status cfm from PDCP.
+          9. Expect a re-establishment cfm from RLC."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+         <tapa.flag id="PJ_CMP_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg discardTmr0="0"/>
+    
+      <tapa.srb2cfg discardTmr0="0"/>
+  
+      <tapa.drb1cfg discardTmr0="1500"/>
+  
+      <tapa.drb2cfg discardTmr0="0"/>
+
+      <tapa.drb4cfg discardTmr0="0"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      #Step 1. Send a SDU Status request
+      <tapa.dsrb1ue1T2/>
+      #Step 2. Send a SDU Status request
+      <tapa.dsrb2ue1T2/>
+      #Step 3. Send a SDU Status request
+      <tapa.ddrb1ue1T2 bo="302" totBufSize0="309" />
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.3
+#
+#       Desc:    Verification of Data Request. after sdu status cfm
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.3"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_15)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Initiate handover.
+          3. Send a sdu status request to PDCP.
+          4. Expect a cfm and no datfwdind as there is no data.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg discardTmr0="0"/>
+    
+      <tapa.srb2cfg discardTmr0="0"/>
+  
+      <tapa.drb1cfg discardTmr0="0"/>
+  
+      <tapa.drb2cfg discardTmr0="0"/>
+
+      <tapa.drb4cfg discardTmr0="0"/>
+
+      <tapa.delay delay="2"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+#send initial data
+      #Step 1. Send data from ue1 to 2
+      <tapa.dsrb1ue1T2/>
+      #Step 2. Send data from ue1 to 2
+      <tapa.dsrb2ue1T2/>
+      #Step 3. Send data from ue1 to 2
+      <tapa.ddrb1ue1T2 bo="302" totBufSize0="309"/>
+
+#initiate handover
+      #Step 4. Send a SDU Status request
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1"  />
+      </tapa.send>   
+      #kw006.201 changes for ccpu00111716 
+      <tapa.delay delay="1"/> 
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1:2:4" rbType="1:1:1" suId="1" />
+      </tapa.send>
+
+      kw006.201:Added values for index 1
+      #Step 6. Expect a SDU Sta Cfm after processing of all RBs
+      <tapa.expset>
+         <tapa.cpj.sdustacfm ueId="1" cellId="1" status="0" reason="0" transId="10" numRb="2"
+            rbId     = "1:4"
+            dir      = "3:3"
+            ulcount  = "0:0"
+            dlcount  = "1:1"
+            ulnumelm = "0:0"
+         />
+      </tapa.expset>
+      <tapa.send>
+         <tapa.cpj.datforwardreq ueId="1" cellId="1" transId="0" />
+      </tapa.send>
+      <tapa.expset>
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="0"
+            sduId="0"
+            sn="0"
+            sduSzLst="0"
+            inst="0"
+            module="1"
+            isLastFwdInd="TRUE" 
+            />
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="4" rbType="1" dir="2" numSdus="0"
+            sduId="0"
+            sn="0"
+            sduSzLst="0"
+            inst="0"
+            module="1"
+            isLastFwdInd="TRUE" />
+      </tapa.expset>  
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.4
+#
+#       Desc:    Verification of Data FWD request without HO info using re-cfg
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.4"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_11)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM).
+          2. Send data fwd req on without doing HO recfg.
+          3. Send data fwd req on downlink.
+          4. Expect a status response for those. 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.drb1cfg discardTmr0="0"/>
+  
+      <tapa.drb2cfg/>
+
+      <tapa.drb4cfg/>
+
+      <tapa.delay delay="2"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+      
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" ueId="1" cellId="1" sduId="0" sduSize="300" rbId="1" rbType="1" />
+      </tapa.send>
+      <tapa.send>
+         <tapa.pju.datreq entity="ENTPX" ueId="1" cellId="1" sduId="0" sduSize="300" rbId="4" rbType="1" />
+      </tapa.send>
+
+      #Step 1. Send DatFwdReq without having HO info
+      <tapa.send>
+         <tapa.cpj.datforwardreq ueId="1" cellId="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expset>
+         <tapa.dummy.kwu.datreq numLch="1" ueId="1" cellId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" 
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE"
+            snSize="12" mode="3" vrfPdcp="TRUE"/>
+         <tapa.dummy.kwu.datreq numLch="1" ueId="1" cellId="1" lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" 
+            pdcpHdr="1:-1:0:-1" intgProt="FALSE" ciph="FALSE"
+            snSize="12" mode="3" vrfPdcp="TRUE"/>
+
+        <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1"
+           sduId="0"   
+           sn="0"
+           sduSzLst="300"
+           inst="0"
+           module="1"
+           isLastFwdInd="FALSE" /> 
+        <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="0"
+           sduId="0"   
+           sn="0"
+           sduSzLst="0"
+           inst="0"
+           module="1"
+           isLastFwdInd="TRUE" />
+        <tapa.pju.datfwdind ueId="1" cellId="1" rbId="4" rbType="1" dir="2" numSdus="1"
+           sduId="0"   
+           sn="0"
+           sduSzLst="300"
+           inst="0"
+           module="1"
+           isLastFwdInd="FALSE" /> 
+        <tapa.pju.datfwdind ueId="1" cellId="1" rbId="4" rbType="1" dir="2" numSdus="0"
+           sduId="0"   
+           sn="0"
+           sduSzLst="0"
+           inst="0"
+           module="1"
+           isLastFwdInd="TRUE" />
+
+      </tapa.expset>
+
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.5
+#
+#       Desc:    Verification of Data between Ho-recfg and Datfwdreq at target
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.5"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "verifying data  input between ho-recfg request and data fwd req(TC_HO_GRP5_12)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Send recfg request to ueId =1  for DRB1 with some HO info.
+          3. Send some PDCP PDUs from thelower layer and expect data indications for all of those.
+          4. Send a data fwd request for UL datanow.
+          5. Expect to receive the data fwd req to be sent up with wrong count."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.drb1cfg discardTmr0="0"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#DO RECONFIGURATION WITH UL DATA
+      #Step 1. Send the reconfig request for drb 1 with DL info
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId          = "1"
+            cfgType       = "2"
+            rbType        = "1"
+            discReqd      = "1"
+            cfmReqd       = "1"
+            discardTmr    = "100"
+
+            dir           = "3"
+            mode          = "3"
+
+            statusRepReqd = "0"
+            pdcpSNSize    = "12"
+
+            hdrCompUsed   = "0"
+            maxCid        = "0"
+            profile       = "0"
+
+            bitFlag       = "1"
+            isHoPres      = "2"
+            dlCount       = "1"
+            ulCount       = "0"
+            numBits       = "0"
+            ulBitMap      = "0"
+         />
+      </tapa.send>
+
+      #Step 2. Expect a status response and config cfm
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId   = "1"
+            rbType = "1"
+            status = "1"
+            reason = "0"
+         />
+      </tapa.expset>
+
+      <tapa.repeat.start repeatCount="4" />
+          #Step 2. Send PDCP SDU from NH interface for SRB1 
+         <tapa.send>
+            <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1" rbType="1"/>
+         </tapa.send>
+         <tapa.expect>
+            <tapa.dummy.kwu.datreq cellId="1" ueId="1" numLch="1"
+               lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" pdcpHdr="-1:-1:0:-1" intgProt="FALSE"
+               ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE"/>
+         </tapa.expect>
+         <tapa.repeat.end />
+#SEND DATFWDREQ on downlink
+      #Step 16. DatFwdReq for downlink data
+      <tapa.send>
+         <tapa.pju.datfwdreq ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1"
+            sduId="4"
+            sn="4"
+            sduSzLst="300"
+            sduData="0"
+            module="1"
+            isLastFwdInd = "TRUE"
+         />
+      </tapa.send>
+
+         <tapa.expect>
+            <tapa.dummy.kwu.datreq cellId="1" ueId="1" numLch="1"
+               lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" pdcpHdr="-1:-1:0:-1" intgProt="FALSE"
+               ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE"/>
+         </tapa.expect>
+
+         <tapa.delue1N2 />
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.6
+#
+#       Desc:    Verification of SDU STA REQ for UE with no DRBS.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.6"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "PDCP For UE with no DRBs (TC_HO_GRP5_10)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2.
+          2. Send a SDU Status Request and expect UL and DL counts to be zero and numRb to be zero"          
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.delay delay="2"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1" />
+      </tapa.send>
+
+       <tapa.send>
+      <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1:2" rbType="0:0" suId="1" />
+      </tapa.send>
+
+
+      <tapa.expect>
+         #Expect a SDU Sta Cfm after processing of all RBs
+         <tapa.cpj.sdustacfm ueId="1" cellId="1" status="0" reason="0" transId="4" inst="1"
+            numRb="0"
+            rbId     = "1:2"
+            dir      = "2:2"
+            ulcount  = "0:0"
+            dlcount  = "0:0"
+            ulnumelm = "0:0"
+            ulstapdu = "0:0"
+            />
+      </tapa.expect>
+
+      <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.7
+#
+#       Desc:    Verification of SDU STA REQ for UE with DL only data.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.7"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Verifying SduStaReq for only DLM data ata source side (TC_HO_GRP5_06)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2 DRB1 DRB2 and DRB4.
+          2. Send some data on DRBs in the DL direction and do not send that to the peers.
+          3. Now send a sdu status req.
+          4. We have a data fwd indication for both the AM DRBs ( 1 and 4).
+          5. After that we have a sdu status confirm."          
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.drb1cfg/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#SEND SOME DATA THAT IS DROPPED AT RLC
+      #Step 1. Start the loop
+      <tapa.repeat.start repeatCount="4"/>     
+          #Step 2. Send PDCP SDU from NH interface for SRB1 
+         <tapa.send>
+            <tapa.pju.datreq entity="ENTPX" sduId="1" sduSize="300" rbId="1" ueId="1" cellId="1" rbType="1"/>
+         </tapa.send>
+
+         #Step 3. Expect Status Response for the received SDU at RGU 
+         <tapa.expect>
+            <tapa.dummy.kwu.datreq cellId="1" ueId="1" numLch="1"
+               lchData="0:0:0:3:1:-1:-1:-1:-1:-1:-1" pdcpHdr="-1:-1:0:-1" intgProt="FALSE"
+               ciph="FALSE" snSize="12" mode="3" vrfPdcp="TRUE"/>
+         </tapa.expect>
+
+      #Step 4. End the loop
+      <tapa.repeat.end/>
+
+
+#INITIATE HANDOVER
+      #Step 5. Send sdu starequest
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1"  />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1:2:4" rbType="1:1:1" suId="1" />
+      </tapa.send>          
+
+      <tapa.send>
+         <tapa.cpj.datforwardreq ueId="1" cellId="1" transId="0" />
+      </tapa.send>
+
+
+#EXPECT DATAFWD IND ALONG WITH CONFIRMS
+      #Step 7. Expect a DatFwdInd and other confirmations.
+      <tapa.expset>
+         
+         #Expect a SDU Sta Cfm after processing of all RBs
+         <tapa.cpj.sdustacfm ueId="1" cellId="1" status="0" reason="0" transId="6" numRb="1"
+            rbId     = "1"
+            dir      = "3"
+            ulcount  = "0"
+            dlcount  = "4"
+            ulnumelm = "0"
+            ulstapdu = "0"
+            />
+         
+         #Expect a data forward indication as we have data due to re-establishment
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1" inst="0" 
+            sduId    = "0"
+            sn       = "0"
+            sduSzLst = "300"
+            module   = "1"
+            isLastFwdInd = "FALSE"
+         />
+      
+        #Expect a data forward indication as we have data due to re-establishment
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1" inst="0" 
+            sduId    = "1"
+            sn       = "1"
+            sduSzLst = "300"
+            module   = "1"
+            isLastFwdInd = "FALSE"
+         />
+     
+        #Expect a data forward indication as we have data due to re-establishment
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1" inst="0" 
+            sduId    = "2"
+            sn       = "2"
+            sduSzLst = "300"
+            module   = "1"
+            isLastFwdInd = "FALSE"
+         />
+    
+        #Expect a data forward indication as we have data due to re-establishment
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="1" inst="0" 
+            sduId    = "3"
+            sn       = "3"
+            sduSzLst = "300"
+            module   = "1"
+            isLastFwdInd = "FALSE"
+         />
+     
+        #Expect a data forward indication as we have data due to re-establishment
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="2" numSdus="0" inst="0" 
+            sduId    = "0"
+            sn       = "0"
+            sduSzLst = "0"
+            module   = "1"
+            isLastFwdInd = "TRUE"
+         /> 
+
+
+      </tapa.expset>
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    6.8
+#
+#       Desc:    Handover scenario with only ULM data and data received oos from OBD
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.8"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_13)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Send some PDCP packets in uplink with some missing PDUs.
+          3. Send a sdu status request.
+          4. Send a re-establishment to RLC to get the PDUs of PDCP.
+          5. Send data oos from OBD
+          6. After that expect a sdu status confirmation.
+          7. Then expect a cfg cfm for re-establishment request of RLC."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init obdTmrInt0="10"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.drb1cfg/>
+  
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.ddrb1oos />
+
+      <tapa.delay delay="5"/>
+#INITIATE HANDOVER
+      #Step 3. Send sdu starequest
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1"  />
+      </tapa.send>
+
+      #Step 4. Send a re-establishment request to RLC 
+      <tapa.obd.directive seqStart="TRUE" seqOn="TRUE" saveDecpMsg="TRUE" />
+
+
+      #Step 6. Delay
+      <tapa.delay delay="5"/>
+      <tapa.obd.directive seqOn="FALSE" />
+
+      #Step 7. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="1"/>
+      </tapa.send>
+
+      #Step 8. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="2"/>
+      </tapa.send>
+
+      #Step 9. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="3" />
+      </tapa.send>
+
+      #Step 10. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="9"/>
+      </tapa.send>
+
+      #Step 11. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="7"/>
+      </tapa.send>
+
+      #Step 12. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="6"/>
+      </tapa.send>
+
+      #Step 13. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="5"/>
+      </tapa.send>
+
+      #Step 14. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="4"/>
+      </tapa.send>
+
+      #Step 15. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="8" />
+      </tapa.send>
+
+      #Step 16. Expect DatInd  and data response at PJU for SRB1 Data
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+      </tapa.expset>
+
+      <tapa.expect>
+
+      #Expect a SDU Sta Cfm after processing of all RBs
+      <tapa.cpj.sdustacfm ueId="1" cellId="1" status="0" reason="0" transId="6" numRb="1"
+         rbId     = "1"
+         dir      = "1"
+         ulcount  = "9"
+         dlcount  = "0"
+         ulnumelm = "0"
+         ulstapdu = "0"
+         />
+   </tapa.expect>
+
+   <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.9
+#
+#       Desc:    Handover scenario with only ULM data and data failing in OBD.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.9"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Configuring PDCP Layer Control Interface(TC_HO_GRP5_13)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM), DRB2(UM-DL) and DRB4(AM).
+          2. Send some data on SRB1 SRB2 and DRB1 and get confirmation for the data and delete the data.
+             So currently we have no data in the RB control blocks.
+          3. Send some PDCP packets in uplink with some missing PDUs.
+          4. Send a sdu status request.
+          5. Send a re-establishment to RLC to get the PDUs of PDCP.
+          6. Expect a dat forward indication for uplink data.
+          7. After that expect a sdu status confirmation.
+          8. Then expect a cfg cfm for re-establishment request of RLC."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="PJ_SEC_ASYNC"/>
+      </tapa.ifdef>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive failureTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init obdTmrInt0="5"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.srb2cfg/>
+  
+      <tapa.drb1cfg/>
+  
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#INITIATE HANDOVER
+      #Step 3. Send sdu starequest
+      <tapa.send>
+         <tapa.cpj.sdustareq ueId="1" cellId="1"  />
+      </tapa.send>
+
+      #Step 4. Send a re-establishment request to RLC 
+      <tapa.obd.directive seqStart="TRUE" seqOn="TRUE" saveDecpMsg="TRUE" />
+
+      #Step 6. Delay
+      <tapa.delay delay="10"/>
+      <tapa.obd.directive seqOn="FALSE" />
+
+      #Step 7. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="1"/>
+      </tapa.send>
+
+      #Step 8. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="2"/>
+      </tapa.send>
+
+      #Step 10. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="3" dropMsg="TRUE"/>
+      </tapa.send>
+
+      #Step 11. delay wait for obd timer to timeout
+      <tapa.delay delay="50"/>
+
+      #Step 12. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="4"/>
+      </tapa.send>
+
+      #Step 13. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="5"/>
+      </tapa.send>
+
+      #Step 14. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="6"/>
+      </tapa.send>
+
+      #Step 15. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="7"/>
+      </tapa.send>
+
+      #Step 16. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="8"/>
+      </tapa.send>
+
+      #Step 17. Pump data from obd
+      <tapa.send>
+         <tapa.obd.decipher.out id="9" dropMsg="TRUE" />
+      </tapa.send>
+
+      #Step 11. delay wait for obd timer to timeout
+      <tapa.delay delay="100"/>
+
+      #Step 20. Expect DatInd  and data response at PJU for SRB1 Data
+      <tapa.expset>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.datind  entity="ENTPX" sduSize="100" cellId="1" ueId="1" valdType="1"/>
+         <tapa.pju.staind  entity="ENTPX" rbId="1" rbType="1" cellId="1" ueId="1" valdType="1" 
+                           cause="2" bufPrsnt="0"/>
+         <tapa.pju.staind  entity="ENTPX" rbId="1" rbType="1" cellId="1" ueId="1" valdType="1" 
+                           cause="2" bufPrsnt="0"/>
+      </tapa.expset>
+
+      #Step 21. Expect a data forward indication as we have data due to re-establishment
+      #and expiry of OBD timer.
+      <tapa.expect>
+         <tapa.pju.datfwdind ueId="1" cellId="1" rbId="1" rbType="1" dir="1" numSdus="5" inst="1" 
+            sduId    = "0:0:0:0:0"
+            sn       = "3:4:5:6:7"
+            sduSzLst = "100:100:100:100:100"
+         />
+      </tapa.expect>
+      #Step 21. Expect a DatFwdInd and other confirmations.
+      <tapa.expect>
+         #Expect a SDU Sta Cfm after processing of all RBs
+         <tapa.cpj.sdustacfm ueId="1" cellId="1" status="0" reason="0" transId="6" numRb="1" 
+            rbId     = "1"
+            dir      = "1"
+            ulcount  = "2"
+            dlcount  = "0"
+            ulnumelm = "5"
+            ulstapdu = "F8"
+            />
+
+      </tapa.expect>
+      <tapa.delue1N2 />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    6.10
+#
+#       Desc:    Verification of SN wraparound and SN received out of window.
+#
+#       Notes:   None
+#              
+#       Module:  PDCP
+#
+#       File:    pjac_grp6.xml
+#
+#
+<tapa.testcase id="6.10"> 
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="pjHandover"/>
+
+      <tapa.desc>
+         "Verification of SN wraparound and SN received out of window."
+      </tapa.desc>
+
+      <tapa.longdesc>
+         "1. ueId=1, cellId=1 and ueId=2, cellId=1 : Configure SRB1, SRB2, DRB1(AM).
+          2. Send recfg request to ueId =1  for DRB1 with some HO info with fms 4093.
+          5. Receive a pdu with SN 4095. SN Wraps around.
+          6. Receive a pdu with SN 4091. Pdu should get dropped.
+          7. Receive a pdu with SN 4094. Pdu should be processed with ctxHfn --.
+          4. Initiate reestablishment.
+          8. Receive a reestablishment confirm.
+          9. Send a pdu with SN 0 and get all the data messages up.
+          10. Shutdown layer."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.pj.directive successTc="TRUE"/>
+
+      #Initialize PDCP layer
+      <tapa.pj.init/>
+
+      <tapa.delay delay="2"/>
+
+      #RLC control interface CKW Congiuration
+      <tapa.srb1cfg/>
+    
+      <tapa.drb1cfg discardTmr0="0"/>
+   </tapa.cfg>
+ 
+   # Test Steps subsection
+   <tapa.test>
+
+#DO RECONFIGURATION WITH UL DATA
+      #Step 1. Send the reconfig request for drb 1 with DL info
+      <tapa.send>
+         <tapa.cpj.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId          = "1"
+            cfgType       = "2"
+            rbType        = "1"
+            discReqd      = "1"
+            cfmReqd       = "1"
+            discardTmr    = "100"
+
+            dir           = "3"
+            mode          = "3"
+
+            statusRepReqd = "0"
+            pdcpSNSize    = "12"
+
+            hdrCompUsed   = "0"
+            maxCid        = "0"
+            profile       = "0"
+
+            bitFlag       = "2"
+            isHoPres      = "2"
+            dlCount       = "0"
+            ulCount       = "4093"
+            numBits       = "0"
+            ulBitMap      = "0"
+         />
+      </tapa.send>
+
+      #Step 2. Expect a status response and config cfm
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId   = "1"
+            rbType = "1"
+            status = "1"
+            reason = "0"
+         />
+      </tapa.expset>
+
+#PERFORM REESTABLISHMENT
+#Step 9. Send a ReEstablishment request on SRB1
+      <tapa.pj.srb1.reEstReq />
+      
+      <tapa.expset>
+         <tapa.cpj.reestcfm ueId="1" cellId="1" status="1" transId="-1"/> 
+      </tapa.expset>
+      
+      #Step 10. Send ReEstablishment Requests.
+      <tapa.send>
+         <tapa.cpj.cfgreq  ueId="1" cellId="1" numEnt="1"
+            rbId    = "1"
+            rbType  = "1"
+            cfgType = "4"
+         />
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.kwu.reestcmpind ueId="1" cellId="1" rbId="1" rbType="1" suId="1" />
+      </tapa.send> 
+  
+
+      #Step 12. Receive confirms
+      <tapa.expset>
+         <tapa.cpj.cfgcfm ueId="1" cellId="1" transId="-1" numEnt="1"
+            rbId   = "1"
+            rbType = "1"
+            status = "1"
+         />
+      </tapa.expset>
+
+      <tapa.delue1N2 />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      <tapa.pj.deinit/>
+      <tapa.delay delay="2"/> 
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     vb  1. LTE PDCP Initial Release 2.1.
+#*********************************************************************91*/

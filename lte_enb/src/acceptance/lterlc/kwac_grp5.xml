@@ -1,0 +1,6514 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE_RLC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    kwac_grp5.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group 5 Test Cases  
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=5:1:Group 5 Test Cases :kwac_grp5.xml
+
+
+#
+#
+#       Test:    5.1
+#
+#       Desc:    Verification of sequence number at the transmission side (SN = 5 bits) 
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of sequence number at the transmission side"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         " Acceptance test case No: 5.1
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends 3 SDU'S  
+           4. RLC sends StaRes()
+           5. MAC gives BO
+           6. RLC sends 3 SDU'S to MAC
+           7. MAC verifies the sequence number of each PDU
+          " 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+    
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:301:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+      
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      #MAC expects data request from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="0:0:0:1:1:301:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      #PDCP sends SDU with size as 300
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp  cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      #MAC notifies BO with size as 304
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3"/>
+      </tapa.send>
+
+      #MAC expects data request from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="0:0:0:1:1:301:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+      
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/> 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.2
+#
+#       Desc:    Verification of Concatenation procedure 
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Concatenation procedure"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.2
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends 3 SDU'S with size 200 each
+           4. MAC notifies the StaInd() with BO (607)
+           5. MAC receives only one PDU "
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+      #PDCP sends data request with SDU size 200
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="200" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="600" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+      
+      #MAC notifies BO with size as 607
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="607" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      #MAC expects the data request from RLC 
+      #verifyType=2 (may need size of the data to verify data) 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:604:
+                        0:0:0:0:0"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduSize="200" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduSize="200" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduSize="200" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+   <tapa.kw.deinit/>
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.3
+#
+#       Desc:    verification of segmentation 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of segmentation"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.3
+           1. Configure RLC through LM
+           2. Configure UM RLC entities
+           3. RLC sends 1 SDU with maximum size
+           4. MAC notifies the StaInd() with BO (minimum size)
+           5. MAC receives two PDU'S
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # PDCP sends data request with SDU size 750
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="750" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="750" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="500:3:0:1:1:251:
+                        0:1:0:0:0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2"/>
+      </tapa.send>
+     
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="250:3:0:1:1:251:
+                        1:3:0:0:0"/>
+      </tapa.expect>
+      
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3"/>
+      </tapa.send>
+     
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="0:0:0:1:1:251:
+                        2:2:0:0:0"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduSize="750" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+      
+   <tapa.kw.deinit/>
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.4
+#
+#       Desc:    verification of maximum length identifier in an PDU
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of maximum length identifier"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.4
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities.
+           3. Tx PDCP send 20 SDUs size of 100 to Tx RLC.
+           4. MAC send DStaInd to Tx RLC 1500.
+           5. Tx RLC sends DDatReq to MAC 1st PDU with Max LI, and remaining in 2nd PDU.
+           6. MAC sends DDatInd to Rx RLC.
+           7. Rx RLC sends DatInd to Rx PDCP."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+<!--
+      <tapa.repeat.start repeatCount="105"/>
+
+      #Send KWU Data Request
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduSize="15" rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #Expect RGU Status Response
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+      </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="2000" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      #verifyType=3 ->maximum length identifier
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="585:81:0:1:2:544,544:
+                        0,1:0,0:-1:-1:-1:32,32"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:2:0,1"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.repeat.start repeatCount="66"/>
+         <tapa.expect>
+            <tapa.kwu.datind entity="ENTPJ" sduSize="15" 
+                  cellId="1" ueId="2" rbId="1" rbType="1"/>
+         </tapa.expect>
+      <tapa.repeat.end/>
+-->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.5
+#
+#       Desc:    Unsuccessful SDU discard 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Unsuccessful SDU discard (Partial SDU should not Discard)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.5
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities.
+           3. Tx PDCP send 1 SDU size of 600 to Tx RLC.
+           4. MAC send DStaInd to Tx RLC with BO=305.
+           5. Tx RLC sends DDatReq to MAC with PDU of size 301.
+           6. Tx PDCP send DiscSdu to Tx RLC. Tx RLC should not discard SDU
+           (Partial).
+           7. Verify through the Statistics Request and Confirm."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="600" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="600" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="300:3:0:1:1:301:
+                        -1:-1:-1:-1:-1:-1"/>
+      </tapa.expect>
+      
+      <tapa.send>
+          <tapa.kwu.discsdu rbId="1" rbType="1" ueId="1" cellId="1" sduId="0"/>
+      </tapa.send>
+
+      #Invalid Rb Id in SDU discard
+      <tapa.send>
+          <tapa.kwu.discsdu rbId="9" rbType="1" ueId="1" cellId="1" sduId="0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="0:0:0:1:1:301:-1:-1:-1:-1:-1:-1"/>
+      </tapa.expect>
+      
+      <tapa.send>
+           <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="0"/>
+      </tapa.send>
+
+      #evnki - Start
+      # servType = 1 -> verify sdu is discarded or not
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" pdusSent="2" pdusRetx="0"
+        bytesSent="602" protTimeOut="0" numSduDisc="0" servType="1" inst="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="1"/>
+      </tapa.send>
+
+      # servType = 1 -> verify sdu is discarded or not
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" pdusRecv="0"
+           bytesRecv="0" unexpPdusRecv="0" errorPdusRecv="0" 
+           servType="1" inst="1"/>
+      </tapa.expect>
+      <tapa.delay delay="5"/>
+   #Venki - end 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.6
+#
+#       Desc:    SDU discard  with unknown SDU Id
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Successful SDU discard"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.6
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities.
+           3. Tx PDCP send 1 SDU size of 300 to Tx RLC.
+           4. MAC send DStaInd to Tx RLC with BO=305.
+           5. Tx RLC sends DDatReq to MAC with PDU.
+           6. Tx PDCP send DiscSdu to Tx RLC with invalid SDU ID.
+               Tx RLC should discard request.
+           7. Verify through the Statistics Request and Confirm."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="600" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="600" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="300:3:0:1:1:301:
+                        -1:-1:-1:-1:-1:-1"/>
+      </tapa.expect>
+      
+      <tapa.send>
+          <tapa.kwu.discsdu rbId="1" rbType="1" ueId="1" cellId="1" sduId="5"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="0:0:0:1:1:301:
+                        -1:-1:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #Venki - Start
+      <tapa.send>
+           <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="0"/>
+      </tapa.send>
+
+      # servType = 1 -> verify sdu is discarded or not
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" 
+           pdusSent="2" pdusRetx="0" bytesSent="602"
+           protTimeOut="0" numSduDisc="0"
+           servType="1" inst="0"/>
+
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="1"/>
+      </tapa.send>
+
+      # servType = 1 -> verify sdu is discarded or not
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" pdusRecv="0"
+           bytesRecv="0" 
+           unexpPdusRecv="0" errorPdusRecv="0" 
+           servType="1" inst="1"/>
+
+      </tapa.expect>
+      #Venki - end
+
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.7
+#
+#       Desc:    Verification of header with SN of size 10 bit
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of header with 10 bit SN"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.7
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 1 SDU size of 400 to Tx RLC.
+           4. Tx RLC sends DDatReq to MAC.
+           5. Verify the Header in MAC.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg/>
+   </tapa.cfg>
+    
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="405" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # Verification of header with SN size as 10 bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:402:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+      
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.8
+#
+#       Desc:    Verification of header with odd number of LI'S 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of header with odd number of LI'S"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.8
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 3 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends DDatReq to MAC.
+           5. Verify the Header in MAC for odd number of LIs.
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+    
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1600" estHdrSz="9" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="1609" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # Verify header which is having odd number of LI'S or not
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:1606:0:0:-1:0:-1:3"/>
+      </tapa.expect>
+      
+      <tapa.delay delay="15"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.9
+#
+#       Desc:    Verification of header with even number of LI'S 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of header with even number of LI'S"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.9
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 4 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends DDatReq to MAC.
+           5. Verify the Header in MAC for even number of LIs."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+    
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="1207" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # Verify header which need to contain even number of LI'S
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:1204:0:0:-1:0:-1:2"/>
+      </tapa.expect>
+      
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.10
+#
+#       Desc:    Verification of re-establishment procedure in uplink side
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of re-establishment procedure in uplink side"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.10
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 2 DDatInd to Rx RLC.
+           6. RRC sends the Re-Establish configuration request to Rx RLC.
+           7. Rx PDCP should only expect only 2 DatInd.
+           8. Verify the Header in MAC for PDUs Discarded."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1600" estHdrSz="9" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="5" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="2000" estHdrSz="11" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1600:9:0:1:1:401:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1200:7:0:1:1:401:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="800:5:0:1:1:401:2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="400:3:0:1:1:401:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="0:0:0:1:1:401:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      #MAC sends data PDUs to RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+#servType 2 = reestablisment procedure in up link direction
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduId="1" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" sduId="2" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1" 
+           rbId="1" rbType="1"
+            status="1" />
+      </tapa.expect>
+      <!--
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0"/>
+      </tapa.send>
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="4"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0"/>
+      </tapa.send>   -->
+      #Venki -  start
+      <tapa.send>
+          <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="0"/>
+      </tapa.send>
+
+      # verify statistics
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" 
+           pdusSent="5" pdusRetx="0" bytesSent="2005" 
+           protTimeOut="0" numSduDisc="0" inst="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+          <tapa.lkw.stsreq elmnt="1" action="1" suId="1" sapType="1" inst="1"/>
+      </tapa.send>
+
+      # verify statistics
+      #kw005.201 ccpu00117318, updating the statistics.
+      <tapa.expect>
+           <tapa.lkw.stscfm elmnt="1" numUe="2" numOfRb="2" pdusRecv="2"
+           bytesRecv="800" unexpPdusRecv="0" errorPdusRecv="0" inst="1" />
+      </tapa.expect>
+   #Venki - end 
+
+   #kw005.201 Removed delay of 5
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.11
+#
+#       Desc:    verification of Framing info field in the header 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Framing info field in the header"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.11
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 1 SDUs size of 600 to Tx RLC.
+           4. Tx RLC sends DStaRsp to MAC.
+           5. MAC sends DStaInd with BO=204 to Tx RLC (3 times).
+           6. Tx RLC sends 3 DDatReq to MAC.
+           7. MAC will verify the Header for the Framing Info Bit."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="600" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="600" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="204" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="400:3:0:1:1:201:
+                        0:1:1:0:0"/>
+      </tapa.expect>
+      
+     <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="204" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="200:3:0:1:1:201:
+                        1:3:1:0:0"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="204" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="0:0:0:1:1:201:
+                        2:2:1:0:0"/>
+      </tapa.expect>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.12
+#
+#       Desc:    Verification of re-ordering algaritham, PDU'S are not in the sequece
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "verification of re-ordering algaritham, PDU'S are not in the sequence"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.12
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 4 DDatInd to Rx RLC in Out Of Sequence.
+           6. Rx RLC should and process without any problems and Send DatInd to
+           Rx PDCP."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1200" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1600" estHdrSz="9" staPduPrsnt="0"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="5" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="2000" estHdrSz="11" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1600:9:0:1:1:401:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1200:7:0:1:1:401:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="800:5:0:1:1:401:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="400:3:0:1:1:401:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="404" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="0:0:0:1:1:401:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="4"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="1"/>
+      </tapa.expect>
+      
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="2"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="3"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="4"/>
+      </tapa.expect>
+      
+   <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.13
+#
+#       Desc:    Verification of re-ordering algaritham, PDU'S are falling outside of the window
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "verification of re-ordering algaritham, PDU'S are falling outside of the upper edge"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.13
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 4 DDatInd to Rx RLC in Out Of Sequence such that out of
+           window occurs.
+           6. Rx RLC should and process without any problems and Send DatInd to
+           Rx PDCP."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="20"/>
+
+         #Send KWU Data Request
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduSize="100" rbId="1" rbType="1"
+               ueId="1" cellId="1"/>
+         </tapa.send>
+
+         #Expect RGU Status Response to skip validation put valdType="1"
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1900:39:0:1:1:101:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1800:37:0:1:1:101:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="1700:35:0:1:1:101:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="1600:33:0:1:1:101:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="1500:31:0:1:1:101:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="1400:29:0:1:1:101:
+                        5:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="7"
+               lchData="1300:27:0:1:1:101:
+                        6:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="8"
+               lchData="1200:25:0:1:1:101:
+                        7:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="9" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="9"
+               lchData="1100:23:0:1:1:101:
+                        8:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="10" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="10"
+               lchData="1000:21:0:1:1:101:
+                        9:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="11" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="11"
+               lchData="900:19:0:1:1:101:
+                        10:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="12" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="12"
+               lchData="800:17:0:1:1:101:
+                        11:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="13" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="13"
+               lchData="700:15:0:1:1:101:
+                        12:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="14" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="14"
+               lchData="600:13:0:1:1:101:
+                        13:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="15" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="15"
+               lchData="500:11:0:1:1:101:
+                        14:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="16" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="16"
+               lchData="400:9:0:1:1:101:
+                        15:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="17" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="17"
+               lchData="300:7:0:1:1:101:
+                        16:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="18" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="18"
+               lchData="200:5:0:1:1:101:
+                        17:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="19" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="19"
+               lchData="100:3:0:1:1:101:
+                        18:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="20" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="20"
+               lchData="0:0:0:1:1:101:
+                        19:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+      <!--
+      <tapa.delay delay="30"/>
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="18"
+               lchData="1:1:0"/>
+      </tapa.send>
+    
+      <tapa.delay delay="30"/>
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="19"
+               lchData="1:1:0"/>
+      </tapa.send>    -->
+      <!--
+      <tapa.delay delay="30"/>
+      <tapa.expect guardTmr="40">
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="1"/>
+      </tapa.expect>   -->
+
+      <!--  <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="2"/>
+         </tapa.expect>
+        
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1" sduId="3"/>
+      </tapa.expect>  
+      <tapa.delay delay="5"/>  -->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.14
+#
+#       Desc:    sending pdu with reserved values set 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "sending PDU with invalid PDUID"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.14
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 1 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 1 DDatReq to MAC.
+           5. MAC sends 1 DDatInd to Rx RLC with by setting reserved bits.
+           6. Rx RLC should discard the PDU."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="400" rbId="1"
+            rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="405" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:402:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:1"/>
+      </tapa.send>
+      
+   <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.15
+#
+#       Desc:    PDU discard by corrupting reserved bits  
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "sending PDU with invalid PDUID"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.15
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 9 SDUs size of 100 to Tx RLC.
+           4. Tx RLC sends 3 DDatReq to MAC with PDUs of size 300.
+           5. MAC sends 2 (2, 3) DDatInd to Rx RLC with PDU Header Corruption.
+           6. Rx RLC should discard PDUs."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="9"/>
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+               rbType="1" ueId="1" cellId="1" />
+         </tapa.send>
+
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="600:13:0:1:1:304:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="2"
+               lchData="300:7:0:1:1:304:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="3"
+               lchData="0:0:0:1:1:304:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0:
+                        2:-1"  corruptHdr="TRUE"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0:
+                        3:-1" corruptHdr="TRUE"/>
+      </tapa.send>
+
+      #kw005.201 Removed delay of 5
+      <tapa.delay delay="1"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.16
+#
+#       Desc:    Verification of Concatenation procedure(3sdus-1pdu-1pdu-3sdus-5bit SN) 
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Concatenation procedure"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.16
+           1. configure RLC through LM
+           2. configure RLC entities
+           3. PDCP sends 3 SDU'S with size 100 each
+           4. MAC notifies the StaInd() with BO (306)
+           5. MAC receives only one PDU 
+           6. MAC sends PDU to Peer RLC
+           7. Peer RLC sends 3 SDU'S to Peer PDCP
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+      #PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="200" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+      
+      #MAC notifies BO with size as 306
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="310" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      #MAC expects the data request from RLC 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:304:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"/>
+      </tapa.expect>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="1"/>
+      </tapa.expect>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="2"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+   <tapa.kw.deinit/>
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.17
+#
+#       Desc:    verification of segmentation (5bit SN) 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of segmentation"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.17
+           1. configure RLC through LM
+           2. configure RLC entities
+           3. RLC sends 1 SDU with maximum size
+           4. MAC notifies the StaInd() with BO (minimum size)
+           5. MAC receives two PDU'S"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # PDCP sends data request with SDU size as 750
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="750" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="750" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="500:3:0:1:1:251:
+                        0:1:1:0:0"/>
+      </tapa.expect>
+
+    #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="250:3:0:1:1:251:
+                        1:3:1:0:0"/>
+      </tapa.expect>
+    
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+            lchData="1:1:0"/>
+      </tapa.send>
+      
+      # MAC notifies BO with size as 254
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="254" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+     
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="0:0:0:1:1:251:
+                        2:2:1:0:0"/>
+      </tapa.expect>
+
+     #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+            lchData="1:1:0"/>
+      </tapa.send>
+      
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.18
+#
+#       Desc:    sending PDU'S in loop from 0-31 , if window size is 32 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "sending PDU'S in loop from 0-31 , if window size is 32 "
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.18
+           1. configure RLC through LM.
+           2. configure RLC entities.
+           3. Tx PDCP sends 32 SDU'S with size 500 each to Tx RLC.
+           4. Tx RLC send 32 DDatReq to MAC.
+           5. MAC sends 32 DDatInd to Rx RLC.
+           6. Rx RLC should send DatInd to Rx PDCP."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.repeat.start repeatCount="32"/>
+
+      # PDCP sends data request with SDU size as 500
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="500" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+      </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+                        valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="2" valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="3" valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="4" valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="5" valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="6" valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="7"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="8"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="9"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="9"
+                        valdType="1"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="10"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="10"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="11"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="11"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="12"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="12"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="13"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="13"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="14"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="14"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="15"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="15"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="16"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="16"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="17"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="17"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="18"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="18"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="19"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="19"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="20"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="20"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="21"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="21"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="22"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="22"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="23"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="23"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="24"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="24"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="25"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="25"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="26"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="26"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="27"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="27"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="28"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="28"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="29"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="29"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="30"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="30"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="31"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="31"
+                        valdType="1"/>
+      </tapa.expect>
+      # MAC notifies BO with size as 404
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="504" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="32"/>
+      </tapa.send>
+
+      # MAC expects data from RLC , remaining buffer value will be 200
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1"
+         transId="32"
+                        valdType="1"/>
+      </tapa.expect>
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="4"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="6"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="7"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="8"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="9"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="10"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="11"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="12"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="13"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="14"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="15"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="16"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="17"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="18"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="19"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="20"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="21"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="22"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="23"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="24"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="25"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="26"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="27"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="28"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="29"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="30"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="31"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="32"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.repeat.start repeatCount="32"/>
+         <tapa.expect>
+            <tapa.kwu.datind entity="ENTPJ" 
+                  cellId="1" ueId="2" rbId="1" rbType="1"/>
+         </tapa.expect>
+      <tapa.repeat.end/>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    5.19
+#
+#       Desc:    sending PDU'S in loop from 0-511 , if window size is 512 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.19">
+
+   # Document subsection
+   <tapa.doc>
+      
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="um"/>
+      
+      <tapa.desc>
+         "Verification of BO"
+      </tapa.desc>
+      
+      <tapa.longdesc>
+        "Acceptance test case No: 5.19
+         1.Configure RLC . With general configuration , sap configuration
+         2.RLC entity Configuration.
+         4.PDCP sends Dat request with size (configured value)
+         5.RLC sends StaRes()
+         6.MAC sends StaInd() 
+         7.RLC sends DatReq() to MAC
+         8.MAC sends DatInd() to RLC
+         9.RLC sends DatInd() to PDCP"
+      </tapa.longdesc>
+   
+   </tapa.doc>
+   
+   # Require features and flags subsection
+   <tapa.require>
+      
+      <tapa.ifdef/>
+      
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+
+    <tapa.cfg>
+       <tapa.kw.init/>
+       <tapa.kw.umcfg/>
+    </tapa.cfg>
+   # Test Steps subsection
+   <tapa.test>
+      # PDCP sends data request with SDU size 300
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 304
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="305" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      #MAC expects data request from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:302:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      #Invalid UE id foe sta ind
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="305" lcId="1" ueId="2" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+      #Invalid UE Id in Dat Ind
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:2:0,0:0,0:0,0:0,0" remove="0"/>
+      </tapa.send>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:2:0,0:0,0:0,0:0,0"/>
+      </tapa.send>
+      
+      #MAC expects data request from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="2" cellId="1" transId="2"
+               lchData="0:0:0:1:0:0:
+                        -1:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" 
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="2"/>
+
+   </tapa.test>
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+   <tapa.kw.deinit/>
+   <tapa.delay delay="5"/> 
+
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.20
+#
+#       Desc:    Verification of ignoring R1 fields (10bit SN)
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+        "Verification of ignoring R1 fields (10bit SN)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+           " Acceptance test case No: 5.20
+           1. configure RLC layer and interfaces through LM
+           2. configure RLC entities
+           3. Create a UE with 1 DRB in UM mode with 10 bit SN
+	   4. Start a loop for 10
+           5. Pump a Pdcp PDUs of size 100 to RLC
+           6. RLC sends the status response to MAC
+	   7. MAC sends the Status indication to RLC
+	   8. RLC sends the DDataReq to MAC
+	   9. MAC sends the DDatInd to Rx RLC with changed R1 field (001)
+	   10. RLC sends the SDU to PDCP after reassembly."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="10"/>
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="1"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.repeat.end/>
+      <tapa.delay delay="2"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#
+#
+#       Test:    5.21
+#
+#       Desc:    Verification of ignoring R1 fields (10bit SN)
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of ignoring R1 fields (10bit SN)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+           "  Acceptance test case No: 5.21
+	   1. configure RLC layer and interfaces through LM
+           2. configure RLC entities
+           3. Create a UE with 1 DRB in UM mode with 10 bit SN
+           4. Start a loop for 10
+           5. Pump a Pdcp PDUs of size 100 to RLC
+           6. RLC sends the status response to MAC
+           7. MAC sends the Status indication to RLC
+           8. RLC sends the DDataReq to MAC
+           9. MAC sends the DDatInd to Rx RLC with un-changed R1 field (000)
+           10. RLC sends the SDU to PDCP after reassembly."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="10"/>
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.repeat.end/>
+      <tapa.delay delay="2"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    5.22
+#
+#       Desc:    Verification of ignoring R1 fields (10bit SN)
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of ignoring R1 fields (10bit SN)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+	   "Acceptance Test case number: 5.22
+	   1. configure RLC layer and interfaces through LM
+           2. configure RLC entities
+           3. Create a UE with 1 DRB in UM mode with 10 bit SN
+           4. Pump a Pdcp PDUs of size 100 to RLC
+           5. RLC sends the status response to MAC
+           6. MAC sends the Status indication to RLC
+           7. RLC sends the DDataReq to MAC
+           8. MAC sends the DDatInd to Rx RLC with un-changed R1 field
+           9. RLC sends the SDU to PDCP after reassembly
+	   10. Repeat the steps from step 4 to step 9 for another 9 times
+	      with R1 field changed to subsequent value."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Iteration 1
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 2
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="1"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 3
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="2"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 4
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="3"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 5
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="4"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 6
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="5"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 7
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="6"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 8
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="7"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 9
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+      # Iteration 10
+      # PDCP sends data request with SDU size as 100
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      # MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1"
+               bo="100" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      # MAC notifies BO with size as 106
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="106" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      # MAC expects data from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:-1:1:1:102:
+                        -1:0:-1:0:0"/>
+      </tapa.expect>
+
+      # MAC indicates Data Indication to Peer RLC and also tamepers the R1 field
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+            lchData="1:1:0" newR1Field="1"/>
+      </tapa.send>
+
+      # RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ" cellId="1" ueId="2" rbId="1" rbType="1" sduId="0"
+                        valdType="1"/>
+      </tapa.expect>
+      <tapa.delay delay="2"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#
+#
+#       Test:    5.23
+#
+#       Desc:    Verification of SN length field 
+#
+#       Notes:   None
+#
+#       Module:  rlc
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Sn length field for wrong value"
+      </tapa.desc>
+
+      <tapa.longdesc>
+	   "Acceptance Test case number: 5.23
+	   1. configure RLC layer and interfaces through LM
+           2. configure RLC entities
+           3. Create a UE with 1 SRB in UM mode with 0 bit SN
+           4  expect configuration failure with status 0
+           3. Create a UE with 1 SRB in UM mode with 30 bit SN
+           4  expect configuration failure with status 0
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send UM mode Configuration Request for DCCH DCCH
+
+   # First UE
+      <tapa.send>
+         <tapa.ckw.cfgreq  ueId="1" cellId="1" numEnt="1"
+            cfgType="1:1"
+            rbId="0:2"
+            rbType="0:1"
+            entMode="2:2"
+            dir="1:1"
+            logChId0Id="1:2"
+            logChId0Type="4:4"
+            logChId1Id="0:0"
+            logChId1Type="0:0"
+            umDlSnLen="86:0"
+            umUlSnLen="0:0" 
+            umUlReOrdTmr="0:30"
+            amDlPollRetxTmr="0:0"
+            amDlPollPdu="0:0"
+            amDlPollByte="0:0"
+            amDlMaxRetx="0:0"
+            amUlStaProhTmr="0:0"
+            amUlReOrdTmr="0:0"
+         />
+      </tapa.send>
+
+      <tapa.delay delay="2"/>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="0:0"
+            rbType="0:1" 
+            status="2:1" reason="0:0"/>
+      </tapa.expect>
+
+   # Second UE
+   <tapa.send>
+         <tapa.ckw.cfgreq  ueId="2" cellId="1" numEnt="2"
+            cfgType="1:1"
+            rbId="0:2"
+            rbType="0:1"
+            entMode="2:2"
+            dir="1:2"
+            logChId0Id="1:2"
+            logChId0Type="4:4"
+            logChId1Id="0:0"
+            logChId1Type="0:0"
+            umDlSnLen="0:0"
+            umUlSnLen="30:0"
+            umUlReOrdTmr="30:0"
+            amDlPollRetxTmr="0:0"
+            amDlPollPdu="0:0"
+            amDlPollByte="0:0"
+            amDlMaxRetx="0:0"
+            amUlStaProhTmr="0:0"
+            amUlReOrdTmr="0:0"/>
+      </tapa.send>
+
+      <tapa.delay delay="2"/>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="2" cellId="1" numEnt="2"
+            rbId="0:2"
+            rbType="0:1"
+            status="2:1" reason="0:0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.24
+#
+#       Desc:    checking for corrupt mac header
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "path coverage of scenarios involving header corruption, more emphasis is on header extraction
+          process "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         " Acceptance test case No: 5.24
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends SDU  
+           4. RLC sends StaRes()
+           5. MAC gives BO
+           6. RLC sends  SDU to MAC
+           7. MAC sends PDU to peer (while sending configure so that PDU 
+              header is modified to cover errorneous scenarios while decoding)
+           8. repeat steps 3 to 7 for different configurations  
+          " 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+
+#===========================================================================================#
+
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:301:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC, with corrupt header
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:2:0"/>
+      </tapa.send>
+
+#===========================================================================================#
+    
+
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="0:0:0:1:1:301:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC, with corrupt header
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0:0:3:0"/>
+      </tapa.send>
+
+
+#==========================================================================================#
+
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="0:0:0:1:1:301:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC, with corrupt header
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0:0:4:0"/>
+      </tapa.send>
+
+
+#==========================================================================================#
+
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="0:0:0:1:1:301:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC, with corrupt header
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="4"
+               lchData="1:1:0:0:5:0"/>
+      </tapa.send>
+
+#==========================================================================================#
+
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="0:0:0:1:1:301:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC, with corrupt header and number
+      #of LIs are exceeding maximum decodable LIs 
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="5"
+               lchData="1:1:0:0:7:0"/>
+      </tapa.send>
+
+#==========================================================================================#
+
+      
+      <tapa.delay delay="5"/> 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+#
+#
+#       Test:    5.25
+#
+#       Desc:    checking for corrupt mac header
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "path coverage of scenarios involving header corruption"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         " Acceptance test case No: 5.25
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends SDU  
+           4. RLC sends StaRes()
+           5. MAC gives BO
+           6. RLC sends  SDU to MAC
+           7. MAC sends PDU to peer (while sending configure so that PDU 
+              header is modified to have incorrect higher sequnce number value )
+          " 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as 304 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="304" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      #MAC expects data request from RLC 
+      #verifyType=1 -> sequence number is in order 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:301:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+      
+      
+      #MAC indicates Data Indication to Peer RLC (First Time)
+      #PDU header is modified to have incorrect higher sequnce number value )
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:6:0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/> 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#
+#       Test:    5.26
+#
+#       Desc:    Verification of re-ordering algaritham, PDU'S are falling outside of the window
+#                 deletion RB in between PDU processing 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "verification of re-ordering algaritham, PDU'S are falling outside of the upper edge
+          sending RB deletion in between out of sequence PDU processing to check memory buffers
+          freed correctly or not
+          This is done to increase Path coverage"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.26
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 2 DDatInd to Rx RLC in Out Of Sequence such that out of
+           window occurs.
+           6. Send RB delete to RLC, memory buffers should be freed correctly"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="20"/>
+
+         #Send KWU Data Request
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduSize="100" rbId="1" rbType="1"
+               ueId="1" cellId="1"/>
+         </tapa.send>
+
+         #Expect RGU Status Response to skip validation put valdType="1"
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1900:39:0:1:1:101:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1800:37:0:1:1:101:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="1700:35:0:1:1:101:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="1600:33:0:1:1:101:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="1500:31:0:1:1:101:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="1400:29:0:1:1:101:
+                        5:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="7"
+               lchData="1300:27:0:1:1:101:
+                        6:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="8"
+               lchData="1200:25:0:1:1:101:
+                        7:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="9" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="9"
+               lchData="1100:23:0:1:1:101:
+                        8:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="10" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="10"
+               lchData="1000:21:0:1:1:101:
+                        9:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="11" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="11"
+               lchData="900:19:0:1:1:101:
+                        10:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="12" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="12"
+               lchData="800:17:0:1:1:101:
+                        11:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="13" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="13"
+               lchData="700:15:0:1:1:101:
+                        12:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="14" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="14"
+               lchData="600:13:0:1:1:101:
+                        13:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="15" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="15"
+               lchData="500:11:0:1:1:101:
+                        14:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="16" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="16"
+               lchData="400:9:0:1:1:101:
+                        15:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="17" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="17"
+               lchData="300:7:0:1:1:101:
+                        16:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="18" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="18"
+               lchData="200:5:0:1:1:101:
+                        17:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="19" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="19"
+               lchData="100:3:0:1:1:101:
+                        18:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="20" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="20"
+               lchData="0:0:0:1:1:101:
+                        19:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="18"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+ # Delete RB to check the releasing of the buffers
+ <tapa.send>
+         <tapa.ckw.cfgreq  ueId="2" cellId="1" numEnt="2"
+            cfgType="3:3"
+            rbId="1:2"
+            rbType="1:1"
+            entMode="2:2"
+            dir="1:2"
+            logChId0Id="1:2"
+            logChId0Type="4:4"
+            logChId1Id="0:0"
+            logChId1Type="0:0"
+            umDlSnLen="0:1"
+            umUlSnLen="1:0"
+            umUlReOrdTmr="30:0"
+            amDlPollRetxTmr="0:0"
+            amDlPollPdu="0:0"
+            amDlPollByte="0:0"
+            amDlMaxRetx="0:0"
+            amUlStaProhTmr="0:0"
+            amUlReOrdTmr="0:0"
+         />
+      </tapa.send>
+
+      <tapa.delay delay="2"/>
+      
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="2" cellId="1" numEnt="2"
+            rbId="1:2"
+            rbType="1:1"
+            status="1:1" reason="0:0"/>
+      </tapa.expect>
+
+
+ <tapa.send>
+         <tapa.ckw.cfgreq  ueId="1" cellId="1" numEnt="2"
+            cfgType="3:3"
+            rbId="1:2"
+            rbType="1:1"
+            entMode="2:2"
+            dir="2:1"
+            logChId0Id="1:2"
+            logChId0Type="4:4"
+            logChId1Id="0:0"
+            logChId1Type="0:0"
+            umDlSnLen="1:0"
+            umUlSnLen="0:1"
+            umUlReOrdTmr="0:30"
+            amDlPollRetxTmr="0:0"
+            amDlPollPdu="0:0"
+            amDlPollByte="0:0"
+            amDlMaxRetx="0:0"
+            amUlStaProhTmr="0:0"
+            amUlReOrdTmr="0:0"
+         />
+      </tapa.send>
+
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="1" cellId="1" numEnt="2"
+            rbId="1:2"
+            rbType="1:1"
+            status="1:1" reason="0:0"/>
+      </tapa.expect>
+
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#
+#
+#       Test:    5.27
+#
+#       Desc:    Verification of re-ordering algaritham, PDU'S are falling outside of the window,
+#                re-establish while reordeing        
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "verification of restablishment while re-ordering , PDU'S are falling outside of the upper edge"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.27
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 3 DDatInd to Rx RLC in Out Of Sequence such that out of
+           window occurs.
+           6  Send reestablishment indication Rx RLC.  
+           7. Rx RLC should and process without any problems and Send DatInd to
+           Rx PDCP. after the reestablishment is successfull"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="20"/>
+
+         #Send KWU Data Request
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduSize="100" rbId="1" rbType="1"
+               ueId="1" cellId="1"/>
+         </tapa.send>
+
+         #Expect RGU Status Response to skip validation put valdType="1"
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1900:39:0:1:1:101:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1800:37:0:1:1:101:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="1700:35:0:1:1:101:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="1600:33:0:1:1:101:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="1500:31:0:1:1:101:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="1400:29:0:1:1:101:
+                        5:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="7"
+               lchData="1300:27:0:1:1:101:
+                        6:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="8"
+               lchData="1200:25:0:1:1:101:
+                        7:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="9" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="9"
+               lchData="1100:23:0:1:1:101:
+                        8:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="10" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="10"
+               lchData="1000:21:0:1:1:101:
+                        9:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="11" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="11"
+               lchData="900:19:0:1:1:101:
+                        10:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="12" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="12"
+               lchData="800:17:0:1:1:101:
+                        11:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="13" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="13"
+               lchData="700:15:0:1:1:101:
+                        12:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="14" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="14"
+               lchData="600:13:0:1:1:101:
+                        13:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="15" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="15"
+               lchData="500:11:0:1:1:101:
+                        14:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="16" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="16"
+               lchData="400:9:0:1:1:101:
+                        15:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="17" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="17"
+               lchData="300:7:0:1:1:101:
+                        16:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="18" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="18"
+               lchData="200:5:0:1:1:101:
+                        17:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="19" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="19"
+               lchData="100:3:0:1:1:101:
+                        18:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="20" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="20"
+               lchData="0:0:0:1:1:101:
+                        19:0:1:0:0"/>
+      </tapa.expect>
+
+
+
+     # 1st set
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+      
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="15"
+               lchData="1:1:0"/>
+      </tapa.send>
+    
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="9"
+               lchData="1:1:0"/>
+      </tapa.send>
+
+
+#servType 2 = reestablisment procedure in up link direction
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+
+
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+     
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+    
+      <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1" 
+           rbId="1" rbType="1"
+            status="1" />
+      </tapa.expect>
+      
+      #kw005.201 Removed delay of 5
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    5.28
+#
+#       Desc:    Verification of re-ordering algaritham, PDU'S are falling outside of the window,
+#                re-establish while reordering        
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "verification of restablishment while re-ordering , PDU'S are falling outside of the upper edge"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.28
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 5 SDUs size of 400 to Tx RLC.
+           4. Tx RLC sends 5 DDatReq to MAC.
+           5. MAC sends 2 DDatInd to Rx RLC in Out Of Sequence such that out of
+           window occurs. send 2nd DDatInd by resetting the extenion bit(number of 
+            LI's are forcibly set to zero)
+           6. Send Restablishment indication to RLC Rx
+           7. Rx RLC should and process without any problems and Send DatInd to
+           Rx PDCP after the reestablishment procedure."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="20"/>
+
+         #Send KWU Data Request
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduSize="100" rbId="1" rbType="1"
+               ueId="1" cellId="1"/>
+         </tapa.send>
+
+         #Expect RGU Status Response to skip validation put valdType="1"
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="1900:39:0:1:1:101:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="2"
+               lchData="1800:37:0:1:1:101:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="3"
+               lchData="1700:35:0:1:1:101:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="4" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="4"
+               lchData="1600:33:0:1:1:101:
+                        3:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="5" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="5"
+               lchData="1500:31:0:1:1:101:
+                        4:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="6" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="6"
+               lchData="1400:29:0:1:1:101:
+                        5:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="7" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="7"
+               lchData="1300:27:0:1:1:101:
+                        6:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="8" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="8"
+               lchData="1200:25:0:1:1:101:
+                        7:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="9" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="9"
+               lchData="1100:23:0:1:1:101:
+                        8:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="10" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="10"
+               lchData="1000:21:0:1:1:101:
+                        9:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="11" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="11"
+               lchData="900:19:0:1:1:101:
+                        10:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="12" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="12"
+               lchData="800:17:0:1:1:101:
+                        11:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="13" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="13"
+               lchData="700:15:0:1:1:101:
+                        12:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="14" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="14"
+               lchData="600:13:0:1:1:101:
+                        13:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="15" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="15"
+               lchData="500:11:0:1:1:101:
+                        14:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="16" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="16"
+               lchData="400:9:0:1:1:101:
+                        15:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="17" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="17"
+               lchData="300:7:0:1:1:101:
+                        16:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="18" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="18"
+               lchData="200:5:0:1:1:101:
+                        17:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="19" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="19"
+               lchData="100:3:0:1:1:101:
+                        18:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="103" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="20" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="20"
+               lchData="0:0:0:1:1:101:
+                        19:0:1:0:0"/>
+      </tapa.expect>
+
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0"/>
+      </tapa.send>
+     
+      # reset extension bit and hence making number of LI's ZERO 
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="18"
+               lchData="1:1:0:0:6"/>
+      </tapa.send>
+    
+
+#servType 2 = reestablisment procedure in up link direction
+     <tapa.send>
+           <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1" cfgType="4" rbId="1"
+           rbType="1" logChId0Id="1" logChId0Typei="1" logChId1Id="1" logChId1Type="1"
+           entMode="2" dir="1" umDlSnLen="1" />
+     </tapa.send>
+
+
+     <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+ 
+      <tapa.expect>
+         <tapa.ckw.cfgcfm numEnt="1" 
+           rbId="1" rbType="1"
+            status="1" />
+      </tapa.expect>
+
+
+      #kw005.201 Removed delay of 5
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#===========================================================================================#
+    
+
+#
+#
+#       Test:    5.29
+#
+#       Desc:    PDU discard by corrupting reserved bits and sequence number 
+#
+#       Notes:   None
+#              
+#       Module:  rlc 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "sending PDU with invalid PDUID"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.29
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities with SN 10 bits.
+           3. Tx PDCP send 9 SDUs size of 100 to Tx RLC.
+           4. Tx RLC sends 3 DDatReq to MAC with PDUs of size 300.
+           5. MAC sends 2 (2, 3) DDatInd to Rx RLC with PDU Header Corruption.
+           6. Rx RLC should discard PDUs."
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+      
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="9"/>
+         <tapa.send>
+            <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="100" rbId="1"
+               rbType="1" ueId="1" cellId="1" />
+         </tapa.send>
+
+         <tapa.expect>
+            <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1"/>
+         </tapa.expect>
+
+      <tapa.repeat.end/>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="1"
+               lchData="600:13:0:1:1:304:
+                        0:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="2"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="2"
+               lchData="300:7:0:1:1:304:
+                        1:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="309" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="3"/>
+      </tapa.send>
+
+      #corrupt reserved bits
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" lcId="1" transId="3"
+               lchData="0:0:0:1:1:304:
+                        2:0:1:0:0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="2"
+               lchData="1:1:0:
+                        2:-1"  corruptHdr="TRUE"/>
+      </tapa.send>
+
+
+       #send the higher sequnce number hence corrupting PDU 
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="3"
+               lchData="1:1:0:
+                        4:-1"  corruptHdr="TRUE"/>
+      </tapa.send>
+
+      #kw005.201 Removed delay of 5
+   <tapa.delay delay="1"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    5.30 
+#
+#       Desc:    checking of error scenario  of BO sent as Zero from MAC  
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "checking of error scenario  of BO sent as Zero from MAC "
+      </tapa.desc>
+
+      <tapa.longdesc>
+         " Acceptance test case No: 5.30
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends 1 SDU'S  
+           4. RLC sends StaRes()
+           5. MAC gives BO as Zero
+           6. RLC does not send  SDU'S to MAC 
+          " 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+    
+      #PDCP sends SDU with size as 300 
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="300"
+            rbId="1" rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+ 
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="300" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+   
+      #MAC notifies BO with size as Zero 
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="0" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+       </tapa.send>      
+      #Expect RGU Dat Request
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="1"
+            lchData="0:0:0:1:0:0:
+                     -1:-1:-1:-1:-1"  />
+      </tapa.expect>
+
+      <tapa.delay delay="5"/> 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    5.31 
+#
+#       Desc:    Checking of Following scenario 
+#                -  when Buffer occupance is indicated from MAC( when no SDU is in queue)
+#                -  When PDU discard received from PDCP (when SDU queue is empty)
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+          "Checking of Following scenario 
+                -  when Buffer occupance is indicated from MAC( when no SDU is in queue)
+                -  When PDU discard received from PDCP (when SDU queue is empty)"
+      </tapa.desc>
+
+      <tapa.longdesc>
+         " Acceptance test case No: 5.31
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. MAC gives BO as 350 (no SDU is in Queue) 
+           4. no message is received 
+           5. PDCP sends Discard SDU request (no SDU is buffered) 
+           6. no message is received 
+         
+          " 
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+      
+
+      #MAC notifies BO with size as 350 (No SDU is in queue)
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="350" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1" />
+      </tapa.send>  
+
+      #Expect RGU Dat Request
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq  numLch="1" ueId="1" cellId="1" transId="1"
+            lchData="0:0:0:1:0:0:
+                     -1:-1:-1:-1:-1"  />
+      </tapa.expect>
+
+      #Discard SDUs when no SDU exists (path coverage)
+      <tapa.send>
+          <tapa.kwu.discsdu rbId="1" rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="5"/> 
+   </tapa.test>
+
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+#=========================
+
+
+#
+#
+#       Test:    5.32
+#
+#       Desc:    Verification of Concatenation procedure 
+#
+#       Notes:   None
+#              
+#       Module:  RLC 
+#
+#       File:    kwac_grp5.xml
+#
+#
+<tapa.testcase id="5.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "Verification of Concatenation procedure"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No: 5.32
+           1. Configure RLC through LM
+           2. Configure RLC entities
+           3. PDCP sends 5 SDU'S with size 200 each
+           4. MAC notifies the StaInd() with BO ()
+           5. MAC receives only one PDU "
+           6. MAC sends PDU to RLC(Rx)"
+           7. RLC(Rx) indicates PDU to PDCP(Rx)"
+      </tapa.longdesc>
+         
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef/>
+        
+      <tapa.ifndef/>
+         
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+    <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+     
+   # Test Steps subsection
+   <tapa.test>
+      #PDCP sends data request with SDU size 200
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+      
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="200" estHdrSz="3" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="2" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="400" estHdrSz="5" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="3" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="600" estHdrSz="7" staPduPrsnt="0"/>
+      </tapa.expect>
+     
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="4" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="800" estHdrSz="9" staPduPrsnt="0"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="5" sduSize="200" rbId="1"
+            rbType="1" ueId="1" cellId="1"/>
+      </tapa.send>
+
+      #MAC expects the Status Response from RLC
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" 
+               bo="1000" estHdrSz="11" staPduPrsnt="0"/>
+      </tapa.expect>
+
+ 
+      #MAC notifies BO with size as 3811
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="1050" lcId="1" ueId="1" cellId="1" 
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      #MAC expects the data request from RLC 
+      #verifyType=2 (may need size of the data to verify data) 
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="0:0:0:1:1:1007:
+                        0:0:0:0:0"/>
+      </tapa.expect>
+
+      #MAC indicates Data Indication to Peer RLC
+      <tapa.send>
+         <tapa.dummy.rgu.ddatind numLch="1" cellId="1"  ueId="2" transId="1"
+               lchData="1:1:0:0:0:0"/>
+      </tapa.send>
+
+
+      #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+	  #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+	  #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+	  #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+	  #RLC Indicates Data Indication to Peer PDCP
+      <tapa.expect>
+         <tapa.kwu.datind entity="ENTPJ"  
+               cellId="1" ueId="2" rbId="1" rbType="1"/>
+      </tapa.expect>
+
+
+      <tapa.delay delay="5"/> 
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsectitn
+   <tapa.shutdown>
+
+   <tapa.kw.deinit/>
+   <tapa.delay delay="5"/> 
+      
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# FOLLOWING TESTCASE IS MOVED FROM "kwac_grp6.xml" file 
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+#
+#
+#       Test:    5.33
+#
+#       Desc:    UM TEST - Verification of maximum number of PDU'S configured
+#
+#       Notes:   None
+#
+#       Module:  LTE RLC
+#
+#       File:    kwac_grp6.xml
+#
+#
+<tapa.testcase id="5.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="rlc"/>
+
+      <tapa.desc>
+         "AM - Verification of maximum number of PDU'S configured"
+      </tapa.desc>
+
+      <tapa.longdesc>
+          "Acceptance test case No:5.33"
+           1. Configure RLC through LM.
+           2. Configure UM RLC entities.
+           3. Maximum PDUs configured to 4.
+           4. Tx PDCP send 6 SDUs size of 2050 to Tx RLC.
+           5. MAC send DStaInd to Tx RLC.
+           6. Tx RLC should sends DDatReq to MAC with 10 PDUs with remaining BO."
+      </tapa.longdesc>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef/>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.kw.init/>
+      <tapa.kw.umcfg1/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.repeat.start repeatCount="6"/>
+      <tapa.send>
+         <tapa.kwu.datreq entity="ENTPJ" sduId="1" sduSize="2050" rbId="1" rbType="1" ueId="1" cellId="1" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.dummy.rgu.dstarsp cellId="1" ueId="1" lcId="1" valdType="1" />
+      </tapa.expect>
+      <tapa.repeat.end />
+
+      <tapa.send>
+         <tapa.dummy.rgu.dstaind totBufSize="12400" lcId="1" ueId="1" cellId="1"
+               numLch="1" transId="1"/>
+      </tapa.send>
+
+      # verifyType=4 -> verification of maximim number of PDU'S configured
+      # MAC has to recieve 3 PDU's in single datreq
+      #the configuration value shall be 3 in this case
+      <tapa.expect>
+         <tapa.dummy.rgu.ddatreq numLch="1" ueId="1" cellId="1" transId="1"
+               lchData="8200:11:0:1:2:2051,2051:
+               -1:-1:-1:-1:-1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsectitn
+   <tapa.shutdown>
+   <tapa.kw.deinit/>
+
+   <tapa.delay delay="5"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+
+
+######################################################333
+
+
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     gk                   1. Initial Release.
+#$SID$           ---     gk                   1. LTERLC Release 2.1.
+#/main/2     kw005.201   rd		      1. Added 3 TC 5.20,5.21,5.22
+                                       2. Removed delay of 5 from TC 
+                                                 10,13,15 to avoid expiry of
+                                                 reorder timer.
+#*********************************************************************91*/
+
+
+
+
+#####################@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     gk                   1. Initial Release.
+#$SID$           ---     gk                   1. LTERLC Release 2.1.
+#/main/2     kw005.201   rd		      1. Added 3 TC 5.20,5.21,5.22
+                                       2. Removed delay of 5 from TC 
+                                                 10,13,15 to avoid expiry of
+                                                 reorder timer.
+#*********************************************************************91*/

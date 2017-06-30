@@ -1,0 +1,4776 @@
+
+#
+#       Test:    13.1
+#
+#       Desc:   Bind Request for non-configured SAP.Expect Alarm and negative
+#               confirmation. Configure the SAP and resend bind Request. Expect
+#               Bind Confirm.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Bind Request for non-configured SAP.Expect Alarm and negative
+      confirmation. Configure the SAP and resend bind Request. Expect
+      Bind Confirm."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   <tapa.test>
+
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.leg.cfg.gen/>
+      </tapa.send>
+
+      # Expect Config Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.bndreq spId="1" suId="1"/>
+      </tapa.send>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="1"/>
+      </tapa.expect>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.bndreq spId="1" suId="1"/>
+      </tapa.send>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_BND_OK" cause="LEG_CAUSE_SAP_BND" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+# Expect Bind Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"/>
+      </tapa.expect>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.bndreq spId="1" suId="1"/>
+      </tapa.send>
+
+# Expect Bind Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.2
+#
+#       Desc:Send UnBind Request for a SAP not configured and expect Alarm.
+#	 Configure and bind the SAP. Send Unbind Request. Expect Alarm. 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send UnBind Request for a SAP not configured and expect Alarm.
+	 Configure and bind the SAP. Send Unbind Request. Expect Alarm."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg/>
+
+   <tapa.test>
+
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.leg.cfg.gen/>
+      </tapa.send>
+
+      # Expect Config Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.ubndreq spId="1" suId="1"/>
+      </tapa.send>
+
+      #Send Bind Request
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cfgcfm suId="1"/>
+      </tapa.expect>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.bndreq spId="1" suId="1"/>
+      </tapa.send>
+
+      #Receive alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_BND_OK" cause="LEG_CAUSE_SAP_BND" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+
+# Expect Bind Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.bndcfm suId="1"/>
+      </tapa.expect>
+
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.ubndreq spId="1" suId="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UBND_OK" cause="LEG_CAUSE_SAP_UBND" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.3
+#
+#       Desc:   Send Tunnel Management Request to  add and delete a tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for deleting an existing tunnel."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+   <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+
+   <tapa.egtpu.deinit/>
+   <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.4
+#
+#       Desc:  Delete a non-existing tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for a non-existin tunnel and expect
+         positive confirmation as tunnel already deleted."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_DEL"
+                         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_TEID"/>
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+<!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.5
+#
+#       Desc:  Move a teid from one destination to another.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for moving a teid from one destination
+         to another non configured destination.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" lcladdr="127.0.0.1" rmtaddr="127.0.0.5"
+        action="EGT_TMGMT_REQTYPE_MOD"  teid="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1" action="EGT_TMGMT_REQTYPE_MOD"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.6
+#
+#       Desc:  Send Tunnel Management to enable reordering
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for enabling re-ordering for a teid."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10001" rmtPort ="0"
+        frmrmtPort="0" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+        action="EGT_TMGMT_REQTYPE_REORD_ENA"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_REORD_ENA"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.7
+#
+#       Desc:  Send Tunnel Management to enable reordering for
+#               a teid for which re-ordering is already enabled.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for enabling re-ordering for a teid for
+         which re-ordering is already enabled."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="TRUE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+        action="EGT_TMGMT_REQTYPE_REORD_ENA"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_REORD_ENA"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.8
+#
+#       Desc:  Send Tunnel Management to disable reordering for
+#               a teid for which re-ordering is enabled.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for disabling re-ordering for a teid for
+         which re-ordering is enabled."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="TRUE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+        action="EGT_TMGMT_REQTYPE_REORD_DIS"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_REORD_DIS"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.9
+#
+#       Desc:  Send Tunnel Management to disable reordering for
+#               a teid for which re-ordering is already disabled.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for disabling re-ordering for a teid for
+         which re-ordering is already disabled."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" lcladdr="127.0.0.1" rmtaddr="127.0.0.1"
+        action="EGT_TMGMT_REQTYPE_REORD_DIS"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" />
+      </tapa.expect>
+<!--
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_REORD_DIS"/>
+      </tapa.expect>
+-->
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+#       Test:    13.10
+#
+#       Desc:  Send Tunnel Management with an invalid usap.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send tunnel management request to an invalid USAP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="2" spId="2" lclPort="10000" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+#       Test:    13.11
+#
+#       Desc:  Send Tunnel Management Request to an usap for which
+#              control operation is in progress.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send tunnel management request to an USAP for which control operation
+         is in progress"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->   
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      <tapa.directive partialCfm="TRUE"/>
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usap uSapId="0" flag="TRUE"/>
+      </tapa.send>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK_NDONE" reason="ROKPENDING"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_ADD" status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+		<tapa.delay delay="10"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+      <tapa.directive partialCfm="FALSE"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="50"/>
+   <!--
+   <tapa.hi.deinit/>
+    -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+#       Test:    13.12
+#
+#       Desc:  Send Tunnel Management Request to delete a tunnel with
+#              an invalid destination.Continue test case wit invalid Src IP.
+#
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send tunnel management request to delete teid from an invlalid 
+       destination"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/> -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL"
+	 lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.2"
+	 status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_DST_IP"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL"
+	 lclAddr="127.0.0.2" rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID" type="LEG_PAR_IP"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.2" rmtAddr="127.0.0.2"
+	 status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_SRC_IP"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    13.13
+#
+#       Desc:   1.Test adding duplicate teid to the same destination.
+#               2.Test adding the same teid value to under 2 different
+#                 destinations.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "1.Test adding duplicate teid to the same destination.
+          2.Test adding the same teid value to under 2 different
+                 destinations."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <!--
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send tunnel Management Request to the same destination with same teid.
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect negative Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PROC_FAIL"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request to the different destination with same teid.
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+-->
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!-- 
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.14
+#
+#       Desc:    Receive a GPDU without sequence number on a tunnel requiring
+#                re-ordering
+#
+#       Ref:   3.9.11
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Receive a GPDU without sequence number on a tunnel requiring re-ordering"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/> -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" expSeqNmb="1" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2" reOrderPres="TRUE"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remteid="0" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    13.15
+#
+#       Desc:    Receive a GPDU without sequence number on a tunnel with
+#                re-ordering disabled.
+#
+#       Ref:   3.9.10
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Receive a GPDU without sequence number on a tunnel requiring re-ordering"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/> -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2" reOrderPres="FALSE"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remteid="0" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    13.16
+#
+#       Desc:   Message received on a tunnel with end marker received.
+#
+#       Ref:   3.9.28
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Receive message on a tunnel for which end marker is received."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="1" />
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1"
+         action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152" remTeid="2"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2" reOrderPres="FALSE" intfType="EGT_INT_X2_DL_ENB_GTP_U" />
+
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.expect>
+
+      # Send End Marker on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq suId="0" spId="0" pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.1"
+           msgType="EGT_GTPU_MSG_END_MARKER"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+      
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+
+      </tapa.send>
+
+     #Expect UDatInd tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  suId="0" spId="0" pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remteid="0" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.1"
+           msgType="EGT_GTPU_MSG_END_MARKER"
+           lclTeid="2"/>
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq suId="0" spId="0" pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2"
+           msgType="EGT_GTPU_MSG_GPDU" lclAddr="127.0.0.1"  rmtAddr="127.0.0.1"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="0"/>
+      </tapa.expect>
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+     #Expect Error Indication tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.eguerrind suId="0" spId="0" lclTeid="2" remteid="2" errCause="EGT_ERR_END_MARKER_RCVD" lclAddr="127.0.0.1"  rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/> -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#       Test:    13.17
+#
+#       Desc:   UnBind Request.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send UnBind Request."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+     <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm  
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.ubndreq spId="0" suId="0"/>
+      </tapa.send>
+
+      #Expect alarm
+      <tapa.expect guardTmr="10000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+	 event="LCM_EVENT_UBND_OK" cause="LEG_CAUSE_SAP_UBND" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Enable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/> -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.18
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel
+#               with reordering enabled. Check that all the
+#               packets in the re-order buffer are flushed.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+       "Send Tunnel Management Request to delete a tunnel with
+        reordering enabled. Check that all the packets in the
+        re-order buffer are flushed."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:6:7:13"/>
+      </tapa.expect>
+      
+      
+   <tapa.delay delay="500"/>
+   
+      # Expect Control Confirm
+      <!--
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+      -->
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+#
+#       Test:    13.19
+#
+#       Desc:   Send Tunnel Management Request to disable reordering
+#               for a tunnel with reordering enabled. Check that all the
+#               packets in the re-order buffer are flushed.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to disable reordering
+       for a tunnel with reordering enabled. Check that all the
+       packets in the re-order buffer are flushed."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <!--
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_REORD_DIS" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:6:7:13"/>
+      </tapa.expect>
+      -->
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+<!--
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_REORD_DIS"/>
+      </tapa.expect>
+-->
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+#Test Cases added for Code Coverage.
+
+
+#
+#       Test:    13.20
+#
+#       Desc:   Send Tunnel Management Request with teid 0.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request with teid 0."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="0"/>
+      </tapa.send>
+
+/* eg009.201 - changes for TEID =0 */
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="0"  lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.2"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.21
+#
+#       Desc:    Send Tunnel Management Request with invalid action.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request with invalid action."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_INV_ACTION" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1"
+         action="EGT_TMGMT_INV_ACTION" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_ACTION"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="10"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+		<tapa.delay delay="10"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.22
+#
+#       Desc:   Send Tunnel Management for disabling re-ordering with invalid
+#               destination.  Continue the test case with invalid teid. Repeat
+#               the steps with reordering enabling."
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management for disabling re-ordering with invalid
+      destination. Continue the test case with invalid teid. Repeat 
+      the steps with reordering enabling."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!-- 
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" 
+         lclAddr="127.0.0.1" rmtAddr="135.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" lclAddr="127.0.0.1" rmtAddr="135.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_DST_IP"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_DIS" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_TEID"/>
+      </tapa.expect>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_REORD_ENA" 
+         lclAddr="127.0.0.1" rmtAddr="135.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_ENA" lclAddr="127.0.0.1" rmtAddr="135.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_DST_IP"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_REORD_ENA" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_ENA" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_TEID"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" frmRmtAddr="135.0.0.1"
+         action="EGT_TMGMT_REQTYPE_MOD" 
+         lclAddr="127.0.0.1" rmtAddr="135.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_MOD" lclAddr="127.0.0.1" rmtAddr="135.0.0.1" frmRmtAddr="135.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_DST_IP"/>
+      </tapa.expect>
+
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_MOD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_MOD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_INV_TEID"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.23
+#
+#       Desc: Move a teid from one destination to another in which
+#              the same teid is configured.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+        "Move a teid from one destination to another in which
+        the same teid is configured."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      <tapa.flag id="EGTP_U_REORDER_ENABLE"/>
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.2"
+         status="LCM_PRIM_OK" />
+      </tapa.expect>
+   
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_MOD" frmRmtAddr="127.0.0.1" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_MOD" lclAddr="127.0.0.1"
+         frmRmtAddr="127.0.0.1" rmtAddr="127.0.0.2"
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PROC_FAIL" />
+      </tapa.expect>
+      -->
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.24
+#
+#       Desc:  Send a Data Request with invalid source IP. After getting
+#              negative confirmation, sent Data request with an invalid port.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+        "Send a Data Request with invalid source IP. After getting negative
+        confirmation, sent Data request with an invalid port."
+        
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_SEQ_ENABLE"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+     
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" lclAddr="127.0.0.2"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_SRC_IP" lclAddr="127.0.0.2" />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" lclPort="5000"
+           seqNoPres="TRUE" seqNo="8" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="1" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_SRC_PORT"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    13.25
+#
+#       Desc:  Send a Data Request with invalid destination IP.Repeat the
+#              testcase for all message types.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send a Data Request with invalid destination IP.Repeat the
+      testcase for all message types."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/> -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="127.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_GPDU" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_DST_IP" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="127.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_END_MARKER" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_DST_IP" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="127.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_ERROR_IND" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_DST_IP" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="127.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_INV_DST_IP" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.26
+#
+#       Desc:  Add a tunnel with multicast destination IP. Send Echo
+#              Request to this destination. Expect Error Indication.
+#              Send Error Indication to the teid. Expect Error
+#              Indication. Send Status Request for this destination.
+#              Expect negative confirmation.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Add a tunnel with multicast destination IP. Send Echo
+      Request to this destination. Expect Error Indication.
+      Send Error Indication to the teid. Expect Error
+      Indication. Send Status Request for this destination.
+      Expect negative confirmation."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+      <!--
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0"
+         action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="224.0.0.2"  teid="1"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="1"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="224.0.0.2"
+         status="LCM_PRIM_OK" />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="224.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_ECHO_REQ" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_DST_MULT_IP"
+      rmtAddr="224.0.0.2" />
+      </tapa.expect>
+
+
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" rmtAddr="224.0.0.2"
+           udpextPres="0" udpPortNmb="0" pdcpextPres="0" pdcpPortNmb="0" 
+           remTeid="1" msgType="EGT_GTPU_MSG_ERROR_IND" lclTeid="1"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.eguerrind lclTeid="1" errCause="EGT_ERR_DST_MULT_IP" rmtAddr="224.0.0.2" />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq rmtAddr="224.0.0.2" rmtPort="0"
+           lclAddr="127.0.0.1" lclPort="0" />
+           
+      </tapa.send>
+
+      <tapa.expect guardTmr="10000">
+      <tapa.egt.egustacfm  rmtAddr="224.0.0.2" rmtPort="0" lclAddrType="4"
+      lclAddr="127.0.0.1" status="LCM_PRIM_NOK" reason="EGT_GTPU_CAUSE_DST_MULT_IP"/>
+      </tapa.expect>
+-->
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.27
+#
+#       Desc:   1. Send Status Request for fetching status of destination.
+#               2. Send Status Request for fetching status of port.
+#               3. Send Status Request with invalid source IP.
+#               4. Send Status Request for fetching status of destination with
+#                  invalid destination IP.
+#               5. Send Status Request for fetching status of port with invalid
+#                  port number.
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Path Management Request to fetch the status of destination.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      <tapa.send>
+           <tapa.egt.egustareq lclPort="0" rmtPort="0"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm reason="EGT_GTPU_DEST_REACHABLE"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq lclPort="2152" rmtPort="0"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm reason="EGT_GTPU_PORT_ACTIVE"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq lclPort="0" rmtPort="0" lclAddr="127.0.0.2"
+           rmtAddr="127.0.0.1" />
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm status="LCM_PRIM_NOK"
+      reason="EGT_GTPU_CAUSE_INV_SRC_IP" lclAddr="127.0.0.2"
+           rmtAddr="127.0.0.1"  />
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq lclPort="0" rmtPort="0" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.2" />
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm status="LCM_PRIM_NOK"
+      reason="EGT_GTPU_CAUSE_INV_DST_IP" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.2"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq lclPort="4567" rmtPort="0" lclAddr="127.0.0.1"
+           rmtAddr="127.0.0.1" />
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm status="LCM_PRIM_NOK"
+      reason="EGT_GTPU_CAUSE_INV_PORT"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+-->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.28
+#
+#       Desc:    Send Unbind Request for a configured and already unbound Sap.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Unbind Request for configured and already unbound Sap "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send an egt sap configuration request
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm suId="1"/>
+      </tapa.expect>
+      #Send Bind Request
+      <tapa.send>
+         <tapa.egt.ubndreq spId="1" suId="1"/>
+      </tapa.send>
+
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   <tapa.delay delay="50"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#       Test:    13.29
+#
+#       Desc:    Send Path Management Request and Data Request with invalid
+#                spId.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Path Management Request and Data Request with invalid spId.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->   
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # expect alarm control confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      # enable alarms
+      <tapa.directive alarm="TRUE" />
+
+
+      <tapa.send>
+           <tapa.egt.egustareq suId="1" spId="1"/>
+      </tapa.send>
+
+      #expect alarm
+      <tapa.expect>
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID"
+         type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+
+      # send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq suId="1" spId="1" pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpExtPres="0" udpPortNmb="0"
+           pdcpExtPres="0" pdcpPortNmb="0" remTeid="2"
+           msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      #expect alarm
+      <tapa.expect>
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UI_INV_EVT" cause="LCM_CAUSE_INV_SPID"
+         type="LEG_PAR_USAP"/>
+      </tapa.expect>
+      # disable alarms
+      <tapa.directive alarm="FALSE"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   <tapa.delay delay="50"/>
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+#
+#       Test:    13.30
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel. Resend the
+#               request to disable reordering for the tunnel.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to delete a tunnel. Resend the
+      request to disable reordering for the tunnel."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="2" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2"/>
+      </tapa.expect>
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_REORD_DIS" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_DIS"  rmtAddr="127.0.0.1" 
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" />
+      </tapa.expect>
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    13.31
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel
+#               with reordering enabled. Check that all the
+#               packets in the re-order buffer are flushed.[Same as test case
+#               13.18, repeated for algorithm type 2]
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+       "Send Tunnel Management Request to delete a tunnel with
+        reordering enabled. Check that all the packets in the
+        re-order buffer are flushed."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="10000" rmtPort ="2152"  remTeid="3" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" reordAlgo="EG_REORDER_TYPE_2"  expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="10000"  remTeid="2" tunnelType="EG_FWD_DATA_TUNN"
+         reOrderPres="TRUE" reordAlgo="EG_REORDER_TYPE_2"  expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="3"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      # Send data request on tunnel 2
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="2" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+    
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="6" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="7" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+      
+      
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="TRUE" seqNo="13" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0"  msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq suId="1" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="1" spId="1" passData="TRUE" passIpAddr="TRUE" suConId="0" />
+      </tapa.send>
+
+      
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="2152" rmtPort ="2152"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="3"/>
+      </tapa.send>
+
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.egudatind  pduNmbPres="0" npduNmb="0"
+            udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" lclTeid="3" msgType="EGT_GTPU_MSG_GPDU"
+             reOrder="TRUE" seqNumLst="2:6:7:13"/>
+      </tapa.expect>
+      
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="100000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="3" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+     
+      </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+  <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.32
+#
+#       Desc:   Send Tunnel Management Request to  delete the last tunnel 
+#               in the detination.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Tunnel Management Request for deleting the last tunnel."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->    
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # expect alarm control confirm
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # enable alarms
+      <tapa.directive alarm="TRUE" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+	rmtAddr="127.0.0.1"  teid="0"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+	rmtAddr="127.0.0.1"  teid="1"/>
+      </tapa.send>
+     
+      #Expect alarm
+      <tapa.expect guardTmr="10000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+	 event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_DST_IP_DEL" type="LEG_PAR_IP"/>
+      </tapa.expect>
+      
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="0" action="EGT_TMGMT_REQTYPE_DEL"/>
+      </tapa.expect>
+      <tapa.directive alarm="FALSE" />
+      
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+   <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+
+   <tapa.egtpu.deinit/>
+   <tapa.delay delay="50" flag="EGTP_U_MULTI_THREADED"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    13.33
+#
+#       Desc:  Send Tunnel Management Request to an ipCb for which
+#              control operation is in progress.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send tunnel management request to an USAP for which control operation
+         is in progress"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   <!--
+      <tapa.hi.init/>
+   -->    
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      <tapa.directive partialCfm="TRUE"/>
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.ipAddr action="ADEL" address="127.0.0.1" port="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK_NDONE" reason="ROKPENDING"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UI_INV_EVT" cause="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP"
+         type="LEG_PAR_IP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" 
+         action="EGT_TMGMT_REQTYPE_ADD" status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+		<tapa.delay delay="10"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+      <tapa.directive partialCfm="FALSE"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="50"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+#       Test:    13.34
+#
+#       Desc:  Send Tunnel Management Request to an ipCb for which
+#              control operation is in progress.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send tunnel management request to an USAP for which control operation
+         is in progress"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+    -->  
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      <tapa.directive partialCfm="TRUE"/>
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.ipAddr action="ADEL" address="127.0.0.1" port="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Send Data Request
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK_NDONE" reason="ROKPENDING"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UI_INV_EVT" cause="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP"
+         type="LEG_PAR_IP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+     #Expect Error Indication tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.eguerrind suId="0" spId="0" lclTeid="2" remteid="0" errCause="EGT_ERR_PENDING_CNTRL_OP" lclAddr="127.0.0.1"  rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+		<tapa.delay delay="10"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+      <tapa.directive partialCfm="FALSE"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="50"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.35
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel
+#               with reordering enabled. Check that the request is
+#               not posted to worker threads as thread CB is not
+#               assigned.
+#
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.35">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to delete a tunnel
+      with reordering enabled. Check that the request is
+      not posted to worker threads as thread CB is not
+      assigned."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U" />
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="TRUE" expSeqNmb="1" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.2" />
+      </tapa.expect>
+
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2" action="EGT_TMGMT_REQTYPE_DEL"  rmtAddr="127.0.0.2" />
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+#       Test:    13.36
+#
+#       Desc:  Send Data Request  to an server Cb for which
+#              control operation is in progress.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.36">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Data request to a server Cb for which control operation
+         is in progress"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      <tapa.directive partialCfm="TRUE"/>
+      # Enable Alarms
+      # Send delete for TPT Server with address
+      <tapa.send>
+         <tapa.leg.cntrl.tptsrv action="ADEL" type="2" address="127.0.0.1" port="10000" 
+                                flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Send Data Request
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" lclPort="10000"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK_NDONE" reason="ROKPENDING"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE"
+         event="LCM_EVENT_UI_INV_EVT" cause="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP"
+         type="LEG_PAR_IP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+     #Expect Error Indication tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.eguerrind suId="0" spId="0" lclTeid="2" remteid="0" errCause="EGT_ERR_PENDING_CNTRL_OP" lclAddr="127.0.0.1"  rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+		<tapa.delay delay="10"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+      <tapa.directive partialCfm="FALSE"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="50"/>
+      <!--
+   <tapa.hi.deinit/>
+      -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#       Test:    13.37
+#
+#       Desc:  Send Data Request to an usap for which
+#              control operation is in progress.
+#               
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.37">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+         "Send Data request to an USAP for which control operation
+         is in progress"
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Expect Alarm Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+      # Enable Alarms
+      <tapa.directive alarm="TRUE"/>
+      <tapa.directive partialCfm="TRUE"/>
+      # Enable Alarms
+      <tapa.send>
+         <tapa.leg.cntrl.usap uSapId="0" flag="TRUE"/>
+      </tapa.send>
+
+      # Send Data Request
+      <tapa.send>
+           <tapa.egt.egudatreq pduNmbPres="0" npduNmb="0" lclPort="10000"
+           seqNoPres="FALSE" udpextPres="0" udpPortNmb="0"
+           pdcpextPres="0" pdcpPortNmb="0" remTeid="2" msgType="EGT_GTPU_MSG_GPDU"
+           lclTeid="2"/>
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm  status="LCM_PRIM_OK_NDONE" reason="ROKPENDING"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="TRUE"/>
+
+      #Expect alarm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" type="LEG_PAR_USAP"/>
+      </tapa.expect>
+
+      # Disable Alarms
+      <tapa.directive alarm="FALSE"/>
+
+     #Expect Error Indication tunnel 2
+     <tapa.expect guardTmr="10000">
+         <tapa.egt.eguerrind suId="0" spId="0" lclTeid="2" remteid="0" errCause="EGT_ERR_PENDING_CNTRL_OP" lclAddr="127.0.0.1"  rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+		<tapa.delay delay="10"/>
+
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+      <tapa.directive partialCfm="FALSE"/>
+   <tapa.egtpu.deinit/>
+		<tapa.delay delay="50"/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+#
+#       Test:    13.38
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel.
+#               Resend the same Request and expect negative
+#               confirmation.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.38">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to delete a tunnel.
+      Resend the same Request and expect negative
+      confirmation."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U" />
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--   
+      <tapa.hi.init/>
+    -->  
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_DEL"  rmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" />
+      </tapa.expect>
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_DEL"  rmtAddr="127.0.0.1" />
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+  -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+#
+#       Test:    13.39
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel.
+#               Resend the Request to modify the same tunnel and
+#               expect negative confirmation.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.39">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to delete a tunnel.
+      Resend the Request to modify the same tunnel and
+      expect negative confirmation."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U" />
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_MOD" lclAddr="127.0.0.1"
+        frmRmtAddr="127.0.0.1" rmtAddr="127.0.0.2"  teid="2"/>
+      </tapa.send>
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_MOD"  rmtAddr="127.0.0.2" frmRmtAddr="127.0.0.1"
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" />
+      </tapa.expect>
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_DEL"  rmtAddr="127.0.0.1" />
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+
+
+
+
+
+#
+#       Test:    13.40
+#
+#       Desc:   Send Tunnel Management Request to delete a tunnel.
+#               Resend the Request to enable re-ordering for the same
+#               tunnel and  expect negative confirmation.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module: UI Module
+#
+#       File:   egac_tc13.xml
+#
+<tapa.testcase id="13.40">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.ui"/>
+
+      <tapa.desc>
+      "Send Tunnel Management Request to delete a tunnel.
+      Resend the Request to enable re-ordering for the same
+      tunnel and  expect negative confirmation."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+
+      <tapa.flag id="EGTP_U" />
+      <tapa.flag id="EGTP_U_MULTI_THREADED"/>
+
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <!--
+      <tapa.hi.init/>
+      -->
+      <tapa.eg.gtpu.umts.init/>
+   </tapa.cfg>
+
+   <tapa.test>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+         reOrderPres="FALSE" frmrmtPort="0" action="EGT_TMGMT_REQTYPE_ADD" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_ADD" lclAddr="127.0.0.1" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+
+      <tapa.delay delay="10" />
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_DEL" lclAddr="127.0.0.1"
+        rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="0" spId="0" lclPort="0" rmtPort ="0"
+        frmrmtPort="0" action="EGT_TMGMT_REQTYPE_REORD_ENA" lclAddr="127.0.0.1"
+         rmtAddr="127.0.0.1"  teid="2"/>
+      </tapa.send>
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_REORD_ENA"  rmtAddr="127.0.0.1" 
+         status="LCM_PRIM_NOK" reason="EGT_EGTPU_CAUSE_PENDING_CNTRL_OP" />
+      </tapa.expect>
+      <!--
+   <tapa.delay delay="500"/>
+   -->
+      # Expect Control Confirm
+      <tapa.expect guardTmr="10000">
+         <tapa.egt.egutnlmgmtcfm suId="0" teid="2"
+         action="EGT_TMGMT_REQTYPE_DEL"  rmtAddr="127.0.0.1" />
+      </tapa.expect>
+   </tapa.test>
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+   # De-Init EGTP
+
+   <tapa.delay delay="50"/>
+   <tapa.egtpu.deinit/>
+   <!--
+   <tapa.hi.deinit/>
+   -->
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#/********************************************************************30**
+#
+#         End of file:
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     mm           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Testcases updated
+#*********************************************************************91*/
+

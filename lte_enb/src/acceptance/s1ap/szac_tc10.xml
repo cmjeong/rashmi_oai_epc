@@ -1,0 +1,3604 @@
+#/********************************************************************20**
+#
+#     Name:    S1AP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases for Error Handling and Criticality
+#
+#     File:    szac_tc10.xml
+#
+#     Sid:     
+#
+#     Prg:     pkaX 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=10:hsingh:szac_tc10.xml
+
+#
+#
+#       Test:    10.1
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP sends Error Indication based on the received"
+          "criticality when an IE at the end of the msg is not understood"
+           "and its criticality is reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+     </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Trace Start message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_TRACE_START" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.2
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that if the non-supported IE is received at the end of the msg"
+         "with criticality as ignore, the procedure will be successful."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+     </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Paging message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_PAGING" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Paging Message at eNB
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_PAGING" procId="SZAC_ENB_PROC" peerId="2" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.3
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP sends un-successful outcome if it "
+         "receives non-supported IE at the end with criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+      #Context setup
+      <tapa.dummymme.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Path Switch Request message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_PATH_SWTCH_REQ" suId="1" procId="SZAC_XTA_PROC" enbId="2" mmeId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Path Switch Request Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_PATH_SWTCH_REQ_FAIL" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.4
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP sends error indication if procedure"
+         "doesn't have un-successful outcome and receives non-supported"
+         "IE in between the msg with criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send ENB Status Transfer message to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ENB_STA_TRFR" suId="1" procId="SZAC_XTA_PROC" enbId="2" mmeId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.5
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP sends error indication if procedure"
+         "doesn't have un-successful outcome and receives non-supported"
+         "IE in the starting of the msg with criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send MME Status Transfer message to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_MME_STA_TRFR" suId="1" procId="SZAC_XTA_PROC" enbId="2" mmeId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.6
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP sends error indication if procedure"
+         "doesn't have un-successful outcome and receives non-supported"
+         "IE in the end of the msg with criticality notify"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Uplink CDMA Tunneling message to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UPLNK_CDMA_TUNNL" suId="1" procId="SZAC_XTA_PROC" enbId="2" mmeId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.7
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP sends error indication based on the received"
+         "criticality when a non-supported IE is present in between"
+         "the msg with criticality notify"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Downlink CDMA Tunneling message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DNLNK_CDMA_TUNNL" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.8
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the proceudre will be successful when the criticality"
+         "of received non-supported IE in the starting of the msg is ignore."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Downlink NAS Transport message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DL_NAS_TPT" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1" usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect Downlink NAS Transport message at eNB
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_DL_NAS_TPT" procId="SZAC_ENB_PROC" peerId="2" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.9
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an IE is not understood.
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc8.xml
+#
+#
+<tapa.testcase id="10.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify that the proceudre will be successful when a mandatory"
+         "IE with criticality ignore is missing"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+      <tapa.dummymme.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+      
+   </tapa.cfg>
+ 
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Location Report msg to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_LOC_REPORT" procId="SZAC_XTA_PROC" suId="1" critBug="1" suAssocId="2" assocIdx="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect Location Report msg at MME
+      <tapa.expect>
+         <tapa.szt.datind eventType="SZT_MSG_ID_LOC_REPORT" procId="SZAC_XTA_PROC" suId="1" suAssocId="2" assocIdx="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+      
+   </tapa.shutdown>
+
+</tapa.testcase>
+ 
+#
+#
+#       Test:    10.10
+#
+#       Desc:    Verify that the S1AP takes action based on the received 
+#                criticality when an mandatory IE with criticality reject is missing.
+#                Abstract Syntax Error Falsly Constructed Msg (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP sends error indication based on the received"
+          "criticality when an mandatory IE with criticality reject is missing."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Deactivate Trace message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DEACTV_TRACE" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="5"/>
+      </tapa.expect>
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.11
+#
+#       Desc:    Verify that the S1AP takes action based on the received criticality
+#                when an IE is not understood and is placed in starting of message.
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP sends error indication when the received"
+         "msg has an non-supported IE in the starting of the msg with"
+         "criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send a Warning Request message to eNodeB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_WARNING_REQ" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.12
+#
+#       Desc:    Verify error handling functionality for
+#                Invalid eNB ID Error( Cause Radio Network ).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc8.xml
+#
+#
+<tapa.testcase id="10.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+          "To verify that the unknown MME Id error is generated when"
+          "received enb Id is invalid"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/> 
+
+   </tapa.cfg>
+ 
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      # Send Cell Traffic Trace msg to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CELL_TRAFFIC_TRACE" procId="SZAC_XTA_PROC" suId="1" critBug="1" suAssocId="0" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Error Indication at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="13"/>
+      </tapa.expect>
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+      
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.13
+#
+#       Desc:    Verify that the S1AP will generate the transfer syntax error
+#                ( Protocol Cause ).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc8.xml
+#
+#
+<tapa.testcase id="10.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         " Verify that the S1AP will generate the transfer syntax error "
+         " when the decoding of msg fails because of invalid criticality "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+ 
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Location Report Control message to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_LOC_REPORT_CNTRL" procId="SZAC_ENB_PROC" suId="0" critBug="1" suAssocId="2" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Error Indication for Transfer Syntax Error(Protocol Cause) at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+      
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    10.14
+#
+#       Desc:    Verify error handling functionality for
+#                Invalid MME ID Error( Cause Radio Network )
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="10.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the unknown MME Id error is generated when"
+         "received MME Id is invalid"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      # Send  Location Report Control to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_LOC_REPORT_CNTRL" suId="0" procId="SZAC_ENB_PROC" enbId="8" mmeId="1" suAssocId="2" assocIdx="0" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect Error Indication from eNB for invalid mmeId (RadioNw error)
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" peerId="2" procId="SZAC_ENB_PROC" spId="0" choice="SZT_CAUSE_RADIONW" cause="14"/>
+      </tapa.expect> 
+      
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase> 
+
+#
+#
+#       Test:    10.15
+#
+#       Desc:    Verify the error statistics for
+#                Abstract Syntax Error Criticality Reject (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP Error Statistics is incremented for"
+          "Abstract syntax error with criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZAC_ENB"/>
+           <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+           <tapa.flag id="LSZV1"/>
+     </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Trace Start message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_TRACE_START" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="1"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" protAbsSyntaxErrRej="1" />
+      </tapa.expect>
+ 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.16
+#
+#       Desc:    Verify the Error statistics for 
+#                Abstract Syntax Error Falsly Constructed Msg (Protocol Cause).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP error statistics is incremented for"
+          "Abstract Syntax Error Falsly Constructed Msg"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+           <tapa.flag id="LSZV1"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send an Deactivate Trace message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DEACTV_TRACE" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" critBug="1"/>
+      </tapa.send>
+
+      # Expect Error Indication Message at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="5"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" protAbsSyntaxErrFalslyConsMsg="1" />
+      </tapa.expect> 
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.17
+#
+#       Desc:    Verify error statistics for
+#                Invalid eNB ID Error( Cause Radio Network ).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc8.xml
+#
+#
+<tapa.testcase id="10.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify that the S1AP error statistics is incremented for 
+          unknown enb Id error"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+           <tapa.flag id="LSZV1"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/> 
+
+   </tapa.cfg>
+ 
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      # Send Cell Traffic Trace msg to MME
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CELL_TRAFFIC_TRACE" procId="SZAC_XTA_PROC" suId="1" critBug="1" suAssocId="0" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Error Indication at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="13"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" radioNwUnknownMmeUeS1apId="1" />
+      </tapa.expect> 
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+      
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.18
+#
+#       Desc:    Verify the error statistics for 
+#                transfer syntax error( Protocol Cause ).
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc8.xml
+#
+#
+<tapa.testcase id="10.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         " Verify that the S1AP error statistics is incremented for transfer syntax error "
+         " when the decoding of msg fails because of invalid criticality "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+           <tapa.flag id="LSZV1"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+ 
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send Location Report Control message to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_LOC_REPORT_CNTRL" procId="SZAC_ENB_PROC" suId="0" critBug="1" suAssocId="2" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Error Indication for Transfer Syntax Error(Protocol Cause) at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="0"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" protTransferSyntaxErr="1" />
+      </tapa.expect>  
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+      
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.19
+#
+#       Desc:    Verify error statistics for
+#                Invalid MME ID Error( Cause Radio Network )
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="10.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP error statistics is incremented for
+         "unknown MME Id error"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+           <tapa.flag id="LSZV1"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      
+      # Send  Location Report Control to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_LOC_REPORT_CNTRL" suId="0" procId="SZAC_ENB_PROC" enbId="8" mmeId="1" suAssocId="2" assocIdx="0" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect Error Indication from eNB for invalid mmeId (RadioNw error)
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" peerId="2" procId="SZAC_ENB_PROC" spId="0" choice="SZT_CAUSE_RADIONW" cause="14"/>
+      </tapa.expect> 
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" radioNwUnknownEnbUeS1apId="1" />
+      </tapa.expect>  
+      
+</tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase> 
+
+#
+#
+#       Test:    10.20
+#
+#       Desc:    Verify error statistics for  
+#                unknown or invalid pair UE S1AP  ID error
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc2.xml
+#
+#
+<tapa.testcase id="10.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify that the S1AP error statistics is incremented  for"
+         "unknown pair UE S1AP  ID error"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="LSZV1"/>
+           <tapa.flag id="SZAC_MME"/>
+           <tapa.flag id="SZAC_ENB"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure TUCL
+      <tapa.hi.init/>
+
+      # Configure SCTP
+      <tapa.sb.init/>
+
+      # Bring up ENB
+      <tapa.sz.enb0.init/>
+
+      # Bring up MME 
+      <tapa.sz.mme1.init/>
+  
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_MME_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_MME_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.s1.init/>  
+
+      # Initial UE Context setup
+      <tapa.uecxt.init usrConnId="1" spConnId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an UE context Release cmd from MME to ENB
+      <tapa.send>
+         <tapa.szt.relreq eventType="SZT_MSG_ID_UE_CXT_REL_CMD" procId="SZAC_MME_PROC" peerId="1" spId="1" spConnId="1" enbId="99" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect UE context Release cmd at MME
+      <tapa.expect>
+         <tapa.szt.udatind eventType="SZT_MSG_ID_ERR_IND" peerId="2" procId="SZAC_MME_PROC" suId="1" usrConnId="1" choice="SZT_CAUSE_RADIONW" cause="15"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" radioNwUnknownPairUeS1apId="1" />
+      </tapa.expect>  
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      <tapa.delay delay="5"/>
+      # Deinit ENB
+      <tapa.sz.enb0.deinit/>
+
+      # Deinit MME 
+      <tapa.sz.mme1.deinit/>
+
+      # Deinit SCTP
+      <tapa.sb.deinit/>
+
+      # Configure TUCL
+      <tapa.hi.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.21
+#
+#       Desc:    Verify error statistics for 
+#                Semantic error 
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc3.xml
+#
+#
+<tapa.testcase id="10.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "Verify that the S1AP error statistics is incremented for"
+         " Semantic error"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="LSZV1"/>
+           <tapa.flag id="SZAC_ENB"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      #s1 Init
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an initial UE msg from ENB to MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" peerId="2" spId="0" enbId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL UE Msg at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_UE_MSG" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_CXT_SETUP_REQ" peerId="2" procId="SZAC_ENB_PROC" suId="0"/>
+      </tapa.expect>
+
+      # Send an INITIAL CONTEXT SETUP RESPONSE msg from ENB to MME 
+      <tapa.send>
+         <tapa.szt.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" suId="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP RESPONSE at MME
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_CXT_SETUP_RSP" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" />
+      </tapa.expect>
+
+      # Send E-RAB SETUP RESPONSE from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_RSP" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect ERROR MSG to MME from ENB 
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="4"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="2"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" protSemanticErr="1" />
+      </tapa.expect>  
+      
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.22
+#
+#       Desc:    Verify the error statistics for, 
+#                protocol error-> Msg not compatible with receiver state
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify that the S1AP error statistics is incremented for  
+          protocol error, msg not compatible with receiver state"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+           <tapa.flag id="SZAC_MME"/>
+           <tapa.flag id="LSZV1"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up dummy MME 
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      #S1 Setup
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send HANDOVER REQUEST from MME
+      <tapa.send>
+         <tapa.szt.conreq eventType="SZT_MSG_ID_HO_REQ" procId="SZAC_XTA_PROC" peerId="1" spId="1" spConnId="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect HANDOVER REQUEST at lower layer
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_HO_REQ" procId="SZAC_XTA_PROC" peerId="1" spId="1" suAssocId="0" assocIdx="0"/>
+      </tapa.expect>
+
+      # Send HANDOVER REQUEST ACKNOWLEDGE msg to MME 
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_HO_REQ_ACK" spId="1" suId="1" procId="SZAC_XTA_PROC" suAssocId="1" assocIdx="0" strmId="1" mmeId="1"/>
+      </tapa.send>
+
+      # Expect HANDOVER REQUEST ACKNOWLEDGE confirmation at MME 
+      <tapa.expect>
+         <tapa.szt.concfm eventType="SZT_MSG_ID_HO_REQ_ACK" procId="SZAC_XTA_PROC" peerId="1" suId="1" spConnId="1" usrConnId="1"/>
+      </tapa.expect>
+
+      # Send HANDOVER REQUEST ACKNOWLEDGE msg to MME 
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_HO_REQ_ACK" spId="1" suId="1" procId="SZAC_XTA_PROC" suAssocId="1" assocIdx="0" strmId="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect Error indication at lower layer
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" suId="1" procId="SZAC_XTA_PROC" suAssocId="0" assocIdx="0" choice="SZT_CAUSE_PROTOCOL" cause="3"/>
+      </tapa.expect>
+      
+      # Send peer statistics request at eNB after S1 setup procedure
+      <tapa.send>
+         <tapa.lsz.sts.req stsType="STSZPEER" peerId="1"/>
+      </tapa.send>
+
+      # Receive the confirm for the SCT SAP statistics request.
+      <tapa.expect>
+         <tapa.lsz.stscfm checkErrSts="TRUE" protMsgNotCompWithRcvrState="1" />
+      </tapa.expect>  
+      
+      <tapa.sz.sct.delay delay="5"/>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.23
+#
+#       Desc:    Verify Local Error indication is triggered when S1AP
+#                receives error indication message during releasing state at
+#                eNB.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify Local Error indication is triggered when S1AP"
+         "receives error indication message during releasing state at"
+         "eNB"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/>
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.dummymme.s1.init/>
+
+      # UE context setup
+      <tapa.dummymme.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the UE context release command from User
+      <tapa.send>
+         <tapa.szt.relreq eventType="SZT_MSG_ID_UE_CXT_REL_CMD" procId="SZAC_XTA_PROC"
+            peerId="1" spId="1" spConnId="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect the UE context release command
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_REL_CMD" peerId="2"
+            procId="SZAC_XTA_PROC" suId="0" usrConnId="1"/>
+      </tapa.expect>
+
+      # Send the error indication message to S1AP
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERR_IND" suId="1" procId="SZAC_XTA_PROC" enbId="1" mmeId="1" suAssocId="1" assocIdx="0" />
+      </tapa.send>
+
+      # Expect the Local Error indication triggered for the 
+      # Error indication received in releasing state
+      <tapa.expect>
+         <tapa.szt.errind eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" suId="1" suAssocId="1" assocIdx="0" causeType="SZT_CAUSE_INV_STATE" causeValue="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.24
+#
+#       Desc:    Verify Local Error indication is triggered when S1AP
+#                receives error indication message during releasing state at
+#                MME.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "Verify Local Error indication is triggered when S1AP"
+         "receives error indication message during releasing state at"
+         "MME"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/>
+      </tapa.expect>
+
+      # S1 setup procedure
+      <tapa.dummy.s1.init/>
+
+      # UE context setup
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the UE context release command from User
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" procId="SZAC_ENB_PROC"
+            peerId="2" suId="0" spConnId="1" usrConnId="1"/>
+      </tapa.send>
+
+      # Expect the UE context release command
+      <tapa.expect>
+         <tapa.szt.relind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" peerId="2"
+            procId="SZAC_ENB_PROC" suId="0" usrConnId="1"/>
+      </tapa.expect>
+
+      # Send the error indication message to S1AP
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERR_IND" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="1" suAssocId="2" assocIdx="0" />
+      </tapa.send>
+
+      # Expect the Local Error indication triggered for the 
+      # Error indication received in releasing state
+      <tapa.expect>
+         <tapa.szt.errind eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" suId="0" suAssocId="2" assocIdx="0" causeType="SZT_CAUSE_INV_STATE" causeValue="3"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.25
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject at MME.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject at MME"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_MME"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the S1-Setup req message to S1AP
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_SETUP_REQ" procId="SZAC_XTA_PROC" peerId="1" spId="0" critBug="1" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect the UE context release command
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_SETUP_FAIL" peerId="1" procId="SZAC_XTA_PROC" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.26
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject at eNB.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject at eNB"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_CXT_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="1" critBug="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_INIT_CXT_SETUP_FAIL" peerId="2" procId="SZAC_ENB_PROC" spId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.27
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject (which is in middle of procedure).
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject (which is in middle of procedure)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_HO_REQ" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="1" critBug="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_HO_FAIL" peerId="2" procId="SZAC_ENB_PROC" spId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.28
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject (which is at the end).
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject (which is at the end)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_MOD_REQ" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="1" critBug="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_UE_CXT_MOD_FAIL" peerId="2" procId="SZAC_ENB_PROC" spId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.29
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject (which is at the start).
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject (which is at the start)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_ENB"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an INITIAL CONTEXT SETUP REQUEST msg from MME to ENB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_MME_CFG_UPD" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="1" critBug="1"/>
+      </tapa.send>
+
+      # Expect INITIAL CONTEXT SETUP REQUEST CFM at ENB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_MME_CFG_UPD_FAIL" peerId="2" procId="SZAC_ENB_PROC" spId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.30
+#
+#       Desc:    To verify that the S1AP sends un-successful outcome if it
+#                receives non-supported IE at the end with criticality reject
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+         "To verify that the S1AP sends un-successful outcome if it "
+         "receives non-supported IE at the end with criticality reject"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Path Switch Request message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ERAB_SETUP_REQ" suId="0" procId="SZAC_ENB_PROC" enbId="1" mmeId="2" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Path Switch Request Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="14"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.31
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject (which is at the start) at MME.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject (which is at the start) at MME"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_MME"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the S1-Setup req message to S1AP
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_ENB_CFG_UPD" procId="SZAC_XTA_PROC" peerId="1" spId="0" critBug="1" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect the UE context release command
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ENB_CFG_UPD_FAIL" peerId="1" procId="SZAC_XTA_PROC" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.32
+#
+#       Desc:    To verify S1AP generates the un-successful outcome
+#                if any IE is not understood and its criticality is
+#                reject (which is at the end) at MME.
+#
+#       Notes:   None
+#
+#       Module:
+#
+#       File:    szac_tc10.xml
+#
+#
+<tapa.testcase id="10.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="s1ap"/>
+
+      <tapa.desc>
+         "To verify S1AP generates the un-successful outcome"
+         "if any IE is not understood and its criticality is"
+         "reject (which is at the end) at MME"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="SZAC_MME"/>
+         <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/>
+      </tapa.send>
+
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/>
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send the S1-Setup req message to S1AP
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_HO_REQD" procId="SZAC_XTA_PROC" peerId="1" spId="0" critBug="1" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect the UE context release command
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_HO_PREP_FAIL" peerId="1" procId="SZAC_XTA_PROC" suId="0"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit MME
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.33
+#
+#       Desc:    Verify that the S1AP sends the error indication if
+#                the remote connection reference ID is invalid
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+                "Verify that the S1AP sends the error indication if"
+                "the remote connection reference ID is invalid"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_MME"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Bring up MME
+      <tapa.sz.dummymme1.init/>
+
+      # Send Bind Req at MME
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_XTA_PROC" spId="1" suId="1"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at MME
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_XTA_PROC" spId="1" suId="1" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummymme.s1.init/>
+
+      #Context setup
+      <tapa.dummymme.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Path Switch Request message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_HO_REQD" suId="1" procId="SZAC_XTA_PROC" enbId="20" mmeId="1" assocIdx="0"/>
+      </tapa.send>
+
+      # Expect Path Switch Request Message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_XTA_PROC" spId="1" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="14"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummymme1.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.34
+#
+#       Desc:    Verify that the S1AP sends the error indication if
+#                the remote connection reference ID is invalid
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+             "Verify that the S1AP sends the error indication if"
+             "the remote connection reference ID is invalid"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+      <tapa.dummy.uecxt.init usrConnId="1" spConnId="1" enbId="1" mmeId="1"/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Downlink NAS Transport message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_DL_NAS_TPT" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="10"/>
+      </tapa.send>
+
+      # Expect Downlink NAS Transport message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="13"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    10.35
+#
+#       Desc:    Verify that the S1AP sends the error indication if
+#                the connection reference ID pair is invalid
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    szac_tc10.xml
+#
+#
+
+<tapa.testcase id="10.35">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="S1AP"/>
+
+      <tapa.desc>
+             "Verify that the S1AP sends the error indication if"
+             "the remote connection reference ID is invalid"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+          <tapa.flag id="SZAC_ENB"/>
+          <tapa.flag id="CM_PASN_CRIT_HANDL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="SZAC_VXWORKS"/>
+      </tapa.ifndef>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      
+      # Bring up ENB
+      <tapa.sz.dummyenb0.init/>
+
+      # Send Bind Req at eNB
+      <tapa.send>
+         <tapa.szt.bndreq procId="SZAC_ENB_PROC" spId="0" suId="0"/> 
+      </tapa.send>
+  
+      # Expect Bnd Cfm at eNB 
+      <tapa.expect>
+         <tapa.szt.bndcfm procId="SZAC_ENB_PROC" spId="0" suId="0" status="1"/> 
+      </tapa.expect>
+
+      # S1 Setup Request
+      <tapa.dummy.s1.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+      # Send Downlink NAS Transport message to eNB
+      <tapa.send>
+         <tapa.sct.datind eventType="SZT_MSG_ID_UE_CXT_REL_CMD" suId="0" procId="SZAC_ENB_PROC" suAssocId="2" assocIdx="0" enbId="1" mmeId="10"/>
+      </tapa.send>
+
+      # Expect Downlink NAS Transport message at eNB
+      <tapa.expect>
+         <tapa.sct.datreq eventType="SZT_MSG_ID_ERR_IND" procId="SZAC_ENB_PROC" spId="0" suAssocId="2" assocIdx="0" choice="SZT_CAUSE_RADIONW" cause="15"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+
+      # Deinit ENB
+      <tapa.sz.dummyenb0.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     szac_tc10.xml
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$        ---      pkaX  1. Updated for S1AP release 3.1
+#/main/1     sz004.301 va    1. Updated for Transparent Container Enc/Dec
+#*********************************************************************91*/

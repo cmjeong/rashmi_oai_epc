@@ -1,0 +1,1358 @@
+#********************************************************************20**
+#
+#       Name:   Simple Control Transmission Protocol (SCTP) (SB) - makefile
+#
+#       Type:   make file
+#
+#       Desc:   Compile, assemble and link product software for
+#               various configurations. Further comments are
+#               embedded in the file.
+#
+#               This file supports a variety of environments and
+#               build targets. The default build target will be the
+#               portable target with gcc compiler for Solaris.
+#
+#               ENVIRONMENTS:
+#
+#               Solaris 2.x with gcc compiler for any CPU
+#
+#               Windows NT with gcc compiler for x86
+#
+#               BUILD TARGETS:
+#
+#               pt               portable software -- default
+#               acc              acceptance tests using Solaris or NT SS
+#               lib              library (with MTSS)
+#
+#               depend.acc       makedepend for acceptance tests
+#               depend.pt        makedepend for portable software
+#
+#               clean            remove all object files
+#
+#       Sid:      sb.mak.99@@/main/tenb_main_ccb/tenb_5.0_RIB/tenb_5.0_RIB_GA/6 - Mon Feb 15 12:52:36 2016
+#
+#       Prg:    wvdl
+#
+#********************************************************************21*/
+#=======================================================================
+#
+# macros for product specific options
+# SECTION 1
+#PRDOPTS=-DSB -DCMFILE_REORG_1 -DCMFILE_REORG_2 -DLSB8 -DSB_CHECKSUM -DHI_REL_1_4 -DLSB6 -DLSB7 -DSCT3
+
+#PRDOPTS= -DHI_REL_1_4 -DSB -DCMFILE_REORG_1 -DCMFILE_REORG_2 -DSB_CHECKSUM -DSB_CHECKSUM_CRC -DHI_REL_1_4 -DLSB2 -DLSB3 -DLSB4 -DLSB5 -DLSB6 -DLSB7 -DLSB8 -DSCT2 -DSCT3 -DSCT4 -DSCT_ENDP_MULTI_IPADDR #-DSB_MD5 #-DSB_CHECKSUM_DUAL #SB_ETSI #SB_SWS
+
+# commented for RTR
+PRDOPTS=  -DSB_CHECKSUM -DCMFILE_REORG_1 -DCMFILE_REORG_2 -DCMFILE_REORG_1 -DSSINT2 \
+         -DxDEBUGP -DACC_USECONSOLE -DxIPV6_SUPPORTED -DERROR_CLASS_NULL -DSB_ENC_DEC_STATS -DCM_INET2
+# Product options for portable build
+PRDPTOPTS=$(PRDOPTS)
+
+# -------------- Product options for acceptance test build WITHOUT
+# -------------- Line Options 
+
+# Product options for library build
+PRDLIBOPTS=$(PRDOPTS) -DDBG4
+
+# Product options for acceptance test build
+PRDACCOPTS=$(PRDOPTS) -DSBACC_CMD_LINE -DSB_ACC 
+
+#-------------------MOS Product specific option define
+MSOPTS=-DMS
+
+# System Services (e.g. MOS, MTSS etc.) Product specific option define
+#
+MSCOPTS=-DCMFILE_REORG_1 -D__EXTENSIONS__ -DCMFILE_REORG_2
+# Options for compilation with different OS's
+# Default is for Portable build
+# For acceptance test build either uncomment specific OS environment
+# required or specify on command line
+
+# General OS Compile Options
+GENOSOPTS= -DSS -DCMFILE_REORG_1 -DCMFILE_REORG_2 \
+
+# Portable build options
+PTOSOPTS="-DPORTVER"
+
+# Options for acceptance test build with MOS OS
+MSOSOPTS="-DMSVER2"
+
+# Options for acceptance test build with PSOS OS
+PSOSOPTS="-DPS"
+
+# Options for acceptance test build with VrTx OS
+VXOSOPTS="-DVX"
+
+# Options for acceptance test build with VxWorks OS
+VWOSOPTS="-DSS_VW"
+
+# Options for acceptance test build with WINNT OS kernel build
+WINOSOPTS="-DWINNT"
+
+# Options for acceptance test build with MTSS - MOS multithread OS
+MTOSOPTS=-DSS_MT -D__EXTENSIONS__
+
+# Linux  specific options
+#LNXOSOPTS=-D_GNU_SOURCE -DSS_LINUX -DQCACC_PRETTY_PRINT $(MTOSOPTS)
+LNXOSOPTS=-DSS_LINUX 
+
+#solaris specific options
+SOLOSOPTS=
+
+# Options for library build with MTSS - MOS multithread OS
+ifeq ($(BLDENV),sol_lib)
+LIBOSOPTS="-DSS_MT -DSS -D__EXTENSIONS__ -DCMFILE_REORG_1 -D_GNU_SOURCE -DAPI_MAIN $(SOLOSOPTS)"
+else
+LIBOSOPTS="-DSS_MT -DSS -D__EXTENSIONS__ -DCMFILE_REORG_1 -D_GNU_SOURCE -DAPI_MAIN $(LNXOSOPTS)"
+endif
+
+# Linux specific options
+LNXOSOPTS=-D_GNU_SOURCE -DSS_LINUX
+
+# Options for acceptance test build with MTSS - WINNT
+NSOSOPTS=-DNS
+
+# Options for acceptance test build with MTSS - MOS multithread OS
+MTOSOPTS=-DSS_MT -D_REENTRANT -D__EXTENSIONS__  -DDEBUGNOEXIT 
+         #-DSTDIO_INCLD
+
+# For non-Linux Options for library build with MTSS - MOS multithread OS
+GENLIBOSOPTS="-DSS_MT -D_REENTRANT -D__EXTENSIONS__  -DDEBUGNOEXIT"
+# For Linux Options for library build with MTSS - MOS multithread OS
+LNXLIBOSOPTS="-DSS_MT -D_REENTRANT -D__EXTENSIONS__  -DDEBUGNOEXIT -D_GNU_SOURCE -DSS_LINUX"
+
+# Set OS options to include the OS build being used
+
+#for Portable
+#OSOPTS=$(GENOSOPTS) $(PTOSOPTS)
+
+#for VxWorks
+#OSOPTS=$(GENOSOPTS) $(VWOSOPTS)
+
+#for Solaris MTSS
+OSOPTS=$(GENOSOPTS) $(MTOSOPTS)
+
+#for Windows NT MTSS
+#OSOPTS=$(GENOSOPTS) $(NSOSOPTS)
+
+#=======================================================================
+# SECTION 3
+# macro for output file name and makefile name 
+#
+BASENAME=sb
+
+MAKENAME=$(BASENAME).mak
+
+# default acceptance test
+BINACC="$(BASENAME)_acc"
+
+# default portable
+BINPT="$(BASENAME)_pt"
+
+# default inter-op test 
+BININOP="$(BASENAME)_inop"
+
+# default library for Solaris cc environment
+BINLIB="$(BASENAME)_lib.lib"
+
+# Internal targets for the acceptance test build
+MAKEACC=mkacc
+ACCBIN=$(BASENAME)_acc
+
+# Internal target for the portable build
+MAKEPT=mkpt
+PTBIN=$(BASENAME)_pt
+
+# Internal target for the inter-op test build 
+MAKEINOP=mkinop
+INOPBIN=$(BASENAME)_inop
+
+# Internal target for the library build
+MAKELIB=mklib
+LIBBIN=$(BASENAME)_lib.lib
+
+# Internal target for makedepend
+DEPEND=depend
+
+# Build targets for testing in different environments
+
+# Build with the Solaris CC compiler and linker
+
+BINSOLACC=sol_acc
+# Portable Build
+BINSOLPT=sol_pt
+# Inter-op Build
+BINSOLINOP=sol_inop
+# Library Build
+BINSOLLIB=sol_lib
+SOLLIBBLDENV="sol_lib"
+
+
+# Build with the gcc compiler and linker on Solaris
+# Acceptance Test Build
+BINGNUACC=gnu_acc
+# Portable Build
+BINGNUPT=gnu_pt
+# library Build
+BINGNULIB=gnu_lib
+
+
+# Inter-op Test Build 
+BINGNUINOP=gnu_inop
+
+# Build with the GNU compiler and linker on Linux
+# Acceptance Test Build
+BINLNXACC=lnx_acc
+# Portable Buil
+BINLNXPT=lnx_pt
+# Inter-op Test Build 
+BINLNXINOP=lnx_inop
+# library Build
+BINLNXLIB=lnx_lib
+
+# Build with the Insite Memory Check programe - Acceptance Tests only
+# Acceptance Test Build
+BININSITEACC=ins_acc
+
+# Build with the Visual C++ on Windows NT or Windows 95(user space only)
+# Acceptance Test Build
+BINWINACC=win_acc
+# Portable Build
+BINWINPT=win_pt
+# Library Build
+BINWINLIB=win_lib
+
+# Build with the Microtek MRI C compiler on Solaris - portable only
+# Portable Build
+BINMRIPT=mri_pt
+
+# Build with the MRI compiler for vxWorks - 68040 target
+# Acceptance Test Build
+BINPPCACC=ppc_acc
+# Portable Build
+BINPPCPT=ppc_pt
+
+#=======================================================================
+#
+# macro for directories and include paths
+#
+# SECTION 3
+
+# common files directory
+CM_DIR=.
+
+# product directory
+SB_DIR=.
+
+# lower layer files directory 
+ACCLL_DIR=.
+
+# lower layer files directory for inter-op 
+INOPLL_DIR=.
+
+# common stack manager files directory
+SM_DIR=.
+
+# stack manager directory
+SBSM_DIR=.
+
+# common system services directory
+SS_DIR=/u/prd/rtr/mt
+
+# Multi-threaded (MTSS) Solaris system services directory
+MT_DIR=/u/prd/rtr/mt
+
+# WIN-NT system services directory
+NS_DIR=./ns
+
+# VxWorks system services directory
+VW_DIR=.
+
+# acceptance directory
+SBACC_DIR=.
+
+# inter-op test directory
+SBINOP_DIR=.
+
+# build directory
+SY_DIR=.
+
+# OS Directory - MTSS
+OS_DIR=$(MT_DIR)
+
+# OS Directory - WinNT
+#OS_DIR=$(NS_DIR)
+
+# OS Directory - VxWorks
+#OS_DIR=$(VW_DIR)
+
+# include path
+
+#VW_INC=/tools/vxworks/ppc/target/h
+
+# portable include path
+#PT_INC_PATH="-I$(CM_DIR) -I$(SB_DIR) -I$(VW_INC)"
+PT_INC_PATH="-I$(SB_DIR) -I$(CM_DIR) -I$(SBACC_DIR) -I$(SM_DIR) \
+   -I$(SBSM_DIR) -I$(SS_DIR) -I$(OS_DIR)"
+
+
+# Acceptance test include path for Solaris MTSS
+ACC_INC_PATH="-I$(SB_DIR) -I$(CM_DIR) -I$(SBACC_DIR) -I$(SM_DIR) \
+   -I$(SBSM_DIR) -I$(SS_DIR) -I$(OS_DIR)"
+
+# library include path
+LIB_INC_PATH="-I$(SB_DIR) -I$(SY_DIR) -I$(CM_DIR) -I$(SS_DIR) -I$(MT_DIR)"
+
+# inter-op test include path for Solaris MTSS
+INOP_INC_PATH="-I$(SB_DIR) -I$(CM_DIR) -I$(SBACC_DIR) -I$(SM_DIR) \
+   -I$(SBSM_DIR) -I$(SS_DIR) -I$(OS_DIR) -I$(INOPLL_DIR)"
+
+# MTSS - files include path
+MTINC_PATH=-I$(CM_DIR) -I$(MT_DIR)
+
+# WIN-NT - files include path
+NSINC_PATH=-I$(CM_DIR) -I$(NS_DIR)
+
+# VxWorks-NT - files include path
+VWINC_PATH=-I$(CM_DIR) -I$(VW_DIR)
+
+# library path - used for integrated products and simulation env.
+  
+#=======================================================================
+#
+# macros for environments
+#
+# SUN SPARC Compiler for Solaris----------------------------------------
+#
+# These flags define the environment required to build an image on
+# a Sun/SPARC workstation with Sun Spro C version 4.0 running
+# Solaris 2.4
+#
+# For ANSI Compilation
+SOLENV="-DSUNOS -DANSI"
+
+# For 32 Bit Compilation
+SOCKLIBS="-lnsl -lpthread"
+# For 32 Bit Compilation
+ifeq ($(CCPU_MON_64),y)
+SOLCC="gcc -m64 -DALIGN_64BIT -DBIT_64"
+SOLLD="gcc -m64"
+else
+SOLCC="gcc -m32"
+SOLLD="gcc -m32"
+endif
+SOLCOPTS="-g"
+SOLLIBAR="ar -r"
+SOLLIBLD="/usr/ccs/bin/ld"
+SOLLOPTS="-o $(OUTNAME) -lpthread -lposix4 -lnsl -lsocket "
+#SOLLOPTS="-o $(OUTNAME) "
+SOLLIBS=""
+SOLLINT="lint"
+SOLLNTOPTS="-c -F -p -v"
+
+# for library compilation
+SOLLIBOPTS="-r -o $(OUTNAME)"
+
+# ccppc for Solaris
+# These flags define the environment required to build an image on a Sun/SPARC
+# workstation with ccppc v. 2.7.2 running Solaris 2.5.1
+#
+# For ANSI Compilation
+PPCENV=-DPCORE -DCPU=PPC604 -DANSI -DCCPPC
+PPCCOPTS=-mcpu=604 -msoft-float -fvolatile -fno-builtin -Wall \
+              -Wno-comment -ansi -pipe -nostdinc -Wshadow \
+              -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
+
+PPCCC=/tools/wind/host/sun4-solaris2/bin/ccppc
+PPCLD="ldppc"
+#PPCLOPTS=-r -Map $(OUTNAME).map -o $(OUTNAME)
+PPCLOPTS=-r -e vwMain -Map $(OUTNAME).map -o $(OUTNAME)
+PPCLIBS=
+PPCLINT=
+PPCLNTOPTS=
+
+# For non-ANSI Compilation
+#PPCENV=-DCPU=PPC860 -DCCPPC -UANSI
+#PPCCOPTS=-mcpu=860 -g3 -msoft-float -fvolatile -fno-builtin -Wall \
+#         -Wno-comment -pipe -nostdinc -Wshadow -Wredundant-decls\
+#         -Wcast-qual
+
+PPCCC=/tools/wind/host/sun4-solaris2/bin/ccppc
+
+# SUN SPARC Compiler With Insight-----------------------------------------------
+#
+# These flags define the environment required to build an image on
+# a Sun/SPARC workstation with SUN Spro C version 4.0 C compiler running 
+# Solaris 2.4 , with the INSURE(insight) run time memory check tool.
+#
+# For ANSI Compilation
+INSENV="-DSUNOS -DANSI -DUSE_PURE"
+INSCOPTS="-Xa -g3"
+
+# For non-ANSI Compilation
+#INSENV=-DSUNOS -DPURE
+#INSCOPTS="-g"
+ 
+INSCC="insure"
+INSLD="insure"
+INSLOPTS="-o $(OUTNAME)"
+INSLIBS=$(SOCKLIBS)
+INSLINT="lint"
+INSLNTOPTS="-c -F -p -v"
+
+# GNU gcc compiler for SPARC--------------------------------------------
+#
+# These flags define the environment required to build an image on
+# a Sun/SPARC workstation with GNU C version 2.5.7 (or greater) running
+# Solaris 2.4
+#
+# For ANSI Compilation
+GNUENV="-DSUNOS -DANSI"
+
+# ---------------- For ANSI Compilation
+#GNUENV="-DSUNOS -DANSI"
+GNUENV="-DSUNOS -DANSI -std=c99 -D_XPG6"
+
+GNUCOPTS="-g3 -Wall -Wno-comment -pipe -Wshadow \
+          -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes "
+
+
+# ---------------- For non-ANSI Compilation
+#GNUENV="-DSUNOS"
+#GNUCOPTS="-g3 -Wall -Wno-comment -pipe -Wshadow -Wcast-qual "
+
+
+GNULD="gcc"
+GNUCC="gcc"
+GNULIBLD="/usr/ccs/bin/ld"
+
+#--------------------- GNU g++ compiler for SPARC
+#GNUCC="g++"
+#GNULD="g++"
+#GNUCOPTS="-g3 -Wall -Wno-comment -pipe -Wcast-qual -Wstrict-prototypes \
+#          -Wmissing-prototypes"
+
+
+GNULOPTS="-o $(OUTNAME) -lpthread -lposix4"
+GNULIBS=""
+#GNULIBS=$(SOCKLIBS)
+GNULINT="lint"
+GNULNTOPTS="-c -F -p -v"
+
+# for library compilation
+GNULIBOPTS="-r -o $(OUTNAME)"
+
+#----------------------------------------- c++ compiler
+#
+# These flags define the environment required to build an image on
+# a Sun/SPARC workstation with GNU C version 2.5.7 (or greater) running
+# Solaris 2.4
+#
+CPPENV="-DSUNOS -DANSI "
+CPPCC=c++
+CPPLD=c++
+CPPCOPTS="-g -Wall -fno-strict-aliasing -Wno-comment -pipe -Wcast-qual  \
+	      -Wredundant-decls"
+#CPPLOPTS="-o $(OUTNAME) -lpthread -lposix4"
+CPPLOPTS="-o $(OUTNAME) -lpthread"
+CPPLIBS=""
+CPPLINT="lint"
+CPPLNTOPTS="-c -F -p -v"
+CPPLIBLD="/usr/ccpu/suntools/bin/ld"
+CPPLIBOPTS="-r -o $(OUTNAME)"
+
+#----------------------------------------- g++ compiler
+#
+# These flags define the environment required to build an image on
+# a Sun/SPARC workstation with GNU C version 2.5.7 (or greater) running
+# Solaris 2.4
+#
+GPPENV="-DSUNOS -DANSI "
+GPPCC=g++
+GPPLD=g++
+GPPCOPTS="-g3 -Wall -fno-strict-aliasing -Wno-comment -pipe -Wcast-qual  \
+	      -Wredundant-decls"
+#GPPLOPTS="-o $(OUTNAME) -lpthread -lposix4"
+GPPLOPTS="-o $(OUTNAME) -lpthread"
+GPPLIBS=""
+GPPLINT="lint"
+GPPLNTOPTS="-c -F -p -v"
+
+# GNU gcc compiler for Linux------------------------------------------
+#
+# These  flags define the environment required to build an image  on
+# a Linux workstation with GNU C version 2.5.7 (or greater)
+#
+# For ANSI Compilation
+#LNXENV="-DSUNOS -DANSI"
+LNXENV="-DSUNOS   -DSS_LINUX -DANSI"
+#LNXENV="-DSUNOS   -DSS_LINUX "
+LNXCOPTS="-g3 -ansi -Wall -Wno-comment -pipe -Wshadow -Wcast-qual \
+   -Wstrict-prototypes -Wmissing-prototypes \
+   -Wimplicit -Wunused"
+
+# For non-ANSI Compilation
+#LNXENV="-DSUNOS"
+
+ifeq ($(CCPU_MON_64),y)
+LNXCC="gcc -m64 -DALIGN_64BIT -DBIT_64"
+LNXLD="gcc -m64"
+else
+LNXCC="gcc -m32"
+LNXLD="gcc -m32"
+endif
+#LNXCC="gcc -m64 -DALIGN_64BIT -DBIT_64"
+#LNXCC="gcc -m32 "
+#LNXLD="gcc -m64"
+LNXLIBLD="ld"
+
+LNXLOPTS="-o $(OUTNAME)"
+LNXLIBOPTS="-r -o $(OUTNAME) "
+#LNXLIBOPTS="-r -o $(OUTNAME) "
+LNXACCLIBS="-lpthread"
+LNXLDLIBS=" "
+LNXLIBS=""
+LNXLINT="lint"
+LNXLNTOPTS="-c -F -p -v"
+
+# GNU gcc compiler for RMI Linux------------------------------------------
+#
+#
+# For ANSI Compilation
+RMILNXENV="-DSUNOS   -DSS_LINUX -DANSI"
+RMILNXCOPTS="-g3 -ansi -Wall -Wno-comment -pipe -Wshadow -Wcast-qual \
+   -Wstrict-prototypes -Wmissing-prototypes \
+   -Wimplicit -Wunused"
+
+#ifeq ($(CCPU_MON_64),y)
+#RMILNXCC="gcc -m64 -DALIGN_64BIT -DBIT_64"
+#else
+RMILNXCC="mipsisa32-xlr-linux-gcc"
+#endif
+RMILNXLD="mipsisa32-xlr-linux-gcc"
+RMILNXLIBLD="mipsisa32-xlr-linux-ld"
+RMILNXLOPTS="-o $(OUTNAME)"
+RMILNXLIBOPTS="-r -o $(OUTNAME) "
+RMILNXLIBS="-lpthread"
+RMILNXLDLIBS=" "
+RMILNXLINT="lint"
+RMILNXLNTOPTS="-c -F -p -v"
+
+
+# MRI mcc68k compiler for 68040-----------------------------------------
+#
+# These flags define the environment required to build an image for
+# a Motorola MVME162 Board (68040) with Microtec Research C version 4.4
+# for a portable environment.
+#
+# For ANSI Compilation
+MRIENV="-DELVIS_68040 -DANSI -DNOERRCHK -DNO_ERRCLS -DNOCONAVL"
+
+# For non-ANSI Compilation
+#MRIENV="-DELVIS_68040 -DNOERRCHK -DNO_ERRCLS -DNOCONAVL"
+
+MRICC="mcc68k"
+MRILD="mcc68k"
+MRICOPTS="-p68040 -H -A -v -Fsm -O -Ob -Oe -Ot -nKc -nKm  -Mcp -Mdp -Ml -Gf "
+MRILOPTS="-e$(OUTNAME).lnk -Wl,\"-m > $(OUTNAME).map -o $(OUTNAME).vcs -F s\""
+MRILIBS=""
+MRILINT=""
+MRILNTOPTS=""
+
+
+# Microsoft Visual C++ for Win 95/NT------------------------------------
+#
+# These flags define the environment required to build an image for
+# a Windows '95 or Windows NT environment
+#
+#
+# For ANSI Compilation
+WINENV="-DWIN32 -DANSI -DWIN32_LEAN_AND_MEAN"
+
+# For non-ANSI Compilation
+#WINENV="-DWIN32"
+
+WINCC="cl"
+WINLD="cl"
+#WINCOPTS="-Od -W3 -Zi -Yd"
+WINCOPTS="-Od -W3 -Zi" #RFC 4460 -- -Yd has been removed
+WINLOPTS="-o $(OUTNAME) -F25000"
+WINLIBS="ws2_32.lib  -link -debug:full -debugtype:cv"
+WINLINT=""
+WINLNTOPTS=""
+
+# for library compilation
+WINLIBOPTS="-r -o $(OUTNAME)"
+
+# Microsoft Visual C++ for DOS------------------------------------------
+#
+# These flags define the environment required to build an image for
+# a DOS environment
+#
+# This environment is TBD
+#
+# For ANSI Compilation
+DOSENV="-DMSC60 -DDOS -DANSI"
+
+# For non-ANSI Compilation
+#DOSENV="-DMSC60 -DDOS"
+
+DOSCC="cl"
+DOSLD="cl"
+DOSCOPTS="-Od -W3 -Zi -Yd -Gx- -Gd -Gy"
+DOSLOPTS="@$(OUTNAME).lnk /ST:25000 /CO /NOI /NOE"
+DOSLIBS=""
+DOSLINT=""
+DOSLNTOPTS=""
+# legacy flag for x86 machines
+#
+# define if required (only for DOS!).
+#
+# -AH -- huge model
+# -AL -- large model
+# -AS -- small model
+#
+MODEL=
+
+
+# Actual Build Environment----------------------------------------------
+#
+# This is the actual environment used, set it appropriately
+# (default Solaris)
+# Uncomment this for default compilation under the Solaris
+# environment for portable build and the acceptance test build
+#ENV=$(SOLENV)
+#CC=$(SOLCC)
+#LD=$(SOLLD)
+#COPTS=$(SOLCOPTS)
+#LOPTS=$(SOLLOPTS)
+#LIBS=$(SOLLIBS)
+#LINT=$(SOLLINT)
+#LNTOPTS=$(SOLLNTOPTS)
+
+# object file suffix----------------------------------------------------
+#
+# this defaults to 'o' for most UNIX based systems
+# this can be set to 'obj' for DOS/Windows/NT platforms
+#
+SOL_OBJ_SUFFIX=o
+WIN_OBJ_SUFFIX=obj
+UNIX_OBJ_SUFFIX=o
+MS_OBJ_SUFFIX=obj
+OBJ=$(SOL_OBJ_SUFFIX)
+
+#=======================================================================
+#
+# macros for compile time options
+#
+
+# portable options
+CPTOPTS=$(MODEL) $(ENV) $(COPTS) $(INC_PATH) $(PTOSOPTS)
+
+# acceptance test options - OSOPTS should be set to required environment
+COSOPTS=$(MODEL) $(ENV) $(COPTS) $(INC_PATH) $(OSOPTS)
+
+# Combined environment, OS, compiler options and include path
+CENVOPTS=$(MODEL) $(ENV) $(COPTS) $(INC_PATH) $(OSOPTS)
+
+# product options for portable build
+CPRDPTOPTS="$(CENVOPTS) $(PRDPTOPTS)"
+
+# product options for acceptance test build
+CPRDACCOPTS="$(COSOPTS) $(PRDACCOPTS)"
+
+# product options for inter-op test build
+CPRDINOPTS="$(COSOPTS) $(PRDINOPOPTS)"
+
+# product options for library build
+CPRDLIBOPTS="$(CENVOPTS) $(PRDLIBOPTS)"
+
+# Common Stack Manager File Options for portable build
+CSMPTOPTS="$(CENVOPTS) $(PRDOPTS)"
+
+# Common Stack Manager File Options for acceptance test build
+CSMACCOPTS="$(CENVOPTS) $(PRDOPTS)"
+
+# Common Stack Manager File Options for library build
+CSMLIBOPTS="$(CENVOPTS) $(PRDOPTS)"
+
+# MOS options - for use with the MOS files in test environment
+CMSOPTS=$(CENVOPTS) $(MSINC_PATH) $(MSCOPTS)
+
+CMTOPTS=$(CENVOPTS)
+CSSOPTS=$(CENVOPTS)
+CCMOPTS=$(CENVOPTS)
+
+# product options for acceptance build
+CPRDACCOPTS="$(CENVOPTS) $(PRDACCOPTS)"
+
+#=======================================================================
+#
+# macros for depend and lint options
+#
+
+# depend acceptance test
+DEPOPTS_ACC="$(PRDACCOPTS)"
+
+# depend portable test
+DEPOPTS_PT="$(PRDPTOPTS)"
+
+#=======================================================================
+#
+# macros for hardcoded dependencies 
+#
+
+# 
+# The following are enabled by default since we assume makedepend
+# is not available. If makedepend is available in your environemnt
+# uncomment out this section.
+
+# environment
+ENV_INC= envopt.h $(CM_DIR)/envdep.h $(CM_DIR)/envind.h
+
+
+# system service interface
+SSI_INC=$(CM_DIR)/ssi.h $(CM_DIR)/ssi.x
+
+
+# general
+GEN_INC=$(CM_DIR)/gen.h $(CM_DIR)/gen.x $(CM_DIR)/sit.h $(CM_DIR)/sit.x
+
+# all system includes
+SYS_INC=$(ENV_INC) $(GEN_INC) $(SSI_INC) 
+
+# common function library includes
+CM_INC= $(CM_DIR)/cm_lib.x $(CM_DIR)/cm_err.h $(CM_DIR)/cm5.h  $(CM_DIR)/cm5.x\
+        $(CM_DIR)/cm_inet.h $(CM_DIR)/cm_inet.x
+
+
+# ALL product includes
+SAALL_INC=$(ENV_INC) $(SSI_INC) \
+           $(GEN_INC) $(CM_INC) 
+
+# sample acceptance tests all includes
+SAACCALL_INC=$(SAALL_INC) $(SAACC_INC)
+
+# sample inter-op test all includes
+SAINOPALL_INC= $(SAALL_INC)
+
+# MTSS specific includes
+MT_INC=$(OS_DIR)/mt_ss.h $(OS_DIR)/mt_ss.x $(OS_DIR)/mt_err.h $(OS_DIR)/cm_mem.h \
+       $(OS_DIR)/cm_mem.x
+
+
+# Common SSI includes
+SS_INC=$(SS_DIR)/ss_dep.h $(SS_DIR)/ss_err.h $(SS_DIR)/ss_mem.h $(SS_DIR)/ss_msg.x $(SS_DIR)/ss_strm.h $(SS_DIR)/ss_task.x $(SS_DIR)/ss_dep.x $(SS_DIR)/ss_gen.h $(SS_DIR)/ss_mem.x $(SS_DIR)/ss_queue.h $(SS_DIR)/ss_strm.x $(SS_DIR)/ss_timer.x $(SS_DIR)/ss_drvr.x $(SS_DIR)/ss_gen.x $(SS_DIR)/ss_msg.h $(SS_DIR)/ss_queue.x $(SS_DIR)/ss_task.h
+#=======================================================================
+#
+# macros for source and object files
+
+
+
+#=======================================================================
+#
+# macros for source and object files
+# SECTION 5
+
+# acceptance test source------------------------------------------------
+SBAC_SRCS= \
+	$(SBACC_DIR)/sb_acclib.c \
+	$(SBACC_DIR)/sb_msg.c
+
+# acceptance test object------------------------------------------------
+SBAC_OBJS= \
+	$(SY_DIR)/sb_acclib.$(OBJ) \
+	$(SY_DIR)/sb_msg.$(OBJ) 
+
+
+# Product source------------------------------------------------
+SB_SRCS= \
+	$(SB_DIR)/sbDecChunk.c \
+	$(SB_DIR)/sbDecoder.c \
+	$(SB_DIR)/sbEncoder.c \
+	$(SB_DIR)/sbEncChunk.c \
+	$(SB_DIR)/sbInit.c 
+
+# Product objects-------------------------------------------------------
+SB_OBJS= \
+	$(SY_DIR)/sbDecChunk.$(OBJ) \
+	$(SY_DIR)/sbDecoder.$(OBJ) \
+	$(SY_DIR)/sbEncoder.$(OBJ) \
+	$(SY_DIR)/sbEncChunk.$(OBJ) \
+	$(SY_DIR)/sbInit.$(OBJ) 
+
+
+# common source(C source files)-----------------------------------------
+SBCM_SRCS= \
+         $(CM_DIR)/cm_gen.c \
+         $(CM_DIR)/cm_lib.c \
+         $(CM_DIR)/cm_llist.c \
+         $(CM_DIR)/cm_inet.c \
+	 $(CM_DIR)/cm_bdy5.c \
+	 $(CM_DIR)/cm_ss7.c \
+	 $(CM_DIR)/cm_asn.c \
+	 $(CM_DIR)/cm_tkns.c \
+	 $(CM_DIR)/cm_mblk.c \
+	 $(CM_DIR)/cm_crc.c \
+    $(CM_DIR)/cm_hash.c \
+    $(CM_DIR)/cm_pasn1.c\
+    $(CM_DIR)/cm_pasn2.c\
+    $(CM_DIR)/cm_pasn3.c\
+    $(CM_DIR)/cm_pasn4.c
+
+
+
+# common objects--------------------------------------------------------
+SBCM_OBJS= \
+         $(SY_DIR)/cm_gen.$(OBJ) \
+         $(SY_DIR)/cm_lib.$(OBJ) \
+         $(SY_DIR)/cm_llist.$(OBJ) \
+         $(SY_DIR)/cm_inet.$(OBJ) \
+         $(SY_DIR)/cm_bdy5.$(OBJ) \
+	 $(SY_DIR)/cm_ss7.$(OBJ) \
+	 $(SY_DIR)/cm_asn.$(OBJ) \
+	 $(SY_DIR)/cm_tkns.$(OBJ) \
+	 $(SY_DIR)/cm_mblk.$(OBJ) \
+	 $(SY_DIR)/cm_crc.$(OBJ) \
+    $(SY_DIR)/cm_hash.$(OBJ)\
+    $(SY_DIR)/cm_pasn1.$(OBJ)\
+    $(SY_DIR)/cm_pasn2.$(OBJ)\
+    $(SY_DIR)/cm_pasn3.$(OBJ)\
+    $(SY_DIR)/cm_pasn4.$(OBJ)
+
+# OS - Common SS source------------------------------------------------------
+SS_SRCS= \
+        $(SS_DIR)/ss_gen.c \
+        $(SS_DIR)/ss_task.c \
+        $(SS_DIR)/ss_drvr.c \
+        $(SS_DIR)/ss_mem.c \
+        $(SS_DIR)/ss_strm.c \
+        $(SS_DIR)/ss_msg.c \
+        $(SS_DIR)/ss_queue.c \
+        $(SS_DIR)/ss_pack.c \
+        $(SS_DIR)/ss_rtr.c
+
+# OS - MTSS objects-----------------------------------------------------
+SS_OBJS= \
+        $(SY_DIR)/ss_gen.$(OBJ) \
+        $(SY_DIR)/ss_task.$(OBJ) \
+        $(SY_DIR)/ss_drvr.$(OBJ) \
+        $(SY_DIR)/ss_mem.$(OBJ) \
+        $(SY_DIR)/ss_strm.$(OBJ) \
+        $(SY_DIR)/ss_msg.$(OBJ) \
+        $(SY_DIR)/ss_queue.$(OBJ) \
+        $(SY_DIR)/ss_pack.$(OBJ) \
+        $(SY_DIR)/ss_rtr.$(OBJ)
+
+# OS - Solaris MTSS source-------------------------------------------------
+MT_SRCS= \
+        $(OS_DIR)/mt_ss.c \
+        $(OS_DIR)/mt_id.c \
+        $(OS_DIR)/cm_mem.c
+
+# OS - Solaris MTSS objects-------------------------------------------------
+MT_OBJS= \
+        $(SY_DIR)/mt_ss.$(OBJ) \
+        $(SY_DIR)/mt_id.$(OBJ) \
+        $(SY_DIR)/cm_mem.$(OBJ)
+
+
+
+# OS - MTSS sources--------------------------------------------------
+MT_SRCS= \
+	$(MT_DIR)/mt_ss.c \
+	$(MT_DIR)/mt_id.c \
+   $(MT_DIR)/cm_mem.c
+
+# OS - MTSS objects--------------------------------------------------
+MT_OBJS= \
+	$(SY_DIR)/mt_ss.$(OBJ) \
+	$(SY_DIR)/mt_id.$(OBJ) \
+	$(SY_DIR)/cm_mem.$(OBJ)
+
+
+# OS -  MTSS sources---------------------------------------------
+OS_SRCS=$(MT_SRCS) $(SS_SRCS)
+
+# OS -  MTSS objects---------------------------------------------
+OS_OBJS=$(MT_OBJS) $(SS_OBJS)
+
+# Portable Build Sources------------------------------------------------
+PT_SRCS= \
+	$(SB_DIR)/sb_tst.c \
+	$(SB_DIR)/ss_ptsp.c
+
+# Portable Build Objects------------------------------------------------
+PT_OBJS= \
+	$(SY_DIR)/sb_tst.$(OBJ) \
+	$(SY_DIR)/ss_ptsp.$(OBJ)
+
+# all acceptance test source--------------------------------------------
+PRDACC_SRCS= \
+	$(SB_SRCS) \
+	$(SBAC_SRCS) \
+	$(SBCM_SRCS) \
+	$(OS_SRCS)
+
+# all acceptance test objects-------------------------------------------
+PRDACC_OBJS= \
+	$(SB_OBJS) \
+	$(SBAC_OBJS) \
+	$(SBCM_OBJS) \
+	$(OS_OBJS)
+
+# all inter-op test source--------------------------------------------
+PRDINOP_SRCS= \
+	$(SB_SRCS) \
+	$(SBCM_SRCS) \
+	$(OS_SRCS) \
+
+# all inter-op test objects-------------------------------------------
+PRDINOP_OBJS= \
+	$(SB_OBJS) \
+	$(SBCM_OBJS) \
+	$(OS_OBJS) \
+
+# all portable sources--------------------------------------------------
+PRDPT_SRCS= \
+	$(PT_SRCS) \
+	$(SB_SRCS) \
+	$(SBCM_SRCS)
+
+# all portable objects--------------------------------------------------
+PRDPT_OBJS= \
+	$(PT_OBJS) \
+	$(SB_OBJS) \
+	$(SBCM_OBJS)
+
+# all library sources--------------------------------------------------
+#PRDLIB_SRCS=  $(SB_DIR)/sb_ex_ms.c $(SB_SRCS)
+PRDLIB_SRCS= $(SB_SRCS)
+
+# all library objects--------------------------------------------------
+PRDLIB_SRCS= \
+$(SB_SRCS) 
+
+# all library objects--------------------------------------------------
+PRDLIB_OBJS= \
+$(SB_OBJS)  
+
+
+#=======================================================================
+#
+# special programs required for Internal Development by makefile
+#
+# adjust as required
+#
+# System Binary Dir - replace with appropriate directory and programe
+# for system
+BIN=/bin
+MAKEDEPEND=makedepend
+REMOVE=$(BIN)/rm -f
+
+#=======================================================================
+#
+# build targets
+#
+
+# clean-----------------------------------------------------------------
+#
+# cleans up everything...
+#
+
+all: acc
+
+clean:
+	$(REMOVE) $(SY_DIR)/*.$(OBJ) $(SY_DIR)/$(BINACC) $(SY_DIR)/*.map
+	$(REMOVE) $(SY_DIR)/$(BINPT) $(SY_DIR)/*.ln $(SY_DIR)/*.s
+
+# External target for acceptance test build
+acc:
+	$(MAKE) -f $(MAKENAME) $(BLDENV) INC_PATH=$(ACC_INC_PATH) \
+	OUTNAME=$(BINACC) LLDIR_USED=$(ACCLL_DIR)
+
+# External target for inter-op test build
+inop:
+	$(MAKE) -f $(MAKENAME) $(BLDENV) INC_PATH=$(INOP_INC_PATH) \
+	OUTNAME=$(BININOP) LLDIR_USED=$(INOPLL_DIR)
+
+# External target for portable build
+pt:
+	@$(MAKE) -f $(MAKENAME) $(BLDENV) OUTNAME=$(BINPT) \
+	INC_PATH=$(PT_INC_PATH)
+
+# External target for portable build
+lib:
+	@$(MAKE) -f $(MAKENAME) $(BLDENV) OUTNAME=$(BINLIB)  \
+	INC_PATH=$(LIB_INC_PATH)
+
+# Portable Target builds for Solaris CC, Solaris GNU, MRI mcc68k on
+# Solaris and Microsoft Visual C++ for WINNT/WIN95
+#
+# Solaris CC portable build---------------------------------------------
+#
+$(BINSOLPT):
+	@$(MAKE) -f $(MAKENAME) $(MAKEPT) -e ENV=$(SOLENV) CC=$(SOLCC)  \
+	LD=$(SOLLD) COPTS=$(SOLCOPTS) LOPTS=$(SOLLOPTS) LIBS=$(SOLLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(PTOSOPTS)
+#
+# Solaris GNU portable build--------------------------------------------
+#
+$(BINGNUPT):
+	@$(MAKE) -f $(MAKENAME) $(MAKEPT) -e ENV=$(GNUENV) CC=$(GNUCC) \
+	LD=$(GNULD) COPTS=$(GNUCOPTS) LOPTS=$(GNULOPTS) LIBS=$(GNULIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(PTOSOPTS)
+#
+# Linux GNU portable build--------------------------------------------
+#
+$(BINLNXPT):
+	@$(MAKE) -f $(MAKENAME) $(MAKEPT) -e ENV=$(LNXENV) CC=$(LNXCC) \
+	LD=$(LNXLD) COPTS=$(LNXCOPTS) LOPTS=$(LNXLOPTS) LIBS=$(LNXLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(PTOSOPTS) $(LNXOSOPTS)"
+#
+# Microsoft Visual C++ for WINNT/WIN95 portable build-------------------
+$(BINWINPT):
+	@$(MAKE) -f $(MAKENAME) $(MAKEPT) -e ENV=$(WINENV) CC=$(WINCC) \
+	LD=$(WINLD) COPTS=$(WINCOPTS) LOPTS=$(WINLOPTS) LIBS=$(WINLIBS) \
+	OBJ=$(MS_OBJ_SUFFIX) OSOPTS=$(PTOSOPTS)
+#
+# MicroTec Research Compiler in Solaris Environment---------------------
+$(BINMRIPT):
+	@$(MAKE) -f $(MAKENAME) $(MAKEPT) -e ENV=$(MRIENV) CC=$(MRICC) \
+	LD=$(MRILD) COPTS=$(MRICOPTS) LOPTS=$(MRILOPTS) LIBS=$(MRILIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(PTOSOPTS)
+
+# Solaris CC acceptance test build--------------------------------------
+#
+$(BINSOLACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) -e ENV=$(SOLENV) CC=$(SOLCC) \
+	LD=$(SOLLD) COPTS=$(SOLCOPTS) LOPTS=$(SOLLOPTS) LIBS=$(SOLLIBS) \
+	LIBAR=$(SOLLIBAR) LIBBLDENV=$(SOLLIBBLDENV) \
+	LIBOPTS=$(SOLLIBOPTS) CMOPTS=$(CCCMOPTS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS)"
+#
+# Solaris GNU acceptance test build-------------------------------------
+#
+$(BINGNUACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) -e ENV=$(GNUENV) CC=$(GNUCC) \
+	LD=$(GNULD) COPTS=$(GNUCOPTS) LOPTS=$(GNULOPTS) LIBS=$(GNULIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS)"
+#
+# Linux GNU acceptance test build-------------------------------------
+#
+$(BINLNXACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) -e ENV=$(LNXENV) CC=$(LNXCC) \
+	LD=$(LNXLD) COPTS=$(LNXCOPTS) LOPTS=$(LNXLOPTS) LIBS=$(LNXACCLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS) $(LNXOSOPTS)"
+#
+# Microsoft Visual C++ for WINNT/WIN95 acceptance test build------------
+$(BINWINACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) -e ENV=$(WINENV) CC=$(WINCC) \
+	LD=$(WINLD) COPTS=$(WINCOPTS) LOPTS=$(WINLOPTS) LIBS=$(WINLIBS) \
+	OBJ=$(MS_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(NSOSOPTS)"
+#
+# Insite Memory Check Tool in Solaris acceptance test build-------------
+$(BININSITEACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) -e ENV=$(INSENV) CC=$(INSCC) \
+	LD=$(INSLD) COPTS=$(INSCOPTS) LOPTS=$(INSLOPTS) LIBS=$(INSLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS)"
+
+#
+# PPC acceptance test build-------------
+$(BINPPCACC):
+	@$(MAKE) -f $(MAKENAME) $(MAKEACC) "ENV=$(PPCENV)" CC=$(PPCCC) \
+	LD=$(PPCLD) "COPTS=$(PPCCOPTS)" "LOPTS=$(PPCLOPTS)" LIBS=$(PPCLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) 
+
+#
+# Inter-op test target builds for Solaris GNU,
+#
+# Solaris GNU Inter-op test build-------------------------------------
+#
+$(BINGNUINOP):
+	@$(MAKE) -f $(MAKENAME) $(MAKEINOP) -e ENV=$(GNUENV) CC=$(GNUCC) \
+	LD=$(GNULD) COPTS=$(GNUCOPTS) LOPTS=$(GNULOPTS) LIBS=$(GNULIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS)"
+
+#
+# Inter-op test target builds for Linux GNU,
+#
+# Linux GNU Inter-op test build-------------------------------------
+#
+$(BINLNXINOP):
+	$(MAKE) -f $(MAKENAME) $(MAKEINOP) -e ENV=$(LNXENV) CC=$(LNXCC) \
+	LD=$(LNXLD) COPTS=$(LNXCOPTS) LOPTS=$(LNXLOPTS) LIBS=$(LNXLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS) $(LNXOSOPTS)"
+
+#
+# Interoperatibility test for solaris CC compiler 
+# 
+# Solaris CC Interoperatibility  test build--------------------------------------
+#
+$(BINSOLINOP):
+	@$(MAKE) -f $(MAKENAME) $(MAKEINOP) -e ENV=$(SOLENV) CC=$(SOLCC) \
+	LD=$(SOLLD) COPTS=$(SOLCOPTS) LOPTS=$(SOLLOPTS) LIBS=$(SOLLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS="$(GENOSOPTS) $(MTOSOPTS)"
+
+# portable--------------------------------------------------------------
+#
+# The following assumes that the compile and linker options are
+# set in the make-file before the definition of this target
+#
+$(MAKEPT):
+	@$(MAKE) -f $(MAKENAME) $(PTBIN) CPRDOPTS=$(CPRDPTOPTS) \
+	CSMOPTS=$(CSMPTOPTS)
+
+$(PTBIN): $(PRDPT_OBJS)
+	$(LD) $(LOPTS) $(PRDPT_OBJS) $(LIBS)
+
+$(LIBBIN): $(PRDLIB_OBJS)
+	$(LD) $(LOPTS) $(PRDLIB_OBJS) $(LIBS)
+
+#
+# Library target builds for Solaris CC &  Solaris GNU
+#
+# Solaris CC library build--------------------------------------
+#
+$(BINSOLLIB):
+	@$(MAKE) -f $(MAKENAME) $(MAKELIB) -e ENV=$(SOLENV) CC=$(SOLCC) \
+	LD=$(SOLLIBLD) COPTS=$(SOLCOPTS) LOPTS=$(SOLLIBOPTS) LIBS=$(SOLLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(GENLIBOSOPTS)
+
+#
+# Solaris GNU library build-------------------------------------
+#
+$(BINGNULIB):
+	@$(MAKE) -f $(MAKENAME) $(MAKELIB) -e ENV=$(GNUENV) CC=$(GNUCC) \
+	LD=$(GNULIBLD) COPTS=$(GNUCOPTS) LOPTS=$(GNULIBOPTS) LIBS=$(GNULIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(GENLIBOSOPTS)
+
+#
+# Window NT library build-------------------------------------
+#
+$(BINWINLIB):
+	@$(MAKE) -f $(MAKENAME) $(MAKELIB) -e ENV=$(WINENV) CC=$(WINCC) \
+	LD=$(WINLIBLD) COPTS=$(WINCOPTS) LOPTS=$(WINLIBOPTS) LIBS=$(WINLIBS) \
+	OBJ=$(MS_OBJ_SUFFIX) OSOPTS=$(GENLIBOSOPTS)
+
+
+#
+# Linux library build-------------------------------------
+#
+$(BINLNXLIB):
+	@$(MAKE) -f $(MAKENAME) $(MAKELIB) -e ENV=$(LNXENV) CC=$(LNXCC) \
+	LD=$(LNXLIBLD) COPTS=$(LNXCOPTS) LOPTS=$(LNXLIBOPTS) LIBS=$(LNXLIBS) \
+	OBJ=$(SOL_OBJ_SUFFIX) OSOPTS=$(LNXLIBOSOPTS)
+
+# acceptance test-------------------------------------------------------
+#
+# The following assumes that the compile and linker options are
+# set in the make-file before the definition of this target
+#
+$(MAKEACC):
+	@$(MAKE) -f $(MAKENAME) $(ACCBIN) CPRDOPTS=$(CPRDACCOPTS) \
+	CSMOPTS=$(CSMACCOPTS)  
+
+$(ACCBIN): $(PRDACC_OBJS)
+	$(LD) $(LOPTS) $(PRDACC_OBJS) $(LIBS)
+
+
+# inter-op test-------------------------------------------------------
+#
+# The following assumes that the compile and linker options are
+# set in the make-file before the definition of this target
+#
+$(MAKEINOP):
+	$(MAKE) -f $(MAKENAME) $(INOPBIN) CPRDOPTS=$(CPRDINOPTS) \
+	CSMOPTS=$(CSMACCOPTS)
+
+$(INOPBIN): $(PRDINOP_OBJS)
+	$(LD) $(LOPTS) $(PRDINOP_OBJS) $(LIBS)
+
+$(MAKELIB):
+	@$(MAKE) -f $(MAKENAME) $(LIBBIN) CPRDOPTS=$(CPRDLIBOPTS) \
+	CSMOPTS=$(CSMLIBOPTS)
+
+#
+# Make Depend
+# depend portable test--------------------------------------------------
+# dependency for portable source 
+depend_pt: $(PRDPT_SRCS)
+	@$(MAKE) -f $(MAKENAME) $(DEPEND) -e OSOPTS=$(PTOSOPTS) \
+	DEPOPTS=$(DEPOPTS_PT) INC_PATH=$(PT_INC_PATH) DEP_SRCS="$(PRDPT_SRCS)"
+
+# depend acceptance test------------------------------------------------
+# dependency for acceptance test 
+depend_acc: $(PRDACC_SRCS)
+	@$(MAKE) -f $(MAKENAME) $(DEPEND) -e OSOPTS=$(MTOPTS) \
+	DEPOPTS=$(DEPOPTS_ACC) INC_PATH=$(ACC_INC_PATH) DEP_SRCS="$(PRDACC_SRCS)"
+
+# Build the dependency
+$(DEPEND):
+	$(MAKEDEPEND) -f $(MAKENAME) $(OSOPTS) $(DEPOPTS) $(INC_PATH) $(DEP_SRCS)
+#=======================================================================
+#
+# Source code build directives
+# SECTION 6
+
+# Portable build ------------------------------------------------
+$(SY_DIR)/ss_ptsp.$(OBJ): $(CM_DIR)/ss_ptsp.c
+	$(CC) -c $(CPTOPTS) $(CM_DIR)/ss_ptsp.c -o $(SY_DIR)/ss_ptsp.$(OBJ)
+
+$(SY_DIR)/sb_tst.$(OBJ): $(SB_DIR)/sb_tst.c
+	$(CC) -c $(CPTOPTS) $(SB_DIR)/sb_tst.c -o $(SY_DIR)/sb_tst.$(OBJ)
+#acceptance test build------------------------------------------------
+
+$(SY_DIR)/sb_acclib.$(OBJ): $(SBACC_DIR)/sb_acclib.c $(SYS_INC) $(SBACCALL_INC) 
+	$(CC) -c $(CPRDOPTS) $(SBACC_DIR)/sb_acclib.c -o $(SY_DIR)/sb_acclib.$(OBJ)
+
+
+$(SY_DIR)/sb_msg.$(OBJ): $(SBACC_DIR)/sb_msg.c $(SYS_INC) $(SBACCALL_INC) 
+	$(CC) -c $(CPRDOPTS) $(SBACC_DIR)/sb_msg.c -o $(SY_DIR)/sb_msg.$(OBJ)
+   
+# product build---------------------------------------------------
+
+$(SY_DIR)/sbDecChunk.$(OBJ): $(SB_DIR)/sbDecChunk.c $(SYS_INC) $(CM_INC) $(SBACCALL_INC)
+	$(CC) -c $(CPRDOPTS) $(SB_DIR)/sbDecChunk.c -o $(SY_DIR)/sbDecChunk.$(OBJ)
+
+$(SY_DIR)/sbDecoder.$(OBJ): $(SB_DIR)/sbDecoder.c $(SYS_INC) $(CM_INC) $(SBACCALL_INC)
+	$(CC) -c $(CPRDOPTS) $(SB_DIR)/sbDecoder.c -o $(SY_DIR)/sbDecoder.$(OBJ)
+
+$(SY_DIR)/sbEncChunk.$(OBJ): $(SB_DIR)/sbEncChunk.c $(SYS_INC) $(CM_INC) $(SBACCALL_INC)
+	$(CC) -c $(CPRDOPTS) $(SB_DIR)/sbEncChunk.c -o $(SY_DIR)/sbEncChunk.$(OBJ)
+
+$(SY_DIR)/sbEncoder.$(OBJ): $(SB_DIR)/sbEncoder.c $(SYS_INC) $(CM_INC) $(SBACCALL_INC)
+	$(CC) -c $(CPRDOPTS) $(SB_DIR)/sbEncoder.c -o $(SY_DIR)/sbEncoder.$(OBJ)
+
+$(SY_DIR)/sbInit.$(OBJ): $(SB_DIR)/sbInit.c $(SYS_INC) $(CM_INC) $(SBACCALL_INC)
+	$(CC) -c $(CPRDOPTS) $(SB_DIR)/sbInit.c -o $(SY_DIR)/sbInit.$(OBJ)
+
+# common build---------------------------------------------------------
+$(SY_DIR)/cm_gen.$(OBJ): $(CM_DIR)/cm_gen.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_gen.c
+
+$(SY_DIR)/cm_bdy5.$(OBJ): $(CM_DIR)/cm_bdy5.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_bdy5.c
+
+$(SY_DIR)/cm_hash.$(OBJ): $(CM_DIR)/cm_hash.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_hash.c
+
+$(SY_DIR)/cm_llist.$(OBJ): $(CM_DIR)/cm_llist.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_llist.c
+
+$(SY_DIR)/cm_inet.$(OBJ): $(CM_DIR)/cm_inet.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_inet.c
+
+$(SY_DIR)/cm_atm.$(OBJ): $(CM_DIR)/cm_atm.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_atm.c
+
+$(SY_DIR)/cm_ss7.$(OBJ): $(CM_DIR)/cm_ss7.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_ss7.c
+
+$(SY_DIR)/cm_mem.$(OBJ): $(OS_DIR)/cm_mem.c $(SYS_INC) $(CM_INC)
+	$(CC) -c $(CPRDOPTS) $(OS_DIR)/cm_mem.c
+
+$(SY_DIR)/cm_lib.$(OBJ): $(CM_DIR)/cm_lib.c $(SYS_INC) $(CM_INC)
+	$(CC) -c $(CPRDOPTS) $(CM_DIR)/cm_lib.c
+
+
+$(SY_DIR)/cm_asn.$(OBJ): $(CM_DIR)/cm_asn.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_asn.c
+
+$(SY_DIR)/cm_tkns.$(OBJ): $(CM_DIR)/cm_tkns.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_tkns.c
+
+$(SY_DIR)/cm_mblk.$(OBJ): $(CM_DIR)/cm_mblk.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_mblk.c
+
+$(SY_DIR)/cm_crc.$(OBJ): $(CM_DIR)/cm_crc.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_crc.c
+
+
+$(SY_DIR)/cm_pasn1.$(OBJ): $(CM_DIR)/cm_pasn1.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_pasn1.c
+
+$(SY_DIR)/cm_pasn2.$(OBJ): $(CM_DIR)/cm_pasn2.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_pasn2.c
+
+$(SY_DIR)/cm_pasn3.$(OBJ): $(CM_DIR)/cm_pasn3.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_pasn3.c
+
+$(SY_DIR)/cm_pasn4.$(OBJ): $(CM_DIR)/cm_pasn4.c $(SAALL_INC)
+	$(CC) -c $(CPRDOPTS)  $(CM_DIR)/cm_pasn4.c
+
+
+# MTSS Files Build ---------------------------------------------------
+
+$(SY_DIR)/ss_gen.$(OBJ): $(SS_DIR)/ss_gen.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_gen.c
+
+$(SY_DIR)/ss_task.$(OBJ): $(SS_DIR)/ss_task.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_task.c
+
+$(SY_DIR)/ss_drvr.$(OBJ): $(SS_DIR)/ss_drvr.c $(SYS_INC) $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_drvr.c
+
+$(SY_DIR)/ss_timer.$(OBJ): $(SS_DIR)/ss_timer.c $(SYS_INC) $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_timer.c
+
+$(SY_DIR)/ss_mem.$(OBJ): $(SS_DIR)/ss_mem.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_mem.c
+
+$(SY_DIR)/ss_strm.$(OBJ): $(SS_DIR)/ss_strm.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_strm.c
+
+$(SY_DIR)/ss_msg.$(OBJ): $(SS_DIR)/ss_msg.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_msg.c
+
+$(SY_DIR)/ss_queue.$(OBJ): $(SS_DIR)/ss_queue.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_queue.c
+
+$(SY_DIR)/ss_pack.$(OBJ): $(SS_DIR)/ss_pack.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_pack.c
+
+$(SY_DIR)/ss_rtr.$(OBJ): $(SS_DIR)/ss_rtr.c $(SYS_INC)  $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(SS_DIR)/ss_rtr.c
+
+# Solaris MTSS files
+
+$(SY_DIR)/mt_ss.$(OBJ): $(OS_DIR)/mt_ss.c $(SYS_INC) $(MT_INC) $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(OS_DIR)/mt_ss.c
+
+$(SY_DIR)/mt_id.$(OBJ): $(OS_DIR)/mt_id.c $(SYS_INC) $(MT_INC) $(SS_INC)
+	$(CC) -c $(CPRDOPTS) $(OS_DIR)/mt_id.c
+
+
+
+#********************************************************************30**
+#
+#        End of file:     sb.mak.99@@/main/tenb_main_ccb/tenb_5.0_RIB/tenb_5.0_RIB_GA/6 - Mon Feb 15 12:52:36 2016
+#
+#********************************************************************31*/
+#
+#********************************************************************40**
+#
+#        Notes:
+#
+#********************************************************************41*/
+#
+#********************************************************************50**
+#
+#********************************************************************51*/
+#
+#********************************************************************60**
+#
+#       Revision history:
+#
+#********************************************************************61*/
+#
+#********************************************************************90**
+#
+#   ver       pat    init                  description
+#---------- -------- ---- -----------------------------------------------
+#   /main/2   ---     wvdl  1. initial release.
+#   /main/2   ---     sb    1. Added the interop files for SCTP
+#   /main/4   ---   rsr/ag  1. Updated for Release of 1.3
+#********************************************************************91*/
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

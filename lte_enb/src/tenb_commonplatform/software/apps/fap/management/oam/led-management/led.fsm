@@ -1,0 +1,141 @@
+##################
+### Led FSM ###
+##################
+
+fsm Led;
+basename Led;
+namespace Led;
+
+#############
+### Types ###
+#############
+type "void*";
+
+##############
+### Events ###
+##############
+
+event EventMapLoaded type "void*";
+event EventTemperatureOutOfRange type "void*";
+event EventTemperatureInRange type "void*";
+event EventNoCalibration type "void*";
+event EventSelfTestOk type "void*";
+event EventCannotConnectToServer type "void*";
+event EventConnectedToServer type "void*";
+event EventNotOperationalTimeout type "void*";
+event EventTransmitterEnabled type "void*";
+event EventTransmitterDisabled type "void*";
+
+##############
+### States ###
+##############
+
+superstate TemperatureOK;
+state InitialState;
+state WrongTemperature;
+state FapError;
+state PowerOnSelfTest;
+state ConnectToServer;
+state NoConnectionToServer;
+state NotOperational;
+state OperationalError;
+state Operational;
+
+###########
+### Fsm ###
+###########
+
+initial_state InitialState;
+
+superstate TemperatureOK
+{
+	defer EventMapLoaded;
+	defer EventCannotConnectToServer;
+	defer EventConnectedToServer;
+	defer EventNotOperationalTimeout;
+	defer EventTransmitterEnabled;
+	defer EventTransmitterDisabled;
+
+	initial_state InitialState;
+	history shallow;
+	event EventTemperatureOutOfRange state WrongTemperature;
+}
+
+state WrongTemperature
+{
+    defer EventNoCalibration;
+    defer EventSelfTestOk;
+	defer EventCannotConnectToServer;
+	defer EventConnectedToServer;
+	defer EventNotOperationalTimeout;
+	defer EventTransmitterEnabled;
+	defer EventTransmitterDisabled;
+
+	entry;	# Trigger Led behaviour for over/under temperature 
+	        
+	event EventTemperatureInRange state TemperatureOK;
+}
+
+state FapError
+{
+	entry; # Trigger Led behaviour for Fap error
+}
+
+# states of TemperatureOK superstate
+
+state InitialState
+{
+	superstate TemperatureOK;
+	entry;
+	
+	event EventMapLoaded state PowerOnSelfTest;
+}
+
+state PowerOnSelfTest
+{
+	superstate TemperatureOK;
+	entry;
+	
+	event EventSelfTestOk state ConnectToServer;
+	event EventNoCalibration state FapError;
+}
+
+state ConnectToServer
+{
+	superstate TemperatureOK;
+	entry;
+	
+	event EventCannotConnectToServer state NoConnectionToServer;
+	event EventConnectedToServer state NotOperational;
+}
+
+state NoConnectionToServer
+{
+	superstate TemperatureOK;
+	
+	entry;
+	event EventConnectedToServer state NotOperational;
+}
+
+state NotOperational
+{
+	superstate TemperatureOK;
+	entry;
+	event EventNotOperationalTimeout state OperationalError;
+	event EventTransmitterEnabled state Operational;
+}
+
+state OperationalError
+{
+	superstate TemperatureOK;
+	entry;
+	event EventTransmitterEnabled state Operational;
+}
+
+state Operational
+{
+	superstate TemperatureOK;
+	entry;
+	event EventTransmitterDisabled state NotOperational;
+}
+

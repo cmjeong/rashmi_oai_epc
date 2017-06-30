@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.Radisys.com/umts-fap/mib" xmlns="http://www.Radisys.com/umts-fap/mib">
+  <!-- We're using something here called the Chameleon effect. The included lib has no namespace -->
+
+  <xs:include schemaLocation="mib-lib.xsd"/>
+
+  <xs:element name="mib" type="mibType">
+
+    <!-- TODO: Add constraint to enforce that either attributeDef or attribute has the accessClass set -->
+
+    <!--  Ensure that attribute references have definitions -->
+    <xs:key name="attributeId">
+      <xs:selector xpath="attributeDefs/*" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:keyref name="attributeIdRef" refer="attributeId">
+      <xs:selector xpath="managedObjects/managedObject/attributes/attribute" />
+      <xs:field xpath="@name" />
+    </xs:keyref>
+
+    <!--  Ensure that managedObject child references have definitions -->
+    <xs:key name="objectChild">
+      <xs:selector xpath="managedObjects/managedObject" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:keyref name="objectChildRef" refer="objectChild">
+      <xs:selector xpath="managedObjects/managedObject/childObjects/childObject" />
+      <xs:field xpath="@name" />
+    </xs:keyref>
+
+    <!--  Ensure that managedObject parent references have definitions -->
+    <xs:key name="objectParent">
+      <xs:selector xpath="managedObjects/managedObject" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:keyref name="objectParentRef" refer="objectParent">
+      <xs:selector xpath="managedObjects/managedObject" />
+      <xs:field xpath="@parent" />
+    </xs:keyref>
+
+  </xs:element>
+
+</xs:schema>

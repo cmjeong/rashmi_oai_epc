@@ -1,0 +1,5003 @@
+#
+#/********************************************************************20**
+#
+#     Name:    LTE RRC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc11.xml
+#
+#     Sid:      cm_xta_gen_tc_num.py@@/main/5 - Wed Jun 27 16:21:06 2007
+#
+#     Prg:     chebli 
+#
+#*********************************************************************21*/
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcstart=13:rcs:nhac_tc11.xml
+
+#
+#
+#       Test:    11.1
+#
+#       Desc:    Successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with  new key as part of configuration info to this UE.
+            -RRC user receives the message, encodes and stores it and 
+            intiates lower layer configuration .
+
+            - CPJ re-establish confirms are recived with invalid ueId,cellId
+              and transId 
+
+            - Lower layers perform the required actions and send positive 
+            confirms.
+            - RRC sends a consolidated confirm to RRC user and sends the 
+             encoded RRC connection re-establishment message on DL-CCCH. 
+            - UE sends RRC Connection Re-establishment complete message. 
+            - RRC decodes its and sends it to RRC user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        #<tapa.dummy.ckw.cfgreq  use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #<tapa.send>
+      #   <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     #</tapa.send>
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   ueId="10" duplicate="1" invalidUeId="2"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   ueId="10" duplicate="1" invalidCellId="4"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   ueId="10" duplicate="1" invalidTransId="100"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection re-establishment at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2"
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send RRC Connection re-establishment Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="3" spId="0"
+                         suId="0" ueId="10" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection re-establishment Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="10" cellId="1" />
+     </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.2
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                RLC config failure
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.2">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful RRC Connection Re-establishement procedure.
+             RLC config failure
+
+             - UE sends RRC Connection Re-establishement request message on 
+               UL-CCCH.  
+             - RRC decodes the message and sends it to RRC user.
+             - RRC user decides to send RRC connection re-establishment message.
+             - RRC performs lower layer configuration, RLC SRB1 re-establishment 
+             fails .
+             - RRC reverts UE Id change request issued at RLC,MAC and PDCP.
+             - RRC sends a negative consolidated confirm to RRC user.
+             - RRC user decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10" numFailedRb="1" failedRbIdStr="1,0"/>
+     </tapa.send>
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0" />
+        <tapa.dummy.ckw.ueidchngreq use="1" storeCfms="0"/>
+        <tapa.dummy.cpj.ueidchngreq use="1" storeCfms="0"/>
+        <tapa.nhu.cfgcfm/>
+     #   <tapa.dummy.ctf.ueidchngreq use="1"/>
+      #  <tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.3
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                PDCP config failure
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.3">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful RRC Connection Re-establishement procedure.
+            PDCP config failure
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs lower layer configuration, PDCP SRB1 
+              re-establishment fails. 
+            - RRC reverts UE ID change done at PDPC, RLC and MAC.
+            - RRC sends a negative consolidated confirm to RRC user.
+            - RRC user decides to release the UE configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10" status="0"/>
+     </tapa.send>
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0"/>
+        <tapa.dummy.ckw.ueidchngreq use="1" storeCfms="0"/>
+        <tapa.dummy.cpj.ueidchngreq use="1" storeCfms="0"/>
+       # <tapa.dummy.ctf.ueidchngreq use="1"/>
+       # <tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.4
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                PDCP config confirm timeout. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.4">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful RRC Connection Re-establishement procedure.
+             PDCP config confirm timeout.
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs lower layer configuration, PDCP SRB1 
+              re-establishment confirm is not sent.
+            - RRC reverts UE ID change at RLC, MAC and PDCP. 
+            - RRC sends a negative consolidated confirm to 
+              RRC user.RRC user decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+
+     #PDCP re-establishment confirm timeout
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+      <tapa.delay delay="30" />
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="10" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.5
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                MAC reset failure. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.5">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful RRC Connection Re-establishement procedure.
+            MAC reset failure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs lower layer configuration, MAC reset request fails.
+            - RRC reverts UE ID change at RLC,MAC and PDCP.
+            - RRC sends a negative consolidated confirm to RRC user, RRC user 
+              decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1" status="15"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+
+     #PDCP re-establishment confirm 
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10" status="0"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="30" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.6
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                MAC UE ID change request failure. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.6">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful RRC Connection Re-establishement procedure.
+            MAC UE ID change request failure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs lower layer configuration, MAC UE id change request 
+              fails.
+            - RRC reverts UE ID change at RLC and PDCP.
+            - RRC sends a negative consolidated confirm to RRC user, RRC user 
+              decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1" />
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10" status="15"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+
+     #PDCP re-establishment confirm 
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10" status="0"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="10" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.7
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                MAC default configuration fails failure. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.7">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful RRC Connection Re-establishement procedure.
+             MAC default configuration fails failure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs lower layer configuration, MAC default configuration
+              fails.
+            - RRC reverts UE ID change at RLC,MAC and PDCP
+            - RRC sends a negative consolidated confirm to RRC user.RRC user 
+              decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1" />
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10" status="15"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+
+     #PDCP re-establishment confirm 
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10" status="0"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="10" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.8
+# 
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                PHY default configuration fails failure. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.8">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  RRC decodes the message and sends it to RRC user.RRC 
+            user decides to send RRC connection re-establishment message.RRC
+            performs lower layer configuration. 
+            PHY default configuration fails.
+            RRC reverts UE ID change at RLC,MAc and PDCP.
+            RRC sends a negative consolidated confirm to 
+            RRC user.RRC user decides to release the UE configuration.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   ##Perform cell configuration pre-test
+   # <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   ##perform RRC connection setup
+   # <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   ##send RRC conenction re-establishment request.
+   #   <tapa.send >
+   #      <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" />
+   #   </tapa.send>
+
+   #   #Expect RRC Connection re-establishment Request at RRC user
+   #   <tapa.expect >
+   #      <tapa.nhu.datind ueId="0"/>
+   #   </tapa.expect>
+
+   #   #Send RRC Connection Re-establishment from RRC user
+   #   <tapa.send>
+   #      <tapa.nhu.datrsp spId="0" bitMask="2" expCfgBitMask="23"
+   #       rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+   #       rrc_transId="0" transId="10" rbId="1" pdcpId="1" ueId="0"
+   #       addRbIdStr="1,0" valChk="0"/>
+   #   </tapa.send>
+
+   #  #lower layer
+   #  <tapa.expset>
+   #     <tapa.dummy.crg.cfgreq  store_tid="1" />
+   #     <tapa.dummy.crg.cfgreq  store_tid="1" />
+   #     <tapa.dummy.crg.cfgreq  store_tid="1" />
+   #     <tapa.dummy.ckw.ueidchngreq use="1"/>
+   #     <tapa.dummy.ckw.cfgreq  use="1"/>
+   #     <tapa.dummy.cpj.ueidchngreq use="1"/>
+   #     <tapa.dummy.cpj.reestreq  use="1"/>
+   #     <tapa.dummy.ctf.ueidchngreq use="1"/>
+   #     <tapa.dummy.ctf.cfgreq use="1"/>
+   #  </tapa.expset>
+
+   #  #Send configuration confirm from MAC
+   #  <tapa.send>
+   #      <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+   #  </tapa.send>
+
+   #  <tapa.send>
+   #      <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+   #  </tapa.send>
+
+   #  <tapa.send>
+   #      <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="2"/>
+   #  </tapa.send>
+   #  #Send configuration confirm from RLC
+   #  <tapa.send>
+   #      <tapa.dummy.ckw.ueidchngcfm   use="1" ueId="3"/>
+   #  </tapa.send>
+
+   #  <tapa.send>
+   #      <tapa.dummy.ckw.cfgcfm   use="1" ueId="3"/>
+   #  </tapa.send>
+   #  #Send configuration confirm from PDCP
+   #  <tapa.send>
+   #      <tapa.dummy.cpj.ueidchngcfm   use="1" ueId="3"/>
+   #  </tapa.send>
+
+   #  <tapa.send>
+   #      <tapa.dummy.cpj.reestcfm   use="1" ueId="3"/>
+   #  </tapa.send>
+
+   #  #Send configuration confirm from PHY
+   #  <tapa.send>
+   #      <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+   #  </tapa.send>
+
+   #  <tapa.send>
+   #      <tapa.dummy.ctf.cfgcfm   use="1" ueId="3" status="1"/>
+   #  </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   #   <tapa.rrc.conrls ueId="2" cellId="1" />
+#      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.9 
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                RRC connection re-establishment reject sent. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.9">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+            "
+             Un-successful RRC Connection Re-establishement procedure.
+             RLC config failure
+
+             - UE sends RRC Connection Re-establishement request message on 
+               UL-CCCH.  
+             - RRC decodes the message and sends it to RRC user.
+             - RRC user decides to send RRC connection re-establishment message.
+             - RRC performs lower layer configuration, RLC Ue ID chng req fails 
+             fails .
+             - RRC reverts UE Id change request issued at MAC and PDCP.
+             - RRC sends a negative consolidated confirm to RRC user.
+             - RRC user decides to release the UE configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="2" ueId="1"/>
+     </tapa.send>
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     #   <tapa.dummy.ctf.ueidchngreq use="1"/>
+      #  <tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.10
+# 
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                RRC connection re-establishment complete not received. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.10">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful RRC Connection Re-establishement procedure.
+             RRC connection re-establishment complete not received.
+
+            - UE sends RRC Connection Re-establishement request message on 
+              UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message.
+            - RRC performs successful lower layer configuration and a 
+              successful consolidated confirm is sent to RRC user.
+            - RRC sends the encoded message to UE. 
+            - RRC Connection Re-establishment complete is not received.
+            - RRC user decides to release the UE configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection re-establishment at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2"
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     # No RRC Connection re-establishment complete os received Send cancel UE request from RRC user
+     <tapa.send>
+        <tapa.nhu.cncluereq cellId="1" ueId="10" />
+     </tapa.send>
+
+      <tapa.delay delay="5" />
+
+      #Expect revert configuration request at RLC, MAC and PDCP
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"  />
+         <tapa.dummy.ckw.cfgreq  use="1"  />
+         <tapa.dummy.cpj.cfgreq  use="1"  />
+        # <tapa.dummy.ctf.cfgreq  use="1"  />
+      </tapa.expset>
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from PHY 
+     #<tapa.send>
+      #   <tapa.dummy.ctf.cfgcfm   use="1" ueId="2"/>
+     #</tapa.send>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.11
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                No UE context available. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.11">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful RRC Connection Re-establishement procedure.
+            No UE context available.
+ 
+            RRC user sends RRC connection re-establishment message.
+            No UE context is available at RRC. RRC sends and error 
+            indication is RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+   #Dont perform connection setup
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+      <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+      #RRC sends an error indication 
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="9" errorCause="7" />
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.12
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                No UE context available for Re-establishement Complete. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.12">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "RRC recieves  RRC connection re-establishment complete 
+            but UE context is not available. RRC drops the message." 
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #Dont perform connection setup
+
+     #Send RRC Connection re-establishment Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="3" spId="0"
+                         suId="0" ueId="10" cellId="1" />
+     </tapa.send>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.13
+#
+#       Desc:    Successful Connection re-configuration after Connection
+#                re-establishment
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.13">
+#<tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Successful Connection re-configuration after Connection
+            re-establishment.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message.
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers RLC and PDCP send positive configuration confirm,
+              RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+          #Expect Conn Recfg at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="5" />
+
+      #Send connection re-configuration complete
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.14
+#
+#       Desc:    Successful Connection re-configuration after Connection
+#                re-establishment with UE configuration available
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.14">
+#<tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Successful Connection re-configuration after Connection
+            re-establishment with UE configuration available
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message along with Ue 
+              configuration info to add, modify and release RB's. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and those DRB's that are not in release/modify list.
+            - Lower layers RLC and PDCP send positive configuration confirm.
+              RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+
+   #Send Connection Reconfiguration For ueId 1, cellId=1
+    <tapa.send>
+        <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1" conReCfgCause="2"
+         msgCategory="1" msgType="4" transId="1" rrc_transId="1" rbCfgType="6"
+         cellId="1" ueId="1" pdcpId="1"  numModRb="1" numRlsRb="1" drbLogChCfgAbsent="1"
+        modRbIdStr="3,1" modLcIdStr="3" modBitMskStr="7" rlsRbIdStr="4,1" trChCfgDed="0" 
+        macSchedCfg="0" valChk="0" pdcpCfgAbsent="1" ulSpecParamAbsent="1" drbRlcCfgAbsent="1"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.crg.cfgreq  store_tid="1" />
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+       <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+      #Expect Conn Recfg at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="5" />
+
+      #Send connection re-configuration complete
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.15
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.15">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful Connection re-configuration after Connection
+            re-establishment. No Ue Configuration sent.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's. 
+            - RLC sends negative confirm and PDCP send positive configuration 
+              confirm.  RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.16
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. Ue Configuration sent with re-config message
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.16">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful Connection re-configuration after Connection
+            re-establishment. Ue Configuration sent with re-config message 
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's. 
+            - PDCP sends negative confirm and RLC send positive configuration 
+              confirm.
+            - RRC sends revert for request for RB Add/modify or release config.
+            - RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" />
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.17
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent. RLC config confirm
+#                timeout. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.17">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful Connection re-configuration after Connection                      re-establishment.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers RLC does not send confirm and PDCP send positive 
+              configuration confirm.
+            - Config timer for RLC expires.  RRC sends a negative consolidated 
+              confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     #No CKW Config Confirm
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.18
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent. PDCP config confirm
+#                timeout. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.18">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful Connection re-configuration after Connection
+             re-establishment. No Ue Configuration sent. PDCP config confirm
+             timeout.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers PDCP does not send confirm and RLC send positive 
+              configuration confirm.
+            - Config timer for PDCP expires.RRC sends a negative consolidated 
+              confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" />
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     #CPJ Config confirm timeout
+
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.19
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent. Negative PDCP 
+#                config confirm.
+#                 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.19">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful RRC Connection Re-establishement procedure.
+             RLC config failure
+
+             - UE sends RRC Connection Re-establishement request message on 
+               UL-CCCH.  
+             - RRC decodes the message and sends it to RRC user.
+             - RRC user decides to send RRC connection re-establishment message.
+             - RRC performs lower layer configuration, PDCP Ue ID chng req fails 
+             fails .
+             - RRC reverts UE Id change request issued at MAC and PDCP.
+             - RRC sends a negative consolidated confirm to RRC user.
+             - RRC user decides to release the UE configuration."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="2" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     #   <tapa.dummy.ctf.ueidchngreq use="1"/>
+      #  <tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="10" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.20
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent. Negative PDCP,
+#                RLC config confirm.
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.20">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Un-successful Connection re-configuration after Connection
+            re-establishment. No Ue Configuration sent. Negative PDCP,
+            RLC config confirm.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers PDCP and RLC send negative confirms. RRC sends a 
+              consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1" numFailedRb="1" failedRbIdStr="3,1"/>
+     </tapa.send>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.21
+#
+#       Desc:    Un-successful Connection re-configuration after Connection
+#                re-establishment. No Ue Configuration sent. PDCP and RLC 
+#                config confirm timeout.
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.21">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+             Un-successful Connection re-configuration after Connection
+             re-establishment. No Ue Configuration sent. PDCP and RLC                        config confirm timeout.
+ 
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message. 
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers PDCP and RLC donot send confirms. 
+            - Lower layer config timer expires.RRC sends a consolidated
+              confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.delay delay="30" />
+     #Config confirms from RLC and PDCP timeout
+     #No revert action exists for re-establishment so only a neagtive config confirm is sent to RRC user
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+
+#
+#
+#       Test:    11.23
+#
+#       Desc:    Un-successful processing of  measurement report message. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.23">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.5.5"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "RRC receives a variable measurement report message for which
+            a request was not issued. 
+            RRC does not find the UE CB and drops the message."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+   
+   #Send RRC Measurement report from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="1" spId="0"
+                         suId="0" ueId="2" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #RRC drops the message as no ueID is found
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+</tapa.testcase>
+
+#
+#
+#       Test:    11.24
+#
+#       Desc:    Successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with  new key as part of configuration info to this UE.
+            -RRC user receives the message, encodes and stores it and 
+            intiates lower layer configuration in the following manner.
+
+            *)Issues UE Id change request and  Re-establish SRB1 at PDCP.
+            *)Issues UE Id change request and Re-establish SRB1 at RLC
+            *)Issues UE Id change request and  Re-set MAC context for this UE              and default configuration.
+            *)Issues UE Id change request and default config request for PHY.
+            - Lower layers perform the required actions and send positive 
+            confirms.
+            - RRC sends a consolidated confirm to RRC user and sends the 
+             encoded RRC connection re-establishment message on DL-CCCH. 
+            - UE sends RRC Connection Re-establishment complete message. 
+            - RRC decodes its and sends it to RRC user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4" decode_error="1"/>
+      </tapa.send>
+
+     #Encode error at RRC expect error indication 
+      <tapa.delay delay="5" />
+
+      #Expect Error Indication at RRC user
+      <tapa.expect >
+         <tapa.nhu.errind errorType="7" errorCause="0" />
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.25
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Un-successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with no UE configuration.
+            -RRC throws an error indication to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="11"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #error indication to RRC user  
+     <tapa.expset>
+        <tapa.nhu.errind />
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.22
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Un-successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with UE configuration with wrong UE id.
+            -RRC throws an error indication to RRC user."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  fillUeIdCfg="0" numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #error indication to RRC user  
+     <tapa.expset>
+        <tapa.nhu.errind />
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.26
+#
+#       Desc:    Unsuccessful Re-est rejection after RRC Connection Reconfiguration
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message to RRC to send it to UE in RRC_CONNECTED state. 
+          "RRC will then encode the RRC Connection Reconfiguration message 
+           and send it to UE. "
+          "UE will also do the reconfiguration at its end and sends RRC 
+           Connection Re-establishment procedure to eNB as it is not able 
+           to comply with the configuration sent."
+           "On getting RRC Connection Re-establishment Request message 
+           from PDCP, RRC will decode this message and if decode is 
+           successful, RRC will verify the reestablishment cause. If the 
+           cause is Reconfiguration failure then RRC will forward the 
+           message to RRC user. RRC user will then send Connection 
+           Re-establishment Reject message to UE. Also 
+		   Releases the cnfiguration of Old UE
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+	  
+	  # Send RRC Connection Re Establishment request to RRC from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Reestablishment request will have nly tCrnti
+	  <tapa.expect>
+	     <tapa.nhu.datind ueId="0" cellId="1"/>
+      </tapa.expect>
+
+      #Send RRC Connection Reetsblishment Reject with Old Ue Id
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0" expCfgBitMask="0"
+          msgCategory="3" msgType="1" rrc_transId="1" transId="11" 
+		  rbId="1" tCrnti="100" cellId="1" failForEnc="1"
+		  ueId="1" valChk="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.nhu.errind  use="1" />
+      </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.27
+#
+#       Desc:    Unsuccessful Re-est rejection after RRC Connection Reconfiguration
+#                 due to invalide CRG SAP
+#
+#       Notes:   None
+#              
+#       Module:  
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.5 and 6.2.2"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+          "In this case, RRC user will send RRC Connection Reconfiguration 
+           message to RRC to send it to UE in RRC_CONNECTED state. 
+          "RRC will then encode the RRC Connection Reconfiguration message 
+           and send it to UE. "
+          "UE will also do the reconfiguration at its end and sends RRC 
+           Connection Re-establishment procedure to eNB as it is not able 
+           to comply with the configuration sent."
+           "On getting RRC Connection Re-establishment Request message 
+           from PDCP, RRC will decode this message and if decode is 
+           successful, RRC will verify the reestablishment cause. If the 
+           cause is Reconfiguration failure then RRC will forward the 
+           message to RRC user. RRC user will then send Connection 
+           Re-establishment Reject message to UE. Also 
+		   Releases the cnfiguration of Old UE
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+      </tapa.ifndef>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.rrc.init/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      #Cell Configuration Setup
+      <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1" />
+
+      #carry Out connection establishment for UE 1
+      <tapa.rrc.consetup ueId="1" cellId="1" tCrnti="1"/>
+	  <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+	  #Send Connection Reconfiguration For ueId 1, cellId=1
+      #msgCategory="1" DLDCCH, msgType="4" Connection recfg
+      #expCfgBitMask=1 Only RbConfig is given
+      #Adding 1 SRB, 2 DRBs rbCfgType="1"
+	  #logChType="3" id logical chanel type DLDCCH=3(enum)
+	  #addLcIdStr logical channels wrt to RBs added
+	  #addBitMskStr direction UL/DL/PDCP for RBs added
+	  #trChCfgDed=0 indicates transport channel config not present.
+	  #macSchedCfg="0" indicates MAC Scheduling config not present.
+	  <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		 msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		 cellId="1" ueId="1" pdcpId="1" numAddRb="3" addRbIdStr="2,0,3,1,4,1"
+		 addLcIdStr="2,3,4" addBitMskStr="7,6,5" rbCfgType="1" logChType="3"
+		 trChCfgDed="0" macSchedCfg="0"/>
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+	  
+ 
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="0"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="1"/>
+		 <tapa.dummy.crg.cfgreq  store_tid="1" ueIdPres="1" valUeId="1" rbIdx="2" cleanup="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+		 <tapa.dummy.cpj.cfgreq  use="1" ueIdPres="1" valUeId="1" cleanup="1"/>
+      </tapa.expset>
+     
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+     
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+	 <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+	  #Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+	  <tapa.delay delay="5" />
+	  
+	  # Send RRC Connection Re Establishment request to RRC from RLC 
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" 
+         cellId="1" tCrnti="2" />
+      </tapa.send>
+
+	  <tapa.delay delay="5" />
+
+	  #Reestablishment request will have nly tCrnti
+	  <tapa.expect>
+	     <tapa.nhu.datind ueId="0" cellId="1"/>
+      </tapa.expect>
+
+      <tapa.rrc.delsap.crg/>
+
+      #Send RRC Connection Reetsblishment Reject with Old Ue Id
+      <tapa.send>
+         <tapa.nhu.datrsp spId="0" bitMask="0" expCfgBitMask="0"
+          msgCategory="3" msgType="1" rrc_transId="1" transId="11" 
+		  rbId="1" tCrnti="100" cellId="1" 
+		  ueId="1" valChk="0"/>
+      </tapa.send>
+
+	  #Expect RRC Connection Reestablishment Reject at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="100" 
+          cellId="1" />
+         <tapa.nhu.errind/>
+      </tapa.expset>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.28
+#
+#       Desc:    Unsuccessful RRC Connection Re-establishement procedure.
+#                 - Could not send cfg request to lower lahyers
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      <tapa.rrc.delsap.cpj/>
+      <tapa.rrc.delsap.ckw/>
+      <tapa.rrc.delsap.crg/>
+      <tapa.rrc.delsap.kwu/>
+      <tapa.rrc.delsap.pju/>
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection re-establishment Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.errind errorType="15" errorCause="10" />
+     </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.29
+#
+#       Desc:    Successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with  new key as part of configuration info to this UE.
+            -RRC user receives the message, encodes and stores it and 
+            intiates lower layer configuration .
+
+            - CPJ re-establish confirms are recived with invalid ueId,cellId
+              and transId 
+
+            - Lower layers perform the required actions and send positive 
+            confirms.
+            - RRC sends a consolidated confirm to RRC user and sends the 
+             encoded RRC connection re-establishment message on DL-CCCH. 
+            - UE sends RRC Connection Re-establishment complete message. 
+            - RRC decodes its and sends it to RRC user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+
+     #Send configuration confirm from RLC
+     #<tapa.send>
+      #   <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1" cleanup="0"/>
+     #</tapa.send>
+   
+
+     #Duplicate CKW ue id change confirm
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection re-establishment at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2"
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send RRC Connection re-establishment Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="3" spId="0"
+                         suId="0" ueId="10" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection re-establishment Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="10" cellId="1" />
+     </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.30
+#
+#       Desc:    Successful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with  new key as part of configuration info to this UE.
+            -RRC user receives the message, encodes and stores it and 
+            intiates lower layer configuration .
+
+            - CPJ re-establish confirms are recived with invalid ueId,cellId
+              and transId 
+
+            - Lower layers perform the required actions and send positive 
+            confirms.
+            - RRC sends a consolidated confirm to RRC user and sends the 
+             encoded RRC connection re-establishment message on DL-CCCH. 
+            - UE sends RRC Connection Re-establishment complete message. 
+            - RRC decodes its and sends it to RRC user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1" />
+     </tapa.send>
+   
+
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1" />
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Duplicate
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+     #Send configuration confirm from PDCP 
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm invalidCellId="1" invalidUeId="4"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm duplicate_tid="1" ueId="10"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect configuration confirm at RRC user
+     #Expect RRC Connection re-establishment at RLC
+     <tapa.expset>
+         <tapa.dummy.kwu.datreq rbId="1" tCrnti="2"
+         cellId="1" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+     #Send RRC Connection re-establishment Complete from PDCP
+     <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="3" spId="0"
+                         suId="0" ueId="10" cellId="1" />
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+     #Expect RRC Connection re-establishment Complete at RRC user
+     <tapa.expect>
+        <tapa.nhu.datind ueId="10" cellId="1" />
+     </tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.31
+#
+#       Desc:    Successful Connection re-configuration after Connection
+#                re-establishment
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.31">
+#<tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Successful Connection re-configuration after Connection
+            re-establishment.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message.
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers RLC and PDCP send positive configuration confirm,
+              RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+          #Expect Conn Recfg at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+      #Send connection re-configuration complete
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.32
+#
+#       Desc:    Successful Connection re-configuration after Connection
+#                re-establishment
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.32">
+#<tapa.attribute scenarioType="NORMAL"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7 and 5.3.5.3"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "
+            Successful Connection re-configuration after Connection
+            re-establishment.
+
+            - After successful connection re-establishment, RRC user sends a
+              RRC connection re-configuration message.
+            - RRC receives RRC reconfiguration complete.
+            - RRC will issue configuration requests to re-establish SRB2(if 
+              existing) and currently configured DRB's.
+            - Lower layers RLC and PDCP send positive configuration confirm,
+              RRC sends a consolidated confirm to RRC user."
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+   #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+
+   <tapa.rrc.security_actv ueId="1" cellId="1"/>
+
+   #perform RRC connection re-configuration
+   <tapa.rrc.conrecfg cellId="1" ueId="1"/>
+
+   #Assume RRC connection re-etablishment has happened and 
+   # Send Connection Reconfiguration For ueId 1, cellId=1
+          <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+                 cellId="1" ueId="1" pdcpId="1" conReCfgCause="2" expCfgBitMask="0" valChk="0"/>
+      </tapa.send>
+
+          <tapa.delay delay="5" />
+
+
+     #Expect Lower Layer configurations
+     #Expect Conn Recfg Complete at NHU
+      <tapa.expset>
+         <tapa.dummy.ckw.cfgreq  use="1" />
+         <tapa.dummy.cpj.cfgreq  use="1" />
+      </tapa.expset>
+
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1" cleanup="0"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.delay delay="5" />
+
+      #Expect Conn Recfg at PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="1" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+     <tapa.expect>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expect>
+
+     <tapa.delay delay="5" />
+
+      #Send connection re-configuration complete
+      <tapa.send>
+        <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="1" cellId="1"/>
+      </tapa.send>
+
+     <tapa.expect>
+         <tapa.nhu.datind ueId="1" cellId="1"/>
+     </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.33
+#
+#       Desc:    Unsuccessful RRC Connection Re-establishement procedure.
+#                 - NULL Cfm sent from UeIdChgCfm
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+           "Successful RRC Connection Re-establishement procedure.
+
+            - UE sends RRC Connection Re-establishement request message on 
+            UL-CCCH.  
+            - RRC decodes the message and sends it to RRC user.
+            - RRC user decides to send RRC connection re-establishment message 
+            along with  new key as part of configuration info to this UE.
+            -RRC user receives the message, encodes and stores it and 
+            intiates lower layer configuration .
+
+            - CPJ re-establish confirms are recived with invalid ueId,cellId
+              and transId 
+
+            - Lower layers perform the required actions and send positive 
+            confirms.
+            - RRC sends a consolidated confirm to RRC user and sends the 
+             encoded RRC connection re-establishment message on DL-CCCH. 
+            - UE sends RRC Connection Re-establishment complete message. 
+            - RRC decodes its and sends it to RRC user"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"
+                     nullCfgCfm="1"/>
+     </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0" />
+        <tapa.dummy.ckw.ueidchngreq use="1" storeCfms="0"/>
+        <tapa.nhu.cfgcfm/>
+     #   <tapa.dummy.ctf.ueidchngreq use="1"/>
+      #  <tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.34
+#
+#       Desc:    Un-successful RRC Connection Re-establishement procedure.
+#                MAC reset failure. 
+#
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.34">
+#<tapa.attribute scenarioType="FAILURE"/>
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Un-successful RRC Connection Re-establishement procedure.
+        MAC reset failure.
+
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="12"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1" status="15"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"/>
+     </tapa.send>
+
+
+     #PDCP re-establishment confirm 
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10" status="0" nullSdu="1"/>
+     </tapa.send>
+
+
+     #Send configuration confirm from PHY 
+    # <tapa.send>
+    #     <tapa.dummy.ctf.ueidchngcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+    # <tapa.send>
+    #     <tapa.dummy.ctf.cfgcfm   use="1" ueId="3"/>
+    # </tapa.send>
+
+      <tapa.expect >
+        <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expect>
+
+     <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+     #Expect a negative configuration confirm at RRC user
+     #Expect revert action
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.conrls ueId="1" cellId="1" />
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.delay delay="10" />
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#
+#       Test:    11.35
+#
+#       Desc:    Unsuccessful RRC Connection Re-establishement procedure.
+#       Notes:   None
+#              
+#       Module:  lterrc
+#
+#       File:    nhac_tc11.xml
+#
+#
+<tapa.testcase id="11.35">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="36.331" section="5.3.7"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+        Unsuccessful RRC Connection Re-establishement procedure.
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+   </tapa.cfg>
+
+   <tapa.test>
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="3" cellId="1"/>
+
+   #perform RRC connection setup
+    <tapa.rrc.consetup cellId="1" tCrnti="1" ueId="1"/>
+ 
+   #send RRC conenction re-establishment request.
+      <tapa.send >
+         <tapa.dummy.kwu.datind suId="0" spId="0" rbId="1" msgType="0" cellId="1"/>
+      </tapa.send>
+
+      #Expect RRC Connection re-establishment Request at RRC user
+      <tapa.expect >
+         <tapa.nhu.datind ueId="0"/>
+      </tapa.expect>
+
+      #Send RRC Connection Re-establishment from RRC user
+      <tapa.send>
+         <tapa.nhu.datrsp cellId="1" ueId="1" spId="0" bitMask="2" expCfgBitMask="14"
+          rbCfgType="1"  numAddRb="1" msgCategory="3" msgType="0"
+          rrc_transId="0" transId="10" rbId="1" pdcpId="1" tCrnti="10"
+          addRbIdStr="1,0" valChk="0" trChCfgType="4"/>
+      </tapa.send>
+
+     #lower layer 
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.crg.cfgreq  store_tid="1" />
+        <tapa.dummy.ckw.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.ueidchngreq use="1"/>
+        <tapa.dummy.cpj.reestreq  use="1"/>
+        #<tapa.dummy.ctf.ueidchngreq use="1"/>
+        #<tapa.dummy.ctf.cfgreq use="1"/>
+     </tapa.expset>
+
+     #Send configuration confirm from MAC
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" ueId="10"/>
+     </tapa.send>
+
+     #Send configuration confirm from RLC
+     <tapa.send>
+         <tapa.dummy.ckw.ueidchngcfm   use="1" status="1" ueId="1"
+               nullCfgCfm="1"/>
+     </tapa.send>
+
+     #Send configuration confirm from PDCP 
+     <tapa.send>
+         <tapa.dummy.cpj.ueidchngcfm   use="1" status="1" ueId="1"
+               nullCfgCfm="1"/>
+     </tapa.send>
+
+     <tapa.send>
+         <tapa.dummy.cpj.reestcfm   use="1" ueId="10"/>
+     </tapa.send>
+
+
+     <tapa.expset>
+        <tapa.dummy.crg.cfgreq  store_tid="1" storeCfms="0" />
+        <tapa.nhu.cfgcfm/>
+     </tapa.expset>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean>
+      <tapa.rrc.cellcfg.rls cellId="1" />
+   </tapa.clean>
+
+   # Shutdown subsection
+   <tapa.shutdown>
+      <tapa.rrc.deinit />
+   </tapa.shutdown>
+
+</tapa.testcase>
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     cm_xta_gen_tc_num.py@@/main/5 - Wed Jun 27 16:21:06 2007
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/5       ---     chebli           1. Update of sid field
+#$SID$         ---     vkulkarni        1.Updated for RRC release 2.1
+#$SID$         ---     sbalakrishna     1. Updated for Release of 3.1.
+#$SID$         ---     njha             1. Updated for Release of 3.1.
+#*********************************************************************91*/

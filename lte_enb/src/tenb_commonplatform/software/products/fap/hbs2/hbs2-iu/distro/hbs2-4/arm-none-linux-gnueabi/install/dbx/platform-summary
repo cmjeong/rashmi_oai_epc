@@ -1,0 +1,120 @@
+#!/bin/sh
+#
+# $LastChangedRevision$
+#
+
+if [ ! $1 ]; then
+  echo "Usage: ./platform-summary <filename>"
+  exit
+fi
+
+rm -f $1
+touch $1
+
+echo -e '\n### kernel' >> $1
+
+echo -e '\n## uname' >> $1
+uname -a >> $1
+
+echo -e '\n## file contents' >> $1
+for FILE in /proc/version;
+do
+    echo -e -n '\n# ' >> $1
+    echo ${FILE} >> $1
+    cat ${FILE} >> $1
+done
+
+echo -e '\n### software' >> $1
+
+echo -e '\n## directory structure' >> $1
+
+# If there's a file system already mounted on /mnt/install unmount it!
+mount | grep -q /mnt/install
+if [ "$?" == "0" ] ; then
+	umount /mnt/install
+fi
+
+#  Parse a parameter passed to the kernel to determine the file system to use
+APPS=`cat /proc/cmdline | sed 's/^.*apps=\([^ ]\+\).*$/\1/'`
+if [ "$APPS" = "mtd:appsA" ] ; then
+  FALLBACK="mtd:appsB" 
+elif [ "$APPS" = "mtd:appsB" ] ; then
+  FALLBACK="mtd:appsA" 
+else
+  echo "Unexpected value for fallback apps partition: "$FALLBACK"!"
+  exit 1
+fi	
+
+# Mount the fallback apps partition.
+mount -t jffs2 $FALLBACK /mnt/install -o noatime
+echo -e -n '\n# mount\n' >> $1
+mount >> $1
+for DIR in /mnt /mnt/bank-active /mnt/install;
+do
+    echo -e -n '\n# ' >> $1
+    echo ${DIR} >> $1
+    ls -l ${DIR} >> $1
+done
+
+echo -e '\n## integrity' >> $1
+for DIR in /mnt/bank-active/dbx /mnt/install/dbx;
+do
+    echo -e -n '\n# md5 ' >> $1
+    echo ${DIR} >> $1
+    md5sum ${DIR}/* >> $1
+done
+
+echo -e '\n## mib variables' >> $1
+PARAMETERS="SW_UPDATE_PACKAGE_NAME_A
+            SW_UPDATE_PACKAGE_NAME_B
+            SW_PACKAGE_ACTIVE
+            SW_PACKAGE_SELECTED"
+for PARAMETER in $PARAMETERS ;
+do
+	/mnt/dbx/cli -c "mib.get $PARAMETER" >> $1 2>/dev/null 
+done
+
+echo -e '\n# file contents' >> $1
+for FILE in /mnt/config/app_package_active /mnt/config/app_package_update /mnt/config/app_package_fallback;
+do
+    echo -e -n '\n# ' >> $1
+    echo ${FILE} >> $1
+    cat ${FILE} >> $1
+done
+
+echo -e '\n### hardware' >> $1
+
+echo -e '\n## mib variables' >> $1
+PARAMETERS="HARDWARE_TYPE
+            HARDWARE_REVISION
+            HARDWARE_MOD_STATE
+            HW_PART
+            HW_PART_MAJOR_REV
+            HW_PART_MINOR_REV
+            HLA
+            HLA_MAJOR_REV
+            HLA_MINOR_REV"
+for PARAMETER in $PARAMETERS ;
+do
+	/mnt/dbx/cli -c "mib.get $PARAMETER" >> $1 2>/dev/null 
+done
+
+
+echo -e '\n### tpm' >> $1
+                              
+echo -n "BtchId " >> $1                                
+/mnt/dbx/cli.sh -c tpm.get-batch-id 2>/dev/null >> $1  
+echo -n "FapId  " >> $1                                
+/mnt/dbx/cli.sh -c tpm.get-fap-id 2>/dev/null >> $1    
+echo -n "FSVer  " >> $1                                
+/mnt/dbx/cli.sh -c tpm.get-fs-version 2>/dev/null >> $1
+/mnt/dbx/cli.sh -c tpm.info 2>/dev/null >> $1
+
+
+echo -e '\n### configuration' >> $1
+
+if [ -e /mnt/config/developer ];
+then
+    echo '!!!!! developer file found' >> $1
+fi
+exit

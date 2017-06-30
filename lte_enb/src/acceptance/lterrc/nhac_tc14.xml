@@ -1,0 +1,882 @@
+#*********************************************************************17*/
+#
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************20**
+#
+#     Name:    RRC
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Cases
+#
+#     File:    nhac_tc14.xml
+#
+#     Sid:      nhac_tc14.xml@@/main/1 - Thu Jul 10 17:27:113.2008
+#
+#     Prg:     dsahoo
+#
+#*********************************************************************21*/
+
+###############################################################################
+#  ** NOTE **
+# This test group will be run using command: ./nh_acc -g 14 -m 16 -p 3 -n 10
+###############################################################################
+
+#
+#
+#
+#       Test:    14.1
+#
+#       Desc:    Stability Testing
+#
+#       Notes:   None
+#
+#       Module:  rrc.call
+#
+#       File:    nhac_tc14.xml
+#
+#
+<tapa.testcase id="14.1">
+
+   # Document subsection
+   <tapa.doc>
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="lterrc"/>
+
+      <tapa.desc>
+         "RRC connection Request"
+      </tapa.desc>
+
+      <tapa.longdesc/> 
+   </tapa.doc>
+
+   # Require features and flags subsection
+   <tapa.require>
+      <tapa.ifdef>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+       <tapa.mode mode="single"/>
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+    #Configure LTE RRC layer
+     <tapa.rrc.init />
+
+    #Perform cell configuration pre-test
+    <tapa.rrc.cellcfg cellCfgType="1" transId="50" cellId="1"/>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+   <tapa.repeat.start repeatCount="429000000"/> 
+######################
+# Broadcast massages #
+######################
+
+#send MIB message from NHU interface
+      <tapa.send>
+         <tapa.nhu.datreq msgCategory="6" cellId="1" rbId="1" />
+      </tapa.send>
+
+#Check whether the message is received at RLC interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq cellId="1" rbId="1" ueId="0"/>
+      </tapa.expect>
+
+#send MIB message from NHU interface
+      <tapa.send>
+         <tapa.nhu.datreq msgCategory="7" msgType="1" cellId="1" rbId="1" sibNum="2" />
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether the message is received at RLC interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq cellId="1" rbId="1" ueId="0"/>
+      </tapa.expect>
+
+###################
+# Paging message  #
+###################
+
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="0" msgCategory="5"
+          rbId="1" sfn="10" subFrmNo="2" pagingCause="0" 
+          numOfUe="4" domainIdent="0" cellId="1" ueIdType="0" stateOfUe="1"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+# Expect data request from RRC to RLC on KWU interface
+      <tapa.expect>
+         <tapa.dummy.kwu.datreq spId="0" cellId="1" rbId="1" lcType="2" sfn="10" 
+                          subFrmNo="2" />
+      </tapa.expect>
+####################################
+# Establish connection for three UE #
+####################################
+###### UEs 1 to 7 have already been created, so create next three UEs
+         <tapa.rrc.consetup ueId="8" cellId="1" tCrnti="8"/>
+         <tapa.rrc.consetup ueId="9" cellId="1" tCrnti="9"/>
+         <tapa.rrc.consetup ueId="10" cellId="1" tCrnti="10"/>
+
+      <tapa.delay delay="5" />
+# Security Activation
+         <tapa.rrc.security_actv ueId="8" cellId="1"/>
+         <tapa.rrc.security_actv ueId="9" cellId="1"/>
+         <tapa.rrc.security_actv ueId="10" cellId="1"/>
+
+##########################
+# Uplink Information Transfer #
+##########################
+
+#Send uplink message from UE1 on SRB1
+       <tapa.send>
+         <tapa.dummy.pju.datind msgType="9"  ueId="8" cellId="1" pdcpInstId="1" />
+       </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether data indication is received at NHU interface
+       <tapa.expect>
+         <tapa.nhu.datind/>
+       </tapa.expect>
+
+############################
+# Downlink Information Transfer #
+############################
+
+#Send downlink message
+       <tapa.send>
+         <tapa.nhu.datreq msgCategory="1" msgType="1" cellId="1" ueId="8" rbId="1" pdcpId="1"/>
+       </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether data request  is received at KWU interface
+       <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="8" pdcpInstId="1"/>
+       </tapa.expect>
+
+      <tapa.delay delay="3" />
+####################################################
+# UE Capability Information Transfer for three UEs #
+####################################################
+#
+#@@@ FOR UE ID 8
+#
+      <tapa.send>
+          <tapa.nhu.datreq ueId="8" spId="0" msgCategory="1" msgType = "7" cellId="1"
+                     ratType="0" transId="2" rrc_transId="1" pdcpId="1" valChk="0"
+                     bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="8" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="8" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="8" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="8"  />
+      </tapa.expect>
+
+      <tapa.delay delay="3" />
+####################################################
+# UE Capability Information Transfer for three UEs #
+####################################################
+#
+#@@@ FOR UE ID 9
+#
+      <tapa.send>
+          <tapa.nhu.datreq ueId="9" spId="0" msgCategory="1" msgType = "7" cellId="1"
+                     ratType="0" transId="2" rrc_transId="1" pdcpId="1" valChk="0"
+                     bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="9" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="9" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="9" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="9"  />
+      </tapa.expect>
+
+      <tapa.delay delay="3" />
+
+####################################################
+# UE Capability Information Transfer for three UEs #
+####################################################
+#
+#@@@ FOR UE ID 10
+#
+      <tapa.send>
+          <tapa.nhu.datreq ueId="10" spId="0" msgCategory="1" msgType = "7" cellId="1"
+                     ratType="0" transId="2" rrc_transId="1" pdcpId="1" valChk="0"
+                     bitMask = "0" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect data request at PDCP U-Plane
+      <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="10" pdcpInstId="1"/>
+      </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="10" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Confirm at RRC user
+      <tapa.expect>
+         <tapa.nhu.datcfm />
+      </tapa.expect>
+
+      # Send UE Capability Information from PDCP
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="7" spId="0" suId="0"
+                  ueId="10" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="1" />
+
+      # Expect Data Indication for UE Capability Info  at RRC user
+      <tapa.expect>
+         <tapa.nhu.datind ueId="10"  />
+      </tapa.expect>
+###################
+# RB Modification #
+###################
+
+#
+#@@@ FOR UE ID 8
+#
+#################
+# Conn reconfig #
+#################
+
+    <tapa.rrc.conrecfg cellId="1" ueId="8"/>
+
+      <tapa.delay delay="5" />
+############################
+# Downlink Information Transfer #
+############################
+
+#Send downlink message
+       <tapa.send>
+         <tapa.nhu.datreq msgCategory="1" msgType="1" cellId="1" ueId="8" rbId="1" pdcpId="1"/>
+       </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether data request  is received at KWU interface
+       <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="8" pdcpInstId="1"/>
+       </tapa.expect>
+
+# Modification of existing DRBs Using Connection Reconfiguration
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		      msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		      cellId="1" ueId="8" pdcpId="1" numModRb="3" modRbIdStr="2,0,3,1,4,1"
+		      modLcIdStr="2,3,4" modBitMskStr="7,1,1" pdcpCfgAbsent="1"
+            rbCfgType="2" logChType="3" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+
+      <tapa.delay delay="5" />
+
+#Expect Lower Layer configurations
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+      <tapa.delay delay="5" />
+
+      <tapa.expect>
+         <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="8"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="8"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="8"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="8"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="8"/>
+      </tapa.send>
+
+#Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="8" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+
+      <tapa.delay delay="5" />
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="5" />
+
+# Send Conn Recfg Complete
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="8" cellId="1"/>
+      </tapa.send>
+     
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="8" cellId="1"/>
+      </tapa.expect>
+
+#################
+# Conn reconfig #
+#################
+
+#
+#@@@ FOR UE ID 9
+#
+
+    <tapa.rrc.conrecfg cellId="1" ueId="9"/>
+
+      <tapa.delay delay="5" />
+############################
+# Downlink Information Transfer #
+############################
+
+#Send downlink message
+       <tapa.send>
+         <tapa.nhu.datreq msgCategory="1" msgType="1" cellId="1" ueId="9" rbId="1" pdcpId="1"/>
+       </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether data request  is received at KWU interface
+       <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="9" pdcpInstId="1"/>
+       </tapa.expect>
+
+# Modification of existing DRBs Using Connection Reconfiguration
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		      msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		      cellId="1" ueId="9" pdcpId="1" numModRb="3" modRbIdStr="2,0,3,1,4,1"
+		      modLcIdStr="2,3,4" modBitMskStr="7,1,1" pdcpCfgAbsent="1"
+            rbCfgType="2" pdcpCfgBitMsk="31" logChType="3" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+
+      <tapa.delay delay="5" />
+
+#Expect Lower Layer configurations
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+      <tapa.delay delay="5" />
+
+      <tapa.expset>
+         <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="9"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="9"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="9"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="9"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="9"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+#Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="9" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+
+      <tapa.delay delay="5" />
+# Send Conn Recfg Complete
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="9" cellId="1"/>
+      </tapa.send>
+
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="9" cellId="1"/>
+      </tapa.expect>
+
+#################
+# Conn reconfig #
+#################
+#
+#@@@ FOR UE ID 10
+#
+
+    <tapa.rrc.conrecfg cellId="1" ueId="10"/>
+
+      <tapa.delay delay="5" />
+############################
+# Downlink Information Transfer #
+############################
+
+#Send downlink message
+       <tapa.send>
+         <tapa.nhu.datreq msgCategory="1" msgType="1" cellId="1" ueId="10" rbId="1" pdcpId="1"/>
+       </tapa.send>
+
+      <tapa.delay delay="5" />
+#Check whether data request  is received at KWU interface
+       <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="10" pdcpInstId="1"/>
+       </tapa.expect>
+
+# Modification of existing DRBs Using Connection Reconfiguration
+      <tapa.send>
+         <tapa.nhu.datreq spId="0" bitMask="2" expCfgBitMask="1"
+		      msgCategory="1" msgType="4" transId="1" rrc_transId="1"
+		      cellId="1" ueId="10" pdcpId="1" numModRb="3" modRbIdStr="2,0,3,1,4,1"
+		      modLcIdStr="2,3,4" modBitMskStr="7,1,1" pdcpCfgAbsent="1"
+            rbCfgType="2" pdcpCfgBitMsk="31" logChType="3" valChk="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+
+#Expect Lower Layer configurations
+      <tapa.expset>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.crg.cfgreq  store_tid="1"/>
+         <tapa.dummy.ckw.cfgreq  use="1"/>
+      </tapa.expset>
+
+      <tapa.delay delay="5" />
+
+      <tapa.expset>
+         <tapa.dummy.cpj.cfgreq  use="1"/>
+      </tapa.expset>
+
+      <tapa.send>
+         <tapa.dummy.ckw.cfgcfm   use="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm   stored_tid="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.send>
+         <tapa.dummy.cpj.cfgcfm   use="1" ueId="10"/>
+      </tapa.send>
+
+      <tapa.delay delay="5" />
+#Expect Conn Recfg PJU/PDCP
+      <tapa.expect>
+         <tapa.dummy.pju.datreq ueId="10" cellId="1" pdcpInstId="1"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.nhu.cfgcfm/>
+      </tapa.expect>
+     
+# Send Conn Recfg Complete
+      <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="2" spId="0" suId="0"
+         ueId="10" cellId="1"/>
+      </tapa.send>
+
+     #Expect Conn Recfg Complete at NHU  
+      <tapa.expect>
+		 <tapa.nhu.datind ueId="10" cellId="1"/>
+      </tapa.expect>
+
+########################################
+#  Count Check procedure for three UEs #
+########################################
+#
+#@@@ FOR UE ID 8
+#
+     # Send Counter Check Message Request
+     <tapa.send>
+         <tapa.nhu.datreq ueId="8" spId="0" msgCategory="1" msgType = "8" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0" rrcTransIdPres="1"
+            bitMask = "0" numDrbs="2" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="1" />
+
+     # Expect Dat Req at PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="8" pdcpInstId="1"/>
+     </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="8" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat cfm from RRC User
+     <tapa.expect>
+         <tapa.nhu.datcfm/>
+     </tapa.expect>
+
+     # Send Dat ind from PDCP
+     <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="10" spId="0" suId="0"
+                  ueId="8" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat ind at RRC User
+     <tapa.expect>
+         <tapa.nhu.datind ueId="8" />
+     </tapa.expect>
+
+      <tapa.delay delay="3" />
+
+########################################
+#  Count Check procedure for three UEs #
+########################################
+#
+#@@@ FOR UE ID 9
+#
+     # Send Counter Check Message Request
+     <tapa.send>
+         <tapa.nhu.datreq ueId="9" spId="0" msgCategory="1" msgType = "8" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0" rrcTransIdPres="1"
+            bitMask = "0" numDrbs="2" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="1" />
+
+     # Expect Dat Req at PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="9" pdcpInstId="1"/>
+     </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="9" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat cfm from RRC User
+     <tapa.expect>
+         <tapa.nhu.datcfm/>
+     </tapa.expect>
+
+     # Send Dat ind from PDCP
+     <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="10" spId="0" suId="0"
+                  ueId="9" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat ind at RRC User
+     <tapa.expect>
+         <tapa.nhu.datind ueId="9" />
+     </tapa.expect>
+
+      <tapa.delay delay="3" />
+########################################
+#  Count Check procedure for three UEs #
+########################################
+#
+#@@@ FOR UE ID 10
+#
+     # Send Counter Check Message Request
+     <tapa.send>
+         <tapa.nhu.datreq ueId="10" spId="0" msgCategory="1" msgType = "8" cellId="1"
+            ratType="0" transId="10" rrc_transId="1" pdcpId="1" valChk="0" rrcTransIdPres="1"
+            bitMask = "0" numDrbs="2" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="1" />
+
+     # Expect Dat Req at PDCP
+     <tapa.expect>
+         <tapa.dummy.pju.datreq cellId="1" ueId="10" pdcpInstId="1"/>
+     </tapa.expect>
+
+      # Send data confirm from PDCP U-Plane
+      <tapa.send>
+        <tapa.dummy.pju.datcfm pdcpInstId="1" ueId="10" cellId="1" />
+      </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat cfm from RRC User
+     <tapa.expect>
+         <tapa.nhu.datcfm/>
+     </tapa.expect>
+
+     # Send Dat ind from PDCP
+     <tapa.send>
+         <tapa.dummy.pju.datind pdcpInstId="1" msgType="10" spId="0" suId="0"
+                  ueId="10" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+      <tapa.delay delay="2" />
+
+     # Expect Dat ind at RRC User
+     <tapa.expect>
+         <tapa.nhu.datind ueId="10" />
+     </tapa.expect>
+
+      <tapa.delay delay="3" />
+
+###################################
+# Get Count Request for three UEs #
+###################################
+#
+#@@@ FOR UE ID 8
+#
+
+     # Send Count request
+     <tapa.send>
+         <tapa.nhu.countreq spId="0" ueId="8" transId="100" cellId="1"/>
+     </tapa.send>
+
+     #expect count request at PDCP
+     <tapa.expect>
+         <tapa.dummy.cpj.cntreq spId = "0" use="1"/>
+     </tapa.expect>
+
+    # Send Count confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cntcfm suId="0" status="1" use="1" cleanup="1"
+               ueId="8" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+     # Expect Count confirm at RRC user
+     <tapa.expect>
+         <tapa.nhu.countcfm suId="0" drbIdStr="3,4" />
+     </tapa.expect>
+
+###################################
+# Get Count Request for three UEs #
+###################################
+#
+#@@@ FOR UE ID 9
+#
+
+     # Send Count request
+     <tapa.send>
+         <tapa.nhu.countreq spId="0" ueId="9" transId="100" cellId="1"/>
+     </tapa.send>
+
+     #expect count request at PDCP
+     <tapa.expect>
+         <tapa.dummy.cpj.cntreq spId = "0" use="1"/>
+     </tapa.expect>
+
+    # Send Count confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cntcfm suId="0" status="1" use="1" cleanup="1"
+               ueId="9" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+     # Expect Count confirm at RRC user
+     <tapa.expect>
+         <tapa.nhu.countcfm suId="0" drbIdStr="3,4" />
+     </tapa.expect>
+
+      <tapa.delay delay="3" />
+###################################
+# Get Count Request for three UEs #
+###################################
+#
+#@@@ FOR UE ID 10
+#
+
+     # Send Count request
+     <tapa.send>
+         <tapa.nhu.countreq spId="0" ueId="10" transId="100" cellId="1"/>
+     </tapa.send>
+
+     #expect count request at PDCP
+     <tapa.expect>
+         <tapa.dummy.cpj.cntreq spId = "0" use="1"/>
+     </tapa.expect>
+
+    # Send Count confirm from PDCP
+     <tapa.send>
+         <tapa.dummy.cpj.cntcfm suId="0" status="1" use="1" cleanup="1"
+               ueId="10" cellId="1" drbIdStr="3,4" />
+     </tapa.send>
+
+     # Expect Count confirm at RRC user
+     <tapa.expect>
+         <tapa.nhu.countcfm suId="0" drbIdStr="3,4" />
+     </tapa.expect>
+
+      <tapa.delay delay="3" />
+
+#####################
+# Cell Modification for second cell#
+#####################
+
+      <tapa.rrc.cellcfg cellCfgType="1" transId="12" cellId="10" />
+#Send Cell config Setup Request for modification
+      <tapa.send>
+         <tapa.nhu.cellcfgreq cellCfgType="2" transId="1" cellId="10" 
+               cellCfgBitMask="8" numTxAntennas="2" rbCfgType="1" spId="1" 
+               dlRlcMode="3" numRlsRb="1"/>
+      </tapa.send>
+      <tapa.delay delay="5"/>
+
+      <tapa.expect>
+         <tapa.dummy.crg.cfgreq store_tid="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.dummy.crg.cfgcfm stored_tid="1" status="0" cellId="10"/>
+      </tapa.send>
+
+      <tapa.delay delay="5"/>
+      <tapa.expect>
+         <tapa.nhu.cellcfgcfm status="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="5" />
+      <tapa.rrc.cellcfg.rls cellId="10" />
+####End of cell modification for second cell
+#########################################################
+# Connection release for three UEs created in this test #
+#########################################################
+      <tapa.rrc.conrls ueId="10" cellId="1" />
+      <tapa.rrc.conrls ueId="9" cellId="1" />
+      <tapa.rrc.conrls ueId="8" cellId="1" />
+      <tapa.delay delay="40" />
+
+  <tapa.repeat.end />
+
+   </tapa.test>
+
+  # Clean subsection
+  <tapa.clean>
+  </tapa.clean>
+
+   # Shutdown subsection
+  <tapa.shutdown>
+   </tapa.shutdown>
+</tapa.testcase>
+#/********************************************************************30**
+#
+#         End of file:     
+#
+#*********************************************************************31*/
+#/**********************************************************************
+#        Revision History:
+#
+#**********************************************************************/
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#$SID$          ---     rer              1. LTE RRC Initial Release. 
+#$SID$         ---      sbalakrishna     1. Updated for Release of 3.1.
+#*********************************************************************91*/
+#
+

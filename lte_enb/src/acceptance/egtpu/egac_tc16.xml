@@ -1,0 +1,5468 @@
+
+#/********************************************************************20**
+#
+#     Name:    EGTP 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based Test Group 
+#
+#     File:    egac_tc16.xml
+#
+#     Sid:   
+#
+#     Prg:     kc
+#
+#*********************************************************************21*/
+
+#
+#       Test:    16.1
+#
+#       Desc:   Verify the successful sending and receiving of G-PDU
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Verify the successful sending and receiving of G-PDU"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.2
+#
+#       Desc:   Receive G-PDU with invalied length 
+(Length in the message header is different than actual length)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with invalied length"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" invalMsgLen="TRUE" 
+            invalLen="12" passIpAddr="TRUE" suConId="2" msgType="EGT_GTPU_MSG_GPDU" remTeid="20"/>
+      </tapa.send>
+      <!--
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+      -->
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.3
+#
+#       Desc:   Receive G-PDU with invalied length
+(Length of the received buffer, is less than the minimum msg length)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.3">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with invalied length"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" invalMsgLen="TRUE" 
+            invalLen="5" passIpAddr="TRUE" suConId="2" msgType="EGT_GTPU_MSG_GPDU" remTeid="20"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.4
+#
+#       Desc:   Receive G-PDU from unknown destination
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.4">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU from unknown destination"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <!--
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" lclAddr="127.0.0.100" rmtAddr="127.0.0.20" 
+            passData="TRUE" suConId="2" passIpAddr="FALSE" />
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+-->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.5
+#
+#       Desc:   Receive G-PDU on a non configured tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.5">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU on a non configured tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" remTeid="30" passData="FALSE" suConId="2" 
+            passIpAddr="TRUE" msgType="EGT_GTPU_MSG_GPDU" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="2" save="FALSE"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="30" errCause="EGT_ERR_INV_TEID_RCVD" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.6
+#
+#       Desc:   Receive G-PDU on a non configured tunnel - Full call flow
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.6">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU on a non configured tunnel - Full call flow"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" remTeid="30" passData="FALSE" suConId="2" 
+            passIpAddr="TRUE" msgType="EGT_GTPU_MSG_GPDU" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="2"/>
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="30" errCause="EGT_ERR_INV_TEID_RCVD" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" suConId="0" passIpAddr="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100" seqNoPres="TRUE" seqNo="0" 
+            udpextPres="TRUE" udpPortNmb="10000"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.7
+#
+#       Desc:  Receivie a G-PDU from unknown IP 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.7">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a G-PDU from unknown IP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+   <!--
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" invalSrcAddr="TRUE" passIpAddr="TRUE" suConId="2" />
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+    -->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+   
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.8
+#
+#       Desc:  Receivie a message with invalied message type
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.8">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with invalied message type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" invalMsgType="FALSE" msgType="EGT_GTPU_MSG_ERROR_IND" seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.expect >
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.9
+#
+#       Desc:  Receivie a message with wrong message type 
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.9">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with wrong message type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" wrongMsgType="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" seqNoPres="TRUE" 
+            seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="0" errCause="EGT_ERR_MSG_MISS_MAND_IE" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" failedIeType="EGU_IE_EXT_HDR_LST"
+            failedMsgType="EGT_GTPU_MSG_SUPP_EXT_HDR_NTF"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.10
+#
+#       Desc:  Receivie a message with unexpected IE type (TV)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.10">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "eceivie a message with unexpected IE type (TV)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" unExpectedTvIe="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.11
+#
+#       Desc:  Receivie a message with unexpected IE type (TLV)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.11">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with unexpected IE type (TLV)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" unExpectedTlvIe="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            invalDataType="TRUE"
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+
+      <tapa.delay delay="30" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.12
+#
+#       Desc:  Receivie a message with unknown IE (TV) type
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.12">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with unknown IE (TV) type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" unknownTvIe="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.13
+#
+#       Desc:  Receivie a message with unknown IE (TLV) type
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.13">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with unknown IE (TLV) type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" unknownTlvIe="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <!--
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+      -->
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.14
+#
+#       Desc:  Receivie a message with IEs not in Ascending order
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.14">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with IEs not in Ascending order"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" noAscending="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.15
+#
+#       Desc:  Receivie a message with missing Mandatory IEs
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.15">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with missing Mandatory IEs"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" noIEs="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <!--
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="0" errCause="EGT_ERR_MSG_MISS_MAND_IE" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" failedIeType="EGU_IE_TEID"
+            failedMsgType="EGT_GTPU_MSG_ERROR_IND"/>
+      </tapa.expect>
+      -->
+         <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" seqNoPres="1" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.16
+#
+#       Desc:  Receivie a message with missing Optional IE
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.16">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with missing Optional IE"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" noOptionalIE="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.17
+#
+#       Desc:  Receivie a message with Duplicate IEs
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.17">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with Duplicate IEs"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" dupIE="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+      <!--
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+      -->
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.18
+#
+#       Desc:  Receivie a message with Duplicate Private Ext IE
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.18">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with Duplicate Private Ext IE"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" dupPvtExtIE="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" remTeid="0"/>
+      </tapa.send>
+       <!--
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+      -->
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.19
+#
+#       Desc:   Receive G-PDU with invalied version
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.19">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with invalied version"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" remTeid="20" invVersion="TRUE" msgType="EGT_GTPU_MSG_GPDU"/>
+      </tapa.send>
+
+      <tapa.delay delay="30" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.20
+#
+#       Desc:   Receive G-PDU with invalied PT type
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.20">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with invalied PT type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" remTeid="20" invPtType="TRUE" msgType="EGT_GTPU_MSG_GPDU"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.21
+#
+#       Desc:   Receive Echo Request on a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.21">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Echo Request on a tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+             <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE"
+               seqNoPrsnt="TRUE" seqNo="1" lclTeid="0"  remTeid="0"
+               msgType="EGT_GTPU_MSG_ECHO_REQ" 
+               lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"
+               rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152"
+               suConId="1" /> 
+      </tapa.send>
+
+      <tapa.expset>
+             <tapa.egt.egudatind passData="FALSE" passIpAddr="FALSE"
+               seqNoPres="TRUE" seqNo="1" lclTeid="0"  remTeid="0"
+               msgType="EGT_GTPU_MSG_ECHO_REQ" 
+               lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"
+               rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152"
+               suConId="1" suId="1"/>
+         <tapa.hit.udatreq save="FALSE" msgType="EGT_GTPU_MSG_ECHO_RSP" suConId="1" validateUMsg="TRUE"/>
+
+      </tapa.expset>
+
+      <tapa.delay delay="5" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+      <tapa.delay delay="50" />
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.22
+#
+#       Desc:   Receive Echo Response on a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.22">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Echo Response on a tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.echo.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+   <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPU_MSG_ECHO_REQ"  suConId="1"  save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+   <tapa.delay delay="1"/>
+
+   <tapa.send>
+       <tapa.hit.egudatind passData="FALSE" passIpAddr="FALSE" suConId="0"
+            seqNoPrsnt="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+            msgType="EGT_GTPU_MSG_ECHO_RSP" 
+            lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+            rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" />
+   </tapa.send>
+
+   <tapa.expect>
+        #Verify the Echo Response msg 
+        <tapa.egt.egudatind   suId="1"
+            seqNoPres="TRUE" seqNo="1" remTeid="0" lclTeid="0" 
+            msgType="EGT_GTPU_MSG_ECHO_RSP" 
+            lclAddrType="4" lclAddr="127.0.0.1"   lclPort="2152" 
+            rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" />
+	</tapa.expect>
+
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.23
+#
+#       Desc:   Receive Supp. Ext. Header Not. on a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.23">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Supp. Ext. Header Not. on a tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="20" noIEs="TRUE" msgType="EGT_GTPU_MSG_SUPP_EXT_HDR_NTF"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.24
+#
+#       Desc:   Receive Error Indication Message on a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.24">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Error Indication Message on a tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="20" msgType="EGT_GTPU_MSG_ERROR_IND"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.25
+#
+#       Desc:   Receive G-PDU on tunnel zero
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.25">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU on tunnel zero"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="0" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_GPDU"/>
+      </tapa.send>
+     
+      /* eg009.201 */
+      <tapa.expect>
+         <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="2"/>
+      </tapa.expect>
+     #send error indication to user 
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="0" errCause="EGT_ERR_INV_TEID_RCVD" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.26
+#
+#       Desc:   Receive End Marker on tunnel zero
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.26">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive End Marker on tunnel zero"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+      
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="0" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.send>
+      <!--
+      <tapa.expect>
+         <tapa.egt.egudatind validateUMsg="TRUE"  lclTeid="0" suId="1" spId="1" 
+           msgType="EGT_GTPU_MSG_END_MARKER"  lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+      -->
+      <tapa.expect>
+         <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="2"/>
+      </tapa.expect>
+      <tapa.expect>
+      #send error indication to user
+         <tapa.egt.eguerrind suId="1" lclTeid="0" errCause="EGT_ERR_INV_TEID_RCVD" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" />
+      </tapa.expect>
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.27
+#
+#       Desc:   Receive End Marker on wrong interface (EGT_INT_S1_U_SGW_GTP_U)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.27">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive End Marker on wrong interface (EGT_INT_S1_U_SGW_GTP_U)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifndef> 
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="20" msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.send>
+
+      <tapa.expect >
+         <tapa.egt.eguerrind suId="1" lclTeid="20" errCause="EGT_ERR_INV_MSG_TYPE"
+         failedMsgType="EGT_GTPU_MSG_END_MARKER" lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.delay delay="50" />
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.28
+#
+#       Desc:   Receive Error Indication Message with IE length wrong for GSN Addr Ie type
+(Mandatory IE)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.28">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Error Indication Message with IE length wrong for GSN Addr Ie type
+         (Mandatory IE)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_ERROR_IND" invIeLen="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.29
+#
+#       Desc:   Receive G-PDU with only header (No Data)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.29">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with only header (No Data)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+         rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000" bufLen="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1" save="FALSE"   />
+      </tapa.expect>
+
+   <!--
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+      -->
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="5" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.30
+#
+#       Desc:   Receive G-PDU with unknown Extension Header (Comprehension Not Req:00)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.30">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with unknown Extension Header (Comprehension Not Req:00)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" suConId="2" 
+            remTeid="20" msgType="EGT_GTPU_MSG_GPDU" unKnownChNotReqExtHdr="TRUE" 
+            udpextPres="TRUE" pdcpextPres="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" pdcpextPres="TRUE"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.31
+#
+#       Desc:   Receive G-PDU with unknown Extension Header (Comprehension Req:11)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.31">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with unknown Extension Header (Comprehension Req:11)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"
+            udpextPres="TRUE" pdcpextPres="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" suConId="2" 
+            remTeid="20" msgType="EGT_GTPU_MSG_GPDU" unKnownChReqExtHdr="TRUE" 
+            udpextPres="TRUE" pdcpextPres="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="2"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_SUPP_EXT_HDR_NTF" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100" seqNoPres="TRUE" seqNo="0"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.32
+#
+#       Desc:   Receive G-PDU with unknown Extension Header (Comprehension Not Req:10)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.32">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU with unknown Extension Header (Comprehension Not Req:10)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" suConId="2" 
+            remTeid="20" msgType="EGT_GTPU_MSG_GPDU" unKnownChNotReqExtHdr1="TRUE" 
+            udpextPres="TRUE" pdcpextPres="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" pdcpextPres="TRUE"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.33
+#
+#       Desc:   Receive G-PDU on non-default port (other than 2152)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.33">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU on non-default port (other than 2152)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Configure a non-default port on 127.0.0.100
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="3" uSapId="1" port="21000"
+            type="CM_TPTADDR_IPV4" address="127.0.0.100" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.leg.cntrl.tptsrv action="AENA" tptSrvId="3" flag="LEG_EGTP_U" 
+            type="1" address="127.0.0.100" port="21000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.servopenreq suConId="3"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.concfm  suConId="3"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cntrlcfm />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="3" />
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.delay delay="50" />
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.34
+#
+#       Desc:   Receive G-PDU on a non configured tunnel 
+Error Indication should not be sent to Multicast IP
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.34">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive G-PDU on a non configured tunnel - 
+         Error Indication should not be sent to Multicast IP"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   
+   <tapa.test>
+      <!--
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1" lclAddr="127.0.0.1" rmtAddr="224.0.0.200"
+            action="EGT_TMGMT_REQTYPE_ADD" reOrderPres="FALSE" teid="30" 
+            intfType="EGT_INT_S5_S8_SGW_GTP_U"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="30" intfType="EGT_INT_S5_S8_SGW_GTP_U" 
+            lclAddr="127.0.0.1" rmtAddr="224.0.0.200"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="100" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" suConId="0" 
+            passIpAddr="FALSE" lclAddr="127.0.0.1" rmtAddr="224.0.0.200"/>
+      </tapa.send>
+      -->
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.35
+#
+#       Desc:   Receive Error Indication Message with IE length wrong for Private Ext IE
+(Optional IE - Message is properly build)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.35">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Error Indication Message with IE length wrong for Private Ext IE
+         (Optional IE - Message is properly build)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_ERROR_IND" invOptIeLen="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.36
+#
+#       Desc:   Receive Error Indication Message with IE length wrong for Private Ext IE
+(Optional IE - IE length is corrupted)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.36">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Error Indication Message with IE length wrong for Private Ext IE
+         (Optional IE - IE length is corrupted)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_ERROR_IND" invOptIeLen1="TRUE"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.37
+#
+#       Desc:   Receive Echo Request without sequence number
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.37">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive Echo Request without sequence number"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2"  remTeid="0" msgType="EGT_GTPU_MSG_ECHO_REQ" seqNoPres="FALSE"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.38
+#
+#       Desc:   Send G-PDU on tunnel zero
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.38">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send G-PDU on tunnel zero"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="0" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+      <tapa.expect>
+         <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.39
+#
+#       Desc:   Send Error Indication message with invalied iptype(10)
+                (IE should be deleted )
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.39">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send Error Indication message with invalied iptype(10)"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclPort="10000" invalAddrType="TRUE" seqNoPres="TRUE" seqNo="10"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="2" errCause="EGT_ERR_MSG_MISS_MAND_IE" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            failedMsgType="EGT_GTPU_MSG_ERROR_IND" failedIeType="EGU_IE_GSN_ADDR"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.40
+#
+#       Desc:  Receivie a message with invalied extension headers wrong length
+        (Message is framed properly)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.40">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with invalied extension headers wrong length"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" extHdrLenWrong="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" udpextPres="TRUE" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="100"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.41
+#
+#       Desc:  Receivie a message with invalied extension headers wrong length
+               (Message is framed properly)
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.41">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with invalied extension headers wrong length"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" extHdrLenWrong="TRUE" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="100" pdcpextPres="TRUE" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.42
+#
+#       Desc:   Send Error Indication message with remote TEID zero
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.42">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send Error Indication message with remote TEID zero"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+   <!--
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="0" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_END_MARKER" 
+            lclPort="10000" seqNoPres="TRUE" seqNo="10"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="2" errCause="EGT_ERR_INV_TEID" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+            failedMsgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+   -->
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.43
+#
+#       Desc:   Send Supp Ext Hdr Notification with wrong datatype
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.43">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send Supp Ext Hdr Notification with wrong datatype"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+    <!--
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="0" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_SUPP_EXT_HDR_NTF" 
+            lclPort="10000" seqNoPres="TRUE" seqNo="10" invalDataType="TRUE"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.eguerrind suId="1" lclTeid="2" errCause="EGT_ERR_MSG_MISS_MAND_IE" 
+            lclAddr="127.0.0.1" rmtAddr="127.0.0.100" failedIeType="EGU_IE_EXT_HDR_LST"
+            failedMsgType="EGT_GTPU_MSG_SUPP_EXT_HDR_NTF"/>
+      </tapa.expect>
+-->
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.44
+#
+#       Desc:  Pump mBuf for G-PDU from TUCL
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.44">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie a message with invalied message type"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" sendMBuf="TRUE" msgType="EGT_GTPU_MSG_GPDU"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1" seqNoPres="TRUE" seqNo="50"
+            udpextPres="TRUE" udpPortNmb="150" pdcpextPres="TRUE" pdcpPortNmb="200" pduNmbPres="TRUE"
+            npduNmb="100"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.45
+#
+#       Desc:   Receive mBuf as NULL from TUCL
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.45">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receive mBuf as NULL from TUCL"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1" save="FALSE"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" mBufNull="TRUE" passIpAddr="TRUE" suConId="2" />
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.46
+#
+#       Desc:  Server Open Request should be retried on expiry
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.46">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Server Open Request should be retried on expiry"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="2"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" opnSrvTmr.val="1" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U" />
+      </tapa.send>
+      <!--
+      <tapa.expect>
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.bndcfm suId="0" status="LCM_PRIM_OK" />
+      </tapa.send>
+      -->
+      <tapa.expset>
+         <tapa.leg.cntrlcfm status="LCM_PRIM_OK" />
+         <tapa.hit.servopenreq suConId="0"  />
+      </tapa.expset>
+
+      <tapa.expect>
+         <tapa.hit.servopenreq suConId="0"  />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.hit.servopenreq suConId="0"  />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.hit.servopenreq suConId="0"  />
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.47
+#
+#       Desc:  Bind Request should be retried on expiry
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.47">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Bind Request should be retried on expiry"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="TUCL"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      # Send an General configuration request
+      <tapa.send>
+         <tapa.leg.cfg.gen nodeArch="LEG_NODE_UMTS"/>
+      </tapa.send>
+
+      # Receive the confirm for the general configuration request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send a debug control request to enable debugs
+      <tapa.send flag="EG_DEBUGP" >
+         <tapa.leg.cntrl.debug    />
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect flag="EG_DEBUGP" >
+         <tapa.leg.cntrlcfm  />
+      </tapa.expect>
+
+      # Send an egt sap configuration request
+
+      <tapa.send>
+         <tapa.leg.cfg.usap.egtpu sapId="1" gtpProtFlg="LEG_EGTP_U"/>
+      </tapa.send>
+
+      # Receive the confirm for the egt sap request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm  />
+      </tapa.expect>
+
+      # Send an IP configuration request
+      <tapa.send>
+         <tapa.leg.cfg.ipAddr ipAddress="127.0.0.1" ipAddrtype="CM_TPTADDR_IPV4" uSapId="1" nmbIpAddr="1"
+            nodeType="TRUE" echoReqPvtExtVal="wewqewewq" echoRspPvtExtVal="ewewrewrerwr" 
+            errIndPvtExtVal="sewqreqewrw"/>
+      </tapa.send>
+
+      # Receive the confirm for the IP request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm />
+      </tapa.expect>
+
+      # Configure TSAP (tSapId = 0) 
+      <tapa.send>
+         <tapa.leg.cfg.lsap suId="0" spId="0" type="LEG_TSAP_TYPE_DTUCL" dstEntId="ENTHI"  
+            dstInstId="5" selector="2" bndTmCfg.val="1"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.leg.cfgcfm suId="0" />
+      </tapa.expect>
+
+      # Send an TPT Server configuration request
+      <tapa.send>
+         <tapa.leg.cfg.tserver tSapId="0" tptSrvId="0" uSapId="1" port="2152" 
+            type="CM_TPTADDR_IPV4" address="127.0.0.1" protType="LEG_EGTP_U" />
+      </tapa.send>
+
+      # Receive the confirm for the TPT Server request.
+      <tapa.expect>
+         <tapa.leg.cfgcfm   />
+      </tapa.expect>
+
+      # Bind TSAP (tSapId = 0) with DTUCL
+      <tapa.send>
+         <tapa.leg.cntrl.lsap action="ABND_ENA" tSapId="0" flag="LEG_EGTP_U"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.expect>
+         <tapa.hit.bndreq suId="0" spId="0"  />
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    16.48
+#
+#       Desc:   Send echo request and wait for all T3 N3 Timer expairy 
+#                and wait for peer down indications.Send Status request
+#               to get the status of the destination and port.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.48">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.cpm"/>
+
+      <tapa.desc>
+       "Send echo request and wait for all T3 N3 Timer expairy 
+                and wait for peer down indications.Send Status Request
+		to get the status of the destination and port."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+       
+   </tapa.doc>
+   
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+         
+      <tapa.ifndef/>
+        
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+     
+   # Configuration subsection
+   <tapa.cfg>
+      <tapa.egtpu.t3n3.dtucl.init/>
+    
+      # Send a debug control request to enable debugs
+      <tapa.send>
+         <tapa.leg.cntrl.usta/>
+      </tapa.send>
+
+      # Receive the confirm for the sct sap request.
+      <tapa.expect>
+         <tapa.leg.cntrlcfm/>
+      </tapa.expect>
+      # Send an egt sap configuration request
+
+   </tapa.cfg>
+   
+   # Test Steps subsection
+   <tapa.test>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="1"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" save="FALSE" validateUMsg="TRUE"/>
+       <tapa.hit.udatreq msgType="EGT_GTPC_MSG_ECHO_REQ" suConId="1" save="FALSE" validateUMsg="TRUE"/>
+    </tapa.expset>
+
+    <tapa.delay delay="10"/>
+
+    <tapa.expset guardTmr="1000">
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_NOK" reason="EGT_GTPU_DEST_UNREACHABLE"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+       <tapa.leg.staInd category="LCM_CATEGORY_INTERFACE" event="LCM_EVENT_UI_INV_EVT" cause="LEG_CAUSE_LCL_PORT_NOT_REACHABLE" type="LEG_PAR_PORT"/>
+    </tapa.expset>
+<!--
+    <tapa.send>
+       <tapa.egt.egudatreq suId="1" spId="1" seqNoPrsnt="TRUE" seqNo="1" msgType="EGT_GTPC_MSG_ECHO_REQ" noIEs="TRUE" lclTeid="0" rmtAddrType="4" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" lclPort="2152"/>
+    </tapa.send>
+
+    
+    <tapa.expect>
+       <tapa.egt.egustaind suId="1" status="LCM_PRIM_OK"
+       reason="EGT_GTPU_DEST_UNREACHABLE"/>
+    </tapa.expect>
+
+     <tapa.expect>
+        <tapa.egt.eguerrind suId="1"  lclTeid="0" errCause="EGT_ERR_INV_IE_TYPE"/> 
+      </tapa.expect> -->
+      <tapa.send>
+           <tapa.egt.egustareq suId="1" spId="1" lclPort="0"  rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" />
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm  suId="1" spId="1" lclPort="0"  rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" reason="EGT_GTPU_DEST_UNREACHABLE"/>
+      </tapa.expect>
+
+      <tapa.send>
+           <tapa.egt.egustareq suId="1" spId="1" lclPort="2152" rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1"  />
+      </tapa.send>
+
+      <tapa.expect guardTmr="1000">
+      <tapa.egt.egustacfm  suId="1" spId="1" lclPort="0"  rmtAddr="127.0.0.100" rmtPort="2152" lclAddrType="4" lclAddr="127.0.0.1" reason="EGT_GTPU_PORT_INACTIVE"/>
+      </tapa.expect>
+
+   </tapa.test>
+   
+   # Clean subsection
+   <tapa.clean/>
+         
+   # Shutdown subsection
+   
+   <tapa.shutdown>
+	    <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+   
+</tapa.testcase>
+
+
+#
+#       Test:    16.49
+#
+#       Desc:   Verify the successful sending and receiving of G-PDU
+#               for IPV6 IP Address.
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.49">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Verify the successful sending and receiving of G-PDU"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EG_IPV6_SUPPORTED"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.ipv6.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20"
+	 lclAddrType="6" rmtAddrType="6" lclAddr="::1" 
+            rmtAddr="::2" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" spId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="TRUE" passIpAddr="TRUE" suConId="2" />
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="20" suId="1" spId="1" msgType="EGT_GTPU_MSG_GPDU" 
+            lclAddr="::2" rmtAddr="::1"
+	    lclAddrType="6" rmtAddrType="6"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.50
+#
+#       Desc:  Receivie Error Indication message with no sequence number
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.50">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie Error Indication message with no sequence number"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTPU_PEER_ERR_IND"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="FALSE" remTeid="0"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind lclTeid="0" suId="1" spId="1" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            lclAddr="127.0.0.100" rmtAddr="127.0.0.1"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#
+#       Test:    16.51
+#
+#       Desc:  Receivie Error Indication message on a tunnel
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.51">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie Error Indication message on a tunnel"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.dtucl.init/>
+
+   </tapa.cfg>
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_GPDU" lclPort="10000"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.hit.udatreq suId="0" suConId="1"/>
+      </tapa.expect>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="0" passData="FALSE" passIpAddr="TRUE" 
+            suConId="2" msgType="EGT_GTPU_MSG_ERROR_IND" 
+            seqNoPres="TRUE" seqNo="10" remTeid="100"/>
+      </tapa.send>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+
+#
+#       Test:    16.52
+#
+#       Desc:  Reception of End Marker on S4 Interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.52">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie End Marker on a tunnel with defined interface as S4"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure Dummy TUCL
+      <tapa.egtpu1.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="16" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S4_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="16"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S4_SGW_GTP_U"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="1" lclTeid="2" remTeid="16" 
+           passData="FALSE" passIpAddr="TRUE"
+           lclAddr="127.0.0.1" rmtAddr="127.0.0.100"  lclPort="10000"
+           msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind validateUMsg="TRUE"  lclTeid="16" suId="1" spId="1" 
+           msgType="EGT_GTPU_MSG_END_MARKER"  lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#       Test:    16.53
+#
+#       Desc:  Reception of End Marker on S12 Interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.53">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie End Marker on a tunnel with defined interface as S12"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure Dummy TUCL
+      <tapa.egtpu1.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="12" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S12_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="12"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S12_SGW_GTP_U"/>
+      </tapa.expect> 
+
+      
+  </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="1" lclTeid="2" remTeid="12" 
+           passData="FALSE" passIpAddr="TRUE"
+           lclAddr="127.0.0.1" rmtAddr="127.0.0.100"  lclPort="10000"
+           msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind validateUMsg="TRUE"  lclTeid="12" suId="1" spId="1" 
+           msgType="EGT_GTPU_MSG_END_MARKER"  lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#       Test:    16.54
+#
+#       Desc:  Sending End Marker on S4 Interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.54">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send End Marker on S4 Interface"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="12" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S4_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" seqNoPres="TRUE" seqNo="10" teid="12"
+         intfType="EGT_INT_S4_SGW_GTP_U" lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" />
+      </tapa.expect> 
+
+   </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_END_MARKER" lclPort="10000" />
+      </tapa.send>
+      #fix for ccpu00132398
+      <tapa.expect>
+         <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="1" validateUMsg="TRUE" msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+
+#
+#       Test:    16.55
+#
+#       Desc:  Sending End Marker on S12 Interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module:
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.55">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send End Marker on S12 Interface"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="12" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_S12_SGW_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1"  teid="12"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" intfType="EGT_INT_S12_SGW_GTP_U" />
+      </tapa.expect> 
+
+
+   </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_END_MARKER" lclPort="10000" />
+      </tapa.send>
+      # fix for ccpu00132398
+      <tapa.expect>
+         <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="1" validateUMsg="TRUE" msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.56
+#
+#       Desc:  Reception of End Marker on EGT_INT_X2_DL_ENB_GTP_U Interface
+#
+#       Ref:   None
+#
+#       Notes:  None
+#              
+#       Module: 
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.56">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Receivie End Marker on a tunnel with defined interface as X2"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+         <tapa.flag id="EGTP_U_REL_9"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+      # Configure Dummy TUCL
+      <tapa.egtpu1.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="16" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1" teid="16"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.expect>
+
+   </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+
+      <tapa.send>
+         <tapa.hit.egudatind suId="0" spId="1" lclTeid="2" remTeid="16" 
+           passData="FALSE" passIpAddr="TRUE"
+           lclAddr="127.0.0.1" rmtAddr="127.0.0.100"  lclPort="10000"
+           msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.send>
+
+      <tapa.expect>
+         <tapa.egt.egudatind validateUMsg="TRUE"  lclTeid="16" suId="1" spId="1" 
+           msgType="EGT_GTPU_MSG_END_MARKER"  lclAddr="127.0.0.1" rmtAddr="127.0.0.100"/>
+      </tapa.expect>
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP 
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+
+#
+#       Test:    16.57
+#
+#       Desc:  Sending End Marker on S1U Interface for REL_8
+#
+#       Ref:   None
+#
+#       Notes:  None
+#
+#       Module:
+#
+#       File:   egac_tc16.xml
+#
+<tapa.testcase id="16.57">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.rfc id="None" section="None"/>
+      <tapa.module id="eg.dtucl"/>
+
+      <tapa.desc>
+         "Send End Marker on X2 Interface"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Require features and flags subsection 
+   <tapa.require>
+
+      <tapa.ifdef>
+         <tapa.flag id="EGTP_U"/>
+      </tapa.ifdef>
+
+      <tapa.ifndef/>
+
+      <tapa.mode mode="single"/>
+
+   </tapa.require>
+
+   # Configuration subsection
+   <tapa.cfg>
+
+      # Configure Dummy TUCL
+      <tapa.egtpu.egtp.dtucl.init/>
+
+      # Send tunnel Management Request
+      <tapa.send>
+         <tapa.egt.egutnlmgmtreq suId="1" spId="1"  teid="12"  remTeid="20" lclPort="10000" 
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" reOrderPres="FALSE"
+         action="EGT_TMGMT_REQTYPE_ADD"  intfType="EGT_INT_X2_DL_ENB_GTP_U"/>
+      </tapa.send>
+
+      # Expect Control Confirm
+      <tapa.expect guardTmr="1000">
+         <tapa.egt.egutnlmgmtcfm suId="1"  teid="12"
+         lclAddr="127.0.0.1" rmtAddr="127.0.0.100" 
+         action="EGT_TMGMT_REQTYPE_ADD" intfType="EGT_INT_X2_DL_ENB_GTP_U" />
+      </tapa.expect> 
+
+
+   </tapa.cfg>
+
+
+   # Test Steps subsection
+   <tapa.test>
+      <tapa.send>
+         <tapa.egt.egudatreq suId="1" spId="1" lclTeid="2" remTeid="20" lclAddr="127.0.0.1" 
+            rmtAddr="127.0.0.100" msgType="EGT_GTPU_MSG_END_MARKER" lclPort="10000" />
+      </tapa.send>
+     #fix for ccpu00132398
+      <tapa.expect>
+        <tapa.hit.udatreq save="FALSE" suId="0" spId="0" suConId="1" validateUMsg="TRUE" msgType="EGT_GTPU_MSG_END_MARKER"/>
+      </tapa.expect>
+
+      <tapa.delay delay="20" />
+
+   </tapa.test>
+
+   # Clean subsection
+   <tapa.clean/>
+
+   # Shutdown subsection
+
+   <tapa.shutdown>
+
+      <tapa.delay delay="50" />
+      # De-Init EGTP
+      <tapa.egtpu.dtucl.deinit/>
+   </tapa.shutdown>
+
+</tapa.testcase>
+
+#/********************************************************************30**
+#
+#         End of file:
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#    $SID$      ---     mm           1. Created for EGTP 1.1 Rel
+#    eg012.201  ---     shpandey     1. Testcases updated
+#*********************************************************************91*/

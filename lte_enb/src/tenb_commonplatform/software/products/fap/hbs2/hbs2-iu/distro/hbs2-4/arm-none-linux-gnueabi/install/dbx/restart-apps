@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 27032 $
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+TRACE_DIR=/dbx/trace
+RUNTIME_DIR=/dbx
+
+$FLASH_DIR_APPS/stop-apps
+
+# Stop any cli instances since these prevent correct startup
+killall cli 2> /dev/null
+
+# Remove old logs and core files
+rm $TRACE_DIR/*.txt
+rm -f $RUNTIME_DIR/core.* 2> /dev/null
+
+# Let things settle before we startup
+sleep 1
+
+$FLASH_DIR_APPS/start-apps
+
+# END OF FILE
+

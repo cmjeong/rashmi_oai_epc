@@ -1,0 +1,236 @@
+#!/bin/bash
+
+if [ ! $TOP ]; then
+  echo "TOP must be set."
+  exit
+fi
+
+if [ ! $FAPIP ]; then
+  echo "FAPIP must be set."
+  exit
+fi
+
+if [ ! $HARDWARE ]; then
+  echo "HARDWARE must be set."
+  exit
+fi
+
+if [ ! $BUILD ]; then
+  echo "BUILD must be set."
+  exit
+fi
+
+echo ""
+
+if [ $APP ]; then
+  echo "Downloading single app $APP."
+fi
+
+if [ "$1" == "-config" ] ; then
+  echo "Replacing configuration files."
+fi
+
+if [ "$1" == "-zip" ] ; then
+  echo "Downloading zip file - go and unzip it when finished!"
+fi
+
+# Pick the FTP password for the platform
+if [ "$HARDWARE" = "hbs2-4" ] ; then
+  FTP_PASS=RsysOS
+else
+  FTP_PASS=uClinux
+fi
+
+# Verify that it is safe to download to this fap
+
+FAPOK=0
+
+# If FAPOWNER is set, try the owner token.
+#  This works by trying to FTP a file named /mnt/config/developer from
+#  the target FAP.  If the contents of that file match the FAPOWNER
+#  environment variable, the download proceeds without asking for confirmation
+#  that it is the correct FAP.
+#
+if [ -n "$FAPOWNER" ] ; then
+
+  # Attempt to get the download owner token
+  rm -f developer
+  lftp -c "open $FAPIP; user root $FTP_PASS; get /mnt/config/developer" &> /dev/null
+
+  if [ -f developer ] && [ "`cat developer | head -n 1 | tr -d '\n'`" == "$FAPOWNER" ] ; then
+
+    echo "FAP $FAPIP is owned by $FAPOWNER, matching the FAPOWNER environment variable."
+    FAPOK=1
+
+  elif [ -f developer ] ; then
+
+    echo "The FAP at $FAPIP is owned by:"
+    cat developer | head -n 1 | tr -d '\n'
+    echo "This does not match FAPOWNER=$FAPOWNER!"
+
+  else
+
+    echo "Failed to retrieve /mnt/config/developer from $FAPIP."
+
+  fi
+
+  # Remove the file as no longer needed
+  rm -f developer
+fi
+
+if [ "$FAPOK" != "1" ] ; then
+
+  echo -ne "\nAre you SURE that $FAPIP is your FAP?!!  Do you want to continue (y/n): "
+  read yn
+  case $yn in
+    y* | Y* ) ;;
+    [nN]* ) exit;;
+    q* ) exit ;;
+    * ) exit ;;
+  esac
+
+fi
+
+FTP_SCRIPT_FILE=$TOP/products/fap/hbs2/etc/download-lftp-script-temp
+
+# Create a file to copy on that traces the last download to the FAP.
+PWD=`pwd`
+WHO=`whoami`
+DATETIME=`date`
+
+# Construct download script, based on what needs downloading
+echo "debug 10" >> $FTP_SCRIPT_FILE
+if [ "$1" == "-config" ] ; then
+
+#  echo "Last 'make downloadconfig' to this FAP by $WHO from $PWD at $DATETIME" > $TOP/products/fap/hbs2/etc/last-make-download.txt
+
+  # Send the contents of distro/$HARDWARE/$BUILD/config and
+  # distro/$HARDWARE/$BUILD/install/ config to /mnt/config and
+  # /mnt/bank-active/config respectively.
+  echo "open $FAPIP" > $FTP_SCRIPT_FILE
+  echo "user root $FTP_PASS" >> $FTP_SCRIPT_FILE
+  echo "mkdir /mnt/config" >> $FTP_SCRIPT_FILE
+  echo "mkdir /mnt/bank-active" >> $FTP_SCRIPT_FILE
+  echo "mkdir /mnt/bank-active/config" >> $FTP_SCRIPT_FILE
+  echo "cd /mnt/config" >> $FTP_SCRIPT_FILE
+  echo "lcd distro/$HARDWARE/$BUILD/config" >> $FTP_SCRIPT_FILE
+  echo "mirror -R" >> $FTP_SCRIPT_FILE
+  echo "cd /mnt/bank-active/config" >> $FTP_SCRIPT_FILE
+  echo "lcd ../install/config" >> $FTP_SCRIPT_FILE
+  echo "mirror -R" >> $FTP_SCRIPT_FILE
+  echo "lcd ../.." >> $FTP_SCRIPT_FILE
+
+  # Check if certificates dir exists otherwise we end up in the wrong dir for subsequent operations.
+  if [ -d distro/$HARDWARE/$BUILD/certificates ]; then
+    echo "mkdir /mnt/certificates" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/certificates/own" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/certificates/intermediate" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/certificates/trusted" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/certificates/own" >> $FTP_SCRIPT_FILE
+    echo "lcd certificates/own" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/certificates/trusted" >> $FTP_SCRIPT_FILE
+    echo "lcd ../trusted" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "lcd ../../" >> $FTP_SCRIPT_FILE
+  fi
+
+elif [ $APP ]; then
+
+  echo "Last 'make download APP=$APP' to this FAP by $WHO from $PWD at $DATETIME" > $TOP/products/fap/hbs2/etc/last-make-download.txt
+
+  # Send the app.
+  echo "open $FAPIP" > $FTP_SCRIPT_FILE
+  echo "user root $FTP_PASS" >> $FTP_SCRIPT_FILE
+  echo "mkdir /mnt/bank-active/dbx" >> $FTP_SCRIPT_FILE
+  echo "cd /mnt/bank-active/dbx" >> $FTP_SCRIPT_FILE
+  echo "lcd distro/$HARDWARE/$BUILD/install/dbx" >> $FTP_SCRIPT_FILE
+  echo "put $APP" >> $FTP_SCRIPT_FILE
+  echo "chmod 755 $APP" >> $FTP_SCRIPT_FILE
+  echo "lcd ../.." >> $FTP_SCRIPT_FILE
+elif [ "$1" == "-zip" ] ; then
+
+  echo "Last 'make downloadzip' to this FAP by $WHO from $PWD at $DATETIME" > $TOP/products/fap/hbs2/etc/last-make-download.txt
+
+  # Send the zip file.
+  echo "open $FAPIP" > $FTP_SCRIPT_FILE
+  echo "user root $FTP_PASS" >> $FTP_SCRIPT_FILE
+  echo "cd /mnt" >> $FTP_SCRIPT_FILE
+  echo "lcd distro/$HARDWARE/$BUILD" >> $FTP_SCRIPT_FILE
+  echo "mput Radisys*_manual.tar" >> $FTP_SCRIPT_FILE
+  echo "lcd config" >> $FTP_SCRIPT_FILE
+
+else
+
+  echo "Last 'make download' to this FAP by $WHO from $PWD at $DATETIME" > $TOP/products/fap/hbs2/etc/last-make-download.txt
+
+  if [ -z "$MSYNC" ] ; then
+
+    # Send the apps
+    echo "open $FAPIP" > $FTP_SCRIPT_FILE
+    #echo "debug 10" >> $FTP_SCRIPT_FILE
+    echo "user root $FTP_PASS" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/bank-active/dbx" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/bank-active/dbx" >> $FTP_SCRIPT_FILE
+    echo "lcd distro/$HARDWARE/$BUILD/install/dbx" >> $FTP_SCRIPT_FILE
+    echo "put dbxstart" >> $FTP_SCRIPT_FILE
+    echo "chmod 755 dbxstart" >> $FTP_SCRIPT_FILE
+    echo "put network-restart" >> $FTP_SCRIPT_FILE
+    echo "chmod 755 network-restart" >> $FTP_SCRIPT_FILE
+    echo "put radiocal-check" >> $FTP_SCRIPT_FILE
+    echo "chmod 755 radiocal-check" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/bank-active/fpga" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/bank-active/fpga" >> $FTP_SCRIPT_FILE
+    echo "lcd ../fpga" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/bank-active/etc" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/bank-active/etc" >> $FTP_SCRIPT_FILE
+    echo "lcd ../etc" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/bank-active/lib" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/bank-active/lib" >> $FTP_SCRIPT_FILE
+    echo "lcd ../lib" >> $FTP_SCRIPT_FILE
+    echo "mirror -R --ignore-time -x .svn ." >> $FTP_SCRIPT_FILE
+    echo "mkdir /mnt/config/radiocal" >> $FTP_SCRIPT_FILE
+    echo "cd /mnt/config/radiocal" >> $FTP_SCRIPT_FILE
+    echo "lcd ../../config/radiocal" >> $FTP_SCRIPT_FILE
+    echo "mput *" >> $FTP_SCRIPT_FILE
+    echo "lcd ../.." >> $FTP_SCRIPT_FILE
+  else
+
+    # The interpeak stack on 3.5 fails so use single download thread there
+    if [ "$HARDWARE" != "hbs2-4" ] ; then
+      MSYNC_OPT="-n 1"
+    fi
+
+    # Copy dbx, config, certificates and fpga directories into /mnt on the target
+    $TOP/makefrags/msync $MSYNC_OPT $FAPIP \
+    				 distro/$HARDWARE/$BUILD/install/dbx	/mnt/bank-active/dbx \
+				     distro/$HARDWARE/$BUILD/install/fpga   /mnt/bank-active/fpga \
+				     distro/$HARDWARE/$BUILD/config         /mnt/config \
+				     distro/$HARDWARE/$BUILD/install/etc    /mnt/bank-active/etc \
+				     distro/$HARDWARE/$BUILD/install/lib    /mnt/bank-active/lib \
+				     distro/$HARDWARE/$BUILD/certificates   /mnt/certificates \
+				     $TOP/products/fap/hbs2/etc/last-make-download.txt /mnt/bank-active/etc/last-make-download.txt
+  fi
+fi
+
+if [ -z "$MSYNC" ] || [ "$1" == "-config" ] ; then
+  echo "cd /mnt/bank-active/etc" >> $FTP_SCRIPT_FILE
+  echo "lcd $TOP/products/fap/hbs2/etc/" >> $FTP_SCRIPT_FILE
+  echo "put last-make-download.txt" >> $FTP_SCRIPT_FILE
+
+  # Now run it.
+  echo ""
+  echo "Downloading $HARDWARE / $BUILD distro to $FAP at $FAPIP."
+  if [ "$1" != "-config" ] && [ "$1" != "-zip" ] ; then
+    echo "Note: Live configuration files are NOT being downloaded to save overwriting your config."
+    echo "Do this using 'make downloadconfig' if you need to."
+  fi
+
+  echo ""
+
+  lftp -f $FTP_SCRIPT_FILE
+
+fi

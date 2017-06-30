@@ -1,0 +1,1139 @@
+#
+#/********************************************************************20**
+#
+#     Name:    RLC 
+#
+#     Type:    XML Test File
+#
+#     Desc:    XML Based High Level Commands for Initialization, Bind and Unbind
+#
+#     File:    kwac_cmd1.xml
+#
+#     Sid:      $SID$
+#
+#     Prg:     Group Commands  
+#
+#*********************************************************************21*/
+
+#
+#
+#       Command: tapa.kw.bnd
+#
+#       Desc:    Command to Bind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.bnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the CKW, KWU and RGU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START
+      ########################################################
+
+      #Pradeep - start
+      
+      ########################################################
+      #           RLC - UL
+      ########################################################
+      # Send CKW Bind Request
+      <tapa.send>
+         <tapa.ckw.bndreq inst="1" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.ckw.bndcfm inst="1"/>
+      </tapa.expect>
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.bndreq inst="1" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="1" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send KWU PDCP Bind Request
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.send>
+         <tapa.kwu.bndreq inst="1" spId="1" suId="0" entity="ENTPJ"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="1" entity="ENTPJ"/>
+      </tapa.expect>
+
+#Pradeep - start trial
+   <tapa.send>
+      <tapa.lkw.ustacntrlreq inst="0" isEnable="1"/>
+   </tapa.send>
+
+   <tapa.expect>
+       <tapa.lkw.cntrlcfm inst="0"/>
+   </tapa.expect>
+
+   <tapa.delay delay="2"/>
+
+   <tapa.send>
+      <tapa.lkw.ustacntrlreq inst="1" isEnable="1"/>
+   </tapa.send>
+
+   <tapa.expect>
+       <tapa.lkw.cntrlcfm inst="1"/>
+   </tapa.expect>
+
+#Pradeep - end trial
+      ############# CONTROL REQUEST TO BIND RGU ##############
+
+      # Send control request to Bind RGU SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="1" elmnt="STRGUSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Bind Request From RLC
+         <tapa.dummy.rgu.bndreq inst="1" spId="0" suId="0"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      # Expect Bind Confirm to RLC
+      <tapa.send>
+         <tapa.dummy.rgu.bndcfm inst="1" suId="0"/>
+      </tapa.send>
+
+      # Expect Unsolicitated status Indication
+      <tapa.expect>
+         <tapa.lkw.staind inst="1" event="11" cause="258"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND RGU END ##########
+      
+      ############# CONTROL REQUEST TO BIND UDX ##############
+
+      # Send control request to Bind UDX SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="1" elmnt="STUDXSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+      
+      <tapa.expset>
+         # Expect Unsolicitated status Indication
+         <tapa.lkw.staind inst="1" event="11" cause="258"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      ############# CONTROL REQUEST TO BIND UDX END ##########
+
+
+      ########################################################
+      #           RLC - DL
+      ########################################################
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.bndreq inst="0" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="0" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send KWU PDCP Bind Request
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.send>
+         <tapa.kwu.bndreq inst="0" spId="1" suId="0" entity="ENTPJ"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="0" entity="ENTPJ"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND RGU ##############
+
+      # Send control request to Bind RGU SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="0" elmnt="STRGUSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Bind Request From RLC
+         <tapa.dummy.rgu.bndreq inst="0" spId="0" suId="0"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="0" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      # Expect Bind Confirm to RLC
+      <tapa.send>
+         <tapa.dummy.rgu.bndcfm inst="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Unsolicitated status Indication
+      <tapa.expect>
+         <tapa.lkw.staind inst="0" event="11" cause="258"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND RGU END ##########
+
+      #Pradeep - end
+      
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.kw.ubnd
+#
+#       Desc:    Command to Unbind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.ubnd">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Unbinding the CKW, KWU and RGU interfaces."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+   ########################################################
+   #           UNBINDING START
+   ########################################################
+
+      ########################################################
+      #          RLC-UL UNBINDING
+      ########################################################
+      
+      # Send CKW Bind Request
+      <tapa.send>
+         <tapa.ckw.ubndreq inst="1" reason="5"/>
+      </tapa.send>
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.ubndreq inst="1" reason="5" entity="ENTNH"/>
+      </tapa.send>
+
+      # Send KWU PDCP Bind Request
+      <tapa.send>
+         <tapa.kwu.ubndreq inst="1" reason="5" entity="ENTPJ"/>
+      </tapa.send>
+
+      ########################################################
+      #          RLC-DL UNBINDING
+      ########################################################
+      
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.ubndreq inst="0" reason="5" entity="ENTNH"/>
+      </tapa.send>
+
+      # Send KWU PDCP Bind Request
+      <tapa.send>
+         <tapa.kwu.ubndreq inst="0" reason="5" entity="ENTPJ"/>
+      </tapa.send>
+      
+   ########################################################
+   #           UNBINDING END
+   ########################################################
+
+      <tapa.delay delay="2"/>
+      
+   </tapa.steps>
+
+</tapa.command>
+
+
+#
+#
+#       Command: tapa.kw.init
+#
+#       Desc:    Command to configure the layer manager
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.init">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure the RLC Layer Manager."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      # Pradeep - start. pass instance Id also to identify the RLC UL/DL instance
+      # Send General Configuration Request for RLC-DL
+      <tapa.send>
+         <tapa.lkw.gencfg inst="0" rlcMode="1" maxUe="3" maxKwuSaps="2" idleIntv="15"
+            timeRes="1" /> 
+      </tapa.send>
+      # Pradeep - end
+      
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Pradeep - start. pass instance Id also to identify the RLC UL/DL instance
+      # Send General Configuration Request for RLC-UL
+      <tapa.send>
+         <tapa.lkw.gencfg inst="1" rlcMode="2" maxUe="3" maxKwuSaps="2" idleIntv="15"
+            timeRes="1" /> 
+      </tapa.send>
+      
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+      # Pradeep - end
+      
+      ################## SAP CONFIGURATION START RLC-UL#################
+
+      # Send CKW SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STCKWSAP" ent="ENTNH" sapId="KWAC_CKW_SAP" inst="1"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTNH" sapId="KWAC_NH_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect KWU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTPJ" sapId="KWAC_PJ_SAP"
+            selector="2" inst="1"/>
+      </tapa.send>
+
+      # Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send RGU SAP MAC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STRGUSAP" ent="ENTRG" sapId="KWAC_RG_SAP" inst="1"/>
+      </tapa.send>
+
+      # Expect RGU SAP MAC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Pradeep - start. UDX interface
+      # Send UDX SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STUDXSAP" ent="ENTKW" sapId="KWAC_UDX_SAP" inst="1"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+      # Pradeep - end
+      ################## SAP CONFIGURATION END RLC-UL#################
+
+      ################## SAP CONFIGURATION START RLC-DL#################
+
+
+      # Send KWU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTNH" sapId="KWAC_NH_SAP"
+            selector="1" inst="0"/>
+      </tapa.send>
+
+      # Expect KWU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTPJ" sapId="KWAC_PJ_SAP"
+            selector="2" inst="0"/>
+      </tapa.send>
+
+      # Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send RGU SAP MAC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STRGUSAP" ent="ENTRG" sapId="KWAC_RG_SAP" inst="0"/>
+      </tapa.send>
+
+      # Expect RGU SAP MAC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+      
+      # Pradeep - start. UDX interface
+      # Send UDX SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STUDXSAP" ent="ENTKW" sapId="KWAC_UDX_SAP" inst="0"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+      # Pradeep - end
+      ################## SAP CONFIGURATION END RLC-DL#################
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.kw.bnd/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.kw.deinit
+#
+#       Desc:    Command to perform shutdown for TUCL.
+#
+#       Notes:   None
+#              
+#       Module: 
+#
+#       File:    kwac_cmd1.xml
+#
+#
+
+<tapa.command id="tapa.kw.deinit">
+   
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Shutdown RLC stack and Acceptance Dummy (RRC, PDCP, MAC) layers."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Steps subsection
+   <tapa.steps>
+
+      # Unbind SAPs
+      <tapa.kw.ubnd/>
+
+      # Send Control Confirm with Bind Confirm
+      <tapa.send>
+         <tapa.lkw.cntrlshutdown/>
+      </tapa.send>
+
+      # Send Shutdonw to KW Test Engine
+      <tapa.send>
+         <tapa.kwac.shutdown/>
+      </tapa.send>
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.kw.init1
+#
+#       Desc:    Command to configure the layer manager with debug print enabled
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.init1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure the RLC Layer Manager with debug prints enabled."
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+     #kw002.201 
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lkw.gencfg maxUe="3" maxKwuSaps="2" idleIntv="15"
+            timeRes="1" />
+      </tapa.send>
+
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION START #################
+
+      # Send CKW SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STCKWSAP" ent="ENTSM" sapId="KWAC_RRC_SAP"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTNH" sapId="KWAC_NH_SAP"
+            selector="1"/>
+      </tapa.send>
+
+      # Expect KWU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTPJ" sapId="KWAC_PJ_SAP"
+            selector="2"/>
+      </tapa.send>
+
+      # Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send RGU SAP MAC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STRGUSAP" ent="ENTRG" sapId="KWAC_RG_SAP"/>
+      </tapa.send>
+
+      # Expect RGU SAP MAC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION END #################
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.kw.bnd/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+      ########################################################
+      #             Debug Print Enable START
+      ########################################################
+
+      <tapa.send>
+         <tapa.lkw.dbgcntrlreq isEnable="1" dbgMask="16832"/>
+      </tapa.send>
+
+      <tapa.expect>
+          <tapa.lkw.cntrlcfm />
+      </tapa.expect>
+
+      ########################################################
+      #             Debug Print Enable END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.kw.init2
+#
+#       Desc:    Command to configure the layer manager to verify bind timer
+#       expiry
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.init2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Configure the RLC Layer Manager with once bind timer expiry"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      # Send General Configuration Request
+      <tapa.send>
+         <tapa.lkw.gencfg  inst="0" rlcMode="1" maxUe="3" maxKwuSaps="2" idleIntv="15"
+            timeRes="1" />
+      </tapa.send>
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send General Configuration Request for RLC-UL
+      <tapa.send>
+         <tapa.lkw.gencfg inst="1" rlcMode="2" maxUe="3" maxKwuSaps="2" idleIntv="15"
+            timeRes="1" />
+      </tapa.send>
+
+      ########################################################
+      #           CONFIGURATION START
+      ########################################################
+
+      # Expect General Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION START #################
+
+      ################## SAP CONFIGURATION START RLC-UL###########
+
+      # Send CKW SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg inst="1" elmnt="STCKWSAP" ent="ENTNH" sapId="KWAC_CKW_SAP" />
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTNH" sapId="KWAC_NH_SAP"
+            selector="1" inst="1"/>
+      </tapa.send>
+
+      # Expect KWU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTPJ" sapId="KWAC_PJ_SAP"
+            selector="2" inst="1"/>
+      </tapa.send>
+
+      # Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send RGU SAP MAC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STRGUSAP" ent="ENTRG" sapId="KWAC_RG_SAP" inst="1" bndTmrIntvl="1000"/>
+      </tapa.send>
+
+      # Expect RGU SAP MAC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send UDX SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STUDXSAP" ent="ENTKW" sapId="KWAC_UDX_SAP" inst="1"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="1" status="0" reason="0"/>
+      </tapa.expect>
+
+
+
+      ################## SAP CONFIGURATION START RLC-DL###########
+      
+      # Send KWU SAP RRC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTNH" sapId="KWAC_NH_SAP"
+            selector="1" inst="0"/>
+      </tapa.send>
+
+      # Expect KWU SAP RRC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send KWU SAP PDCP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STKWUSAP" ent="ENTPJ" sapId="KWAC_PJ_SAP"
+            selector="2" inst="0"/>
+      </tapa.send>
+
+      # Expect KWU SAP PDCP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Send RGU SAP MAC Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STRGUSAP" ent="ENTRG" sapId="KWAC_RG_SAP" inst="0" bndTmrIntvl="1000"/>
+      </tapa.send>
+
+      # Expect RGU SAP MAC Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      # Pradeep - start. UDX interface
+      # Send UDX SAP Configuration Request
+      <tapa.send>
+         <tapa.lkw.sapcfg elmnt="STUDXSAP" ent="ENTKW" sapId="KWAC_UDX_SAP" inst="0"/>
+      </tapa.send>
+
+      # Expect SAP Configuration Confirm
+      <tapa.expect>
+         <tapa.lkw.cfgcfm inst="0" status="0" reason="0"/>
+      </tapa.expect>
+
+      ################## SAP CONFIGURATION END #################
+
+      ########################################################
+      #                 CONFIGURATION END
+      ########################################################
+
+      ########################################################
+      #                 BINDING START
+      ########################################################
+
+      <tapa.kw.bnd1/>
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+#
+#
+#       Command: tapa.kw.bnd1
+#
+#       Desc:    Command to Bind the interfaces CKW, KWU and RGU
+#
+#       Notes:   None
+#              
+#       Module:  RLC
+#
+#       File:    kwac_cmd1.xml
+#
+#
+<tapa.command id="tapa.kw.bnd1">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Binding the CKW, KWU and RGU with RGU bind time expiry"
+      </tapa.desc>
+
+      <tapa.longdesc/>
+         
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+      ########################################################
+      #           BINDING START
+      ########################################################
+
+      ########################################################
+      #           RLC - UL
+      ########################################################
+     
+      # Send CKW Bind Request
+      <tapa.send>
+         <tapa.ckw.bndreq inst="1" spId="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.ckw.bndcfm inst="1"/>
+      </tapa.expect>
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.bndreq inst="1" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="1" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send KWU PDCP Bind Request
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.send>
+         <tapa.kwu.bndreq inst="1" spId="1" suId="0" entity="ENTPJ"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="1" entity="ENTPJ"/>
+      </tapa.expect>
+
+#Pradeep - start trial
+   <tapa.send>
+      <tapa.lkw.ustacntrlreq inst="0" isEnable="1"/>
+   </tapa.send>
+
+   <tapa.expect>
+       <tapa.lkw.cntrlcfm inst="0"/>
+   </tapa.expect>
+
+   <tapa.delay delay="2"/>
+
+   <tapa.send>
+      <tapa.lkw.ustacntrlreq inst="1" isEnable="1"/>
+   </tapa.send>
+
+   <tapa.expect>
+       <tapa.lkw.cntrlcfm inst="1"/>
+   </tapa.expect>
+
+#Pradeep - end trial
+      ############# CONTROL REQUEST TO BIND RGU ##############
+
+      # Send control request to Bind RGU SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="1" elmnt="STRGUSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Bind Request From RLC
+         <tapa.dummy.rgu.bndreq inst="1" spId="0" suId="0"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+      <!--
+      # Put delay to bind timer expiry
+      <tapa.delay delay="4"/>
+
+      <tapa.expect>
+         # Expect Bind Request From RLC
+         <tapa.dummy.rgu.bndreq inst="1" spId="0" suId="0"/>
+      </tapa.expect>   -->
+      
+      # Expect Bind Confirm to RLC
+      <tapa.send>
+         <tapa.dummy.rgu.bndcfm inst="1" suId="0"/>
+      </tapa.send>
+      # Put delay to get staInd
+      <tapa.delay delay="10"/>
+      
+      # Expect Unsolicitated status Indication
+      <tapa.expect>
+         <tapa.lkw.staind inst="1" event="11" cause="258"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND RGU END ##########
+
+      ############# CONTROL REQUEST TO BIND UDX ##############
+
+      # Send control request to Bind UDX SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="1" elmnt="STUDXSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Unsolicitated status Indication
+         <tapa.lkw.staind inst="1" event="11" cause="258"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="1" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      ############# CONTROL REQUEST TO BIND UDX END ##########
+
+      ########################################################
+      #           RLC - DL
+      ########################################################
+
+      # Send KWU RRC Bind Request
+      <tapa.send>
+         <tapa.kwu.bndreq inst="0" spId="0" suId="0" entity="ENTNH"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="0" entity="ENTNH"/>
+      </tapa.expect>
+
+      # Send KWU PDCP Bind Request
+      # By default sucess status="1"
+      # For failure expect status="2"
+      <tapa.send>
+         <tapa.kwu.bndreq inst="0" spId="1" suId="0" entity="ENTPJ"/>
+      </tapa.send>
+
+      # Expect Bind Confirm
+      <tapa.expect>
+         <tapa.kwu.bndcfm inst="0" entity="ENTPJ"/>
+      </tapa.expect>
+
+       ############# CONTROL REQUEST TO BIND RGU ##############
+
+      # Send control request to Bind RGU SAP
+      <tapa.send>
+         <tapa.lkw.sapcntrlreq inst="0" elmnt="STRGUSAP" action="ABND" spId="0" suId="0"/>
+      </tapa.send>
+
+      <tapa.expset>
+         # Expect Bind Request From RLC
+         <tapa.dummy.rgu.bndreq inst="0" spId="0" suId="0"/>
+         # Expect Control Confirm with Bind Confirm
+         <tapa.lkw.cntrlcfm inst="0" status="LCM_PRIM_OK"/>
+      </tapa.expset>
+
+      # Expect Bind Confirm to RLC
+      <tapa.send>
+         <tapa.dummy.rgu.bndcfm inst="0" suId="0"/>
+      </tapa.send>
+
+      # Expect Unsolicitated status Indication
+      <tapa.expect>
+         <tapa.lkw.staind inst="0" event="11" cause="258"/>
+      </tapa.expect>
+
+      ############# CONTROL REQUEST TO BIND RGU END ##########
+
+      ########################################################
+      #                 BINDING END
+      ########################################################
+
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+#
+#       Command: tapa.delue1N2
+#
+#       Desc:    Delete UE1 And UE2 from RLC
+#
+#       Notes:   None
+#
+#       Module:  PDCP
+#
+#       File:    kwac_cmd9.xml
+#
+#
+<tapa.command id="tapa.delue1N2">
+
+   # Document subsection
+   <tapa.doc>
+
+      <tapa.desc>
+         "Delete UE1 and UE2 from RLC "
+      </tapa.desc>
+
+      <tapa.longdesc/>
+
+   </tapa.doc>
+
+   # Test Steps subsection
+   <tapa.steps>
+
+   # Delete UE1 and UE2 from RLC Layer 
+
+      <tapa.send>
+         <tapa.ckw.cfgreq ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+         />
+      </tapa.send>
+      #Expect a config confirm 
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="1" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+         />
+      </tapa.expect>
+       <tapa.send>
+         <tapa.ckw.cfgreq ueId="2" cellId="1" numEnt="1"
+            rbId="1"
+            cfgType="5"
+         />
+      </tapa.send>
+      #Expect a config confirm 
+      <tapa.expect>
+         <tapa.ckw.cfgcfm ueId="2" cellId="1" numEnt="1"
+            rbId="1"
+            status="1"
+            reason="0"
+         />
+      </tapa.expect>
+   </tapa.steps>
+
+</tapa.command>
+
+
+
+
+
+# DO NOT DELETE THIS LINE -- TC number generation script depends on it.
+# xyzabcend
+
+#/********************************************************************30**
+#
+#         End of file:     $SID$
+#
+#*********************************************************************31*/
+#
+#
+#/********************************************************************40**
+#
+#        Notes:
+#
+#*********************************************************************41*/
+#
+#/********************************************************************50**
+#
+#*********************************************************************51*/
+#
+#
+#/********************************************************************60**
+#
+#        Revision history:
+#
+#*********************************************************************61*/
+#
+#/********************************************************************90**
+#
+#     ver       pat    init                  description
+#------------ -------- ---- ----------------------------------------------
+#/main/1         ---     gk   1. Initial Release.
+#$SID$           ---     gk   1. LTERLC Release 2.1.
+#/main/2      kw002.201   vp  1. Patch for optimization,fixes for multi-region
+#                                 and retransmission.
+#/main/3      kw005.201  ap   1. Updated for kw005.201 patch
+#*********************************************************************91*/

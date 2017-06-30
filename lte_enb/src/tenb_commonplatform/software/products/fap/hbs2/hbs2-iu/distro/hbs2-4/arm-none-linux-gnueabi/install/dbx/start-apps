@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# $LastChangedRevision: 29169 $
+#
+# This script is called by dbxstart at start up or
+# may be run on its own manually.
+#
+
+FLASH_DIR=/mnt
+FLASH_DIR_ACTIVE_BANK=$FLASH_DIR/bank-active
+FLASH_DIR_APPS=$FLASH_DIR_ACTIVE_BANK/dbx
+FLASH_DIR_LOCAL_CFG=$FLASH_DIR_ACTIVE_BANK/config
+FLASH_DIR_COMMON_CFG=$FLASH_DIR/config
+FLASH_DIR_FPGA=$FLASH_DIR_ACTIVE_BANK/fpga
+RUNTIME_DIR=/dbx
+TRACE_DIR=/dbx/trace
+HWTYPE=`$FLASH_DIR_APPS/mib-firkler -q HARDWARE_TYPE`
+CONFIG_PRESENT=0
+if [ -f $FLASH_DIR_COMMON_CFG/eth0_ip_address ]; then
+  CONFIG_PRESENT=1
+fi
+
+##############################################################################
+
+if [ "$HWTYPE" == "5" ] ; then
+  # Load REM FPGA image ready for apps
+  $FLASH_DIR_APPS/load-fpgas rem
+fi
+
+cd $RUNTIME_DIR
+
+# Start the logging daemon
+if [ "$HWTYPE" != "5" ] ; then
+  $FLASH_DIR_APPS/clogd
+fi
+
+# Export HOME so net-snmp can pick up /root/.snmp/3waysnmp.conf
+export HOME=/root
+
+###
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/post-kernel-boot-actions
+
+if [ -x $FLASH_DIR_APPS/hook-pre-apps ]; then
+    $FLASH_DIR_APPS/hook-pre-apps
+fi
+
+#$FLASH_DIR_APPS/mem-monitor &
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/post-office --forever
+sleep 1
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/tenpin
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/watchdogd
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam-rem
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/l1 -msg
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam
+#gdbserver 172.18.16.172:1234 /mnt/dbx/oam
+sleep 1
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/rrc
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/rrm
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/iu
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/cs-user-plane
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/ps-user-plane
+# The following is disabled by default, can be run manually
+#  $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/oam-snmp
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/service-api
+
+# Encoded similar to IpAddr 
+# SR2.0 == 2.0.0.0 == 0x02000000 == 33554432
+# SR2.1 == 2.1.0.0 == 0x02010000 == 33619968
+SOFTWARE_RELEASE=`$FLASH_DIR_APPS/mib-firkler -q SOFTWARE_RELEASE`
+
+if [ $SOFTWARE_RELEASE -lt 33619968 ]; then 
+    $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/tr069
+else
+    $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/tr069-v2
+fi
+
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/ntp-client
+$FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/sw-update
+if [ -f $FLASH_DIR_APPS/gps ]; then
+  $FLASH_DIR_APPS/run-app $FLASH_DIR_APPS/gps
+fi
+
+# Execute script to create list of processes in dbx/trace
+chmod +x ./get-proc-addr
+./get-proc-addr &
+
+# Set "execute" bit on cli app (and I guess any other "utility" executables...)
+chmod +x $FLASH_DIR_APPS/cli
+
+if [ -x $FLASH_DIR_APPS/hook-post-apps ]; then
+    $FLASH_DIR_APPS/hook-post-apps
+fi

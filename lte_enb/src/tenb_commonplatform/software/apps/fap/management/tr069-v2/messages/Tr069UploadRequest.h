@@ -1,0 +1,83 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Tr069UploadRequest.h
+//
+// Copyright radisys Limited
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef __Tr069UploadRequest_h_
+#define __Tr069UploadRequest_h_
+
+///////////////////////////////////////////////////////////////////////////////
+// System Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include <string>
+
+///////////////////////////////////////////////////////////////////////////////
+// Local Includes
+///////////////////////////////////////////////////////////////////////////////
+
+#include "Tr069QueueableEvent.h"
+#include "Tr069FtpFile.h"
+
+namespace tr069
+{
+
+///////////////////////////////////////////////////////////////////////////////
+// Constants
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Typedefs
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Forward Declarations
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Functions / Classes
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+class UploadRequest : public tr069::Tr069QueueableEvent
+{
+public:
+
+    UploadRequest(
+            const std::string & commandKey,
+            shared_ptr<FtpFile> ftpFile,
+            u32 ftpTimeout,
+            const std::string & fileUrl,
+            const std::string & username,
+            const std::string & password,
+            const std::string & localDirectory = "/mnt/tmp/");
+    virtual ~UploadRequest(){}
+
+    const std::string & GetCommandKey() const { return m_commandKey; }
+    shared_ptr<FtpFile> GetFtpFile() const { return m_ftpFile; }
+    u32 GetFtpTimeout() const { return m_ftpTimeout; }
+    const std::string & GetUsername() const { return m_username; }
+    const std::string & GetPassword() const { return m_password; }
+    const std::string & GetLocalDirectory() const { return m_localDirectory; }
+    const std::string & GetRemoteDirectory() const { return m_remoteDirectory; }
+    const std::string & GetFilename() const { return m_filename; }
+
+private:
+    std::string m_commandKey;
+    shared_ptr<FtpFile> m_ftpFile;
+    u32 m_ftpTimeout;
+    std::string m_username;
+    std::string m_password;
+    std::string m_localDirectory;
+    std::string m_remoteDirectory;
+    std::string m_filename;
+};
+
+}
+
+#endif
