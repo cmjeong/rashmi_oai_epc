@@ -118,19 +118,21 @@ PUBLIC S16 NbHandleInitialUeMsg
    datEvt.peerId.val  = nbCb.mmeInfo.mmeId;
    datEvt.u.suConnId  = suConId;
  
-   if (NbIfmS1apConReq(&datEvt) != ROK)
-   {
-      NB_FREE(ueCb, sizeof(NbUeCb))
-      NB_FREE(s1apConCb, sizeof(NbS1ConCb));
-      NB_LOG_ERROR(&nbCb, "Failure in sending the SZT CON REQ");
-      RETVALUE(RFAILED);
-   }
    if (ROK != cmHashListInsert(&(nbCb.ueCbLst),(PTR)ueCb,
                      (U8 *) &ueCb->ueId,sizeof(U8)))
    {
       NB_FREE(ueCb, sizeof(NbUeCb))
       NB_FREE(s1apConCb, sizeof(NbS1ConCb));
       NB_LOG_ERROR(&nbCb, "Failed to Insert UE into UeCbLst[%d]",initialUeMsg->ueId);
+      RETVALUE(RFAILED);
+   }
+   if (NbIfmS1apConReq(&datEvt) != ROK)
+   {
+      cmHashListDeinit(&(ueCb->tunnInfo));
+      cmHashListDelete(&(nbCb.ueCbLst), (PTR)ueCb);
+      NB_FREE(ueCb, sizeof(NbUeCb))
+      NB_FREE(s1apConCb, sizeof(NbS1ConCb));
+      NB_LOG_ERROR(&nbCb, "Failure in sending the SZT CON REQ");
       RETVALUE(RFAILED);
    }
 
@@ -304,14 +306,14 @@ PUBLIC S16 nbSendErabsInfo
 
 PUBLIC S16 nbSendS1RelIndToUeApp
 (
- NbUeCb *ueCb
+ U8 ueId
 )
 {
    S16 ret = ROK;
    NbuS1RelInd *msg = NULLP;
 
    NB_ALLOC(&msg, sizeof(NbuS1RelInd));
-   msg->ueId = ueCb->ueId;
+   msg->ueId = ueId;
 
    /* pack and send to ue */
    ret = cmPkNbuS1RelInd(&nbCb.ueAppPst, msg);

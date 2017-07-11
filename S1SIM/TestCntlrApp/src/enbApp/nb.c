@@ -520,6 +520,8 @@ PUBLIC S16 nbDelUeCb(U8 ueId)
                ueId);
    }
    nbRelCntxtInTrafficHandler(ueId); 
+   /* Inform the Tfw about UE context release */
+   ret = nbUiSendUeCtxRelIndToUser(ueId);
    RETVALUE(ret);
 }
 

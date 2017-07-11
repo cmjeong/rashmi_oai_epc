@@ -613,7 +613,7 @@ EXTERN S16 nbUiBuildAndSendPagingMsg(NbPagingMsgInfo *pagMsgInfo);
 EXTERN S16 nbSendInitCtxtSetupRcvInd(NbUeCb *ueCb, NbErabLst *erabInfo,
       Bool ueRadCapRcvd);
 
-EXTERN S16 nbSendS1RelIndToUeApp(NbUeCb *ueCb);
+EXTERN S16 nbSendS1RelIndToUeApp(U8 ueId);
 
 EXTERN S16 nbBuildAndSendS1SetupReq(NbMmeId mmeId);
 

@@ -275,7 +275,7 @@ PUBLIC S16 nbBuildAndSendS1AbortReq
       NB_LOG_DEBUG(&nbCb, "Found ueCb->ueId=%d in HashList", ueCb->ueId);
       /* Inform the UeApp about UE context release */
       NB_LOG_DEBUG(&nbCb, "Inform UE to release context");
-      ret = nbSendS1RelIndToUeApp(ueCb);
+      ret = nbSendS1RelIndToUeApp(ueCb->ueId);
       if (ret != ROK)
       {
          NB_LOG_ERROR(&nbCb, "Failed to send Release Indication to UeApp");
@@ -349,7 +349,7 @@ PUBLIC S16 nbBuildAndSendS1ShutdownReq
       NB_LOG_DEBUG(&nbCb, "Found ueCb->ueId=%d in HashList", ueCb->ueId);
       /* Inform the UeApp about UE context release */
       NB_LOG_DEBUG(&nbCb, "Inform UE to release context");
-      ret = nbSendS1RelIndToUeApp(ueCb);
+      ret = nbSendS1RelIndToUeApp(ueCb->ueId);
       if (ret != ROK)
       {
          NB_LOG_ERROR(&nbCb, "Failed to send Release Indication to UeApp");
@@ -2139,15 +2139,17 @@ PUBLIC S16 nbPrcIncS1apMsg(NbUeCb *ueCb, S1apPdu *pdu, U8 msgType)
       if(ret == ROK)
       {
          /* Inform the ueApp about UE context release */
-         ret = nbSendS1RelIndToUeApp(ueCb);
+         ret = nbSendS1RelIndToUeApp(ueCb->ueId);
          if(ret != ROK)
          {
             NB_LOG_ERROR(&nbCb, "Failed to Send S1 Release Indiaction "\
                   "to ueApp");
          }
+ #if 0
+
          /* Inform the Tfw about UE context release */
          ret = nbUiSendUeCtxRelIndToUser(ueCb->ueId);
-
+#endif
          /* trigger ueCb deletion in enbApp */
          ret = nbIfmDamUeDelReq(ueCb->ueId);
       }
