@@ -12,6 +12,7 @@
      Prg:      
 
 **********************************************************************/
+#include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -31,6 +32,8 @@
 #include "ts_utls.x"
 #include "ts_timer_queue.h"
 #include "ts_timer_thread.h"
+
+#define PID_FILE "/var/run/s1sim.pid"
 
 char noTauComplete; /* If 1, don't send TAU complete */
 char requestedIdType; /* Requested mobile ID type in IDENTITY REQUEST message */
@@ -548,12 +551,30 @@ int main(int argc, char *argv[])
             tsSendAttachRequest(id);
             sleep(1);
          }
+         unsigned int attempts = 0;
+         int fd;
+         do {
+            sleep((1 << attempts++) - 1);
+            fd = open(PID_FILE, O_CREAT | O_EXCL | O_WRONLY);
+         } while (-1 == fd);
+         {
+            char pid[32];
+            sprintf(pid, "%d", getpid());
+            write(fd, pid, strlen(pid));
+         }
          for (id = 1; id <= noOfUe; id++)
          {
             tsStartUlData(id);
             sleep(1);
          }
-         sleep(130);
+         int i;
+         for (i = 0; i < 13 && fopen(PID_FILE, "r"); i++) {
+            sleep(10);
+         }
+         if (fopen(PID_FILE, "r")) {
+            close(fd);
+            unlink(PID_FILE);
+         }
          for(id = 1; id <= noOfUe; id++)
          {
             tsSendDetachRequest(id, UE_SWITCHOFF_DETACH, UE_IN_CONNECTED_MODE);
@@ -572,12 +593,25 @@ int main(int argc, char *argv[])
             tsSendAttachRequest(id);
             sleep(1);
          }
+         unsigned int attempts = 0;
+         int fd;
+         do {
+            sleep((1 << attempts++) - 1);
+            fd = open(PID_FILE, O_CREAT | O_EXCL | O_WRONLY);
+         } while (-1 == fd);
          for (id = 1; id <= noOfUe; id++)
          {
             tsStartDlData(id);
             sleep(1);
          }
-         sleep(130);
+         int i;
+         for (i = 0; i < 13 && fopen(PID_FILE, "r"); i++) {
+            sleep(10);
+         }
+         if (fopen(PID_FILE, "r")) {
+            close(fd);
+            unlink(PID_FILE);
+         }
          for (id = 1; id <= noOfUe; id++)
          {
             tsSendDetachRequest(id, UE_SWITCHOFF_DETACH, UE_IN_CONNECTED_MODE);
