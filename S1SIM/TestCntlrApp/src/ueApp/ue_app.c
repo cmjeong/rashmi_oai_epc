@@ -116,9 +116,9 @@ PRIVATE S16 ueAppSndAuthResponse(UeCb *ueCb, UeSQN sqnRcvd,UeSQN maxSqnRcvd);
 PRIVATE S16 ueProcUeIdentResp(UetMessage *tfwMsg, Pst *pst);
 PRIVATE S16 ueProcUeAuthResp(UetMessage *tfwMsg, Pst *pst);
 PRIVATE S16 ueAppUtlBldPdnConReq(UeCb *ueCb, 
-	        CmNasEvnt **esmEvnt, UeEsmProtCfgOpt *protCfgOpt);
+	        CmNasEvnt **esmEvnt, UeEsmProtCfgOpt *protCfgOpt, U32 pdnType);
 PRIVATE S16 ueAppUtlBldAttachReq(UeCb*, CmNasEvnt**, U8, U8,U8,
-	        UeEmmNasAddUpdType*,UeEsmProtCfgOpt*,UeEmmDrxPrm*);
+	        UeEmmNasAddUpdType*,UeEsmProtCfgOpt*,UeEmmDrxPrm*, U32 pdnType);
 PRIVATE S16 ueAppEsmHndlOutActDefBearerAcc(UeEsmCb *esmCb, CmNasEvnt *evnt);
 PRIVATE S16 ueAppEsmHndlOutActDedBearerAcc(UeEsmCb *esmCb, CmNasEvnt *evnt);
 PRIVATE S16 ueAppEsmHndlOutActDedBearerRej(UeEsmCb *esmCb, CmNasEvnt *evnt);
@@ -847,7 +847,8 @@ PRIVATE S16 ueAppUtlBldPdnConReq
 (
  UeCb *ueCb,
  CmNasEvnt **esmEvnt,
- UeEsmProtCfgOpt *protCfgOpt
+ UeEsmProtCfgOpt *protCfgOpt,
+ U32   pdnType
 )
 {
    CmEsmMsg *msg = NULLP;
@@ -901,7 +902,7 @@ PRIVATE S16 ueAppUtlBldPdnConReq
 
    /* PDN type IE*/
    msg->u.conReq.pdnType.pres = TRUE;
-   msg->u.conReq.pdnType.val = CM_ESM_PDN_IPV4;
+   msg->u.conReq.pdnType.val = pdnType;
 
    /* protocol configuration options */
    if(protCfgOpt->pres == TRUE)
@@ -955,7 +956,8 @@ PRIVATE S16 ueAppUtlBldAttachReq
  U8 epsAttachType,
  UeEmmNasAddUpdType *addUpdType,
  UeEsmProtCfgOpt *protCfgOpt,
- UeEmmDrxPrm *drxParm
+ UeEmmDrxPrm *drxParm,
+ U32 pdnType
 )
 {
    S16 ret = ROK;
@@ -1093,7 +1095,7 @@ PRIVATE S16 ueAppUtlBldAttachReq
 	  attachReq->drxPrm.u.drxVal = drxParm->u.drxVal;
 	}
    /*ESM message container IE*/
-   if ((ret = ueAppUtlBldPdnConReq(ueCb, &(attachReq->esmEvnt),protCfgOpt)) != ROK)
+   if ((ret = ueAppUtlBldPdnConReq(ueCb, &(attachReq->esmEvnt),protCfgOpt, pdnType)) != ROK)
    {
       UE_LOG_ERROR(ueAppCb, "Building PDN Connection Request Failed\n"); 
       CM_FREE_NASEVNT(ueEvt);
@@ -1736,6 +1738,7 @@ PRIVATE S16 ueAppEsmHdlOutUeEvnt(CmNasEvnt *evnt, UeCb *ueCb)
  */
 PRIVATE S16 ueProcUeAttachReq(UetMessage *p_ueMsg, Pst *pst)
 {
+   U32 pdnType;
    U8 isPlainMsg = TRUE;
    U8 mIdType, useOldSecCtxt, epsAtchType;
    UeEmmNasAddUpdType *addUpdType;
@@ -1763,6 +1766,7 @@ PRIVATE S16 ueProcUeAttachReq(UetMessage *p_ueMsg, Pst *pst)
    protCfgOpt = &(p_ueMsg->msg.ueUetAttachReq.protCfgOpt);
    drxParm = &(p_ueMsg->msg.ueUetAttachReq.drxParm);
    epsAtchType =  p_ueMsg->msg.ueUetAttachReq.epsAtchType.type;
+   pdnType = p_ueMsg->msg.ueUetAttachReq.pdnType;
 
    /* Fetching the UeCb */
    ret = ueDbmFetchUe(ueId, (PTR*)&ueCb);
@@ -1773,7 +1777,7 @@ PRIVATE S16 ueProcUeAttachReq(UetMessage *p_ueMsg, Pst *pst)
    }
 
    ret = ueAppUtlBldAttachReq(ueCb,&attachReqEvnt, mIdType, useOldSecCtxt, epsAtchType,\
-   	                       addUpdType, protCfgOpt, drxParm);
+   	                       addUpdType, protCfgOpt, drxParm, pdnType);
    if (ret != ROK)
    {
       UE_LOG_ERROR(ueAppCb, "Attach Request Building failed");
